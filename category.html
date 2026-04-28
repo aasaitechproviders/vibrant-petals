@@ -17,10 +17,7 @@
     ul{list-style:none;}
     button{cursor:pointer;border:none;background:none;font-family:inherit;}
 
-    /* ANN BAR */
     .ann-bar{background:var(--gold);color:#fff;text-align:center;font-size:13px;letter-spacing:.06em;height:var(--bar-h);display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:200;}
-
-    /* NAV */
     header{position:sticky;top:var(--bar-h);z-index:190;background:#fff;border-bottom:1px solid #e8e0d2;height:var(--nav-h);}
     .nav-inner{max-width:1280px;margin:0 auto;padding:0 32px;height:100%;display:flex;align-items:center;justify-content:space-between;}
     .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--dark);}
@@ -40,26 +37,18 @@
     .nav-icon-btn svg{width:22px;height:22px;stroke-width:1.6;}
     .badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
 
-    /* HERO BANNER */
     .cat-hero{position:relative;height:280px;overflow:hidden;background:#d6e4ed;}
     .cat-hero img{width:100%;height:100%;object-fit:cover;filter:brightness(.7);}
     .cat-hero-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:42px;font-style:italic;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,.4);letter-spacing:.02em;}
 
-    /* BODY LAYOUT */
     .shop-layout{max-width:1280px;margin:0 auto;padding:40px 32px;display:grid;grid-template-columns:220px 1fr;gap:40px;}
-
-    /* SIDEBAR */
-    .sidebar{}
     .sidebar-section{margin-bottom:32px;}
     .sidebar-title{font-size:14px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e8e0d2;}
-    .cat-list{}
     .cat-list li{padding:7px 0;border-bottom:1px solid #f0ebe0;}
     .cat-list li a{font-size:14px;color:var(--mid);display:flex;justify-content:space-between;transition:color .2s;}
     .cat-list li a:hover,.cat-list li a.active{color:var(--gold);font-weight:700;}
     .cat-list li a span{color:#aaa;font-size:12px;}
 
-    /* MAIN */
-    .shop-main{}
     .shop-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
     .results-count{font-size:14px;color:var(--mid);}
     .toolbar-right{display:flex;align-items:center;gap:14px;}
@@ -68,12 +57,10 @@
     .sort-select{padding:8px 14px;border:1px solid #ddd;font-family:inherit;font-size:13px;outline:none;background:#fff;cursor:pointer;}
     .sort-select:focus{border-color:var(--gold);}
 
-    /* PRODUCT GRID */
     .products-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
     .products-grid.cols-3{grid-template-columns:repeat(3,1fr);}
     .products-grid.list-view{grid-template-columns:1fr;}
 
-    /* PRODUCT CARD */
     .product-card{cursor:pointer;}
     .product-card-inner{position:relative;background:var(--card-bg);border-radius:var(--radius);overflow:hidden;}
     .product-img-wrap{position:relative;aspect-ratio:1;overflow:hidden;}
@@ -91,24 +78,20 @@
     .product-name{font-size:14px;color:var(--dark);margin-bottom:4px;}
     .product-price{font-size:13px;color:var(--mid);}
 
-    /* LIST VIEW CARD */
     .products-grid.list-view .product-card{display:flex;gap:20px;align-items:flex-start;}
     .products-grid.list-view .product-card-inner{flex:0 0 200px;height:200px;}
     .products-grid.list-view .product-img-wrap{aspect-ratio:unset;height:100%;}
     .products-grid.list-view .product-info{padding:8px 0;flex:1;}
     .products-grid.list-view .product-name{font-size:16px;margin-bottom:8px;}
 
-    /* PAGINATION */
     .pagination{display:flex;align-items:center;gap:8px;margin-top:40px;justify-content:center;}
     .page-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:1px solid #ddd;font-size:13px;cursor:pointer;transition:background .2s,color .2s;}
     .page-btn:hover,.page-btn.active{background:var(--gold);color:#fff;border-color:var(--gold);}
     .page-btn.disabled{opacity:.4;pointer-events:none;}
 
-    /* SKELETON */
     .skeleton{background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-    /* FOOTER */
     footer{background:var(--cream);border-top:1px solid #e8e0d2;padding:60px 32px 0;}
     .footer-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:60px;padding-bottom:50px;}
     .footer-col-title{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px;}
@@ -126,7 +109,6 @@
     .social-icon:hover{background:var(--gold);color:#fff;border-color:var(--gold);}
     .footer-contact{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--mid);}
 
-    /* OVERLAYS */
     .search-overlay{position:fixed;inset:0;background:rgba(250,247,242,.97);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
     .search-overlay.open{opacity:1;pointer-events:all;}
     .search-close{position:absolute;top:20px;right:24px;font-size:28px;color:var(--dark);cursor:pointer;}
@@ -138,13 +120,12 @@
     .search-result-item:hover{border-color:var(--gold);}
     .search-result-item img{width:50px;height:50px;object-fit:cover;background:var(--card-bg);}
 
-    /* MODAL */
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
     .modal-overlay.open{opacity:1;pointer-events:all;}
     .modal-box{background:#fff;width:min(440px,92vw);border-radius:4px;overflow:hidden;transform:translateY(20px);transition:transform .3s;}
     .modal-overlay.open .modal-box{transform:translateY(0);}
     .modal-head{background:linear-gradient(135deg,#7cbcd4,#9dd0e8);padding:40px 36px 36px;position:relative;}
-    .modal-brand{font-family:'Playfair Display',serif;font-size:24px;color:#fff;display:flex;align-items:center;gap:8px;}
+    .modal-brand{font-family:'Playfair Display',serif;font-size:24px;color:#fff;}
     .modal-head-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:rgba(255,255,255,.9);margin-top:10px;}
     .modal-close{position:absolute;top:14px;right:16px;font-size:22px;color:rgba(255,255,255,.8);cursor:pointer;}
     .modal-body{padding:36px;}
@@ -158,7 +139,6 @@
     .modal-msg{font-size:13px;color:green;text-align:center;margin-top:8px;display:none;}
     .modal-err{font-size:13px;color:#c0392b;text-align:center;margin-top:8px;display:none;}
 
-    /* CART */
     .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:700;opacity:0;pointer-events:none;transition:opacity .3s;}
     .cart-overlay.open{opacity:1;pointer-events:all;}
     .cart-drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,95vw);background:#fff;z-index:710;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-4px 0 40px rgba(0,0,0,.15);}
@@ -180,6 +160,7 @@
     .cart-remove{font-size:18px;color:#aaa;cursor:pointer;align-self:flex-start;}
     .cart-remove:hover{color:#c0392b;}
     .cart-foot{padding:20px 24px;border-top:1px solid #e8e0d2;}
+    .cart-totals{margin-bottom:16px;}
     .cart-total-row{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;color:var(--mid);}
     .cart-total-row.grand{font-weight:700;color:var(--dark);font-size:16px;}
     .btn-checkout{width:100%;padding:16px;background:var(--gold);color:#fff;font-size:14px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);}
@@ -228,32 +209,28 @@
     </nav>
     <div class="nav-icons">
       <button class="nav-icon-btn" id="searchBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></button>
-      <button class="nav-icon-btn" id="loginBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+      <button class="nav-icon-btn" id="loginBtn" onclick="location.href='account.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
       <button class="nav-icon-btn" onclick="location.href='wishlist.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount">0</span></button>
       <button class="nav-icon-btn" id="cartBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="badge" id="cartCount">0</span></button>
     </div>
   </div>
 </header>
 
-<!-- HERO BANNER -->
 <div class="cat-hero">
-  <img id="catHeroImg" src="https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=70" alt="Category"/>
+  <img id="catHeroImg" src="https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=1600&q=70" alt="Shop"/>
   <div class="cat-hero-text" id="catHeroTitle">Shop</div>
 </div>
 
-<!-- MAIN LAYOUT -->
 <div class="shop-layout">
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-section">
       <div class="sidebar-title">Categories</div>
       <ul class="cat-list" id="catList">
-        <li><a href="category.html?cat=all" class="active">All <span id="allCount">–</span></a></li>
+        <li><a href="category.html?cat=all" class="active">All <span>–</span></a></li>
       </ul>
     </div>
   </aside>
 
-  <!-- PRODUCT AREA -->
   <main class="shop-main">
     <div class="shop-toolbar">
       <div class="results-count" id="resultsCount">Loading...</div>
@@ -276,16 +253,11 @@
         </select>
       </div>
     </div>
-
-    <div class="products-grid" id="productsGrid">
-      <!-- skeletons -->
-    </div>
-
+    <div class="products-grid" id="productsGrid"></div>
     <div class="pagination" id="pagination"></div>
   </main>
 </div>
 
-<!-- FOOTER -->
 <footer>
   <div class="footer-grid">
     <div>
@@ -314,7 +286,6 @@
 
 <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
-<!-- SEARCH OVERLAY -->
 <div class="search-overlay" id="searchOverlay">
   <span class="search-close" id="searchClose">✕</span>
   <div class="search-label">What are you looking for?</div>
@@ -322,33 +293,6 @@
   <div class="search-results" id="searchResults"></div>
 </div>
 
-<!-- LOGIN MODAL -->
-<div class="modal-overlay" id="loginModal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <div><div class="modal-brand">✿ Vibrant Petals</div><div class="modal-head-title">Sign In</div></div>
-      <span class="modal-close" id="modalClose">✕</span>
-    </div>
-    <div class="modal-body" id="loginForm">
-      <input type="email" class="modal-input" id="loginEmail" placeholder="Email *"/>
-      <input type="password" class="modal-input" id="loginPwd" placeholder="Password *"/>
-      <a href="#" class="modal-forgot">Lost your password?</a>
-      <button class="btn-signin" id="loginSubmit">Sign In</button>
-      <button class="btn-create" id="showRegister">Create An Account</button>
-      <div class="modal-msg" id="loginMsg"></div><div class="modal-err" id="loginErr"></div>
-    </div>
-    <div class="modal-body" id="registerForm" style="display:none;">
-      <input type="text" class="modal-input" id="regUsername" placeholder="Username *"/>
-      <input type="email" class="modal-input" id="regEmail" placeholder="Email *"/>
-      <input type="password" class="modal-input" id="regPwd" placeholder="Password *"/>
-      <button class="btn-signin" id="regSubmit">Create Account</button>
-      <button class="btn-create" id="showLogin">Back to Sign In</button>
-      <div class="modal-msg" id="regMsg"></div><div class="modal-err" id="regErr"></div>
-    </div>
-  </div>
-</div>
-
-<!-- CART DRAWER -->
 <div class="cart-overlay" id="cartOverlay"></div>
 <div class="cart-drawer" id="cartDrawer">
   <div class="cart-head"><h3>Shopping Cart(<span id="cartCountHead">0</span>)</h3><button id="cartClose" style="font-size:22px;color:var(--mid);">✕</button></div>
@@ -369,62 +313,74 @@
 const API = 'https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
 let token = localStorage.getItem('vp_token')||'';
 let sessionId = localStorage.getItem('vp_session')||'sess_'+Math.random().toString(36).slice(2);
-localStorage.setItem('vp_session',sessionId);
+localStorage.setItem('vp_session', sessionId);
 
 function apiHeaders(auth=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(auth&&token)h['Authorization']='Bearer '+token;return h;}
 async function apiFetch(path,opts={}){const r=await fetch(API+path,opts);return r.json();}
 function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 
-// URL PARAMS
+// ── URL / STATE ───────────────────────────────────────────────────────────────
 const params = new URLSearchParams(location.search);
-let currentCat = params.get('cat')||'all';
-let currentPage = 1;
-let currentSort = 'dateCreated';
+let currentCat   = params.get('cat')||'all';
+let currentPage  = 1;
+let currentSort  = 'dateCreated';
 let currentOrder = 'desc';
-let totalPages = 1;
-const LIMIT = 12;
+let totalPages   = 1;
+const LIMIT      = 12;
 
-// CATEGORY HERO IMAGES
+// KEY FIX: map slug → actual category name returned by API
+// Populated by loadCategories() before loadProducts() runs
+const catNameMap = {};
+
+// ── HERO ──────────────────────────────────────────────────────────────────────
 const heroImgs = {
-  strings: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=70',
-  leaves:  'https://images.unsplash.com/photo-1444930694458-01babf71870c?w=1600&q=70',
-  'loose-flowers': 'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=70',
-  'pooja-garlands': 'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=1600&q=70',
-  'special-occasional-garlands': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=70',
-  all: 'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=1600&q=70',
+  strings:                        'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=70',
+  leaves:                         'https://images.unsplash.com/photo-1444930694458-01babf71870c?w=1600&q=70',
+  'loose-flowers':                'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=70',
+  'pooja-garlands':               'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=1600&q=70',
+  'special-occasional-garlands':  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=70',
+  all:                            'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=1600&q=70',
 };
 const heroTitles = {
-  strings: 'Strings', leaves: 'Leaves',
+  strings:'Strings', leaves:'Leaves',
   'loose-flowers':'Loose Flowers',
-  'pooja-garlands':'Garlands',
+  'pooja-garlands':'Pooja Garlands',
   'special-occasional-garlands':'Special Garlands',
   all:'All Products',
 };
-document.getElementById('catHeroImg').src = heroImgs[currentCat]||heroImgs.all;
-document.getElementById('catHeroTitle').textContent = heroTitles[currentCat]||'Shop';
-document.title = (heroTitles[currentCat]||'Shop')+' – VibrantPetals';
 
-// SET ACTIVE NAV
+function setHero(){
+  // Strip common "all--" prefix that comes from API slugifying "All | X" → "all--x"
+  const heroKey = currentCat.replace(/^all--/,'');
+  document.getElementById('catHeroImg').src  = heroImgs[heroKey]||heroImgs[currentCat]||heroImgs.all;
+  document.getElementById('catHeroTitle').textContent = heroTitles[heroKey]||heroTitles[currentCat]||'Shop';
+  document.title = (heroTitles[heroKey]||heroTitles[currentCat]||'Shop')+' – VibrantPetals';
+}
+setHero();
+
+// Active nav highlight
 const navMap = {strings:'navStrings','loose-flowers':'navLoose',leaves:'navLeaves','pooja-garlands':'navGarlands','special-occasional-garlands':'navGarlands'};
-if(navMap[currentCat]){document.getElementById(navMap[currentCat])?.classList.add('active');}
+const heroKey = currentCat.replace(/^all--/,'');
+if(navMap[heroKey]) document.getElementById(navMap[heroKey])?.classList.add('active');
 
-// LOAD CATEGORIES
+// ── CATEGORIES SIDEBAR ────────────────────────────────────────────────────────
 async function loadCategories(){
   const data = await apiFetch('/products/categories').catch(()=>({categories:[]}));
   const cats = data.categories||[];
+
+  // Populate the name map: slug → actual name
+  cats.forEach(c => { catNameMap[c.slug] = c.name; });
+
   const list = document.getElementById('catList');
-  list.innerHTML = cats.map(c=>{
-    const slug = c.slug;
-    const active = (slug==='all'&&currentCat==='all')||(slug===currentCat);
-    return `<li><a href="category.html?cat=${slug}" ${active?'class="active"':''}>${c.name} <span>${c.count}</span></a></li>`;
+  list.innerHTML = cats.map(c => {
+    const isActive = c.slug === currentCat;
+    return `<li><a href="category.html?cat=${c.slug}" ${isActive?'class="active"':''}>${c.name} <span>${c.count}</span></a></li>`;
   }).join('');
 }
-loadCategories();
 
-// LOAD PRODUCTS
+// ── PRODUCTS ──────────────────────────────────────────────────────────────────
 function showSkeletons(){
-  const g = document.getElementById('productsGrid');
-  g.innerHTML = Array(8).fill(`
+  document.getElementById('productsGrid').innerHTML = Array(8).fill(`
     <div class="product-card">
       <div class="product-card-inner"><div class="skeleton" style="aspect-ratio:1;"></div></div>
       <div style="margin-top:14px;"><div class="skeleton" style="height:14px;width:70%;margin-bottom:8px;border-radius:2px;"></div><div class="skeleton" style="height:12px;width:40%;border-radius:2px;"></div></div>
@@ -433,7 +389,20 @@ function showSkeletons(){
 
 async function loadProducts(){
   showSkeletons();
-  const catParam = currentCat==='all'?'':'&category='+encodeURIComponent(currentCat.replace(/-/g,' '));
+
+  let catParam = '';
+  if(currentCat !== 'all'){
+    // Use the real category name from the map if available.
+    // This handles "all--loose-flowers" → "All | Loose Flowers" correctly.
+    const catName = catNameMap[currentCat];
+    if(catName && catName !== 'All'){
+      catParam = '&category=' + encodeURIComponent(catName);
+    } else if(!catName){
+      // Fallback: convert slug to readable form (works for nav links like "loose-flowers")
+      catParam = '&category=' + encodeURIComponent(currentCat.replace(/-/g,' '));
+    }
+  }
+
   const url = `/products?page=${currentPage}&limit=${LIMIT}&sort=${currentSort}&order=${currentOrder}${catParam}`;
   const data = await apiFetch(url).catch(()=>({products:[],pagination:{total:0,totalPages:1}}));
   const products = data.products||[];
@@ -492,9 +461,7 @@ function renderPagination(){
   const el = document.getElementById('pagination');
   if(totalPages<=1){el.innerHTML='';return;}
   let html = `<button class="page-btn ${currentPage===1?'disabled':''}" onclick="goPage(${currentPage-1})">‹</button>`;
-  for(let i=1;i<=totalPages;i++){
-    html+=`<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
-  }
+  for(let i=1;i<=totalPages;i++) html+=`<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
   html+=`<button class="page-btn ${currentPage===totalPages?'disabled':''}" onclick="goPage(${currentPage+1})">›</button>`;
   el.innerHTML=html;
 }
@@ -507,26 +474,24 @@ function goPage(n){
 }
 window.goPage=goPage;
 
-// SORT
 document.getElementById('sortSelect').addEventListener('change',function(){
   const [sort,order]=this.value.split('-');
   currentSort=sort; currentOrder=order; currentPage=1;
   loadProducts();
 });
 
-// GRID TOGGLE
 const grid = document.getElementById('productsGrid');
 ['g4','g3','gList'].forEach(id=>{
   document.getElementById(id).addEventListener('click',function(){
     document.querySelectorAll('.grid-toggle-btn').forEach(b=>b.classList.remove('active'));
     this.classList.add('active');
-    if(id==='g4'){grid.className='products-grid';}
-    else if(id==='g3'){grid.className='products-grid cols-3';}
-    else{grid.className='products-grid list-view';}
+    if(id==='g4') grid.className='products-grid';
+    else if(id==='g3') grid.className='products-grid cols-3';
+    else grid.className='products-grid list-view';
   });
 });
 
-// CART
+// ── CART ──────────────────────────────────────────────────────────────────────
 const cartOverlay=document.getElementById('cartOverlay'),cartDrawer=document.getElementById('cartDrawer');
 function openCart(){cartOverlay.classList.add('open');cartDrawer.classList.add('open');loadCart();}
 function closeCart(){cartOverlay.classList.remove('open');cartDrawer.classList.remove('open');}
@@ -583,13 +548,13 @@ async function removeFromCart(productId){
   if(data.success)renderCart(data.cart);
 }
 async function addToWishlist(productId){
-  if(!token){document.getElementById('loginModal').classList.add('open');return;}
+  if(!token){location.href='account.html';return;}
   const data=await apiFetch('/wishlist/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId})}).catch(()=>({success:false}));
   showToast(data.success?'Added to wishlist!':data.message||'Error',data.success?'success':'error');
 }
 window.addToCart=addToCart;window.changeQty=changeQty;window.removeFromCart=removeFromCart;window.addToWishlist=addToWishlist;
 
-// SEARCH
+// ── SEARCH ────────────────────────────────────────────────────────────────────
 const searchOverlay=document.getElementById('searchOverlay');
 document.getElementById('searchBtn').onclick=()=>{searchOverlay.classList.add('open');document.getElementById('searchInput').focus();};
 document.getElementById('searchClose').onclick=()=>searchOverlay.classList.remove('open');
@@ -601,35 +566,13 @@ document.getElementById('searchInput').addEventListener('input',function(){
   searchTimer=setTimeout(async()=>{
     const data=await apiFetch(`/products/search?q=${encodeURIComponent(q)}&limit=5`).catch(()=>({products:[]}));
     const prods=data.products||[];
-    document.getElementById('searchResults').innerHTML=prods.length?prods.map(p=>`<div class="search-result-item" onclick="location.href='product.html?id=${p._id}'"><img src="${p.images?.[0]||'https://via.placeholder.com/50'}" onerror="this.src='https://via.placeholder.com/50'"/><div><div style="font-size:14px;font-weight:600;">${p.name}</div><div style="font-size:13px;color:var(--mid)">${p.price?'$'+p.price.toFixed(2):''}</div></div></div>`).join(''):
-    '<p style="color:var(--mid);font-size:14px;">No results found</p>';
+    document.getElementById('searchResults').innerHTML=prods.length
+      ?prods.map(p=>`<div class="search-result-item" onclick="location.href='product.html?id=${p._id}'"><img src="${p.images?.[0]||'https://via.placeholder.com/50'}" onerror="this.src='https://via.placeholder.com/50'"/><div><div style="font-size:14px;font-weight:600;">${p.name}</div><div style="font-size:13px;color:var(--mid)">${p.price?'$'+p.price.toFixed(2):''}</div></div></div>`).join('')
+      :'<p style="color:var(--mid);font-size:14px;">No results found</p>';
   },300);
 });
 
-// AUTH
-const loginModal=document.getElementById('loginModal');
-document.getElementById('loginBtn').onclick=()=>loginModal.classList.add('open');
-document.getElementById('modalClose').onclick=()=>loginModal.classList.remove('open');
-loginModal.addEventListener('click',e=>{if(e.target===loginModal)loginModal.classList.remove('open');});
-document.getElementById('showRegister').onclick=()=>{document.getElementById('loginForm').style.display='none';document.getElementById('registerForm').style.display='block';};
-document.getElementById('showLogin').onclick=()=>{document.getElementById('registerForm').style.display='none';document.getElementById('loginForm').style.display='block';};
-document.getElementById('loginSubmit').onclick=async()=>{
-  const email=document.getElementById('loginEmail').value.trim(),pwd=document.getElementById('loginPwd').value;
-  const msg=document.getElementById('loginMsg'),err=document.getElementById('loginErr');
-  msg.style.display=err.style.display='none';
-  const data=await apiFetch('/auth/login',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email,password:pwd})}).catch(()=>({success:false,message:'Network error'}));
-  if(data.success){token=data.token;localStorage.setItem('vp_token',token);msg.textContent='Welcome back!';msg.style.display='block';setTimeout(()=>loginModal.classList.remove('open'),1200);loadCart();}
-  else{err.textContent=data.message||'Login failed';err.style.display='block';}
-};
-document.getElementById('regSubmit').onclick=async()=>{
-  const username=document.getElementById('regUsername').value.trim(),email=document.getElementById('regEmail').value.trim(),pwd=document.getElementById('regPwd').value;
-  const msg=document.getElementById('regMsg'),err=document.getElementById('regErr');msg.style.display=err.style.display='none';
-  const data=await apiFetch('/auth/register',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({username,email,password:pwd})}).catch(()=>({success:false,message:'Network error'}));
-  if(data.success){token=data.token;localStorage.setItem('vp_token',token);msg.textContent='Account created!';msg.style.display='block';setTimeout(()=>loginModal.classList.remove('open'),1200);loadCart();}
-  else{err.textContent=data.message||'Registration failed';err.style.display='block';}
-};
-
-// NEWSLETTER
+// ── NEWSLETTER ────────────────────────────────────────────────────────────────
 document.getElementById('nlSubmit').onclick=async()=>{
   const email=document.getElementById('nlEmail').value.trim();
   if(!email)return;
@@ -640,8 +583,12 @@ document.getElementById('nlSubmit').onclick=async()=>{
 
 window.addEventListener('scroll',()=>document.getElementById('backTop').classList.toggle('visible',window.scrollY>400));
 
-loadCart();
-loadProducts();
+// ── INIT: load categories first (builds catNameMap), then products ─────────────
+(async()=>{
+  loadCart();
+  await loadCategories();   // must finish before loadProducts so catNameMap is ready
+  loadProducts();
+})();
 </script>
 </body>
 </html>
