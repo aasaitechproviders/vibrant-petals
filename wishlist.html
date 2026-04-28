@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wishlist – VibrantPetals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--gold:#9B8B5A;--gold-dark:#7A6B3F;--cream:#FAF7F2;--cream2:#F2EDE3;--dark:#1A1A1A;--mid:#555;--card-bg:#E8F0F5;--radius:4px;--nav-h:70px;--bar-h:40px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Lato',sans-serif;background:var(--cream);color:var(--dark);overflow-x:hidden;}
+    a{text-decoration:none;color:inherit;}img{max-width:100%;display:block;}ul{list-style:none;}button{cursor:pointer;border:none;background:none;font-family:inherit;}
+    .ann-bar{background:var(--gold);color:#fff;text-align:center;font-size:13px;letter-spacing:.06em;height:var(--bar-h);display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:200;}
+    header{position:sticky;top:var(--bar-h);z-index:190;background:#fff;border-bottom:1px solid #e8e0d2;height:var(--nav-h);}
+    .nav-inner{max-width:1280px;margin:0 auto;padding:0 32px;height:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:22px;}
+    nav ul{display:flex;align-items:center;gap:36px;}
+    nav ul li a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--dark);transition:color .2s;}
+    nav ul li a:hover{color:var(--gold);}
+    .nav-icons{display:flex;align-items:center;gap:20px;}
+    .nav-icon-btn{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--dark);transition:color .2s;}
+    .nav-icon-btn:hover{color:var(--gold);}
+    .nav-icon-btn svg{width:22px;height:22px;stroke-width:1.6;}
+    .badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+    /* HERO */
+    .page-hero{position:relative;height:240px;background:#d6e4ed;overflow:hidden;}
+    .page-hero img{width:100%;height:100%;object-fit:cover;filter:brightness(.65);}
+    .page-hero-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:38px;font-style:italic;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,.4);}
+
+    /* WISHLIST BODY */
+    .page-body{max-width:1280px;margin:0 auto;padding:50px 32px 80px;}
+    .page-notice{padding:20px 24px;background:#fff;border:1px solid #e8e0d2;font-size:14px;color:var(--mid);margin-bottom:32px;border-radius:var(--radius);}
+    .page-notice a{color:var(--gold);font-weight:700;}
+
+    .wishlist-empty{text-align:center;padding:80px 20px;color:var(--mid);}
+    .wishlist-empty svg{width:64px;height:64px;margin:0 auto 20px;opacity:.3;}
+    .wishlist-empty h2{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:12px;color:var(--dark);}
+    .wishlist-empty p{font-size:14px;margin-bottom:24px;}
+    .btn-shop{display:inline-block;padding:14px 36px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);}
+
+    /* PRODUCT GRID */
+    .products-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+    .product-card{cursor:pointer;}
+    .product-card-inner{position:relative;background:var(--card-bg);border-radius:var(--radius);overflow:hidden;}
+    .product-img-wrap{position:relative;aspect-ratio:1;overflow:hidden;}
+    .product-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+    .product-card:hover .product-img-wrap img{transform:scale(1.06);}
+    .stock-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,.88);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:6px 14px;}
+    .product-actions{position:absolute;bottom:12px;right:12px;display:flex;gap:8px;opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;}
+    .product-card:hover .product-actions{opacity:1;transform:translateY(0);}
+    .product-action-btn{width:34px;height:34px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s;color:var(--dark);}
+    .product-action-btn:hover{background:var(--gold);color:#fff;}
+    .product-action-btn svg{width:15px;height:15px;}
+    .product-action-btn.remove-btn:hover{background:#c0392b;color:#fff;}
+    .product-info{padding:14px 4px 4px;}
+    .product-name{font-size:14px;margin-bottom:4px;}
+    .product-price{font-size:13px;color:var(--mid);}
+
+    .btn-clear{display:inline-block;padding:10px 24px;border:1px solid #ddd;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--mid);border-radius:var(--radius);margin-bottom:24px;transition:background .2s,color .2s;}
+    .btn-clear:hover{background:#c0392b;color:#fff;border-color:#c0392b;}
+
+    .toast{position:fixed;bottom:28px;right:28px;background:var(--dark);color:#fff;padding:14px 22px;border-radius:4px;font-size:13px;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:999;}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast.success{background:#2d7a2d;}.toast.error{background:#c0392b;}
+    .skeleton{background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    footer{background:var(--cream);border-top:1px solid #e8e0d2;padding:40px 32px;text-align:center;font-size:13px;color:var(--mid);}
+    @media(max-width:900px){.products-grid{grid-template-columns:repeat(2,1fr);}nav ul{display:none;}}
+  </style>
+</head>
+<body>
+<div class="ann-bar">Enjoy Free Delivery on Orders Over $50 – Shop Now!</div>
+<header>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><svg width="28" height="28" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="7" fill="#9B8B5A" opacity=".2"/><circle cx="16" cy="7" r="4" fill="#9B8B5A" opacity=".7"/><circle cx="16" cy="16" r="5" fill="#9B8B5A"/></svg>Vibrant Petals</a>
+    <nav><ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="category.html?cat=all">Shop</a></li>
+    </ul></nav>
+    <div class="nav-icons">
+      <button class="nav-icon-btn" onclick="location.href='account.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+      <button class="nav-icon-btn" onclick="location.href='wishlist.html'" style="color:var(--gold)"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount">0</span></button>
+      <button class="nav-icon-btn" onclick="location.href='checkout.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="badge" id="cartCount">0</span></button>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <img src="https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=70" alt="Wishlist"/>
+  <div class="page-hero-text">Wishlist</div>
+</div>
+
+<div class="page-body">
+  <div class="page-notice" id="wishNotice" style="display:none;">
+    Please <a href="account.html">sign in</a> to view and save your wishlist.
+  </div>
+  <div id="wishlistContent">
+    <div class="products-grid">
+      <div class="product-card-inner skeleton" style="aspect-ratio:1;border-radius:4px;"></div>
+      <div class="product-card-inner skeleton" style="aspect-ratio:1;border-radius:4px;"></div>
+      <div class="product-card-inner skeleton" style="aspect-ratio:1;border-radius:4px;"></div>
+      <div class="product-card-inner skeleton" style="aspect-ratio:1;border-radius:4px;"></div>
+    </div>
+  </div>
+</div>
+
+<footer>Copyright © VibrantPetals. All Rights Reserved.</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+const API='https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
+let token=localStorage.getItem('vp_token')||'';
+let sessionId=localStorage.getItem('vp_session')||'sess_'+Math.random().toString(36).slice(2);
+function apiHeaders(a=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(a&&token)h['Authorization']='Bearer '+token;return h;}
+async function apiFetch(p,o={}){const r=await fetch(API+p,o);return r.json();}
+function showToast(m,t=''){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+(t||'');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
+
+async function loadCartCount(){
+  const d=await apiFetch('/cart',{headers:apiHeaders()}).catch(()=>({cart:{items:[]}}));
+  document.getElementById('cartCount').textContent=(d.cart?.items||[]).reduce((s,i)=>s+i.quantity,0);
+}
+
+async function loadWishlist(){
+  if(!token){
+    document.getElementById('wishNotice').style.display='block';
+    document.getElementById('wishlistContent').innerHTML=`<div class="wishlist-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><h2>Your Wishlist is Empty</h2><p>Sign in to save your favourite products.</p><a href="account.html" class="btn-shop">Sign In</a></div>`;
+    return;
+  }
+  const data=await apiFetch('/wishlist',{headers:apiHeaders()}).catch(()=>({wishlist:{products:[]}}));
+  const products=(data.wishlist?.products)||[];
+  document.getElementById('wishCount').textContent=products.length;
+
+  if(!products.length){
+    document.getElementById('wishlistContent').innerHTML=`<div class="wishlist-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><h2>Your Wishlist is Empty</h2><p>Browse our flowers and click the heart icon to save your favourites.</p><a href="category.html?cat=all" class="btn-shop">Shop All Products</a></div>`;
+    return;
+  }
+
+  document.getElementById('wishlistContent').innerHTML=`
+    <button class="btn-clear" onclick="clearWishlist()">🗑 Clear Wishlist</button>
+    <div class="products-grid">${products.map(p=>{
+      const img=p.images?.[0]||'https://via.placeholder.com/300?text=Flower';
+      const price=p.salePrice?`$${p.salePrice.toFixed(2)}`:p.price?`$${p.price.toFixed(2)}`:'';
+      return `<div class="product-card" onclick="location.href='product.html?id=${p._id}'">
+        <div class="product-card-inner">
+          <div class="product-img-wrap">
+            <img src="${img}" loading="lazy" onerror="this.src='https://via.placeholder.com/300?text=Flower'" alt="${p.name}"/>
+            ${p.stockStatus==='outofstock'?'<div class="stock-badge">Out Of Stock</div>':''}
+            <div class="product-actions">
+              <button class="product-action-btn" onclick="event.stopPropagation();addToCart('${p._id}')" title="Add to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              <button class="product-action-btn remove-btn" onclick="event.stopPropagation();removeFromWishlist('${p._id}')" title="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="product-info"><div class="product-name">${p.name}</div><div class="product-price">${price}</div></div>
+      </div>`;
+    }).join('')}</div>`;
+}
+
+async function addToCart(productId){
+  const data=await apiFetch('/cart/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId,quantity:1})}).catch(()=>({success:false}));
+  if(data.success){showToast('Added to cart!','success');loadCartCount();}
+  else showToast(data.message||'Error','error');
+}
+async function removeFromWishlist(productId){
+  const data=await apiFetch(`/wishlist/items/${productId}`,{method:'DELETE',headers:apiHeaders()}).catch(()=>({success:false}));
+  if(data.success){showToast('Removed from wishlist');loadWishlist();}
+  else showToast('Error','error');
+}
+async function clearWishlist(){
+  if(!confirm('Clear your entire wishlist?'))return;
+  const data=await apiFetch('/wishlist',{method:'DELETE',headers:apiHeaders()}).catch(()=>({success:false}));
+  if(data.success){showToast('Wishlist cleared');loadWishlist();}
+}
+window.addToCart=addToCart;window.removeFromWishlist=removeFromWishlist;window.clearWishlist=clearWishlist;
+
+loadCartCount();
+loadWishlist();
+</script>
+</body>
+</html>
