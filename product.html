@@ -399,15 +399,26 @@ async function loadProduct(){
   const data=await apiFetch('/products/'+productId).catch(()=>null);
   if(!data||!data.product){document.getElementById('productLayout').innerHTML='<p style="padding:40px;color:var(--mid)">Product not found.</p>';return;}
   productData=data.product;
+  // Normalize before renderProduct and loadRelated
+  const toArr = v => !v ? [] : Array.isArray(v) ? v : [v];
+  productData.categories = toArr(productData.categories);
+  productData.tags       = toArr(productData.tags);
+  productData.images     = toArr(productData.images);
   renderProduct(productData);
-  loadRelated(productData.categories?.[0]);
+  loadRelated(productData.categories[0]);
 }
 
 function renderProduct(p){
   document.title=p.name+' – VibrantPetals';
   document.getElementById('breadProduct').textContent=p.name;
 
-  const imgs=p.images&&p.images.length?p.images:['https://via.placeholder.com/600x600?text=Flower'];
+  // Normalize array fields — DB may return a string instead of array
+  const toArr = v => !v ? [] : Array.isArray(v) ? v : [v];
+  p.categories = toArr(p.categories);
+  p.tags       = toArr(p.tags);
+  p.images     = toArr(p.images);
+
+  const imgs=p.images.length?p.images:['https://via.placeholder.com/600x600?text=Flower'];
   const inStock=p.stockStatus!=='outofstock';
   const userRole=getTokenRole();
   const isDealer=userRole==='Dealer';
