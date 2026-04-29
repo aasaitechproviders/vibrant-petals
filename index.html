@@ -889,7 +889,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    Copyright © VibrantPetals. All Rights Reserved.
+    Copyright © VibrantPetals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a>
   </div>
 </footer>
 
@@ -988,8 +988,8 @@ function apiHeaders(auth=true){
   return h;
 }
 async function apiFetch(path, opts={}){
-  const res = await fetch(API+path, opts);
-  return res.json();
+  try{ const res = await fetch(API+path, opts); return res.json(); }
+  catch(e){ return {success:false, message:e.message}; }
 }
 
 // ── TOAST ──────────────────────────────────────────────────
@@ -1150,6 +1150,8 @@ document.getElementById('loginSubmit').onclick = async ()=>{
   if(data.success){
     token = data.token;
     localStorage.setItem('vp_token', token);
+    // Merge guest cart into user cart
+    try{await apiFetch('/cart/merge',{method:'POST',headers:apiHeaders(),body:JSON.stringify({sessionId})});}catch(e){}
     msg.textContent='Welcome back, '+data.user.username+'!'; msg.style.display='block';
     setTimeout(()=>loginModal.classList.remove('open'),1200);
     loadCart();
@@ -1170,6 +1172,7 @@ document.getElementById('regSubmit').onclick = async ()=>{
   const data = await apiFetch('/auth/register',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({username,email,password:pwd,firstName:first,lastName:last})}).catch(()=>({success:false,message:'Network error'}));
   if(data.success){
     token=data.token; localStorage.setItem('vp_token',token);
+    try{await apiFetch('/cart/merge',{method:'POST',headers:apiHeaders(),body:JSON.stringify({sessionId})});}catch(e){}
     msg.textContent='Account created! Welcome, '+data.user.username+'!'; msg.style.display='block';
     setTimeout(()=>loginModal.classList.remove('open'),1200);
     loadCart();
