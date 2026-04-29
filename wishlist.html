@@ -93,7 +93,7 @@
 
 <div class="page-body">
   <div class="page-notice" id="wishNotice" style="display:none;">
-    Please <a href="account.html">sign in</a> to view and save your wishlist.
+    <strong>You're browsing as a guest.</strong> Sign in to save and view your wishlist across all devices. &nbsp;<a href="account.html">Sign In / Register →</a>
   </div>
   <div id="wishlistContent">
     <div class="products-grid">
@@ -105,7 +105,7 @@
   </div>
 </div>
 
-<footer>Copyright © VibrantPetals. All Rights Reserved.</footer>
+<footer>Copyright © VibrantPetals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></footer>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -113,7 +113,7 @@ const API='https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on
 let token=localStorage.getItem('vp_token')||'';
 let sessionId=localStorage.getItem('vp_session')||'sess_'+Math.random().toString(36).slice(2);
 function apiHeaders(a=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(a&&token)h['Authorization']='Bearer '+token;return h;}
-async function apiFetch(p,o={}){const r=await fetch(API+p,o);return r.json();}
+async function apiFetch(p,o={}){try{const r=await fetch(API+p,o);return r.json();}catch(e){return{success:false,message:e.message};}}
 function showToast(m,t=''){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+(t||'');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
 
 async function loadCartCount(){
