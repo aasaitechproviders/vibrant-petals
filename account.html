@@ -10,8 +10,6 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Lato',sans-serif;background:var(--cream);color:var(--dark);overflow-x:hidden;}
     a{text-decoration:none;color:inherit;}img{max-width:100%;display:block;}ul{list-style:none;}button{cursor:pointer;border:none;background:none;font-family:inherit;}
-
-    /* NAV */
     .ann-bar{background:var(--gold);color:#fff;text-align:center;font-size:13px;letter-spacing:.06em;height:var(--bar-h);display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:200;}
     header{position:sticky;top:var(--bar-h);z-index:190;background:#fff;border-bottom:1px solid #e8e0d2;height:var(--nav-h);}
     .nav-inner{max-width:1280px;margin:0 auto;padding:0 32px;height:100%;display:flex;align-items:center;justify-content:space-between;}
@@ -29,21 +27,19 @@
     .nav-icon-btn:hover{color:var(--gold);}
     .nav-icon-btn svg{width:22px;height:22px;stroke-width:1.6;}
     .badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-
-    /* PAGE HERO */
     .page-hero{position:relative;height:240px;background:#d6e4ed;overflow:hidden;}
     .page-hero img{width:100%;height:100%;object-fit:cover;filter:brightness(.6);}
     .page-hero-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:38px;font-style:italic;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,.4);}
-
-    /* LAYOUT */
     .account-layout{max-width:1200px;margin:0 auto;padding:50px 32px 80px;display:grid;grid-template-columns:240px 1fr;gap:40px;align-items:start;}
-
-    /* SIDEBAR NAV */
     .acct-sidebar{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);overflow:hidden;position:sticky;top:calc(var(--nav-h)+var(--bar-h)+20px);}
     .acct-user{padding:24px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;text-align:center;}
     .acct-avatar{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.3);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-family:'Playfair Display',serif;}
     .acct-username{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:4px;}
     .acct-email{font-size:12px;opacity:.85;}
+    .role-badge{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+    .role-customer{background:rgba(255,255,255,.2);color:#fff;}
+    .role-dealer{background:#FFD700;color:#1A1A1A;}
+    .role-administrator{background:#c0392b;color:#fff;}
     .acct-nav{padding:8px 0;}
     .acct-nav-item{display:flex;align-items:center;gap:12px;padding:13px 20px;font-size:14px;color:var(--mid);cursor:pointer;transition:background .15s,color .15s;border-left:3px solid transparent;}
     .acct-nav-item:hover{background:var(--cream2);color:var(--dark);}
@@ -52,29 +48,26 @@
     .acct-nav-divider{height:1px;background:#e8e0d2;margin:8px 0;}
     .acct-nav-item.logout{color:#c0392b;}
     .acct-nav-item.logout:hover{background:#fce4e4;}
-
-    /* PANELS */
     .acct-panel{display:none;}
     .acct-panel.active{display:block;}
     .panel-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:400;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #e8e0d2;}
-
-    /* FORM */
     .form-card{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:28px;margin-bottom:24px;}
-    .form-card-title{font-size:15px;font-weight:700;letter-spacing:.06em;margin-bottom:20px;color:var(--dark);}
+    .form-card-title{font-size:15px;font-weight:700;letter-spacing:.06em;margin-bottom:20px;color:var(--dark);display:flex;justify-content:space-between;align-items:center;}
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
     .form-row.full{grid-template-columns:1fr;}
     .form-group{display:flex;flex-direction:column;gap:6px;}
     .form-label{font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--mid);}
-    .form-input{width:100%;padding:12px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;border-radius:var(--radius);background:#fff;transition:border-color .2s;}
-    .form-input:focus{border-color:var(--gold);}
+    .form-input,.form-select{width:100%;padding:12px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;border-radius:var(--radius);background:#fff;transition:border-color .2s;}
+    .form-input:focus,.form-select:focus{border-color:var(--gold);}
     .form-input:read-only{background:var(--cream2);cursor:default;}
     .btn-save{padding:13px 32px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);transition:background .2s;}
     .btn-save:hover{background:var(--gold-dark);}
+    .btn-sm{padding:8px 16px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);transition:background .2s,color .2s;}
+    .btn-sm.gold{background:var(--gold);color:#fff;}.btn-sm.gold:hover{background:var(--gold-dark);}
+    .btn-sm.outline{border:1px solid #ddd;color:var(--mid);}.btn-sm.outline:hover{border-color:var(--gold);color:var(--gold);}
+    .btn-sm.danger{border:1px solid #c0392b;color:#c0392b;}.btn-sm.danger:hover{background:#c0392b;color:#fff;}
     .form-msg{font-size:13px;margin-top:12px;padding:10px 14px;border-radius:var(--radius);}
-    .form-msg.ok{background:#e8f5e9;color:#2e7d32;}
-    .form-msg.err{background:#fce4e4;color:#c62828;}
-
-    /* ORDERS */
+    .form-msg.ok{background:#e8f5e9;color:#2e7d32;}.form-msg.err{background:#fce4e4;color:#c62828;}
     .orders-empty{text-align:center;padding:60px 20px;color:var(--mid);}
     .orders-empty svg{width:56px;height:56px;margin:0 auto 16px;opacity:.3;}
     .orders-empty p{margin-bottom:20px;}
@@ -85,14 +78,11 @@
     .orders-table tr:last-child td{border-bottom:none;}
     .orders-table tr:hover td{background:var(--cream2);}
     .order-status{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
-    .status-pending{background:#fff3cd;color:#856404;}
-    .status-processing{background:#cce5ff;color:#004085;}
-    .status-shipped{background:#d4edda;color:#155724;}
-    .status-delivered{background:#d4edda;color:#155724;}
-    .status-cancelled{background:#f8d7da;color:#721c24;}
-    .order-detail-btn{font-size:12px;color:var(--gold);font-weight:700;text-decoration:underline;cursor:pointer;}
-
-    /* ORDER DETAIL MODAL */
+    .status-pending{background:#fff3cd;color:#856404;}.status-processing{background:#cce5ff;color:#004085;}
+    .status-shipped{background:#d4edda;color:#155724;}.status-delivered{background:#d4edda;color:#155724;}
+    .status-cancelled{background:#f8d7da;color:#721c24;}.status-refunded{background:#e2d9f3;color:#4a235a;}
+    .order-detail-btn{font-size:12px;color:var(--gold);font-weight:700;text-decoration:underline;cursor:pointer;margin-right:8px;}
+    .order-cancel-btn{font-size:12px;color:#c0392b;font-weight:700;text-decoration:underline;cursor:pointer;}
     .order-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:800;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
     .order-modal.open{opacity:1;pointer-events:all;}
     .order-modal-box{background:#fff;width:min(640px,94vw);max-height:85vh;overflow-y:auto;border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.2);}
@@ -113,13 +103,37 @@
     .order-totals{border-top:1px solid #e8e0d2;padding-top:12px;}
     .order-total-row{display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:var(--mid);}
     .order-total-row.grand{font-weight:700;color:var(--dark);font-size:16px;}
-
-    /* STATS CARDS */
     .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:30px;}
     .stat-card{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:20px;text-align:center;}
     .stat-val{font-family:'Playfair Display',serif;font-size:32px;color:var(--gold);margin-bottom:6px;}
     .stat-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mid);font-weight:700;}
-
+    /* ADDRESSES */
+    .addr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:16px;}
+    .addr-card{background:var(--cream2);border:1px solid #e8e0d2;border-radius:var(--radius);padding:16px;position:relative;}
+    .addr-card.default-card{border-color:var(--gold);}
+    .addr-default-badge{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--gold);color:#fff;padding:2px 8px;border-radius:20px;}
+    .addr-label{font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+    .addr-text{font-size:13px;color:var(--mid);line-height:1.6;}
+    .addr-actions{display:flex;gap:8px;margin-top:12px;}
+    /* ADDRESS MODAL */
+    .addr-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:900;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .addr-modal.open{opacity:1;pointer-events:all;}
+    .addr-modal-box{background:#fff;width:min(500px,94vw);max-height:90vh;overflow-y:auto;border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.2);}
+    .addr-modal-head{padding:20px 24px;border-bottom:1px solid #e8e0d2;display:flex;justify-content:space-between;align-items:center;}
+    .addr-modal-head h3{font-family:'Playfair Display',serif;font-size:18px;}
+    .addr-modal-body{padding:20px 24px;}
+    /* DEALER SECTION */
+    .dealer-info-card{background:linear-gradient(135deg,#FFD700,#FFA500);border-radius:var(--radius);padding:24px;color:#1A1A1A;margin-bottom:24px;}
+    .dealer-badge-lg{font-size:32px;margin-bottom:8px;}
+    .dealer-info-card h3{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:6px;}
+    .dealer-info-card p{font-size:14px;opacity:.8;margin-bottom:0;}
+    /* ORDERS PAGINATION */
+    .orders-pagination{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:20px;}
+    .pag-btn{padding:8px 16px;border:1px solid #ddd;font-size:13px;font-weight:700;border-radius:var(--radius);transition:background .2s,color .2s,border-color .2s;color:var(--mid);}
+    .pag-btn:hover{border-color:var(--gold);color:var(--gold);}
+    .pag-btn.active{background:var(--gold);color:#fff;border-color:var(--gold);}
+    .pag-btn:disabled{opacity:.4;cursor:not-allowed;}
+    .pag-info{font-size:13px;color:var(--mid);}
     /* LOGIN GATE */
     .login-gate{max-width:460px;margin:0 auto;background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:40px;text-align:center;}
     .login-gate h2{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:12px;}
@@ -127,15 +141,14 @@
     .tabs{display:flex;border-bottom:2px solid #e8e0d2;margin-bottom:24px;}
     .tab-btn{flex:1;padding:12px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--mid);border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .2s,border-color .2s;}
     .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
-    .tab-panel{display:none;}
-    .tab-panel.active{display:block;}
+    .tab-panel{display:none;}.tab-panel.active{display:block;}
     .gate-input{width:100%;padding:13px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:14px;border-radius:var(--radius);transition:border-color .2s;}
     .gate-input:focus{border-color:var(--gold);}
+    .gate-select{width:100%;padding:13px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:14px;border-radius:var(--radius);background:#fff;}
     .btn-gate{width:100%;padding:14px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);margin-top:4px;}
     .btn-gate:hover{background:var(--gold-dark);}
     .gate-msg{font-size:13px;margin-top:10px;text-align:center;}
     .gate-msg.ok{color:#2d7a2d;}.gate-msg.err{color:#c0392b;}
-
     .skeleton{background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
     .toast{position:fixed;bottom:28px;right:28px;background:var(--dark);color:#fff;padding:14px 22px;border-radius:4px;font-size:13px;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:999;}
@@ -181,20 +194,22 @@
       <button class="tab-btn active" onclick="switchTab('login',this)">Sign In</button>
       <button class="tab-btn" onclick="switchTab('register',this)">Create Account</button>
     </div>
-    <!-- LOGIN -->
     <div class="tab-panel active" id="tab-login">
       <input type="email" class="gate-input" id="gLoginEmail" placeholder="Email address *"/>
       <input type="password" class="gate-input" id="gLoginPwd" placeholder="Password *"/>
       <button class="btn-gate" onclick="doLogin()">Sign In</button>
       <div class="gate-msg" id="gLoginMsg"></div>
     </div>
-    <!-- REGISTER -->
     <div class="tab-panel" id="tab-register">
       <input type="text" class="gate-input" id="gRegUser" placeholder="Username *"/>
       <input type="email" class="gate-input" id="gRegEmail" placeholder="Email address *"/>
       <input type="password" class="gate-input" id="gRegPwd" placeholder="Password (min 6 chars) *"/>
       <input type="text" class="gate-input" id="gRegFirst" placeholder="First name"/>
       <input type="text" class="gate-input" id="gRegLast" placeholder="Last name"/>
+      <select class="gate-select" id="gRegRole">
+        <option value="Customer">I'm a Customer (retail)</option>
+        <option value="Dealer">I'm a Dealer (wholesale)</option>
+      </select>
       <button class="btn-gate" onclick="doRegister()">Create Account</button>
       <div class="gate-msg" id="gRegMsg"></div>
     </div>
@@ -210,6 +225,7 @@
         <div class="acct-avatar" id="acctAvatar">🌸</div>
         <div class="acct-username" id="acctName">Loading...</div>
         <div class="acct-email" id="acctEmailDisp"></div>
+        <div id="acctRoleBadge"></div>
       </div>
       <div class="acct-nav">
         <div class="acct-nav-item active" onclick="showPanel('dashboard',this)">
@@ -218,11 +234,20 @@
         <div class="acct-nav-item" onclick="showPanel('orders',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>My Orders
         </div>
+        <div class="acct-nav-item" id="navAddresses" onclick="showPanel('addresses',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Addresses
+        </div>
         <div class="acct-nav-item" onclick="showPanel('profile',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile Settings
         </div>
         <div class="acct-nav-item" onclick="showPanel('password',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Change Password
+        </div>
+        <div class="acct-nav-item" id="navDealer" style="display:none;" onclick="showPanel('dealer',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Dealer Portal
+        </div>
+        <div class="acct-nav-item" id="navAdmin" style="display:none;" onclick="location.href='admin.html'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Admin Panel ↗
         </div>
         <div class="acct-nav-item" onclick="location.href='wishlist.html'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Wishlist
@@ -261,6 +286,14 @@
       <div class="acct-panel" id="panel-orders">
         <div class="panel-title">My Orders</div>
         <div id="ordersContent"><div class="skeleton" style="height:300px;border-radius:4px;"></div></div>
+        <div class="orders-pagination" id="ordersPagination"></div>
+      </div>
+
+      <!-- ADDRESSES -->
+      <div class="acct-panel" id="panel-addresses">
+        <div class="panel-title">Saved Addresses</div>
+        <div id="addressesContent"><div class="skeleton" style="height:120px;border-radius:4px;"></div></div>
+        <button class="btn-save" style="margin-top:4px;" onclick="openAddrModal()">+ Add New Address</button>
       </div>
 
       <!-- PROFILE -->
@@ -277,6 +310,9 @@
           </div>
           <div class="form-row full">
             <div class="form-group"><label class="form-label">Email (read-only)</label><input type="email" class="form-input" id="profEmail" readonly/></div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group"><label class="form-label">Account Type (read-only)</label><input type="text" class="form-input" id="profRole" readonly/></div>
           </div>
           <button class="btn-save" onclick="saveProfile()">Save Changes</button>
           <div class="form-msg" id="profMsg" style="display:none;"></div>
@@ -295,6 +331,29 @@
           <div class="form-msg" id="pwdMsg" style="display:none;"></div>
         </div>
       </div>
+
+      <!-- DEALER PORTAL -->
+      <div class="acct-panel" id="panel-dealer">
+        <div class="panel-title">Dealer Portal</div>
+        <div class="dealer-info-card">
+          <div class="dealer-badge-lg">⭐</div>
+          <h3>Wholesale Account Active</h3>
+          <p>You're registered as a VibrantPetals Dealer. You see exclusive dealer pricing on all products and can place bulk orders at wholesale rates.</p>
+        </div>
+        <div class="form-card">
+          <div class="form-card-title">DEALER BENEFITS</div>
+          <ul style="font-size:14px;color:var(--mid);line-height:2;margin-top:4px;padding-left:16px;list-style:disc;">
+            <li>Exclusive wholesale pricing on all products</li>
+            <li>Priority order processing</li>
+            <li>Dedicated dealer coupon codes</li>
+            <li>Bulk order support — contact us for custom quotes</li>
+          </ul>
+        </div>
+        <div class="form-card">
+          <div class="form-card-title">RECENT DEALER ORDERS</div>
+          <div id="dealerOrdersContent"><div class="skeleton" style="height:80px;border-radius:4px;"></div></div>
+        </div>
+      </div>
     </main>
   </div>
 </div>
@@ -310,7 +369,41 @@
   </div>
 </div>
 
-<footer>Copyright © VibrantPetals. All Rights Reserved.</footer>
+<!-- ADDRESS MODAL -->
+<div class="addr-modal" id="addrModal">
+  <div class="addr-modal-box">
+    <div class="addr-modal-head">
+      <h3 id="addrModalTitle">Add Address</h3>
+      <span class="order-modal-close" onclick="closeAddrModal()">✕</span>
+    </div>
+    <div class="addr-modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Label (e.g. Home, Office)</label><input type="text" class="form-input" id="aLabel" value="Home"/></div>
+        <div class="form-group"><label class="form-label">Phone</label><input type="text" class="form-input" id="aPhone" placeholder="+61 400 000 000"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">First Name *</label><input type="text" class="form-input" id="aFirst"/></div>
+        <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-input" id="aLast"/></div>
+      </div>
+      <div class="form-row full"><div class="form-group"><label class="form-label">Street Address *</label><input type="text" class="form-input" id="aStreet"/></div></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" id="aCity"/></div>
+        <div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" id="aState"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Postcode *</label><input type="text" class="form-input" id="aPostcode"/></div>
+        <div class="form-group"><label class="form-label">Country</label><input type="text" class="form-input" id="aCountry" value="Australia"/></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:8px 0 16px;cursor:pointer;">
+        <input type="checkbox" id="aDefault" style="accent-color:var(--gold);"> Set as default address
+      </label>
+      <div class="form-msg" id="addrMsg" style="display:none;"></div>
+      <button class="btn-save" id="addrSaveBtn" onclick="saveAddress()">Save Address</button>
+    </div>
+  </div>
+</div>
+
+<footer>Copyright © VibrantPetals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></footer>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -319,10 +412,13 @@ let token=localStorage.getItem('vp_token')||'';
 let sessionId=localStorage.getItem('vp_session')||'sess_'+Math.random().toString(36).slice(2);
 localStorage.setItem('vp_session',sessionId);
 function apiHeaders(a=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(a&&token)h['Authorization']='Bearer '+token;return h;}
-async function apiFetch(p,o={}){const r=await fetch(API+p,o);return r.json();}
+async function apiFetch(p,o={}){
+  try{const r=await fetch(API+p,o);if(!r.ok&&r.status!==400&&r.status!==401&&r.status!==403&&r.status!==404&&r.status!==409){throw new Error('HTTP '+r.status);}return r.json();}
+  catch(e){console.error('apiFetch',p,e);return{success:false,message:e.message};}
+}
 function showToast(m,t=''){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+(t||'');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
 
-// TAB SWITCH (login gate)
+// ── TAB SWITCH (login gate) ───────────────────────────────────────────────────
 function switchTab(name,btn){
   document.querySelectorAll('.tabs .tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
@@ -330,33 +426,34 @@ function switchTab(name,btn){
   document.getElementById('tab-'+name).classList.add('active');
 }
 
-// PANEL SWITCH
+// ── PANEL SWITCH ─────────────────────────────────────────────────────────────
 function showPanel(name,el){
   document.querySelectorAll('.acct-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.acct-nav-item').forEach(i=>i.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
-  el.classList.add('active');
-  if(name==='orders') loadOrders();
+  if(el)el.classList.add('active');
+  if(name==='orders')loadOrders(1);
+  if(name==='addresses')loadAddresses();
+  if(name==='dealer')loadDealerOrders();
 }
 window.showPanel=showPanel;
 
-// CHECK AUTH
+// ── CHECK AUTH ────────────────────────────────────────────────────────────────
 function init(){
   if(token){
     document.getElementById('loginGate').style.display='none';
     document.getElementById('accountDash').style.display='block';
-    loadMe();
-    loadDashboard();
-  } else {
+    loadMe();loadDashboard();
+  }else{
     document.getElementById('loginGate').style.display='block';
     document.getElementById('accountDash').style.display='none';
   }
 }
 
-// LOAD ME
+// ── LOAD ME ───────────────────────────────────────────────────────────────────
 let userData=null;
 async function loadMe(){
-  const data=await apiFetch('/auth/me',{headers:apiHeaders()}).catch(()=>null);
+  const data=await apiFetch('/auth/me',{headers:apiHeaders()});
   if(!data||!data.success){doLogout();return;}
   userData=data.user;
   document.getElementById('acctName').textContent=userData.username||userData.firstName||'Friend';
@@ -366,20 +463,26 @@ async function loadMe(){
   document.getElementById('profLast').value=userData.lastName||'';
   document.getElementById('profDisplay').value=userData.displayName||userData.username||'';
   document.getElementById('profEmail').value=userData.email||'';
+  document.getElementById('profRole').value=userData.role||'Customer';
+  // Role badge
+  const roleMap={Customer:'role-customer',Dealer:'role-dealer',Administrator:'role-administrator'};
+  const roleLabel={Customer:'Customer',Dealer:'Dealer ⭐',Administrator:'Admin'};
+  document.getElementById('acctRoleBadge').innerHTML=`<span class="role-badge ${roleMap[userData.role]||'role-customer'}">${roleLabel[userData.role]||userData.role}</span>`;
+  // Show dealer nav item
+  if(userData.role==='Dealer'||userData.role==='Administrator')document.getElementById('navDealer').style.display='flex';
+  if(userData.role==='Administrator')document.getElementById('navAdmin').style.display='flex';
 }
 
-// DASHBOARD
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
 async function loadDashboard(){
-  // orders
-  const od=await apiFetch('/orders?limit=3',{headers:apiHeaders()}).catch(()=>({orders:[]}));
+  const [od,wd]=await Promise.all([
+    apiFetch('/orders?limit=3',{headers:apiHeaders()}),
+    apiFetch('/wishlist',{headers:apiHeaders()})
+  ]);
   const orders=od.orders||[];
   document.getElementById('statOrders').textContent=od.pagination?.total||orders.length;
-  const spent=orders.reduce((s,o)=>s+(o.total||0),0);
-  document.getElementById('statSpent').textContent='$'+spent.toFixed(2);
-  // wishlist count
-  const wd=await apiFetch('/wishlist',{headers:apiHeaders()}).catch(()=>({wishlist:{products:[]}}));
+  document.getElementById('statSpent').textContent='$'+(orders.reduce((s,o)=>s+(o.total||0),0)).toFixed(2);
   document.getElementById('statWish').textContent=(wd.wishlist?.products||[]).length;
-  // recent orders
   if(!orders.length){
     document.getElementById('dashRecentOrders').innerHTML='<p style="color:var(--mid);font-size:14px;">No orders yet. <a href="category.html?cat=all" style="color:var(--gold)">Start shopping!</a></p>';
     return;
@@ -397,33 +500,58 @@ async function loadDashboard(){
     </table>`;
 }
 
-// ORDERS PAGE
-async function loadOrders(){
+// ── ORDERS PAGE ───────────────────────────────────────────────────────────────
+let orderPage=1, orderTotalPages=1;
+async function loadOrders(page=1){
+  orderPage=page;
   const el=document.getElementById('ordersContent');
   el.innerHTML='<div class="skeleton" style="height:300px;border-radius:4px;"></div>';
-  const data=await apiFetch('/orders?limit=20',{headers:apiHeaders()}).catch(()=>({orders:[]}));
+  const data=await apiFetch(`/orders?page=${page}&limit=10`,{headers:apiHeaders()});
   const orders=data.orders||[];
+  orderTotalPages=data.pagination?.totalPages||1;
   if(!orders.length){
     el.innerHTML=`<div class="orders-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><p>You haven't placed any orders yet.</p><a href="category.html?cat=all" class="btn-shop-link">Start Shopping</a></div>`;
+    document.getElementById('ordersPagination').innerHTML='';
     return;
   }
   el.innerHTML=`<table class="orders-table">
-    <thead><tr><th>Order #</th><th>Date</th><th>Items</th><th>Status</th><th>Payment</th><th>Total</th><th></th></tr></thead>
-    <tbody>${orders.map(o=>`<tr>
-      <td><b>${o.orderNumber}</b></td>
-      <td>${new Date(o.createdAt).toLocaleDateString()}</td>
-      <td>${(o.items||[]).length} item${(o.items||[]).length!==1?'s':''}</td>
-      <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
-      <td style="font-size:12px;color:var(--mid)">${o.paymentStatus||'pending'}</td>
-      <td><b>$${(o.total||0).toFixed(2)}</b></td>
-      <td><span class="order-detail-btn" onclick="viewOrder('${o._id}')">Details</span></td>
-    </tr>`).join('')}</tbody>
+    <thead><tr><th>Order #</th><th>Date</th><th>Items</th><th>Status</th><th>Total</th><th></th></tr></thead>
+    <tbody>${orders.map(o=>{
+      const canCancel=['pending','processing'].includes(o.status);
+      return`<tr>
+        <td><b>${o.orderNumber}</b></td>
+        <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+        <td>${(o.items||[]).length} item${(o.items||[]).length!==1?'s':''}</td>
+        <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
+        <td><b>$${(o.total||0).toFixed(2)}</b></td>
+        <td>
+          <span class="order-detail-btn" onclick="viewOrder('${o._id}')">Details</span>
+          ${canCancel?`<span class="order-cancel-btn" onclick="cancelOrder('${o._id}','${o.orderNumber}')">Cancel</span>`:''}
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
   </table>`;
+  // Pagination
+  const pag=document.getElementById('ordersPagination');
+  if(orderTotalPages<=1){pag.innerHTML='';return;}
+  pag.innerHTML=`
+    <button class="pag-btn" onclick="loadOrders(${orderPage-1})" ${orderPage<=1?'disabled':''}>← Prev</button>
+    <span class="pag-info">Page ${orderPage} of ${orderTotalPages}</span>
+    <button class="pag-btn" onclick="loadOrders(${orderPage+1})" ${orderPage>=orderTotalPages?'disabled':''}>Next →</button>`;
 }
 
-// VIEW ORDER DETAIL
+// ── CANCEL ORDER ──────────────────────────────────────────────────────────────
+async function cancelOrder(id,num){
+  if(!confirm(`Cancel order #${num}? This cannot be undone.`))return;
+  const data=await apiFetch(`/orders/${id}/cancel`,{method:'PUT',headers:apiHeaders()});
+  if(data.success){showToast('Order cancelled','success');loadOrders(orderPage);}
+  else showToast(data.message||'Could not cancel order','error');
+}
+window.cancelOrder=cancelOrder;
+
+// ── VIEW ORDER DETAIL ─────────────────────────────────────────────────────────
 async function viewOrder(id){
-  const data=await apiFetch('/orders/'+id,{headers:apiHeaders()}).catch(()=>null);
+  const data=await apiFetch('/orders/'+id,{headers:apiHeaders()});
   if(!data||!data.order){showToast('Could not load order','error');return;}
   const o=data.order;
   document.getElementById('modalOrderNum').textContent='Order #'+o.orderNumber;
@@ -454,19 +582,126 @@ async function viewOrder(id){
 function closeOrderModal(){document.getElementById('orderModal').classList.remove('open');}
 window.viewOrder=viewOrder;window.closeOrderModal=closeOrderModal;
 
-// SAVE PROFILE
+// ── DEALER ORDERS ─────────────────────────────────────────────────────────────
+async function loadDealerOrders(){
+  const el=document.getElementById('dealerOrdersContent');
+  const data=await apiFetch('/orders?limit=5',{headers:apiHeaders()});
+  const orders=data.orders||[];
+  if(!orders.length){el.innerHTML='<p style="color:var(--mid);font-size:14px;">No orders yet.</p>';return;}
+  el.innerHTML=`<table class="orders-table"><thead><tr><th>Order #</th><th>Date</th><th>Status</th><th>Total</th></tr></thead>
+  <tbody>${orders.map(o=>`<tr>
+    <td><b>${o.orderNumber}</b></td>
+    <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+    <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
+    <td><b>$${(o.total||0).toFixed(2)}</b></td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+// ── ADDRESSES ─────────────────────────────────────────────────────────────────
+let editingAddrId=null;
+async function loadAddresses(){
+  const el=document.getElementById('addressesContent');
+  const data=await apiFetch('/auth/addresses',{headers:apiHeaders()});
+  const addrs=(data.addresses||[]);
+  if(!addrs.length){
+    el.innerHTML='<p style="color:var(--mid);font-size:14px;margin-bottom:16px;">No saved addresses yet. Add one below.</p>';
+    return;
+  }
+  el.innerHTML=`<div class="addr-grid">${addrs.map(a=>`
+    <div class="addr-card ${a.isDefault?'default-card':''}">
+      ${a.isDefault?'<span class="addr-default-badge">Default</span>':''}
+      <div class="addr-label">${a.label||'Address'}</div>
+      <div class="addr-text">
+        ${[a.firstName,a.lastName].filter(Boolean).join(' ')}<br/>
+        ${a.address}<br/>
+        ${a.city}${a.state?', '+a.state:''} ${a.postcode}<br/>
+        ${a.country||''}
+        ${a.phone?'<br/>'+a.phone:''}
+      </div>
+      <div class="addr-actions">
+        <button class="btn-sm outline" onclick="openAddrModal('${a._id}')">Edit</button>
+        <button class="btn-sm danger" onclick="deleteAddress('${a._id}')">Delete</button>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function openAddrModal(addrId=null){
+  editingAddrId=addrId;
+  document.getElementById('addrModalTitle').textContent=addrId?'Edit Address':'Add New Address';
+  // If editing, pre-fill
+  if(addrId&&userData?.addresses){
+    const a=userData.addresses.find(x=>x._id===addrId)||(()=>{apiFetch('/auth/addresses',{headers:apiHeaders()}).then(d=>{const addr=(d.addresses||[]).find(x=>x._id===addrId);if(addr)fillAddrForm(addr);});return null;})();
+    if(a)fillAddrForm(a);
+  }else{
+    document.getElementById('aLabel').value='Home';
+    document.getElementById('aFirst').value='';document.getElementById('aLast').value='';
+    document.getElementById('aPhone').value='';document.getElementById('aStreet').value='';
+    document.getElementById('aCity').value='';document.getElementById('aState').value='';
+    document.getElementById('aPostcode').value='';document.getElementById('aCountry').value='Australia';
+    document.getElementById('aDefault').checked=false;
+  }
+  document.getElementById('addrMsg').style.display='none';
+  document.getElementById('addrModal').classList.add('open');
+}
+function fillAddrForm(a){
+  document.getElementById('aLabel').value=a.label||'Home';
+  document.getElementById('aFirst').value=a.firstName||'';document.getElementById('aLast').value=a.lastName||'';
+  document.getElementById('aPhone').value=a.phone||'';document.getElementById('aStreet').value=a.address||'';
+  document.getElementById('aCity').value=a.city||'';document.getElementById('aState').value=a.state||'';
+  document.getElementById('aPostcode').value=a.postcode||'';document.getElementById('aCountry').value=a.country||'Australia';
+  document.getElementById('aDefault').checked=!!a.isDefault;
+}
+function closeAddrModal(){document.getElementById('addrModal').classList.remove('open');editingAddrId=null;}
+window.openAddrModal=openAddrModal;window.closeAddrModal=closeAddrModal;
+
+async function saveAddress(){
+  const msg=document.getElementById('addrMsg');
+  const body={
+    label:document.getElementById('aLabel').value.trim(),
+    firstName:document.getElementById('aFirst').value.trim(),
+    lastName:document.getElementById('aLast').value.trim(),
+    phone:document.getElementById('aPhone').value.trim(),
+    address:document.getElementById('aStreet').value.trim(),
+    city:document.getElementById('aCity').value.trim(),
+    state:document.getElementById('aState').value.trim(),
+    postcode:document.getElementById('aPostcode').value.trim(),
+    country:document.getElementById('aCountry').value.trim(),
+    isDefault:document.getElementById('aDefault').checked,
+  };
+  if(!body.firstName||!body.address||!body.city||!body.postcode){msg.style.display='block';msg.className='form-msg err';msg.textContent='Please fill all required fields.';return;}
+  const url=editingAddrId?`/auth/addresses/${editingAddrId}`:'/auth/addresses';
+  const method=editingAddrId?'PUT':'POST';
+  const data=await apiFetch(url,{method,headers:apiHeaders(),body:JSON.stringify(body)});
+  if(data.success||data.address||data.message==='Address updated'){
+    showToast(editingAddrId?'Address updated':'Address added','success');
+    closeAddrModal();loadAddresses();
+    // Refresh userData addresses
+    apiFetch('/auth/me',{headers:apiHeaders()}).then(d=>{if(d.success)userData=d.user;});
+  }else{msg.style.display='block';msg.className='form-msg err';msg.textContent=data.message||'Failed to save address';}
+}
+window.saveAddress=saveAddress;
+
+async function deleteAddress(addrId){
+  if(!confirm('Remove this address?'))return;
+  const data=await apiFetch(`/auth/addresses/${addrId}`,{method:'DELETE',headers:apiHeaders()});
+  if(data.success){showToast('Address removed','success');loadAddresses();}
+  else showToast('Failed to remove address','error');
+}
+window.deleteAddress=deleteAddress;
+
+// ── SAVE PROFILE ──────────────────────────────────────────────────────────────
 async function saveProfile(){
   const firstName=document.getElementById('profFirst').value.trim();
   const lastName=document.getElementById('profLast').value.trim();
   const displayName=document.getElementById('profDisplay').value.trim();
-  const data=await apiFetch('/auth/me',{method:'PUT',headers:apiHeaders(),body:JSON.stringify({firstName,lastName,displayName})}).catch(()=>({success:false}));
+  const data=await apiFetch('/auth/me',{method:'PUT',headers:apiHeaders(),body:JSON.stringify({firstName,lastName,displayName})});
   const msg=document.getElementById('profMsg');
   msg.style.display='block';
   if(data.success){msg.className='form-msg ok';msg.textContent='Profile updated successfully!';loadMe();}
   else{msg.className='form-msg err';msg.textContent=data.message||'Update failed';}
 }
 
-// CHANGE PASSWORD
+// ── CHANGE PASSWORD ───────────────────────────────────────────────────────────
 async function changePassword(){
   const current=document.getElementById('pwdCurrent').value;
   const newPwd=document.getElementById('pwdNew').value;
@@ -476,36 +711,52 @@ async function changePassword(){
   if(!current||!newPwd){msg.style.display='block';msg.className='form-msg err';msg.textContent='Please fill all fields.';return;}
   if(newPwd!==confirm){msg.style.display='block';msg.className='form-msg err';msg.textContent='New passwords do not match.';return;}
   if(newPwd.length<6){msg.style.display='block';msg.className='form-msg err';msg.textContent='Password must be at least 6 characters.';return;}
-  const data=await apiFetch('/auth/change-password',{method:'PUT',headers:apiHeaders(),body:JSON.stringify({currentPassword:current,newPassword:newPwd})}).catch(()=>({success:false}));
+  const data=await apiFetch('/auth/change-password',{method:'PUT',headers:apiHeaders(),body:JSON.stringify({currentPassword:current,newPassword:newPwd})});
   msg.style.display='block';
   if(data.success){msg.className='form-msg ok';msg.textContent='Password changed successfully!';document.getElementById('pwdCurrent').value='';document.getElementById('pwdNew').value='';document.getElementById('pwdConfirm').value='';}
   else{msg.className='form-msg err';msg.textContent=data.message||'Failed to change password.';}
 }
 
-// AUTH ACTIONS
+// ── AUTH ACTIONS ──────────────────────────────────────────────────────────────
 async function doLogin(){
   const email=document.getElementById('gLoginEmail').value.trim();
   const pwd=document.getElementById('gLoginPwd').value;
   const msg=document.getElementById('gLoginMsg');
   msg.textContent='';msg.className='gate-msg';
-  const data=await apiFetch('/auth/login',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email,password:pwd})}).catch(()=>({success:false,message:'Network error'}));
-  if(data.success){token=data.token;localStorage.setItem('vp_token',token);init();}
-  else{msg.textContent=data.message||'Login failed';msg.className='gate-msg err';}
+  const data=await apiFetch('/auth/login',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email,password:pwd})});
+  if(data.success){
+    token=data.token;localStorage.setItem('vp_token',token);
+    // Merge guest cart before loading dashboard
+    await mergeCart();
+    init();
+  }else{msg.textContent=data.message||'Login failed';msg.className='gate-msg err';}
 }
+
 async function doRegister(){
   const username=document.getElementById('gRegUser').value.trim();
   const email=document.getElementById('gRegEmail').value.trim();
   const pwd=document.getElementById('gRegPwd').value;
   const firstName=document.getElementById('gRegFirst').value.trim();
   const lastName=document.getElementById('gRegLast').value.trim();
+  const role=document.getElementById('gRegRole').value;
   const msg=document.getElementById('gRegMsg');msg.textContent='';
-  const data=await apiFetch('/auth/register',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({username,email,password:pwd,firstName,lastName})}).catch(()=>({success:false,message:'Network error'}));
-  if(data.success){token=data.token;localStorage.setItem('vp_token',token);init();}
-  else{msg.textContent=data.message||'Registration failed';msg.className='gate-msg err';}
+  const data=await apiFetch('/auth/register',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({username,email,password:pwd,firstName,lastName,role})});
+  if(data.success){
+    token=data.token;localStorage.setItem('vp_token',token);
+    await mergeCart();
+    init();
+  }else{msg.textContent=data.message||'Registration failed';msg.className='gate-msg err';}
 }
+
+// Merge guest session cart into logged-in user cart
+async function mergeCart(){
+  if(!sessionId||!token)return;
+  try{await apiFetch('/cart/merge',{method:'POST',headers:apiHeaders(),body:JSON.stringify({sessionId})});}
+  catch(e){console.warn('Cart merge failed',e);}
+}
+
 function doLogout(){token='';localStorage.removeItem('vp_token');init();}
 
-// ENTER KEY
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'){
     if(document.getElementById('tab-login').classList.contains('active'))doLogin();
@@ -513,9 +764,9 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-// LOAD CART COUNT
+// ── COUNTS ────────────────────────────────────────────────────────────────────
 async function loadCounts(){
-  const d=await apiFetch('/cart',{headers:apiHeaders()}).catch(()=>({cart:{items:[]}}));
+  const d=await apiFetch('/cart',{headers:apiHeaders()});
   document.getElementById('cartCount').textContent=(d.cart?.items||[]).reduce((s,i)=>s+i.quantity,0);
 }
 
