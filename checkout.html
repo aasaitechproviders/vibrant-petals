@@ -22,23 +22,37 @@
     .nav-icon-btn:hover{color:var(--gold);}
     .nav-icon-btn svg{width:22px;height:22px;stroke-width:1.6;}
     .badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-
-    /* PAGE */
     .page-head{text-align:center;padding:50px 32px 30px;}
     .page-head h1{font-family:'Playfair Display',serif;font-size:36px;font-weight:400;}
-    .page-head p{color:var(--mid);font-size:14px;margin-top:8px;}
     .breadcrumb{text-align:center;font-size:13px;color:var(--mid);margin-bottom:40px;}
     .breadcrumb a{color:var(--mid);transition:color .2s;}.breadcrumb a:hover{color:var(--gold);}
     .breadcrumb span{margin:0 8px;}
-
-    /* LOGIN NOTICE */
-    .login-notice{max-width:900px;margin:0 auto 24px;padding:16px 24px;background:#fff;border:1px solid #e8e0d2;font-size:14px;color:var(--mid);display:flex;align-items:center;gap:12px;}
-    .login-notice a{color:var(--gold);font-weight:700;}
-
+    /* LOGIN INLINE MODAL */
+    .login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:800;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .login-overlay.open{opacity:1;pointer-events:all;}
+    .login-modal-box{background:#fff;width:min(440px,94vw);border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.2);padding:36px;transform:translateY(20px);transition:transform .3s;}
+    .login-overlay.open .login-modal-box{transform:translateY(0);}
+    .login-modal-title{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:6px;}
+    .login-modal-sub{font-size:13px;color:var(--mid);margin-bottom:24px;}
+    .login-modal-close{float:right;font-size:20px;color:var(--mid);cursor:pointer;margin-top:-28px;}
+    .modal-tabs{display:flex;border-bottom:2px solid #e8e0d2;margin-bottom:20px;}
+    .modal-tab-btn{flex:1;padding:10px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--mid);border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .2s,border-color .2s;}
+    .modal-tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+    .modal-tab-panel{display:none;}.modal-tab-panel.active{display:block;}
+    .gate-input{width:100%;padding:12px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;border-radius:var(--radius);transition:border-color .2s;}
+    .gate-input:focus{border-color:var(--gold);}
+    .gate-select{width:100%;padding:12px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;border-radius:var(--radius);background:#fff;}
+    .btn-gate{width:100%;padding:13px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);}
+    .btn-gate:hover{background:var(--gold-dark);}
+    .gate-msg{font-size:13px;margin-top:8px;}
+    .gate-msg.ok{color:#2d7a2d;}.gate-msg.err{color:#c0392b;}
+    /* SAVED ADDR STRIP */
+    .saved-addr-strip{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;font-size:14px;display:none;}
+    .saved-addr-strip label{font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--mid);display:block;margin-bottom:8px;}
+    .saved-addr-select{width:100%;padding:10px 14px;border:1px solid #ddd;font-family:inherit;font-size:13px;outline:none;border-radius:var(--radius);background:#fff;}
+    .saved-addr-select:focus{border-color:var(--gold);}
     /* CHECKOUT LAYOUT */
     .checkout-layout{max-width:1200px;margin:0 auto;padding:0 32px 80px;display:grid;grid-template-columns:1fr 380px;gap:40px;align-items:start;}
-
-    /* FORM SECTION */
     .form-section-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #e8e0d2;}
     .form-section{margin-bottom:36px;}
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
@@ -49,21 +63,14 @@
     .form-input,.form-select,.form-textarea{width:100%;padding:12px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;border-radius:var(--radius);background:#fff;transition:border-color .2s;}
     .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--gold);}
     .form-textarea{height:100px;resize:vertical;}
-    .form-select{cursor:pointer;}
-
-    /* SAME AS */
     .same-billing{display:flex;align-items:center;gap:10px;font-size:14px;margin-bottom:20px;cursor:pointer;}
     .same-billing input{width:16px;height:16px;accent-color:var(--gold);}
-
-    /* PAYMENT */
     .payment-options{display:flex;flex-direction:column;gap:12px;}
     .payment-opt{display:flex;align-items:flex-start;gap:12px;padding:16px;border:1px solid #ddd;border-radius:var(--radius);cursor:pointer;transition:border-color .2s;}
-    .payment-opt:has(input:checked),.payment-opt.selected{border-color:var(--gold);}
+    .payment-opt.selected{border-color:var(--gold);}
     .payment-opt input{margin-top:2px;accent-color:var(--gold);}
     .payment-opt-label{font-size:14px;font-weight:700;}
     .payment-opt-desc{font-size:13px;color:var(--mid);margin-top:4px;}
-
-    /* COUPON */
     .coupon-row{display:flex;gap:10px;margin-bottom:20px;}
     .coupon-input{flex:1;padding:12px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;border-radius:var(--radius);}
     .coupon-input:focus{border-color:var(--gold);}
@@ -71,8 +78,6 @@
     .btn-coupon:hover{background:var(--gold);}
     .coupon-msg{font-size:13px;margin-top:-12px;margin-bottom:12px;}
     .coupon-msg.ok{color:#2d7a2d;}.coupon-msg.err{color:#c0392b;}
-
-    /* ORDER SUMMARY */
     .order-summary{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:28px;position:sticky;top:calc(var(--nav-h) + var(--bar-h) + 20px);}
     .summary-title{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #e8e0d2;}
     .summary-items{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
@@ -89,27 +94,21 @@
     .btn-place-order:hover{background:var(--gold-dark);}
     .btn-place-order:disabled{background:#ccc;cursor:not-allowed;}
     .order-terms{font-size:12px;color:var(--mid);text-align:center;margin-top:12px;line-height:1.5;}
-
-    /* SUCCESS */
     .order-success{max-width:600px;margin:60px auto;text-align:center;padding:40px;background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);display:none;}
     .order-success.show{display:block;}
     .success-icon{font-size:60px;margin-bottom:20px;}
     .order-success h2{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:12px;}
     .order-success p{color:var(--mid);font-size:14px;line-height:1.6;margin-bottom:20px;}
     .btn-continue{display:inline-block;padding:14px 32px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);}
-
-    /* EMPTY CART */
     .empty-cart{max-width:500px;margin:80px auto;text-align:center;padding:40px;}
     .empty-cart svg{width:60px;height:60px;margin:0 auto 20px;opacity:.3;}
     .empty-cart h2{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:12px;}
     .empty-cart p{color:var(--mid);font-size:14px;margin-bottom:24px;}
     .btn-shop{display:inline-block;padding:14px 32px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);}
-
     .skeleton{background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
     .toast{position:fixed;bottom:28px;right:28px;background:var(--dark);color:#fff;padding:14px 22px;border-radius:4px;font-size:13px;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:999;}
-    .toast.show{transform:translateY(0);opacity:1;}
-    .toast.success{background:#2d7a2d;}.toast.error{background:#c0392b;}
+    .toast.show{transform:translateY(0);opacity:1;}.toast.success{background:#2d7a2d;}.toast.error{background:#c0392b;}
     footer{background:var(--cream);border-top:1px solid #e8e0d2;padding:40px 32px;text-align:center;font-size:13px;color:var(--mid);}
     @media(max-width:900px){.checkout-layout{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}nav ul{display:none;}}
   </style>
@@ -119,27 +118,17 @@
 <header>
   <div class="nav-inner">
     <a href="index.html" class="nav-logo"><svg width="28" height="28" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="7" fill="#9B8B5A" opacity=".2"/><circle cx="16" cy="7" r="4" fill="#9B8B5A" opacity=".7"/><circle cx="16" cy="16" r="5" fill="#9B8B5A"/></svg>Vibrant Petals</a>
-    <nav><ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="category.html?cat=all">Shop</a></li>
-    </ul></nav>
+    <nav><ul><li><a href="index.html">Home</a></li><li><a href="category.html?cat=all">Shop</a></li></ul></nav>
     <div class="nav-icons">
       <button class="nav-icon-btn" onclick="location.href='account.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
       <button class="nav-icon-btn" onclick="location.href='wishlist.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount">0</span></button>
-      <button class="nav-icon-btn" onclick="location.href='category.html?cat=all'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="badge" id="cartCount">0</span></button>
+      <button class="nav-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--gold)"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="badge" id="cartCount">0</span></button>
     </div>
   </div>
 </header>
 
-<div class="page-head">
-  <h1>Checkout</h1>
-</div>
+<div class="page-head"><h1>Checkout</h1></div>
 <div class="breadcrumb"><a href="index.html">Home</a><span>›</span><a href="category.html?cat=all">Shop</a><span>›</span>Checkout</div>
-
-<!-- NOT LOGGED IN NOTICE -->
-<div class="login-notice" id="loginNotice" style="display:none;">
-  Returning customer? <a href="account.html">Click here to login</a> for faster checkout.
-</div>
 
 <!-- SUCCESS STATE -->
 <div class="order-success" id="orderSuccess">
@@ -152,7 +141,6 @@
 
 <!-- MAIN CHECKOUT -->
 <div id="checkoutMain">
-  <!-- EMPTY CART STATE -->
   <div class="empty-cart" id="emptyCart" style="display:none;">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
     <h2>Your Cart is Empty</h2>
@@ -161,14 +149,13 @@
   </div>
 
   <div class="checkout-layout" id="checkoutLayout" style="display:none;">
-    <!-- LEFT FORM -->
     <div>
       <!-- COUPON -->
       <div class="form-section">
         <div class="form-section-title">Have a Coupon?</div>
         <div class="coupon-row">
           <input type="text" class="coupon-input" id="couponInput" placeholder="Enter coupon code (e.g. WELCOME10)"/>
-          <button class="btn-coupon" id="applyCoupon">Apply</button>
+          <button class="btn-coupon" onclick="applyCoupon()">Apply</button>
         </div>
         <div class="coupon-msg" id="couponMsg"></div>
       </div>
@@ -176,6 +163,13 @@
       <!-- SHIPPING ADDRESS -->
       <div class="form-section">
         <div class="form-section-title">Shipping Details</div>
+        <!-- Saved addresses dropdown (shown when logged in) -->
+        <div class="saved-addr-strip" id="savedAddrStrip">
+          <label>Use a saved address</label>
+          <select class="saved-addr-select" id="savedAddrSelect" onchange="fillFromSaved()">
+            <option value="">— Fill manually —</option>
+          </select>
+        </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">First Name <span>*</span></label><input type="text" class="form-input" id="sFirst" placeholder="Jane"/></div>
           <div class="form-group"><label class="form-label">Last Name <span>*</span></label><input type="text" class="form-input" id="sLast" placeholder="Smith"/></div>
@@ -205,9 +199,7 @@
             <div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-input" id="bFirst"/></div>
             <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-input" id="bLast"/></div>
           </div>
-          <div class="form-row full">
-            <div class="form-group"><label class="form-label">Street Address</label><input type="text" class="form-input" id="bStreet"/></div>
-          </div>
+          <div class="form-row full"><div class="form-group"><label class="form-label">Street Address</label><input type="text" class="form-input" id="bStreet"/></div></div>
           <div class="form-row">
             <div class="form-group"><label class="form-label">City</label><input type="text" class="form-input" id="bCity"/></div>
             <div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" id="bState"/></div>
@@ -225,24 +217,15 @@
         <div class="payment-options">
           <label class="payment-opt selected">
             <input type="radio" name="payment" value="card" checked/>
-            <div>
-              <div class="payment-opt-label">💳 Credit / Debit Card</div>
-              <div class="payment-opt-desc">Visa, MasterCard, AMEX — secure payment</div>
-            </div>
+            <div><div class="payment-opt-label">💳 Credit / Debit Card</div><div class="payment-opt-desc">Visa, MasterCard, AMEX — secure payment</div></div>
           </label>
           <label class="payment-opt">
             <input type="radio" name="payment" value="bank_transfer"/>
-            <div>
-              <div class="payment-opt-label">🏦 Bank Transfer</div>
-              <div class="payment-opt-desc">Direct bank transfer — order held until payment confirmed</div>
-            </div>
+            <div><div class="payment-opt-label">🏦 Bank Transfer</div><div class="payment-opt-desc">Direct bank transfer — order held until payment confirmed</div></div>
           </label>
           <label class="payment-opt">
             <input type="radio" name="payment" value="cod"/>
-            <div>
-              <div class="payment-opt-label">💵 Cash on Delivery</div>
-              <div class="payment-opt-desc">Pay when your order arrives</div>
-            </div>
+            <div><div class="payment-opt-label">💵 Cash on Delivery</div><div class="payment-opt-desc">Pay when your order arrives</div></div>
           </label>
         </div>
       </div>
@@ -250,9 +233,7 @@
       <!-- NOTES -->
       <div class="form-section">
         <div class="form-section-title">Order Notes (optional)</div>
-        <div class="form-group">
-          <textarea class="form-textarea" id="orderNotes" placeholder="Special instructions for your order or delivery..."></textarea>
-        </div>
+        <div class="form-group"><textarea class="form-textarea" id="orderNotes" placeholder="Special instructions for your order or delivery..."></textarea></div>
       </div>
     </div>
 
@@ -268,8 +249,40 @@
       <div class="summary-row"><span>Discount</span><span id="sumDiscount">—</span></div>
       <div class="summary-row"><span>Shipping</span><span id="sumShipping">—</span></div>
       <div class="summary-row grand"><span>Total</span><span id="sumTotal">—</span></div>
-      <button class="btn-place-order" id="placeOrderBtn">Place Order</button>
+      <button class="btn-place-order" id="placeOrderBtn" onclick="handlePlaceOrder()">Place Order</button>
       <p class="order-terms">By placing your order, you agree to our <a href="#" style="color:var(--gold)">Terms of Service</a> and <a href="#" style="color:var(--gold)">Privacy Policy</a>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- INLINE LOGIN/REGISTER MODAL -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-modal-box">
+    <span class="login-modal-close" onclick="closeLoginModal()">✕</span>
+    <div class="login-modal-title">Sign In to Place Order</div>
+    <div class="login-modal-sub">Your cart is saved. Sign in or register below to continue.</div>
+    <div class="modal-tabs">
+      <button class="modal-tab-btn active" onclick="switchModalTab('login',this)">Sign In</button>
+      <button class="modal-tab-btn" onclick="switchModalTab('register',this)">Register</button>
+    </div>
+    <div class="modal-tab-panel active" id="modal-tab-login">
+      <input type="email" class="gate-input" id="mLoginEmail" placeholder="Email address *"/>
+      <input type="password" class="gate-input" id="mLoginPwd" placeholder="Password *"/>
+      <button class="btn-gate" onclick="doModalLogin()">Sign In & Continue</button>
+      <div class="gate-msg" id="mLoginMsg"></div>
+    </div>
+    <div class="modal-tab-panel" id="modal-tab-register">
+      <input type="text" class="gate-input" id="mRegUser" placeholder="Username *"/>
+      <input type="email" class="gate-input" id="mRegEmail" placeholder="Email address *"/>
+      <input type="password" class="gate-input" id="mRegPwd" placeholder="Password (min 6 chars) *"/>
+      <input type="text" class="gate-input" id="mRegFirst" placeholder="First name"/>
+      <input type="text" class="gate-input" id="mRegLast" placeholder="Last name"/>
+      <select class="gate-select" id="mRegRole">
+        <option value="Customer">Customer (retail)</option>
+        <option value="Dealer">Dealer (wholesale)</option>
+      </select>
+      <button class="btn-gate" onclick="doModalRegister()">Register & Continue</button>
+      <div class="gate-msg" id="mRegMsg"></div>
     </div>
   </div>
 </div>
@@ -283,20 +296,18 @@ let token=localStorage.getItem('vp_token')||'';
 let sessionId=localStorage.getItem('vp_session')||'sess_'+Math.random().toString(36).slice(2);
 localStorage.setItem('vp_session',sessionId);
 function apiHeaders(auth=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(auth&&token)h['Authorization']='Bearer '+token;return h;}
-async function apiFetch(path,opts={}){const r=await fetch(API+path,opts);return r.json();}
+async function apiFetch(path,opts={}){try{const r=await fetch(API+path,opts);return r.json();}catch(e){return{success:false,message:e.message};}}
 function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 
 let cartData=null;
+let savedAddresses=[];
 
-// NOT LOGGED IN
-if(!token){document.getElementById('loginNotice').style.display='flex';}
-
-// BILLING TOGGLE
+// ── BILLING TOGGLE ────────────────────────────────────────────────────────────
 document.getElementById('sameBilling').addEventListener('change',function(){
   document.getElementById('billingFields').style.display=this.checked?'none':'block';
 });
 
-// PAYMENT OPTION SELECT
+// ── PAYMENT OPTION HIGHLIGHT ──────────────────────────────────────────────────
 document.querySelectorAll('.payment-opt').forEach(opt=>{
   opt.addEventListener('click',function(){
     document.querySelectorAll('.payment-opt').forEach(o=>o.classList.remove('selected'));
@@ -304,9 +315,9 @@ document.querySelectorAll('.payment-opt').forEach(opt=>{
   });
 });
 
-// LOAD CART
+// ── LOAD CART ─────────────────────────────────────────────────────────────────
 async function loadCart(){
-  const data=await apiFetch('/cart',{headers:apiHeaders()}).catch(()=>({cart:{items:[]}}));
+  const data=await apiFetch('/cart',{headers:apiHeaders()});
   cartData=data.cart||{items:[]};
   const items=cartData.items||[];
   document.getElementById('cartCount').textContent=items.reduce((s,i)=>s+i.quantity,0);
@@ -321,10 +332,7 @@ function renderSummary(cart){
   document.getElementById('summaryItems').innerHTML=items.map(i=>`
     <div class="summary-item">
       <img src="${i.image||'https://via.placeholder.com/56'}" onerror="this.src='https://via.placeholder.com/56'" alt="${i.name}"/>
-      <div class="summary-item-info">
-        <div class="summary-item-name">${i.name}</div>
-        <div class="summary-item-qty">× ${i.quantity}</div>
-      </div>
+      <div class="summary-item-info"><div class="summary-item-name">${i.name}</div><div class="summary-item-qty">× ${i.quantity}</div></div>
       <div class="summary-item-price">$${(i.price*i.quantity).toFixed(2)}</div>
     </div>`).join('');
   document.getElementById('sumSubtotal').textContent='$'+(cart.subtotal||0).toFixed(2);
@@ -333,30 +341,72 @@ function renderSummary(cart){
   document.getElementById('sumTotal').textContent='$'+(cart.total||0).toFixed(2);
 }
 
-// COUPON
-document.getElementById('applyCoupon').onclick=async()=>{
+// ── SAVED ADDRESSES ───────────────────────────────────────────────────────────
+async function loadSavedAddresses(){
+  if(!token)return;
+  const data=await apiFetch('/auth/addresses',{headers:apiHeaders()});
+  savedAddresses=data.addresses||[];
+  if(!savedAddresses.length)return;
+  const strip=document.getElementById('savedAddrStrip');
+  const sel=document.getElementById('savedAddrSelect');
+  strip.style.display='block';
+  sel.innerHTML='<option value="">— Fill manually —</option>';
+  savedAddresses.forEach((a,i)=>{
+    const opt=document.createElement('option');
+    opt.value=i;
+    opt.textContent=`${a.label||'Address'}: ${a.firstName} ${a.lastName||''}, ${a.city}`;
+    sel.appendChild(opt);
+  });
+  // Auto-fill with default address
+  const defIdx=savedAddresses.findIndex(a=>a.isDefault);
+  if(defIdx>-1){sel.value=defIdx;fillFromSaved();}
+}
+
+function fillFromSaved(){
+  const idx=document.getElementById('savedAddrSelect').value;
+  if(idx==='')return;
+  const a=savedAddresses[idx];
+  if(!a)return;
+  document.getElementById('sFirst').value=a.firstName||'';
+  document.getElementById('sLast').value=a.lastName||'';
+  document.getElementById('sStreet').value=a.address||'';
+  document.getElementById('sCity').value=a.city||'';
+  document.getElementById('sState').value=a.state||'';
+  document.getElementById('sPostcode').value=a.postcode||'';
+  document.getElementById('sCountry').value=a.country||'Australia';
+  document.getElementById('sPhone').value=a.phone||'';
+}
+window.fillFromSaved=fillFromSaved;
+
+// ── COUPON ────────────────────────────────────────────────────────────────────
+async function applyCoupon(){
   const code=document.getElementById('couponInput').value.trim();
   const msg=document.getElementById('couponMsg');
   if(!code){msg.textContent='Please enter a coupon code.';msg.className='coupon-msg err';return;}
-  const data=await apiFetch('/cart/coupon',{method:'POST',headers:apiHeaders(),body:JSON.stringify({code})}).catch(()=>({success:false,message:'Error'}));
-  if(data.success){msg.textContent=data.message;msg.className='coupon-msg ok';await loadCart();}
+  const data=await apiFetch('/cart/coupon',{method:'POST',headers:apiHeaders(),body:JSON.stringify({code})});
+  if(data.success){msg.textContent=data.message;msg.className='coupon-msg ok';loadCart();}
   else{msg.textContent=data.message||'Invalid coupon';msg.className='coupon-msg err';}
-};
+}
 
-// PLACE ORDER
-document.getElementById('placeOrderBtn').onclick=async()=>{
+// ── PLACE ORDER ───────────────────────────────────────────────────────────────
+function handlePlaceOrder(){
+  if(!token){
+    // Open inline login modal instead of navigating away
+    openLoginModal();
+    return;
+  }
+  placeOrder();
+}
+
+async function placeOrder(){
   const btn=document.getElementById('placeOrderBtn');
-  if(!token){showToast('Please log in to place an order.','error');return;}
-
   const sFirst=document.getElementById('sFirst').value.trim();
   const sLast=document.getElementById('sLast').value.trim();
   const sStreet=document.getElementById('sStreet').value.trim();
   const sCity=document.getElementById('sCity').value.trim();
   const sState=document.getElementById('sState').value.trim();
   const sPostcode=document.getElementById('sPostcode').value.trim();
-
   if(!sFirst||!sLast||!sStreet||!sCity||!sState||!sPostcode){showToast('Please fill all required shipping fields.','error');return;}
-
   const shippingAddress={firstName:sFirst,lastName:sLast,address:sStreet,city:sCity,state:sState,postcode:sPostcode,country:document.getElementById('sCountry').value,phone:document.getElementById('sPhone').value};
   const sameBilling=document.getElementById('sameBilling').checked;
   const billingAddress=sameBilling?shippingAddress:{
@@ -367,23 +417,81 @@ document.getElementById('placeOrderBtn').onclick=async()=>{
   };
   const paymentMethod=document.querySelector('input[name="payment"]:checked').value;
   const notes=document.getElementById('orderNotes').value;
-
   btn.disabled=true;btn.textContent='Placing order...';
-  const data=await apiFetch('/orders',{method:'POST',headers:apiHeaders(),body:JSON.stringify({shippingAddress,billingAddress,paymentMethod,notes})}).catch(()=>({success:false,message:'Network error'}));
+  const data=await apiFetch('/orders',{method:'POST',headers:apiHeaders(),body:JSON.stringify({shippingAddress,billingAddress,paymentMethod,notes})});
   btn.disabled=false;btn.textContent='Place Order';
-
   if(data.success){
     document.getElementById('checkoutMain').style.display='none';
-    const succ=document.getElementById('orderSuccess');
-    succ.classList.add('show');
+    const succ=document.getElementById('orderSuccess');succ.classList.add('show');
     document.getElementById('orderNumDisplay').textContent='Order #'+data.order.orderNumber;
     window.scrollTo({top:0,behavior:'smooth'});
-  } else {
+  }else{
     showToast(data.message||'Failed to place order','error');
   }
-};
+}
 
-loadCart();
+// ── INLINE LOGIN MODAL ────────────────────────────────────────────────────────
+function openLoginModal(){document.getElementById('loginOverlay').classList.add('open');}
+function closeLoginModal(){document.getElementById('loginOverlay').classList.remove('open');}
+window.closeLoginModal=closeLoginModal;
+
+function switchModalTab(name,btn){
+  document.querySelectorAll('.modal-tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.modal-tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('modal-tab-'+name).classList.add('active');
+}
+window.switchModalTab=switchModalTab;
+
+async function mergeCart(){
+  if(!token||!sessionId)return;
+  try{await apiFetch('/cart/merge',{method:'POST',headers:apiHeaders(),body:JSON.stringify({sessionId})});}
+  catch(e){console.warn('Cart merge:',e);}
+}
+
+async function doModalLogin(){
+  const email=document.getElementById('mLoginEmail').value.trim();
+  const pwd=document.getElementById('mLoginPwd').value;
+  const msg=document.getElementById('mLoginMsg');
+  msg.textContent='';msg.className='gate-msg';
+  const data=await apiFetch('/auth/login',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email,password:pwd})});
+  if(data.success){
+    token=data.token;localStorage.setItem('vp_token',token);
+    await mergeCart();
+    closeLoginModal();
+    await loadCart();     // Reload cart with merged/user cart
+    await loadSavedAddresses();
+    // Proceed straight to placing the order
+    placeOrder();
+  }else{msg.textContent=data.message||'Login failed';msg.className='gate-msg err';}
+}
+
+async function doModalRegister(){
+  const username=document.getElementById('mRegUser').value.trim();
+  const email=document.getElementById('mRegEmail').value.trim();
+  const pwd=document.getElementById('mRegPwd').value;
+  const firstName=document.getElementById('mRegFirst').value.trim();
+  const lastName=document.getElementById('mRegLast').value.trim();
+  const role=document.getElementById('mRegRole').value;
+  const msg=document.getElementById('mRegMsg');msg.textContent='';
+  const data=await apiFetch('/auth/register',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({username,email,password:pwd,firstName,lastName,role})});
+  if(data.success){
+    token=data.token;localStorage.setItem('vp_token',token);
+    await mergeCart();
+    closeLoginModal();
+    await loadCart();
+    await loadSavedAddresses();
+    placeOrder();
+  }else{msg.textContent=data.message||'Registration failed';msg.className='gate-msg err';}
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init(){
+  await loadCart();
+  if(token)await loadSavedAddresses();
+}
+
+init();
 </script>
 </body>
 </html>
