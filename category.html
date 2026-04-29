@@ -281,7 +281,7 @@
       <button class="btn-subscribe" id="nlSubmit">Subscribe</button>
     </div>
   </div>
-  <div class="footer-bottom">Copyright © VibrantPetals. All Rights Reserved.</div>
+  <div class="footer-bottom">Copyright © VibrantPetals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></div>
 </footer>
 
 <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
@@ -316,7 +316,13 @@ let sessionId = localStorage.getItem('vp_session')||'sess_'+Math.random().toStri
 localStorage.setItem('vp_session', sessionId);
 
 function apiHeaders(auth=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(auth&&token)h['Authorization']='Bearer '+token;return h;}
-async function apiFetch(path,opts={}){const r=await fetch(API+path,opts);return r.json();}
+async function apiFetch(path,opts={}){try{const r=await fetch(API+path,opts);return r.json();}catch(e){return{success:false,message:e.message};}}
+
+// Decode role from JWT without verifying (client-side display only)
+function getTokenRole(){
+  try{if(!token)return null;const p=token.split('.')[1];const j=JSON.parse(atob(p.replace(/-/g,'+').replace(/_/g,'/')));return j.role||null;}
+  catch{return null;}
+}
 function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 
 // ── URL / STATE ───────────────────────────────────────────────────────────────
@@ -452,7 +458,11 @@ function renderProducts(products){
 }
 
 function formatPrice(p){
-  if(p.salePrice && p.regularPrice) return `$${p.salePrice.toFixed(2)} – $${p.regularPrice.toFixed(2)}`;
+  const role=getTokenRole();
+  const isDealer=role==='Dealer';
+  // Dealer sees their wholesale price if set
+  if(isDealer && p.dealerPrice) return `<span style="color:#F5A623;font-weight:700;">⭐ $${p.dealerPrice.toFixed(2)}</span>`;
+  if(p.salePrice && p.regularPrice) return `$${p.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${p.regularPrice.toFixed(2)}</span>`;
   if(p.price) return `$${p.price.toFixed(2)}`;
   return '';
 }
