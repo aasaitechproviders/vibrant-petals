@@ -340,6 +340,12 @@ const productId=params.get('id');
 let productData=null;
 let qty=1;
 
+// Decode JWT payload client-side to read role (no verification, view-only)
+function getTokenRole(){
+  try{if(!token)return null;const p=token.split('.')[1];const j=JSON.parse(atob(p.replace(/-/g,'+').replace(/_/g,'/')));return j.role||null;}
+  catch{return null;}
+}
+
 async function loadProduct(){
   if(!productId){document.getElementById('productLayout').innerHTML='<p style="padding:40px;color:var(--mid)">No product specified.</p>';return;}
   const data=await apiFetch('/products/'+productId).catch(()=>null);
@@ -355,8 +361,11 @@ function renderProduct(p){
 
   const imgs=p.images&&p.images.length?p.images:['https://via.placeholder.com/600x600?text=Flower'];
   const inStock=p.stockStatus!=='outofstock';
-  const price=p.salePrice?p.salePrice:p.price||0;
-  const regPrice=p.regularPrice&&p.salePrice?p.regularPrice:null;
+  const userRole=getTokenRole();
+  const isDealer=userRole==='Dealer';
+  // Use dealer price for dealer users if available
+  const price=isDealer&&p.dealerPrice?p.dealerPrice:(p.salePrice?p.salePrice:p.price||0);
+  const regPrice=!isDealer&&p.regularPrice&&p.salePrice?p.regularPrice:null;
   const discount=regPrice?Math.round((1-price/regPrice)*100):null;
 
   document.getElementById('productLayout').innerHTML=`
@@ -373,6 +382,8 @@ function renderProduct(p){
         <span class="price-main">$${price.toFixed(2)}</span>
         ${regPrice?`<span class="price-reg">$${regPrice.toFixed(2)}</span>`:''}
         ${discount?`<span class="price-sale">${discount}% OFF</span>`:''}
+        ${isDealer&&p.dealerPrice?`<span class="price-sale" style="background:#F5A623;">⭐ Dealer Price</span>`:''}
+        ${isDealer&&p.price&&p.price!==price?`<span class="price-reg" style="font-size:13px;">Retail: $${p.price.toFixed(2)}</span>`:''}
       </div>
       <div class="stock-pill ${inStock?'instock':'outofstock'}">
         ${inStock?'● In Stock':'● Out of Stock'}
@@ -516,8 +527,12 @@ document.getElementById('loginSubmit').onclick=async()=>{
   const email=document.getElementById('loginEmail').value.trim(),pwd=document.getElementById('loginPwd').value;
   const msg=document.getElementById('loginMsg'),err=document.getElementById('loginErr');msg.style.display=err.style.display='none';
   const data=await apiFetch('/auth/login',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email,password:pwd})}).catch(()=>({success:false,message:'Network error'}));
-  if(data.success){token=data.token;localStorage.setItem('vp_token',token);msg.textContent='Welcome back!';msg.style.display='block';setTimeout(()=>loginModal.classList.remove('open'),1200);loadCart();}
-  else{err.textContent=data.message||'Login failed';err.style.display='block';}
+  if(data.success){
+    token=data.token;localStorage.setItem('vp_token',token);
+    // Merge guest cart into user cart
+    try{await apiFetch('/cart/merge',{method:'POST',headers:apiHeaders(),body:JSON.stringify({sessionId})});}catch(e){}
+    msg.textContent='Welcome back!';msg.style.display='block';setTimeout(()=>loginModal.classList.remove('open'),1200);loadCart();
+  }else{err.textContent=data.message||'Login failed';err.style.display='block';}
 };
 document.getElementById('regSubmit').onclick=async()=>{
   const username=document.getElementById('regUsername').value.trim(),email=document.getElementById('regEmail').value.trim(),pwd=document.getElementById('regPwd').value;
