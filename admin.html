@@ -390,7 +390,9 @@
 
 <script>
 const API='https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
-let token=localStorage.getItem('vp_admin_token')||'';
+// FIX: Single-token login — admin can use their storefront vp_token directly.
+// We check vp_token first (preferred), then fall back to legacy vp_admin_token.
+let token=localStorage.getItem('vp_token')||localStorage.getItem('vp_admin_token')||'';
 let userData=null;
 let editingProductId=null, editingOrderId=null, editingUserId=null, editingCouponId=null;
 let prodPage=1, ordPage=1, userPage=1, custPage=1, nlPage=1;
@@ -421,10 +423,15 @@ async function adminLogin(){
   const pwd=document.getElementById('adminPwd').value;
   const errEl=document.getElementById('adminErr');errEl.textContent='';
   const data=await apiFetch('/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pwd})});
-  if(data.success&&data.user?.role==='Administrator'){token=data.token;localStorage.setItem('vp_admin_token',token);checkAuth();}
-  else{errEl.textContent=data.user?.role!=='Administrator'?'Access denied — Admin only.':(data.message||'Login failed');}
+  if(data.success&&data.user?.role==='Administrator'){
+    token=data.token;
+    // Store in vp_token (unified) so admin doesn't need separate login on storefront
+    localStorage.setItem('vp_token',token);
+    localStorage.removeItem('vp_admin_token'); // clean up legacy key
+    checkAuth();
+  }else{errEl.textContent=data.user?.role!=='Administrator'?'Access denied — Admin only.':(data.message||'Login failed');}
 }
-function doAdminLogout(){token='';localStorage.removeItem('vp_admin_token');checkAuth();}
+function doAdminLogout(){token='';localStorage.removeItem('vp_token');localStorage.removeItem('vp_admin_token');checkAuth();}
 document.getElementById('adminPwd')?.addEventListener('keydown',e=>{if(e.key==='Enter')adminLogin();});
 
 // ── PANEL NAVIGATION ──────────────────────────────────────────────────────────
