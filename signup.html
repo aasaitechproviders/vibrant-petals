@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Account – VibrantPetals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --gold:      #9B8B5A;
+      --gold-dark: #7A6B3F;
+      --gold-lt:   #C5B483;
+      --cream:     #FAF7F2;
+      --cream2:    #F2EDE3;
+      --dark:      #1A1A1A;
+      --mid:       #555;
+      --light:     #888;
+      --card-bg:   #E8F0F5;
+      --radius:    4px;
+      --nav-h:     70px;
+      --bar-h:     40px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Lato', sans-serif; background: var(--cream); color: var(--dark); min-height: 100vh; }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+    ul { list-style: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* ── ANN BAR ── */
+    .ann-bar { background: var(--gold); color: #fff; text-align: center; font-size: 13px; letter-spacing: .06em; padding: 0 16px; height: var(--bar-h); display: flex; align-items: center; justify-content: center; }
+
+    /* ── NAV ── */
+    header { background: #fff; border-bottom: 1px solid #e8e0d2; height: var(--nav-h); }
+    .nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 32px; height: 100%; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; color: var(--dark); }
+    .nav-logo svg { width: 28px; height: 28px; }
+    .nav-links { display: flex; align-items: center; gap: 20px; font-size: 13px; color: var(--mid); }
+    .nav-links a:hover { color: var(--gold); }
+
+    /* ── SIGNUP LAYOUT ── */
+    .signup-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: calc(100vh - var(--nav-h) - var(--bar-h));
+    }
+
+    /* Left panel — decorative */
+    .signup-panel-left {
+      background: var(--dark);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 56px;
+      position: relative;
+      overflow: hidden;
+    }
+    .signup-panel-left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 40%, rgba(155,139,90,.18) 0%, transparent 70%),
+                  radial-gradient(ellipse at 80% 80%, rgba(155,139,90,.10) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .panel-florals {
+      position: absolute;
+      right: -30px; bottom: -20px;
+      opacity: .07;
+      font-size: 240px;
+      line-height: 1;
+      user-select: none;
+    }
+    .panel-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(155,139,90,.2);
+      border: 1px solid rgba(155,139,90,.35);
+      color: var(--gold-lt);
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+      width: fit-content;
+    }
+    .panel-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 400;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+    .panel-heading em { color: var(--gold-lt); font-style: italic; }
+    .panel-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,.55);
+      line-height: 1.75;
+      max-width: 360px;
+      margin-bottom: 40px;
+    }
+    .panel-perks { display: flex; flex-direction: column; gap: 14px; }
+    .perk-item { display: flex; align-items: flex-start; gap: 12px; }
+    .perk-icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(155,139,90,.15); border: 1px solid rgba(155,139,90,.25); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .perk-text { font-size: 13px; color: rgba(255,255,255,.65); line-height: 1.5; }
+    .perk-text strong { color: rgba(255,255,255,.9); display: block; font-size: 14px; margin-bottom: 2px; }
+
+    /* Right panel — form */
+    .signup-panel-right {
+      background: var(--cream);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 48px 56px 60px;
+      overflow-y: auto;
+    }
+
+    /* Type selector */
+    .type-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .type-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 20px 16px;
+      border: 2px solid #e8e0d2;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      transition: border-color .2s, background .2s, box-shadow .2s;
+      text-align: center;
+    }
+    .type-btn:hover { border-color: var(--gold-lt); }
+    .type-btn.active { border-color: var(--gold); background: #fff; box-shadow: 0 0 0 3px rgba(155,139,90,.12); }
+    .type-btn-icon { font-size: 26px; }
+    .type-btn-label { font-size: 14px; font-weight: 700; color: var(--dark); letter-spacing: .04em; }
+    .type-btn-sub { font-size: 11px; color: var(--light); letter-spacing: .03em; }
+    .type-btn.active .type-btn-label { color: var(--gold); }
+
+    /* Form heading */
+    .form-heading { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 400; margin-bottom: 6px; }
+    .form-sub { font-size: 13px; color: var(--mid); margin-bottom: 28px; }
+    .form-sub a { color: var(--gold); font-weight: 700; }
+
+    /* Inputs */
+    .form-group { margin-bottom: 18px; }
+    .form-group.half-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--mid); margin-bottom: 7px; }
+    .form-label .req { color: #c0392b; margin-left: 2px; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; padding: 12px 16px;
+      border: 1px solid #ddd; border-radius: var(--radius);
+      font-family: inherit; font-size: 14px;
+      outline: none; background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+      color: var(--dark);
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(155,139,90,.1);
+    }
+    .form-textarea { height: 90px; resize: vertical; }
+    .input-note { font-size: 11px; color: var(--light); margin-top: 5px; }
+
+    /* Checkbox / radio groups */
+    .radio-group, .check-group { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+    .radio-option, .check-option {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      border: 1px solid #e8e0d2;
+      border-radius: var(--radius);
+      background: #fff;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      font-size: 14px;
+    }
+    .radio-option:hover, .check-option:hover { border-color: var(--gold-lt); background: var(--cream2); }
+    .radio-option input, .check-option input { width: 16px; height: 16px; accent-color: var(--gold); flex-shrink: 0; }
+    .radio-group.two-col, .check-group.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* Dealer steps progress */
+    .dealer-progress {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 28px;
+    }
+    .dp-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      position: relative;
+    }
+    .dp-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: #e8e0d2;
+      z-index: 0;
+    }
+    .dp-step.done::after, .dp-step.active::after { background: var(--gold); }
+    .dp-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid #e8e0d2;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--light);
+      position: relative; z-index: 1;
+      transition: all .25s;
+    }
+    .dp-step.done .dp-dot { background: var(--gold); border-color: var(--gold); color: #fff; }
+    .dp-step.active .dp-dot { background: var(--dark); border-color: var(--dark); color: #fff; }
+    .dp-label { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--light); text-align: center; white-space: nowrap; }
+    .dp-step.active .dp-label, .dp-step.done .dp-label { color: var(--gold-dark); font-weight: 700; }
+
+    /* Step sections */
+    .dealer-step { display: none; }
+    .dealer-step.active { display: block; animation: fadeSlide .25s ease; }
+    @keyframes fadeSlide { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+
+    .section-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(155,139,90,.1); border: 1px solid rgba(155,139,90,.2);
+      color: var(--gold-dark); font-size: 11px; letter-spacing: .1em;
+      text-transform: uppercase; font-weight: 700;
+      padding: 4px 12px; border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 4px; }
+    .section-desc { font-size: 13px; color: var(--mid); margin-bottom: 24px; line-height: 1.6; }
+
+    /* Nav buttons */
+    .form-nav { display: flex; gap: 12px; align-items: center; margin-top: 24px; }
+    .btn-back {
+      padding: 13px 24px; border: 1px solid #ddd;
+      font-size: 13px; letter-spacing: .08em; text-transform: uppercase;
+      font-weight: 700; color: var(--mid); border-radius: var(--radius);
+      transition: border-color .2s, color .2s;
+    }
+    .btn-back:hover { border-color: var(--dark); color: var(--dark); }
+    .btn-next, .btn-submit {
+      flex: 1; padding: 14px;
+      background: var(--gold); color: #fff;
+      font-size: 13px; letter-spacing: .1em; text-transform: uppercase;
+      font-weight: 700; border-radius: var(--radius);
+      transition: background .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-next:hover, .btn-submit:hover { background: var(--gold-dark); }
+    .btn-next:disabled, .btn-submit:disabled { background: #bbb; cursor: not-allowed; }
+    .btn-submit { background: var(--dark); }
+    .btn-submit:hover { background: var(--gold-dark); }
+
+    /* Simple customer form */
+    .btn-primary {
+      width: 100%; padding: 14px;
+      background: var(--gold); color: #fff;
+      font-size: 13px; letter-spacing: .1em; text-transform: uppercase;
+      font-weight: 700; border-radius: var(--radius);
+      transition: background .2s; margin-top: 4px;
+    }
+    .btn-primary:hover { background: var(--gold-dark); }
+    .btn-primary:disabled { background: #bbb; cursor: not-allowed; }
+
+    /* Password toggle */
+    .input-wrap { position: relative; }
+    .input-wrap .form-input { padding-right: 46px; }
+    .pwd-toggle { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--light); cursor: pointer; transition: color .2s; }
+    .pwd-toggle:hover { color: var(--dark); }
+    .pwd-toggle svg { width: 18px; height: 18px; display: block; }
+
+    /* Messages */
+    .msg { font-size: 13px; padding: 12px 16px; border-radius: var(--radius); margin-top: 14px; display: none; }
+    .msg.ok { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; display: flex; align-items: center; gap: 8px; }
+    .msg.err { background: #fce4e4; color: #c62828; border: 1px solid #ffcdd2; display: flex; align-items: center; gap: 8px; }
+
+    /* Success screen */
+    .success-screen { display: none; text-align: center; padding: 40px 0; }
+    .success-screen.visible { display: block; animation: fadeSlide .3s ease; }
+    .success-icon { font-size: 56px; margin-bottom: 20px; }
+    .success-title { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 12px; }
+    .success-sub { font-size: 14px; color: var(--mid); line-height: 1.7; margin-bottom: 28px; }
+    .success-sub.dealer { background: rgba(155,139,90,.1); border: 1px solid rgba(155,139,90,.2); border-radius: var(--radius); padding: 16px 20px; color: var(--gold-dark); font-weight: 700; font-size: 13px; }
+    .btn-go-shop { display: inline-block; padding: 14px 40px; background: var(--gold); color: #fff; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; border-radius: var(--radius); transition: background .2s; }
+    .btn-go-shop:hover { background: var(--gold-dark); }
+
+    /* Divider */
+    .divider { display: flex; align-items: center; gap: 14px; margin: 20px 0; font-size: 12px; color: var(--light); letter-spacing: .06em; text-transform: uppercase; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e8e0d2; }
+
+    /* Already have account strip */
+    .login-strip { text-align: center; font-size: 13px; color: var(--mid); margin-top: 20px; }
+    .login-strip a { color: var(--gold); font-weight: 700; }
+
+    @media (max-width: 900px) {
+      .signup-wrapper { grid-template-columns: 1fr; }
+      .signup-panel-left { display: none; }
+      .signup-panel-right { padding: 32px 24px 48px; }
+      .form-group.half-row { grid-template-columns: 1fr; }
+      .radio-group.two-col, .check-group.two-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="ann-bar">Authorized Community Flower Partner Programme – Melbourne &amp; Sydney</div>
+<header>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="7" fill="#9B8B5A" opacity=".2"/><circle cx="16" cy="7" r="4" fill="#9B8B5A" opacity=".7"/><circle cx="16" cy="16" r="5" fill="#9B8B5A"/></svg>
+      Vibrant Petals
+    </a>
+    <div class="nav-links">
+      <a href="index.html">← Back to store</a>
+    </div>
+  </div>
+</header>
+
+<div class="signup-wrapper">
+
+  <!-- ── LEFT PANEL ── -->
+  <div class="signup-panel-left">
+    <div class="panel-florals">✿</div>
+    <div class="panel-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      VibrantPetals Community
+    </div>
+    <h1 class="panel-heading">Join the <em>Floral</em><br/>Partner Network</h1>
+    <p class="panel-sub">Whether you're a home-based entrepreneur or a florist, become part of our growing community of flower partners across Melbourne &amp; Sydney.</p>
+    <div class="panel-perks">
+      <div class="perk-item">
+        <div class="perk-icon">🛍️</div>
+        <div class="perk-text">
+          <strong>Wholesale Pricing</strong>
+          Exclusive dealer rates on all fresh flower strings &amp; garlands.
+        </div>
+      </div>
+      <div class="perk-item">
+        <div class="perk-icon">📦</div>
+        <div class="perk-text">
+          <strong>Pre-Order Model</strong>
+          No unsold stock — you only order what you've already sold.
+        </div>
+      </div>
+      <div class="perk-item">
+        <div class="perk-icon">🌸</div>
+        <div class="perk-text">
+          <strong>Festival Priority</strong>
+          First allocation during Diwali, Navratri &amp; other festive seasons.
+        </div>
+      </div>
+      <div class="perk-item">
+        <div class="perk-icon">💬</div>
+        <div class="perk-text">
+          <strong>WhatsApp Support</strong>
+          Dedicated partner support group for ordering &amp; coordination.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="signup-panel-right">
+
+    <!-- Success screen (hidden by default) -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon" id="successIcon">🎉</div>
+      <h2 class="success-title" id="successTitle">Account Created!</h2>
+      <p class="success-sub" id="successSub"></p>
+      <p class="success-sub dealer" id="successDealerNote" style="display:none;"></p>
+      <a href="index.html" class="btn-go-shop">Start Shopping</a>
+    </div>
+
+    <!-- Main form (visible by default) -->
+    <div id="mainForm">
+      <h2 class="form-heading">Create your account</h2>
+      <p class="form-sub">Choose account type to get started. <a href="account.html">Already have an account? Sign in</a></p>
+
+      <!-- Account type selector -->
+      <div class="type-selector">
+        <button class="type-btn active" id="typeCustomer" onclick="setType('customer')">
+          <div class="type-btn-icon">🛒</div>
+          <div class="type-btn-label">Customer</div>
+          <div class="type-btn-sub">Shop & order online</div>
+        </button>
+        <button class="type-btn" id="typeDealer" onclick="setType('dealer')">
+          <div class="type-btn-icon">⭐</div>
+          <div class="type-btn-label">Dealer / Partner</div>
+          <div class="type-btn-sub">Wholesale & distribution</div>
+        </button>
+      </div>
+
+      <!-- ══ CUSTOMER FORM ══ -->
+      <div id="customerForm">
+        <div class="form-group half-row">
+          <div>
+            <label class="form-label">First Name <span class="req">*</span></label>
+            <input class="form-input" id="cFirstName" placeholder="Priya" type="text"/>
+          </div>
+          <div>
+            <label class="form-label">Last Name <span class="req">*</span></label>
+            <input class="form-input" id="cLastName" placeholder="Sharma" type="text"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username <span class="req">*</span></label>
+          <input class="form-input" id="cUsername" placeholder="priya_sharma" type="text"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address <span class="req">*</span></label>
+          <input class="form-input" id="cEmail" placeholder="priya@email.com" type="email"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password <span class="req">*</span></label>
+          <div class="input-wrap">
+            <input class="form-input" id="cPassword" placeholder="Min. 8 characters" type="password"/>
+            <span class="pwd-toggle" onclick="togglePwd('cPassword', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="eyeIconC"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="msg" id="custMsg"></div>
+        <button class="btn-primary" id="custSubmitBtn" onclick="submitCustomer()">Create Account →</button>
+        <div class="divider">or sign up as a dealer to get wholesale prices</div>
+        <button class="type-btn" style="width:100%;flex-direction:row;justify-content:center;gap:12px;padding:14px 20px;" onclick="setType('dealer')">
+          <span style="font-size:18px;">⭐</span>
+          <div style="text-align:left;"><div style="font-size:14px;font-weight:700;color:var(--dark);">Become a Dealer Partner</div><div style="font-size:11px;color:var(--light);">Wholesale pricing · Festival priority · WhatsApp support</div></div>
+        </button>
+      </div>
+
+      <!-- ══ DEALER FORM ══ -->
+      <div id="dealerForm" style="display:none;">
+
+        <!-- Progress bar -->
+        <div class="dealer-progress" id="dealerProgress"></div>
+
+        <!-- Step 1 — Account Details -->
+        <div class="dealer-step active" id="dStep1">
+          <div class="section-badge">Step 1 of 6 · Account Details</div>
+          <h3 class="section-title">Let's set up your login</h3>
+          <p class="section-desc">This is how you'll access your dealer account and wholesale pricing.</p>
+          <div class="form-group half-row">
+            <div>
+              <label class="form-label">First Name <span class="req">*</span></label>
+              <input class="form-input" id="dFirstName" placeholder="Priya" type="text"/>
+            </div>
+            <div>
+              <label class="form-label">Last Name <span class="req">*</span></label>
+              <input class="form-input" id="dLastName" placeholder="Sharma" type="text"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Full Name (as used publicly) <span class="req">*</span></label>
+            <input class="form-input" id="dFullName" placeholder="Priya Sharma" type="text"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username <span class="req">*</span></label>
+            <input class="form-input" id="dUsername" placeholder="priya_flowers" type="text"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address <span class="req">*</span></label>
+            <input class="form-input" id="dEmail" placeholder="priya@email.com" type="email"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password <span class="req">*</span></label>
+            <div class="input-wrap">
+              <input class="form-input" id="dPassword" placeholder="Min. 8 characters" type="password"/>
+              <span class="pwd-toggle" onclick="togglePwd('dPassword', this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </span>
+            </div>
+          </div>
+          <div class="msg" id="step1Msg"></div>
+          <div class="form-nav">
+            <button class="btn-next" onclick="goStep(2)">Continue <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+
+        <!-- Step 2 — Basic Details -->
+        <div class="dealer-step" id="dStep2">
+          <div class="section-badge">Step 2 of 6 · Basic Details</div>
+          <h3 class="section-title">Your contact information</h3>
+          <p class="section-desc">We use this to coordinate pickups, deliveries, and send you festival alerts via WhatsApp.</p>
+          <div class="form-group">
+            <label class="form-label">Mobile Number (WhatsApp preferred) <span class="req">*</span></label>
+            <input class="form-input" id="dMobile" placeholder="+61 4XX XXX XXX" type="tel"/>
+            <div class="input-note">We'll add you to our Dealer WhatsApp group for order coordination.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">City <span class="req">*</span></label>
+            <div class="radio-group two-col">
+              <label class="radio-option"><input type="radio" name="dCity" value="Sydney"/> Sydney</label>
+              <label class="radio-option"><input type="radio" name="dCity" value="Melbourne"/> Melbourne</label>
+              <label class="radio-option"><input type="radio" name="dCity" value="Brisbane"/> Brisbane</label>
+              <label class="radio-option"><input type="radio" name="dCity" value="Other"/> Other</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Suburb / Area <span class="req">*</span></label>
+            <input class="form-input" id="dSuburb" placeholder="e.g. Parramatta, Dandenong" type="text"/>
+          </div>
+          <div class="msg" id="step2Msg"></div>
+          <div class="form-nav">
+            <button class="btn-back" onclick="goStep(1)">← Back</button>
+            <button class="btn-next" onclick="goStep(3)">Continue <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+
+        <!-- Step 3 — Business Info -->
+        <div class="dealer-step" id="dStep3">
+          <div class="section-badge">Step 3 of 6 · Business Background</div>
+          <h3 class="section-title">Tell us about your business</h3>
+          <p class="section-desc">This helps us understand your distribution capacity and tailor our partnership to you.</p>
+          <div class="form-group">
+            <label class="form-label">Are you currently running any business? <span class="req">*</span></label>
+            <div class="radio-group">
+              <label class="radio-option"><input type="radio" name="dBizType" value="Yes – Shop-based"/> Yes – Shop-based</label>
+              <label class="radio-option"><input type="radio" name="dBizType" value="Yes – Home-based"/> Yes – Home-based</label>
+              <label class="radio-option"><input type="radio" name="dBizType" value="No, but interested in starting"/> No, but interested in starting</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Type of activity — select all that apply <span class="req">*</span></label>
+            <div class="check-group two-col">
+              <label class="check-option"><input type="checkbox" name="dActivity" value="Florist (non-chain)"/> Florist (non-chain)</label>
+              <label class="check-option"><input type="checkbox" name="dActivity" value="Pooja items store"/> Pooja items store</label>
+              <label class="check-option"><input type="checkbox" name="dActivity" value="Costume / imitation jeweler"/> Costume / jeweler</label>
+              <label class="check-option"><input type="checkbox" name="dActivity" value="Dance / cultural academy"/> Dance / cultural academy</label>
+              <label class="check-option"><input type="checkbox" name="dActivity" value="Event / wedding coordination"/> Event / wedding coord.</label>
+              <label class="check-option"><input type="checkbox" name="dActivity" value="Home-based women entrepreneur"/> Home-based entrepreneur</label>
+              <label class="check-option"><input type="checkbox" name="dActivity" value="Temple / community group"/> Temple / community group</label>
+              <label class="check-option"><input type="checkbox" name="dActivity" value="Other"/> Other</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">If shop-based — shop name <span style="font-weight:400;text-transform:none;font-size:11px;">(optional)</span></label>
+            <input class="form-input" id="dShopName" placeholder="e.g. Lakshmi Flowers" type="text"/>
+          </div>
+          <div class="msg" id="step3Msg"></div>
+          <div class="form-nav">
+            <button class="btn-back" onclick="goStep(2)">← Back</button>
+            <button class="btn-next" onclick="goStep(4)">Continue <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+
+        <!-- Step 4 — Sales Potential -->
+        <div class="dealer-step" id="dStep4">
+          <div class="section-badge">Step 4 of 6 · Sales Potential</div>
+          <h3 class="section-title">How much can you sell?</h3>
+          <p class="section-desc">We use this to plan your allocation and ensure you always have enough stock for your customers.</p>
+          <div class="form-group">
+            <label class="form-label">How many customers can you realistically reach per week? <span class="req">*</span></label>
+            <div class="radio-group">
+              <label class="radio-option"><input type="radio" name="dCustomerCount" value="Less than 10"/> Less than 10</label>
+              <label class="radio-option"><input type="radio" name="dCustomerCount" value="10–25"/> 10–25 customers</label>
+              <label class="radio-option"><input type="radio" name="dCustomerCount" value="25–50"/> 25–50 customers</label>
+              <label class="radio-option"><input type="radio" name="dCustomerCount" value="50+"/> 50+ customers</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Are you interested in selling via subscription model? <span class="req">*</span></label>
+            <div class="radio-group">
+              <label class="radio-option"><input type="radio" name="dSubscription" value="Yes, weekly pooja flower subscriptions"/> Yes — weekly pooja flower subscriptions</label>
+              <label class="radio-option"><input type="radio" name="dSubscription" value="Yes, festival-only subscriptions"/> Yes — festival-only subscriptions</label>
+              <label class="radio-option"><input type="radio" name="dSubscription" value="Not sure, need explanation"/> Not sure — need explanation</label>
+            </div>
+          </div>
+          <div class="msg" id="step4Msg"></div>
+          <div class="form-nav">
+            <button class="btn-back" onclick="goStep(3)">← Back</button>
+            <button class="btn-next" onclick="goStep(5)">Continue <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+
+        <!-- Step 5 — Logistics -->
+        <div class="dealer-step" id="dStep5">
+          <div class="section-badge">Step 5 of 6 · Logistics &amp; Availability</div>
+          <h3 class="section-title">When &amp; how you'll distribute</h3>
+          <p class="section-desc">Fresh flowers need timely pickup. Let us know your availability so we can plan routes.</p>
+          <div class="form-group">
+            <label class="form-label">Preferred days for distribution <span class="req">*</span></label>
+            <div class="check-group two-col">
+              <label class="check-option"><input type="checkbox" name="dDays" value="Monday"/> Monday</label>
+              <label class="check-option"><input type="checkbox" name="dDays" value="Tuesday"/> Tuesday</label>
+              <label class="check-option"><input type="checkbox" name="dDays" value="Wednesday"/> Wednesday</label>
+              <label class="check-option"><input type="checkbox" name="dDays" value="Thursday"/> Thursday</label>
+              <label class="check-option"><input type="checkbox" name="dDays" value="Friday"/> Friday</label>
+              <label class="check-option"><input type="checkbox" name="dDays" value="Saturday"/> Saturday</label>
+              <label class="check-option"><input type="checkbox" name="dDays" value="Sunday"/> Sunday</label>
+              <label class="check-option"><input type="checkbox" name="dDays" value="Festival days"/> Festival days</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Can you manage customer delivery / pickup in your area?</label>
+            <div class="radio-group">
+              <label class="radio-option"><input type="radio" name="dDelivery" value="Yes"/> Yes — I can handle local delivery / pickup</label>
+              <label class="radio-option"><input type="radio" name="dDelivery" value="No"/> No — customers collect from me</label>
+              <label class="radio-option"><input type="radio" name="dDelivery" value="Maybe (need guidance)"/> Maybe — need guidance on how it works</label>
+            </div>
+          </div>
+          <div class="msg" id="step5Msg"></div>
+          <div class="form-nav">
+            <button class="btn-back" onclick="goStep(4)">← Back</button>
+            <button class="btn-next" onclick="goStep(6)">Continue <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+
+        <!-- Step 6 — Commitment + Declaration -->
+        <div class="dealer-step" id="dStep6">
+          <div class="section-badge">Step 6 of 6 · Commitment &amp; Declaration</div>
+          <h3 class="section-title">Almost done!</h3>
+          <p class="section-desc">Tell us a little more about your motivation — this helps us support you best.</p>
+          <div class="form-group">
+            <label class="form-label">Why are you interested in becoming a Community Flower Partner? <span class="req">*</span></label>
+            <textarea class="form-textarea" id="dMotivation" placeholder="Tell us about your passion for flowers, your community connections, or your business goals..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Are you comfortable with pre-order based selling (no unsold stock)? <span class="req">*</span></label>
+            <div class="radio-group">
+              <label class="radio-option"><input type="radio" name="dPreorder" value="Yes"/> Yes — I understand and I'm comfortable</label>
+              <label class="radio-option"><input type="radio" name="dPreorder" value="No"/> No — I'd prefer to carry stock</label>
+              <label class="radio-option"><input type="radio" name="dPreorder" value="Need more clarity"/> Need more clarity on how this works</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">How did you hear about us? <span class="req">*</span></label>
+            <div class="radio-group two-col">
+              <label class="radio-option"><input type="radio" name="dHearAbout" value="Temple / community"/> Temple / community</label>
+              <label class="radio-option"><input type="radio" name="dHearAbout" value="Friend / referral"/> Friend / referral</label>
+              <label class="radio-option"><input type="radio" name="dHearAbout" value="WhatsApp / brochure"/> WhatsApp / brochure</label>
+              <label class="radio-option"><input type="radio" name="dHearAbout" value="Social media"/> Social media</label>
+              <label class="radio-option"><input type="radio" name="dHearAbout" value="Online search"/> Online search</label>
+              <label class="radio-option"><input type="radio" name="dHearAbout" value="Other"/> Other</label>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:20px;padding:16px;background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);">
+            <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;">
+              <input type="checkbox" id="dDeclaration" style="width:17px;height:17px;accent-color:var(--gold);margin-top:2px;flex-shrink:0;"/>
+              <span style="font-size:13px;color:var(--mid);line-height:1.6;">
+                <strong style="color:var(--dark);">Declaration</strong> — I confirm that all the information provided in this registration is true and accurate. I understand that my application will be reviewed and I may be contacted by the VibrantPetals team.
+              </span>
+            </label>
+          </div>
+          <div class="msg" id="step6Msg"></div>
+          <div class="form-nav">
+            <button class="btn-back" onclick="goStep(5)">← Back</button>
+            <button class="btn-submit" id="dealerSubmitBtn" onclick="submitDealer()">
+              ✿ Submit Application
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /dealerForm -->
+
+      <div class="login-strip">Already have an account? <a href="account.html">Sign in here</a></div>
+
+    </div><!-- /mainForm -->
+
+  </div><!-- /signup-panel-right -->
+</div><!-- /signup-wrapper -->
+
+<script>
+const API = 'https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
+let sessionId = localStorage.getItem('vp_session') || (() => {
+  const id = 'sess_' + Math.random().toString(36).slice(2);
+  localStorage.setItem('vp_session', id); return id;
+})();
+
+function apiHeaders(auth = true) {
+  const h = { 'Content-Type': 'application/json', 'x-session-id': sessionId };
+  const tok = localStorage.getItem('vp_token');
+  if (auth && tok) h['Authorization'] = 'Bearer ' + tok;
+  return h;
+}
+async function apiFetch(path, opts = {}) {
+  try { const r = await fetch(API + path, opts); return r.json(); }
+  catch (e) { return { success: false, message: e.message }; }
+}
+
+// ── TYPE TOGGLE ────────────────────────────────────────────────────────────────
+function setType(type) {
+  document.getElementById('typeCustomer').classList.toggle('active', type === 'customer');
+  document.getElementById('typeDealer').classList.toggle('active', type === 'dealer');
+  document.getElementById('customerForm').style.display = type === 'customer' ? '' : 'none';
+  document.getElementById('dealerForm').style.display   = type === 'dealer'   ? '' : 'none';
+  if (type === 'dealer') buildProgress();
+}
+window.setType = setType;
+
+// ── PASSWORD TOGGLE ────────────────────────────────────────────────────────────
+function togglePwd(id, btn) {
+  const inp = document.getElementById(id);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.innerHTML = show
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+}
+window.togglePwd = togglePwd;
+
+// ── DEALER PROGRESS ────────────────────────────────────────────────────────────
+const STEP_LABELS = ['Account', 'Contact', 'Business', 'Sales', 'Logistics', 'Declaration'];
+let currentStep = 1;
+const TOTAL_STEPS = 6;
+
+function buildProgress() {
+  const el = document.getElementById('dealerProgress');
+  el.innerHTML = STEP_LABELS.map((label, i) => {
+    const n = i + 1;
+    let cls = n < currentStep ? 'dp-step done' : n === currentStep ? 'dp-step active' : 'dp-step';
+    const dot = n < currentStep ? '✓' : n;
+    return `<div class="${cls}"><div class="dp-dot">${dot}</div><div class="dp-label">${label}</div></div>`;
+  }).join('');
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.className = 'msg ' + type;
+  el.textContent = text;
+  el.style.display = '';
+}
+function hideMsg(id) { const el = document.getElementById(id); el.style.display = 'none'; }
+
+// ── VALIDATION ─────────────────────────────────────────────────────────────────
+function getRadio(name) {
+  const checked = document.querySelector(`input[name="${name}"]:checked`);
+  return checked ? checked.value : '';
+}
+function getChecked(name) {
+  return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(el => el.value);
+}
+
+function validateStep(step) {
+  hideMsg(`step${step}Msg`);
+  if (step === 1) {
+    const fn = document.getElementById('dFirstName').value.trim();
+    const ln = document.getElementById('dLastName').value.trim();
+    const un = document.getElementById('dUsername').value.trim();
+    const em = document.getElementById('dEmail').value.trim();
+    const pw = document.getElementById('dPassword').value;
+    if (!fn || !ln) { showMsg('step1Msg', 'Please enter your first and last name.', 'err'); return false; }
+    if (!un) { showMsg('step1Msg', 'Please choose a username.', 'err'); return false; }
+    if (!em || !em.includes('@')) { showMsg('step1Msg', 'Please enter a valid email address.', 'err'); return false; }
+    if (pw.length < 8) { showMsg('step1Msg', 'Password must be at least 8 characters.', 'err'); return false; }
+    return true;
+  }
+  if (step === 2) {
+    const mob = document.getElementById('dMobile').value.trim();
+    const city = getRadio('dCity');
+    const suburb = document.getElementById('dSuburb').value.trim();
+    if (!mob) { showMsg('step2Msg', 'Please enter your mobile number.', 'err'); return false; }
+    if (!city) { showMsg('step2Msg', 'Please select your city.', 'err'); return false; }
+    if (!suburb) { showMsg('step2Msg', 'Please enter your suburb / area.', 'err'); return false; }
+    return true;
+  }
+  if (step === 3) {
+    const biz = getRadio('dBizType');
+    const acts = getChecked('dActivity');
+    if (!biz) { showMsg('step3Msg', 'Please tell us about your current business status.', 'err'); return false; }
+    if (!acts.length) { showMsg('step3Msg', 'Please select at least one type of activity.', 'err'); return false; }
+    return true;
+  }
+  if (step === 4) {
+    const cc = getRadio('dCustomerCount');
+    const sub = getRadio('dSubscription');
+    if (!cc) { showMsg('step4Msg', 'Please select how many customers you can reach per week.', 'err'); return false; }
+    if (!sub) { showMsg('step4Msg', 'Please indicate your subscription model interest.', 'err'); return false; }
+    return true;
+  }
+  if (step === 5) {
+    const days = getChecked('dDays');
+    if (!days.length) { showMsg('step5Msg', 'Please select at least one preferred distribution day.', 'err'); return false; }
+    return true;
+  }
+  if (step === 6) {
+    const motivation = document.getElementById('dMotivation').value.trim();
+    const preorder = getRadio('dPreorder');
+    const hear = getRadio('dHearAbout');
+    const decl = document.getElementById('dDeclaration').checked;
+    if (!motivation) { showMsg('step6Msg', 'Please tell us why you want to be a partner.', 'err'); return false; }
+    if (!preorder) { showMsg('step6Msg', 'Please answer the pre-order question.', 'err'); return false; }
+    if (!hear) { showMsg('step6Msg', 'Please tell us how you heard about us.', 'err'); return false; }
+    if (!decl) { showMsg('step6Msg', 'Please confirm the declaration to proceed.', 'err'); return false; }
+    return true;
+  }
+  return true;
+}
+
+function goStep(n) {
+  if (n > currentStep && !validateStep(currentStep)) return;
+  currentStep = n;
+  document.querySelectorAll('.dealer-step').forEach((s, i) => {
+    s.classList.toggle('active', i === n - 1);
+  });
+  buildProgress();
+  document.querySelector('.signup-panel-right').scrollTop = 0;
+}
+window.goStep = goStep;
+
+// ── CUSTOMER SUBMIT ─────────────────────────────────────────────────────────────
+async function submitCustomer() {
+  const firstName = document.getElementById('cFirstName').value.trim();
+  const lastName  = document.getElementById('cLastName').value.trim();
+  const username  = document.getElementById('cUsername').value.trim();
+  const email     = document.getElementById('cEmail').value.trim();
+  const password  = document.getElementById('cPassword').value;
+  const msgEl     = document.getElementById('custMsg');
+  msgEl.style.display = 'none';
+
+  if (!firstName || !lastName) { showMsg('custMsg', 'Please enter your first and last name.', 'err'); return; }
+  if (!username) { showMsg('custMsg', 'Please choose a username.', 'err'); return; }
+  if (!email || !email.includes('@')) { showMsg('custMsg', 'Please enter a valid email address.', 'err'); return; }
+  if (password.length < 8) { showMsg('custMsg', 'Password must be at least 8 characters.', 'err'); return; }
+
+  const btn = document.getElementById('custSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Creating account…';
+
+  const data = await apiFetch('/auth/register', {
+    method: 'POST',
+    headers: apiHeaders(false),
+    body: JSON.stringify({ username, email, password, firstName, lastName })
+  });
+
+  btn.disabled = false; btn.textContent = 'Create Account →';
+
+  if (data.success) {
+    localStorage.setItem('vp_token', data.token);
+    try { await apiFetch('/cart/merge', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ sessionId }) }); } catch (e) {}
+    showSuccess('customer', data.user?.username || firstName);
+  } else {
+    showMsg('custMsg', data.message || 'Registration failed. Please try again.', 'err');
+  }
+}
+window.submitCustomer = submitCustomer;
+
+// ── DEALER SUBMIT ───────────────────────────────────────────────────────────────
+async function submitDealer() {
+  if (!validateStep(6)) return;
+
+  const btn = document.getElementById('dealerSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Submitting application…';
+
+  const dealerInfo = {
+    fullName:      document.getElementById('dFullName').value.trim(),
+    mobile:        document.getElementById('dMobile').value.trim(),
+    city:          getRadio('dCity'),
+    suburb:        document.getElementById('dSuburb').value.trim(),
+    businessType:  getRadio('dBizType'),
+    activities:    getChecked('dActivity'),
+    shopName:      document.getElementById('dShopName').value.trim(),
+    customersPerWeek: getRadio('dCustomerCount'),
+    subscriptionInterest: getRadio('dSubscription'),
+    preferredDays: getChecked('dDays'),
+    canDeliver:    getRadio('dDelivery'),
+    motivation:    document.getElementById('dMotivation').value.trim(),
+    preorderComfort: getRadio('dPreorder'),
+    howHeard:      getRadio('dHearAbout'),
+    applicationDate: new Date().toISOString(),
+  };
+
+  const body = {
+    username:  document.getElementById('dUsername').value.trim(),
+    email:     document.getElementById('dEmail').value.trim(),
+    password:  document.getElementById('dPassword').value,
+    firstName: document.getElementById('dFirstName').value.trim(),
+    lastName:  document.getElementById('dLastName').value.trim(),
+    // Send role as Dealer pending approval, or Customer with dealerInfo for backend to handle
+    role: 'Dealer',
+    dealerInfo
+  };
+
+  const data = await apiFetch('/auth/register', {
+    method: 'POST',
+    headers: apiHeaders(false),
+    body: JSON.stringify(body)
+  });
+
+  btn.disabled = false; btn.textContent = '✿ Submit Application';
+
+  if (data.success) {
+    localStorage.setItem('vp_token', data.token);
+    try { await apiFetch('/cart/merge', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ sessionId }) }); } catch (e) {}
+    showSuccess('dealer', data.user?.username || body.firstName);
+  } else {
+    showMsg('step6Msg', data.message || 'Registration failed. Please try again.', 'err');
+  }
+}
+window.submitDealer = submitDealer;
+
+// ── SUCCESS ─────────────────────────────────────────────────────────────────────
+function showSuccess(type, name) {
+  document.getElementById('mainForm').style.display = 'none';
+  const sc = document.getElementById('successScreen');
+  sc.style.display = '';
+  setTimeout(() => sc.classList.add('visible'), 10);
+
+  if (type === 'customer') {
+    document.getElementById('successIcon').textContent = '🌸';
+    document.getElementById('successTitle').textContent = `Welcome, ${name}!`;
+    document.getElementById('successSub').textContent = 'Your account has been created. You can now browse our full collection and place orders online.';
+  } else {
+    document.getElementById('successIcon').textContent = '⭐';
+    document.getElementById('successTitle').textContent = `Application Received, ${name}!`;
+    document.getElementById('successSub').textContent = 'Thank you for applying to become a Vibrant Petals Community Flower Partner.';
+    const note = document.getElementById('successDealerNote');
+    note.style.display = '';
+    note.textContent = '🌺 Our team will review your application and contact you via WhatsApp within 2–3 business days. In the meantime, you can explore our collection at retail prices.';
+  }
+}
+
+// Auto-fill full name from first + last
+document.getElementById('dFirstName').addEventListener('input', updateFullName);
+document.getElementById('dLastName').addEventListener('input', updateFullName);
+function updateFullName() {
+  const fn = document.getElementById('dFirstName').value.trim();
+  const ln = document.getElementById('dLastName').value.trim();
+  const full = document.getElementById('dFullName');
+  if (!full.dataset.edited) full.value = [fn, ln].filter(Boolean).join(' ');
+}
+document.getElementById('dFullName').addEventListener('input', function() {
+  this.dataset.edited = '1';
+});
+
+// Check if already logged in
+if (localStorage.getItem('vp_token')) {
+  window.location.href = 'account.html';
+}
+
+// Auto-select type from URL param (e.g. signup.html?type=dealer)
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('type') === 'dealer') setType('dealer');
+
+// Build initial progress
+buildProgress();
+</script>
+</body>
+</html>
