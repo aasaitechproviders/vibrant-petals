@@ -925,21 +925,15 @@
       <input type="password" class="modal-input" id="loginPwd" placeholder="Password *" />
       <a href="#" class="modal-forgot">Lost your password?</a>
       <button class="btn-signin" id="loginSubmit">Sign In</button>
-      <button class="btn-create" id="showRegister">Create An Account</button>
       <div class="modal-msg" id="loginMsg"></div>
       <div class="modal-err" id="loginErr"></div>
+      <div style="margin-top:16px;border-top:1px solid #f0ebe0;padding-top:16px;">
+        <div style="font-size:12px;text-align:center;color:#888;margin-bottom:10px;letter-spacing:.04em;">NEW TO VIBRANT PETALS?</div>
+        <a href="signup.html" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border:1px solid #e8e0d2;border-radius:4px;font-size:13px;font-weight:700;color:#1A1A1A;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;background:#FAF7F2;transition:border-color .2s,background .2s;" onmouseover="this.style.borderColor='#9B8B5A';this.style.background='#F2EDE3'" onmouseout="this.style.borderColor='#e8e0d2';this.style.background='#FAF7F2'">🛒 Create Customer Account</a>
+        <a href="signup.html?type=dealer" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border:1px solid #F5A623;border-radius:4px;font-size:13px;font-weight:700;color:#7A5800;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;background:#FFF8E7;margin-top:8px;transition:background .2s;" onmouseover="this.style.background='#FFF3CC'" onmouseout="this.style.background='#FFF8E7'">⭐ Register as Dealer Partner</a>
+      </div>
     </div>
-    <div class="modal-body" id="registerForm" style="display:none;">
-      <input type="text" class="modal-input" id="regUsername" placeholder="Username *" />
-      <input type="email" class="modal-input" id="regEmail" placeholder="Email *" />
-      <input type="password" class="modal-input" id="regPwd" placeholder="Password *" />
-      <input type="text" class="modal-input" id="regFirst" placeholder="First Name" />
-      <input type="text" class="modal-input" id="regLast" placeholder="Last Name" />
-      <button class="btn-signin" id="regSubmit">Create Account</button>
-      <button class="btn-create" id="showLogin" style="margin-top:0;">Back to Sign In</button>
-      <div class="modal-msg" id="regMsg"></div>
-      <div class="modal-err" id="regErr"></div>
-    </div>
+    <div class="modal-body" id="registerForm" style="display:none;"></div>
   </div>
 </div>
 
@@ -1131,14 +1125,7 @@ document.getElementById('loginBtn').onclick  = ()=>loginModal.classList.add('ope
 document.getElementById('modalClose').onclick = ()=>loginModal.classList.remove('open');
 loginModal.addEventListener('click', e=>{ if(e.target===loginModal) loginModal.classList.remove('open'); });
 
-document.getElementById('showRegister').onclick = ()=>{
-  document.getElementById('loginForm').style.display='none';
-  document.getElementById('registerForm').style.display='block';
-};
-document.getElementById('showLogin').onclick = ()=>{
-  document.getElementById('registerForm').style.display='none';
-  document.getElementById('loginForm').style.display='block';
-};
+// Register buttons now link to signup.html
 
 document.getElementById('loginSubmit').onclick = async ()=>{
   const email = document.getElementById('loginEmail').value.trim();
@@ -1160,26 +1147,7 @@ document.getElementById('loginSubmit').onclick = async ()=>{
   }
 };
 
-document.getElementById('regSubmit').onclick = async ()=>{
-  const username = document.getElementById('regUsername').value.trim();
-  const email    = document.getElementById('regEmail').value.trim();
-  const pwd      = document.getElementById('regPwd').value;
-  const first    = document.getElementById('regFirst').value.trim();
-  const last     = document.getElementById('regLast').value.trim();
-  const msg      = document.getElementById('regMsg');
-  const err      = document.getElementById('regErr');
-  msg.style.display=err.style.display='none';
-  const data = await apiFetch('/auth/register',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({username,email,password:pwd,firstName:first,lastName:last})}).catch(()=>({success:false,message:'Network error'}));
-  if(data.success){
-    token=data.token; localStorage.setItem('vp_token',token);
-    try{await apiFetch('/cart/merge',{method:'POST',headers:apiHeaders(),body:JSON.stringify({sessionId})});}catch(e){}
-    msg.textContent='Account created! Welcome, '+data.user.username+'!'; msg.style.display='block';
-    setTimeout(()=>loginModal.classList.remove('open'),1200);
-    loadCart();
-  } else {
-    err.textContent=data.message||'Registration failed'; err.style.display='block';
-  }
-};
+// Registration handled on signup.html
 
 // ── CART ───────────────────────────────────────────────────
 const cartOverlay = document.getElementById('cartOverlay');
