@@ -99,11 +99,47 @@
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
     .form-msg{font-size:13px;padding:10px 14px;border-radius:var(--radius);margin-top:12px;display:none;}
     .form-msg.ok{background:#e8f5e9;color:#2e7d32;display:block;}.form-msg.err{background:#fce4e4;color:#c62828;display:block;}
-    /* Image preview strip */
-    .img-preview-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-    .img-preview-item{width:72px;height:72px;border-radius:var(--radius);overflow:hidden;border:2px solid #e8e0d2;position:relative;cursor:pointer;flex-shrink:0;}
-    .img-preview-item img{width:100%;height:100%;object-fit:cover;}
-    .img-preview-item .img-preview-err{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#aaa;background:var(--cream2);text-align:center;padding:4px;}
+
+    /* ── IMAGE UPLOAD ── */
+    .img-dropzone{
+      border:2px dashed #ddd;border-radius:var(--radius);padding:28px 20px;
+      text-align:center;cursor:pointer;transition:border-color .2s,background .2s;
+      background:#faf9f7;position:relative;
+    }
+    .img-dropzone:hover,.img-dropzone.drag-over{border-color:var(--gold);background:#fdf8f0;}
+    .img-dropzone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .img-dropzone-icon{font-size:30px;margin-bottom:8px;line-height:1;}
+    .img-dropzone-text{font-size:14px;color:var(--mid);}
+    .img-dropzone-sub{font-size:12px;color:#aaa;margin-top:4px;}
+    .img-upload-status{font-size:13px;margin-top:8px;min-height:18px;font-weight:700;}
+    .img-upload-status.uploading{color:var(--gold);}
+    .img-upload-status.done{color:#2d7a2d;}
+    .img-upload-status.error{color:#c0392b;}
+    /* Progress bar */
+    .img-upload-progress{height:3px;background:#e8e0d2;border-radius:2px;margin-top:10px;overflow:hidden;display:none;}
+    .img-upload-progress-bar{height:100%;background:var(--gold);width:0;transition:width .3s;border-radius:2px;}
+    /* Preview strip */
+    .img-preview-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+    .img-preview-item{
+      width:80px;height:80px;border-radius:var(--radius);overflow:hidden;
+      border:2px solid #e8e0d2;position:relative;flex-shrink:0;
+      transition:border-color .2s;
+    }
+    .img-preview-item:first-child{border-color:var(--gold);}
+    .img-preview-item img{width:100%;height:100%;object-fit:cover;display:block;}
+    .img-preview-remove{
+      position:absolute;top:2px;right:2px;
+      background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:50%;
+      width:18px;height:18px;font-size:10px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;line-height:1;
+      opacity:0;transition:opacity .15s;
+    }
+    .img-preview-item:hover .img-preview-remove{opacity:1;}
+    .img-preview-main-badge{
+      position:absolute;bottom:2px;left:2px;
+      background:var(--gold);color:#fff;font-size:8px;font-weight:700;
+      padding:1px 5px;border-radius:2px;letter-spacing:.04em;text-transform:uppercase;
+    }
     /* Dashboard */
     .low-stock-item{display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid #f0ebe0;}
     .low-stock-item:last-child{border-bottom:none;}
@@ -111,9 +147,7 @@
     .ls-name{flex:1;font-size:14px;}.ls-qty{font-size:13px;font-weight:700;color:#c0392b;}
     .revenue-big{font-family:'Playfair Display',serif;font-size:42px;color:var(--gold);text-align:center;padding:30px 0 10px;}
     .revenue-sub{text-align:center;font-size:13px;color:var(--mid);padding-bottom:20px;}
-    /* Coupons */
     .coupon-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border:1px dashed var(--gold);color:var(--gold);border-radius:4px;font-family:monospace;}
-    /* Order detail */
     .order-items-table{width:100%;border-collapse:collapse;font-size:13px;}
     .order-items-table th{padding:8px 12px;background:var(--cream2);font-size:11px;text-align:left;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--mid);}
     .order-items-table td{padding:10px 12px;border-bottom:1px solid #f0ebe0;}
@@ -122,13 +156,10 @@
     .order-detail-box{background:var(--cream2);border-radius:var(--radius);padding:14px 16px;font-size:13px;}
     .order-detail-box-title{font-weight:700;margin-bottom:8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mid);}
     .order-detail-box p{color:var(--mid);line-height:1.8;}
-    /* Toast */
     .toast{position:fixed;bottom:28px;right:28px;background:var(--dark);color:#fff;padding:14px 22px;border-radius:4px;font-size:13px;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:9999;}
     .toast.show{transform:translateY(0);opacity:1;}.toast.success{background:#2d7a2d;}.toast.error{background:#c0392b;}
-    /* Skeleton */
     .skeleton{background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-    /* Admin login */
     .admin-login{min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;background:var(--dark);}
     .admin-login-box{background:#fff;border-radius:var(--radius);padding:48px;width:min(400px,92vw);text-align:center;}
     .admin-login-logo{font-family:'Playfair Display',serif;font-size:26px;color:var(--dark);margin-bottom:8px;}
@@ -138,8 +169,6 @@
     .admin-btn{width:100%;padding:14px;background:var(--gold);color:#fff;font-size:14px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);margin-top:4px;}
     .admin-btn:hover{background:var(--gold-dark);}
     .admin-err{font-size:13px;color:#c0392b;margin-top:10px;}
-    /* Category color swatch */
-    .cat-color-swatch{width:20px;height:20px;border-radius:50%;display:inline-block;vertical-align:middle;border:1px solid rgba(0,0,0,.1);}
     @media(max-width:1024px){.stats-grid{grid-template-columns:repeat(2,1fr);}.dash-grid{grid-template-columns:1fr;}}
     @media(max-width:768px){.sidebar{display:none;}.stats-grid{grid-template-columns:1fr 1fr;}}
   </style>
@@ -372,11 +401,27 @@
         <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="pStatus"><option value="publish">Published</option><option value="draft">Draft</option></select></div>
       </div>
       <div class="form-group"><label class="form-label">Categories <span style="font-size:11px;font-weight:400;">(comma-separated)</span></label><input class="form-input" id="pCategories" placeholder="Strings, Garlands"/></div>
+
+      <!-- ── IMAGE UPLOAD SECTION ── -->
       <div class="form-group">
-        <label class="form-label">Image URLs <span style="font-size:11px;font-weight:400;">(one per line)</span></label>
-        <textarea class="form-textarea" id="pImages" placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg" oninput="updateImagePreview()"></textarea>
+        <label class="form-label">Product Images <span style="font-size:11px;font-weight:400;color:#aaa;">(first image = main, drag to upload multiple)</span></label>
+
+        <!-- Dropzone -->
+        <div class="img-dropzone" id="imgDropzone">
+          <input type="file" id="imgFileInput" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif" multiple/>
+          <div class="img-dropzone-icon">🖼️</div>
+          <div class="img-dropzone-text">Click or drag images here</div>
+          <div class="img-dropzone-sub">JPG, PNG, WebP, GIF · Multiple files supported</div>
+          <div class="img-upload-status" id="imgUploadStatus"></div>
+          <div class="img-upload-progress" id="imgUploadProgress">
+            <div class="img-upload-progress-bar" id="imgUploadProgressBar"></div>
+          </div>
+        </div>
+
+        <!-- Preview strip — shows uploaded images with remove buttons -->
         <div class="img-preview-strip" id="imgPreviewStrip"></div>
       </div>
+
       <div class="form-group" style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="pFeatured" style="width:16px;height:16px;accent-color:var(--gold);"/><label class="form-label" style="margin-bottom:0;cursor:pointer;" for="pFeatured">Featured Product</label></div>
       <div class="form-msg" id="prodFormMsg"></div>
     </div>
@@ -389,7 +434,6 @@
   <div class="modal-box modal-wide">
     <div class="modal-head"><h3 id="orderModalTitle">Order Details</h3><span class="modal-close" onclick="closeModal('orderModal')">✕</span></div>
     <div class="modal-body">
-      <!-- Status update row -->
       <div class="form-row" style="margin-bottom:16px;">
         <div class="form-group"><label class="form-label">Order #</label><input class="form-input" id="omOrderNum" readonly/></div>
         <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="omDate" readonly/></div>
@@ -398,9 +442,7 @@
         <div class="form-group"><label class="form-label">Order Status</label><select class="form-select" id="omStatus"><option value="pending">Pending</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option><option value="refunded">Refunded</option></select></div>
         <div class="form-group"><label class="form-label">Payment Status</label><select class="form-select" id="omPayStatus"><option value="pending">Pending</option><option value="paid">Paid</option><option value="failed">Failed</option><option value="refunded">Refunded</option></select></div>
       </div>
-      <!-- Order items -->
       <div id="omItemsWrap" style="margin-top:8px;"></div>
-      <!-- Customer + address -->
       <div id="omDetailGrid" class="order-detail-grid"></div>
       <div class="form-msg" id="orderFormMsg"></div>
     </div>
@@ -471,13 +513,15 @@
 <script>
 const API = 'https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
 
-// FIX: Use var (not let) so pagination variables are accessible from inline onclick handlers
 var token = localStorage.getItem('vp_token') || localStorage.getItem('vp_admin_token') || '';
 var userData = null;
 var editingProductId = null, editingOrderId = null, editingUserId = null, editingCouponId = null, editingCategoryId = null;
-// FIX: Using var so these are on window and accessible in onclick="prodPage++" style handlers
 var prodPage = 1, ordPage = 1, userPage = 1, custPage = 1, nlPage = 1, couponPage = 1;
 const LIMIT = 15;
+
+// ── IMAGE STATE ───────────────────────────────────────────────────────────────
+// Holds the array of S3 public URLs for the current product being edited/created
+var uploadedImageUrls = [];
 
 function apiHeaders() { return { 'Content-Type': 'application/json', 'Authorization': token ? 'Bearer ' + token : '' }; }
 
@@ -594,7 +638,6 @@ async function loadProducts() {
   const pag = data.pagination || { total: 0, totalPages: 1 };
 
   document.getElementById('productsBody').innerHTML = prods.length ? prods.map(p => {
-    // FIX: handle both _id and id field names from API
     const pid = p._id || p.id || '';
     const displayPrice = p.salePrice != null ? p.salePrice : (p.price || 0);
     const safeName = (p.name || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
@@ -616,7 +659,6 @@ async function loadProducts() {
 
   renderPag('prodPag', prodPage, pag.totalPages, 'prodPage', 'loadProducts');
 
-  // Load categories for filter (only once)
   const catSel = document.getElementById('prodCatFilter');
   if (catSel && catSel.children.length <= 1) {
     const cd = await apiFetch('/products/categories');
@@ -635,7 +677,6 @@ function renderPag(elId, page, totalPages, pageVar, loader) {
   const el = document.getElementById(elId);
   if (!el || totalPages <= 1) { if (el) el.innerHTML = ''; return; }
   let html = `<span style="font-size:13px;color:var(--mid)">Page ${page} of ${totalPages}</span><div class="pag-btns">`;
-  // FIX: use window[pageVar] in onclick to safely mutate the global var
   html += `<button class="pag-btn${page === 1 ? ' disabled' : ''}" onclick="if(window['${pageVar}']>1){window['${pageVar}']--;${loader}();}">‹</button>`;
   const start = Math.max(1, page - 2), end = Math.min(totalPages, page + 2);
   for (let i = start; i <= end; i++) html += `<button class="pag-btn${i === page ? ' active' : ''}" onclick="window['${pageVar}']=${i};${loader}()">${i}</button>`;
@@ -643,17 +684,143 @@ function renderPag(elId, page, totalPages, pageVar, loader) {
   el.innerHTML = html;
 }
 
+// ── IMAGE UPLOAD ──────────────────────────────────────────────────────────────
+
+function resetImageUI() {
+  uploadedImageUrls = [];
+  document.getElementById('imgPreviewStrip').innerHTML = '';
+  document.getElementById('imgUploadStatus').textContent = '';
+  document.getElementById('imgUploadStatus').className = 'img-upload-status';
+  document.getElementById('imgUploadProgress').style.display = 'none';
+  document.getElementById('imgUploadProgressBar').style.width = '0';
+  document.getElementById('imgDropzone').style.borderColor = '';
+  document.getElementById('imgFileInput').value = '';
+}
+
+function renderImageStrip() {
+  const strip = document.getElementById('imgPreviewStrip');
+  if (!strip) return;
+  strip.innerHTML = uploadedImageUrls.map((url, idx) => `
+    <div class="img-preview-item">
+      <img src="${url}" alt="Product image ${idx + 1}" loading="lazy"
+           onerror="this.style.opacity='.3'"/>
+      <button class="img-preview-remove" onclick="removeUploadedImage(${idx})" title="Remove">✕</button>
+      ${idx === 0 ? '<div class="img-preview-main-badge">MAIN</div>' : ''}
+    </div>`).join('');
+}
+window.renderImageStrip = renderImageStrip;
+
+function removeUploadedImage(idx) {
+  uploadedImageUrls.splice(idx, 1);
+  renderImageStrip();
+}
+window.removeUploadedImage = removeUploadedImage;
+
+async function handleImageFiles(files) {
+  if (!files || !files.length) return;
+
+  const statusEl  = document.getElementById('imgUploadStatus');
+  const progressEl = document.getElementById('imgUploadProgress');
+  const barEl     = document.getElementById('imgUploadProgressBar');
+  const dropzone  = document.getElementById('imgDropzone');
+
+  const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+  const fileArr = Array.from(files).filter(f => allowed.includes(f.type.toLowerCase()));
+  const invalid = Array.from(files).filter(f => !allowed.includes(f.type.toLowerCase()));
+
+  if (invalid.length) {
+    statusEl.className = 'img-upload-status error';
+    statusEl.textContent = `❌ Skipped: ${invalid.map(f => f.name).join(', ')} (not an image)`;
+  }
+  if (!fileArr.length) return;
+
+  progressEl.style.display = 'block';
+  dropzone.style.borderColor = 'var(--gold)';
+
+  for (let i = 0; i < fileArr.length; i++) {
+    const file = fileArr[i];
+    const pct = Math.round((i / fileArr.length) * 100);
+    barEl.style.width = pct + '%';
+
+    statusEl.className = 'img-upload-status uploading';
+    statusEl.textContent = `Uploading ${i + 1}/${fileArr.length}: ${file.name}…`;
+
+    try {
+      // Step 1 — Get presigned URL from Lambda
+      const presignRes = await fetch(API + '/admin/upload/presign', {
+        method: 'POST',
+        headers: apiHeaders(),
+        body: JSON.stringify({ filename: file.name, contentType: file.type })
+      });
+      const presignData = await presignRes.json();
+      if (!presignData.success) throw new Error(presignData.message || 'Failed to get upload URL');
+
+      // Step 2 — PUT file directly to S3 (no auth header needed — presigned URL handles auth)
+      const s3Res = await fetch(presignData.presignedUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file
+      });
+      if (!s3Res.ok) throw new Error(`S3 upload failed (${s3Res.status})`);
+
+      // Step 3 — Store the public S3 URL
+      uploadedImageUrls.push(presignData.publicUrl);
+      renderImageStrip();
+
+    } catch (e) {
+      statusEl.className = 'img-upload-status error';
+      statusEl.textContent = `❌ ${file.name}: ${e.message}`;
+      dropzone.style.borderColor = '#c0392b';
+    }
+  }
+
+  barEl.style.width = '100%';
+  setTimeout(() => {
+    progressEl.style.display = 'none';
+    barEl.style.width = '0';
+  }, 600);
+
+  statusEl.className = 'img-upload-status done';
+  statusEl.textContent = `✓ ${uploadedImageUrls.length} image${uploadedImageUrls.length !== 1 ? 's' : ''} ready`;
+  dropzone.style.borderColor = '#2d7a2d';
+
+  // Reset file input so same file can be picked again
+  document.getElementById('imgFileInput').value = '';
+}
+
+// Wire up the file input
+document.getElementById('imgFileInput').addEventListener('change', function() {
+  handleImageFiles(this.files);
+});
+
+// Wire up drag and drop on the dropzone
+(function() {
+  const dz = document.getElementById('imgDropzone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('drag-over');
+    handleImageFiles(e.dataTransfer.files);
+  });
+})();
+
+// ── PRODUCT MODAL ─────────────────────────────────────────────────────────────
+
 function openProductModal() {
   editingProductId = null;
   document.getElementById('prodModalTitle').textContent = 'Add Product';
   document.getElementById('prodSaveBtn').textContent = 'Save Product';
-  ['pName', 'pSlug', 'pShortDesc', 'pDesc', 'pPrice', 'pRegPrice', 'pSalePrice', 'pDealerPrice', 'pSku', 'pCategories', 'pImages'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('prodSaveBtn').disabled = false;
+  ['pName','pSlug','pShortDesc','pDesc','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku','pCategories'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
   document.getElementById('pStockStatus').value = 'instock';
   document.getElementById('pStockQty').value = '0';
   document.getElementById('pStatus').value = 'publish';
   document.getElementById('pFeatured').checked = false;
-  document.getElementById('imgPreviewStrip').innerHTML = '';
   document.getElementById('prodFormMsg').className = 'form-msg';
+  resetImageUI();
   document.getElementById('productModal').classList.add('open');
 }
 function closeProductModal() { document.getElementById('productModal').classList.remove('open'); }
@@ -663,78 +830,64 @@ window.closeProductModal = closeProductModal;
 async function editProduct(id) {
   if (!id || id === 'undefined') { showToast('Invalid product ID', 'error'); return; }
 
-  // Show modal immediately with loading state
   editingProductId = id;
   document.getElementById('prodModalTitle').textContent = 'Edit Product';
-  document.getElementById('prodSaveBtn').textContent = 'Update Product';
-  ['pName', 'pSlug', 'pShortDesc', 'pDesc', 'pPrice', 'pRegPrice', 'pSalePrice', 'pDealerPrice', 'pSku', 'pCategories', 'pImages'].forEach(i => { document.getElementById(i).value = ''; });
-  document.getElementById('imgPreviewStrip').innerHTML = '';
-  document.getElementById('prodFormMsg').className = 'form-msg';
-  document.getElementById('productModal').classList.add('open');
-  document.getElementById('prodSaveBtn').disabled = true;
   document.getElementById('prodSaveBtn').textContent = 'Loading…';
+  document.getElementById('prodSaveBtn').disabled = true;
+  ['pName','pSlug','pShortDesc','pDesc','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku','pCategories'].forEach(i => {
+    document.getElementById(i).value = '';
+  });
+  document.getElementById('prodFormMsg').className = 'form-msg';
+  resetImageUI();
+  document.getElementById('productModal').classList.add('open');
 
   const data = await apiFetch('/products/' + id, { headers: apiHeaders() });
-
   document.getElementById('prodSaveBtn').disabled = false;
   document.getElementById('prodSaveBtn').textContent = 'Update Product';
 
-  // FIX: robustly extract product from multiple possible response shapes
   const p = data.product || data.data || (data._id || data.id ? data : null);
   if (!p || (!p._id && !p.id && !p.name)) {
     document.getElementById('prodFormMsg').className = 'form-msg err';
-    document.getElementById('prodFormMsg').textContent = data.message || 'Could not load product data. Please try again.';
+    document.getElementById('prodFormMsg').textContent = data.message || 'Could not load product. Try again.';
     return;
   }
 
-  // Populate fields
   document.getElementById('pName').value = p.name || '';
   document.getElementById('pSlug').value = p.slug || '';
   document.getElementById('pShortDesc').value = p.shortDescription || p.short_description || '';
   document.getElementById('pDesc').value = p.description || '';
-
-  // FIX: use explicit null checks for numeric fields (|| would hide 0 values)
   document.getElementById('pPrice').value = p.price != null ? p.price : '';
   document.getElementById('pRegPrice').value = p.regularPrice != null ? p.regularPrice : (p.regular_price != null ? p.regular_price : '');
   document.getElementById('pSalePrice').value = p.salePrice != null ? p.salePrice : (p.sale_price != null ? p.sale_price : '');
   document.getElementById('pDealerPrice').value = p.dealerPrice != null ? p.dealerPrice : (p.dealer_price != null ? p.dealer_price : '');
-
   document.getElementById('pSku').value = p.sku || '';
   document.getElementById('pStockStatus').value = p.stockStatus || p.stock_status || 'instock';
   document.getElementById('pStockQty').value = p.stockQty != null ? p.stockQty : (p.stock_qty != null ? p.stock_qty : 0);
 
-  // Handle categories — could be array of strings or array of objects
   const cats = p.categories || [];
   document.getElementById('pCategories').value = cats.map(c => typeof c === 'string' ? c : (c.name || c)).join(', ');
-
   document.getElementById('pStatus').value = p.status || 'publish';
-
-  const images = p.images || p.imageUrls || [];
-  document.getElementById('pImages').value = images.join('\n');
   document.getElementById('pFeatured').checked = !!(p.isFeatured || p.is_featured);
 
-  updateImagePreview();
+  // Load existing images into the upload state
+  uploadedImageUrls = [...(p.images || p.imageUrls || [])];
+  renderImageStrip();
+
+  if (uploadedImageUrls.length) {
+    const statusEl = document.getElementById('imgUploadStatus');
+    statusEl.className = 'img-upload-status done';
+    statusEl.textContent = `✓ ${uploadedImageUrls.length} existing image${uploadedImageUrls.length !== 1 ? 's' : ''} loaded`;
+  }
+
   onStockStatusChange();
 }
 window.editProduct = editProduct;
 
 function onStockStatusChange() {
   const status = document.getElementById('pStockStatus').value;
-  const qtyInput = document.getElementById('pStockQty');
-  qtyInput.style.opacity = status === 'outofstock' ? '0.5' : '1';
+  document.getElementById('pStockQty').style.opacity = status === 'outofstock' ? '0.5' : '1';
 }
 window.onStockStatusChange = onStockStatusChange;
-
-function updateImagePreview() {
-  const strip = document.getElementById('imgPreviewStrip');
-  if (!strip) return;
-  const urls = document.getElementById('pImages').value.split('\n').map(s => s.trim()).filter(Boolean);
-  strip.innerHTML = urls.map(url => `
-    <div class="img-preview-item">
-      <img src="${url}" onerror="this.parentNode.innerHTML='<div class=\\'img-preview-err\\'>Bad URL</div>'" loading="lazy"/>
-    </div>`).join('');
-}
-window.updateImagePreview = updateImagePreview;
 
 async function saveProduct() {
   const name = document.getElementById('pName').value.trim();
@@ -754,7 +907,7 @@ async function saveProduct() {
     stockQty: parseInt(document.getElementById('pStockQty').value) || 0,
     categories: document.getElementById('pCategories').value.split(',').map(s => s.trim()).filter(Boolean),
     status: document.getElementById('pStatus').value,
-    images: document.getElementById('pImages').value.split('\n').map(s => s.trim()).filter(Boolean),
+    images: uploadedImageUrls.filter(Boolean),   // ← S3 URLs from upload state
     isFeatured: document.getElementById('pFeatured').checked
   };
 
@@ -810,7 +963,7 @@ async function loadCategories() {
         </div>
       </td>
     </tr>`;
-  }).join('') : `<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--mid);">No categories yet. Add your first one!</td></tr>`;
+  }).join('') : `<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--mid);">No categories yet.</td></tr>`;
 }
 
 function openCategoryModal() {
@@ -888,22 +1041,17 @@ async function loadOrders() {
   const orders = data.orders || []; const pag = data.pagination || { total: 0, totalPages: 1 };
   document.getElementById('ordersBody').innerHTML = orders.length ? orders.map(o => {
     const oid = o._id || o.id || '';
-    const num = o.orderNumber || '—';
     const status2 = o.status || 'pending';
     const payStatus = o.paymentStatus || 'pending';
     return `<tr>
-      <td><b>${num}</b></td>
+      <td><b>${o.orderNumber || '—'}</b></td>
       <td style="font-size:13px;">${o.customerEmail || '—'}${o.customerRole === 'Dealer' ? '<br/><span class="status-pill s-dealer" style="font-size:10px;">Dealer</span>' : ''}</td>
       <td style="font-size:13px;">${(o.items || []).length} item${(o.items || []).length !== 1 ? 's' : ''}</td>
       <td><b>$${(o.total || 0).toFixed(2)}</b></td>
       <td><span class="status-pill s-${status2}">${status2}</span></td>
       <td><span class="status-pill" style="background:${payStatus === 'paid' ? '#d4edda' : '#fff3cd'};color:${payStatus === 'paid' ? '#155724' : '#856404'}">${payStatus}</span></td>
       <td style="font-size:12px;color:var(--mid)">${new Date(o.createdAt).toLocaleDateString()}</td>
-      <td>
-        <div style="display:flex;gap:4px;">
-          <button class="btn-sm btn-view" onclick="openOrderModal('${oid}')">View</button>
-        </div>
-      </td>
+      <td><button class="btn-sm btn-view" onclick="openOrderModal('${oid}')">View</button></td>
     </tr>`;
   }).join('') : `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--mid);">No orders found</td></tr>`;
   renderPag('ordPag', ordPage, pag.totalPages, 'ordPage', 'loadOrders');
@@ -919,7 +1067,6 @@ async function openOrderModal(id) {
   document.getElementById('orderModalTitle').textContent = 'Order Details';
   document.getElementById('orderModal').classList.add('open');
 
-  // Try to load full order detail
   const data = await apiFetch(`/admin/orders/${id}`, { headers: apiHeaders() });
   const o = data.order || data.data || (data._id ? data : null);
 
@@ -934,7 +1081,6 @@ async function openOrderModal(id) {
   document.getElementById('omStatus').value = o.status || 'pending';
   document.getElementById('omPayStatus').value = o.paymentStatus || 'pending';
 
-  // Items table
   const items = o.items || [];
   document.getElementById('omItemsWrap').innerHTML = items.length ? `
     <div style="margin-bottom:14px;font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--mid);">ORDER ITEMS</div>
@@ -950,9 +1096,7 @@ async function openOrderModal(id) {
       </tbody>
     </table>` : '<div style="color:var(--mid);font-size:13px;">No items</div>';
 
-  // Address / customer info
   const addr = o.shippingAddress || o.address || {};
-  const billing = o.billingAddress || {};
   document.getElementById('omDetailGrid').innerHTML = `
     <div class="order-detail-box">
       <div class="order-detail-box-title">Customer</div>
@@ -997,7 +1141,7 @@ async function loadCoupons() {
         <button class="btn-sm btn-delete" onclick="deleteCoupon('${cid}','${safeCode}')">Delete</button>
       </td>
     </tr>`;
-  }).join('') : `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--mid);">No coupons yet. Create your first one!</td></tr>`;
+  }).join('') : `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--mid);">No coupons yet.</td></tr>`;
   renderPag('couponPag', couponPage, pag.totalPages, 'couponPage', 'loadCoupons');
 }
 
@@ -1014,13 +1158,10 @@ window.openCouponModal = openCouponModal;
 
 async function editCoupon(id) {
   if (!id) return;
-  // FIX: fetch single coupon directly instead of scanning all
   let c = null;
   const single = await apiFetch(`/admin/coupons/${id}`, { headers: apiHeaders() });
-  if (single.coupon || single._id || single.id) {
-    c = single.coupon || single;
-  } else {
-    // fallback: fetch list and find
+  if (single.coupon || single._id || single.id) { c = single.coupon || single; }
+  else {
     const all = await apiFetch('/admin/coupons', { headers: apiHeaders() });
     c = (all.coupons || []).find(x => (x._id || x.id) === id);
   }
@@ -1166,7 +1307,7 @@ async function loadNewsletter() {
   renderPag('nlPag', nlPage, pag.totalPages, 'nlPage', 'loadNewsletter');
 }
 
-// ── EXPOSE ALL LOADERS ────────────────────────────────────────────────────────
+// ── EXPOSE LOADERS ────────────────────────────────────────────────────────────
 window.loadProducts = loadProducts;
 window.loadOrders = loadOrders;
 window.loadUsers = loadUsers;
