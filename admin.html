@@ -72,6 +72,8 @@
     .btn-status{border:1px solid #ddd;color:var(--mid);}.btn-status:hover{border-color:var(--gold);color:var(--gold);}
     .btn-dealer{border:1px solid #F5A623;color:#7A5800;background:#FFF3CC;}.btn-dealer:hover{background:#F5A623;color:#fff;}
     .btn-view{border:1px solid #3b82f6;color:#1d4ed8;}.btn-view:hover{background:#eff6ff;border-color:#1d4ed8;}
+    .btn-export{border:1px solid #2d7a2d;color:#2d7a2d;background:#fff;display:flex;align-items:center;gap:5px;}
+    .btn-export:hover{background:#e8f5e9;border-color:#1a5c1a;}
     .filter-select{padding:8px 12px;border:1px solid #ddd;font-family:inherit;font-size:13px;border-radius:var(--radius);outline:none;background:#fff;}
     .filter-select:focus{border-color:var(--gold);}
     .table-pagination{padding:12px 20px;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--mid);border-top:1px solid #e8e0d2;}
@@ -261,6 +263,7 @@
             <div style="display:flex;gap:10px;align-items:center;">
               <select class="filter-select" id="prodCatFilter" onchange="loadProducts()"><option value="">All Categories</option></select>
               <select class="filter-select" id="prodStockFilter" onchange="loadProducts()"><option value="">All Stock</option><option value="instock">In Stock</option><option value="outofstock">Out of Stock</option></select>
+              <button class="btn-export btn-sm" onclick="exportProducts()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
               <button class="btn-primary" onclick="openProductModal()"><span style="font-size:16px">+</span>Add Product</button>
             </div>
           </div>
@@ -293,6 +296,7 @@
             <div style="display:flex;gap:10px;align-items:center;">
               <select class="filter-select" id="ordStatusFilter" onchange="loadOrders()"><option value="">All Statuses</option><option value="pending">Pending</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select>
               <select class="filter-select" id="ordPayFilter" onchange="loadOrders()"><option value="">All Payments</option><option value="pending">Unpaid</option><option value="paid">Paid</option></select>
+              <button class="btn-export btn-sm" onclick="exportOrders()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
             </div>
           </div>
           <table class="data-table">
@@ -308,7 +312,10 @@
         <div class="card">
           <div class="table-toolbar">
             <div class="card-title" style="font-size:14px;font-weight:700;">Coupon Codes</div>
-            <button class="btn-primary" onclick="openCouponModal()"><span style="font-size:16px">+</span>Add Coupon</button>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <button class="btn-export btn-sm" onclick="exportCoupons()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
+              <button class="btn-primary" onclick="openCouponModal()"><span style="font-size:16px">+</span>Add Coupon</button>
+            </div>
           </div>
           <table class="data-table">
             <thead><tr><th>Code</th><th>Discount</th><th>Usage</th><th>Expires</th><th>Status</th><th>Actions</th></tr></thead>
@@ -329,6 +336,7 @@
               <option value="Dealer">Dealer</option>
               <option value="Customer">Customer</option>
             </select>
+            <button class="btn-export btn-sm" onclick="exportUsers()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
           </div>
           <table class="data-table">
             <thead><tr><th>Username</th><th>Email</th><th>Role</th><th>Registered</th><th>Status</th><th>Actions</th></tr></thead>
@@ -348,6 +356,7 @@
               <option value="Customer">Retail Customers</option>
               <option value="Dealer">Dealers</option>
             </select>
+            <button class="btn-export btn-sm" onclick="exportCustomers()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
           </div>
           <table class="data-table">
             <thead><tr><th>Name</th><th>Email</th><th>Type</th><th>Registered</th></tr></thead>
@@ -360,7 +369,7 @@
       <!-- NEWSLETTER -->
       <div class="panel" id="panel-newsletter">
         <div class="card">
-          <div class="card-head"><div class="card-title">Newsletter Subscribers</div><div id="nlCount" style="font-size:14px;color:var(--mid);"></div></div>
+          <div class="card-head"><div class="card-title">Newsletter Subscribers</div><div style="display:flex;align-items:center;gap:12px;"><div id="nlCount" style="font-size:14px;color:var(--mid);"></div><button class="btn-export btn-sm" onclick="exportNewsletter()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button></div></div>
           <table class="data-table">
             <thead><tr><th>Email</th><th>Subscribed On</th></tr></thead>
             <tbody id="nlBody"></tbody>
@@ -571,13 +580,221 @@ async function adminLogin() {
     token = data.token;
     localStorage.setItem('vp_token', token);
     localStorage.removeItem('vp_admin_token');
-    checkAuth();
+    
+// ── CSV EXPORT ────────────────────────────────────────────────────────────────
+function downloadCSV(filename, rows) {
+  if (!rows.length) { showToast('No data to export', 'error'); return; }
+  const escape = v => {
+    const s = v == null ? '' : String(v);
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const csv = rows.map(r => r.map(escape).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('CSV downloaded: ' + filename, 'success');
+}
+
+async function exportProducts() {
+  showToast('Preparing products export…');
+  const data = await apiFetch('/products?page=1&limit=500&sort=dateCreated&order=desc', { headers: apiHeaders() });
+  const rows = [['Name','SKU','Price','Regular Price','Sale Price','Dealer Price','Stock Status','Stock Qty','Categories','Status','Featured']];
+  (data.products || []).forEach(p => rows.push([
+    p.name, p.sku || '', p.price || 0, p.regularPrice || 0,
+    p.salePrice != null ? p.salePrice : '', p.dealerPrice != null ? p.dealerPrice : '',
+    p.stockStatus || '', p.stockQty || 0,
+    (p.categories || []).join('; '), p.status || '', p.isFeatured ? 'Yes' : 'No'
+  ]));
+  downloadCSV('vibrantpetals_products_' + today() + '.csv', rows);
+}
+window.exportProducts = exportProducts;
+
+async function exportOrders() {
+  showToast('Preparing orders export…');
+  const data = await apiFetch('/admin/orders?page=1&limit=500', { headers: apiHeaders() });
+  const rows = [['Order #','Customer Email','Customer Role','Items','Subtotal','Discount','Shipping','Total','Status','Payment Status','Date']];
+  (data.orders || []).forEach(o => rows.push([
+    o.orderNumber || '', o.customerEmail || '', o.customerRole || '',
+    (o.items || []).length,
+    o.subtotal || 0, o.discount || 0, o.shippingCost || 0, o.total || 0,
+    o.status || '', o.paymentStatus || '',
+    o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-AU') : ''
+  ]));
+  downloadCSV('vibrantpetals_orders_' + today() + '.csv', rows);
+}
+window.exportOrders = exportOrders;
+
+async function exportUsers() {
+  showToast('Preparing users export…');
+  const data = await apiFetch('/admin/users?page=1&limit=500', { headers: apiHeaders() });
+  const rows = [['Username','First Name','Last Name','Email','Role','Status','Registered']];
+  (data.users || []).forEach(u => rows.push([
+    u.username || '', u.firstName || '', u.lastName || '',
+    u.email || '', u.role || 'Customer',
+    u.isActive ? 'Active' : 'Disabled',
+    u.registeredAt ? new Date(u.registeredAt).toLocaleDateString('en-AU') : ''
+  ]));
+  downloadCSV('vibrantpetals_users_' + today() + '.csv', rows);
+}
+window.exportUsers = exportUsers;
+
+async function exportCustomers() {
+  showToast('Preparing customers export…');
+  const data = await apiFetch('/admin/customers?page=1&limit=500', { headers: apiHeaders() });
+  const rows = [['Username','First Name','Last Name','Email','Type','Registered']];
+  (data.customers || []).forEach(c => rows.push([
+    c.username || '', c.firstName || '', c.lastName || '',
+    c.email || '', c.role || 'Customer',
+    c.registeredAt ? new Date(c.registeredAt).toLocaleDateString('en-AU') : ''
+  ]));
+  downloadCSV('vibrantpetals_customers_' + today() + '.csv', rows);
+}
+window.exportCustomers = exportCustomers;
+
+async function exportNewsletter() {
+  showToast('Preparing newsletter export…');
+  const data = await apiFetch('/newsletter/list?page=1&limit=1000', { headers: apiHeaders() });
+  const rows = [['Email','Subscribed On']];
+  (data.subscribers || []).forEach(s => rows.push([
+    s.email || '',
+    s.subscribedAt ? new Date(s.subscribedAt).toLocaleDateString('en-AU') : ''
+  ]));
+  downloadCSV('vibrantpetals_newsletter_' + today() + '.csv', rows);
+}
+window.exportNewsletter = exportNewsletter;
+
+async function exportCoupons() {
+  showToast('Preparing coupons export…');
+  const data = await apiFetch('/admin/coupons', { headers: apiHeaders() });
+  const rows = [['Code','Discount ($)','Description','Usage Count','Usage Limit','Expires','Status']];
+  (data.coupons || []).forEach(c => rows.push([
+    c.code || '', c.discount || 0, c.description || '',
+    c.usageCount || 0, c.usageLimit || 'Unlimited',
+    c.expiresAt ? new Date(c.expiresAt).toLocaleDateString('en-AU') : 'Never',
+    c.isActive ? 'Active' : 'Inactive'
+  ]));
+  downloadCSV('vibrantpetals_coupons_' + today() + '.csv', rows);
+}
+window.exportCoupons = exportCoupons;
+
+function today() {
+  return new Date().toISOString().slice(0,10).replace(/-/g,'');
+}
+
+checkAuth();
   } else {
     errEl.textContent = data.user?.role !== 'Administrator' ? 'Access denied — Admin only.' : (data.message || 'Login failed');
   }
 }
 
-function doAdminLogout() { token = ''; localStorage.removeItem('vp_token'); localStorage.removeItem('vp_admin_token'); checkAuth(); }
+function doAdminLogout() { token = ''; localStorage.removeItem('vp_token'); localStorage.removeItem('vp_admin_token'); 
+// ── CSV EXPORT ────────────────────────────────────────────────────────────────
+function downloadCSV(filename, rows) {
+  if (!rows.length) { showToast('No data to export', 'error'); return; }
+  const escape = v => {
+    const s = v == null ? '' : String(v);
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const csv = rows.map(r => r.map(escape).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('CSV downloaded: ' + filename, 'success');
+}
+
+async function exportProducts() {
+  showToast('Preparing products export…');
+  const data = await apiFetch('/products?page=1&limit=500&sort=dateCreated&order=desc', { headers: apiHeaders() });
+  const rows = [['Name','SKU','Price','Regular Price','Sale Price','Dealer Price','Stock Status','Stock Qty','Categories','Status','Featured']];
+  (data.products || []).forEach(p => rows.push([
+    p.name, p.sku || '', p.price || 0, p.regularPrice || 0,
+    p.salePrice != null ? p.salePrice : '', p.dealerPrice != null ? p.dealerPrice : '',
+    p.stockStatus || '', p.stockQty || 0,
+    (p.categories || []).join('; '), p.status || '', p.isFeatured ? 'Yes' : 'No'
+  ]));
+  downloadCSV('vibrantpetals_products_' + today() + '.csv', rows);
+}
+window.exportProducts = exportProducts;
+
+async function exportOrders() {
+  showToast('Preparing orders export…');
+  const data = await apiFetch('/admin/orders?page=1&limit=500', { headers: apiHeaders() });
+  const rows = [['Order #','Customer Email','Customer Role','Items','Subtotal','Discount','Shipping','Total','Status','Payment Status','Date']];
+  (data.orders || []).forEach(o => rows.push([
+    o.orderNumber || '', o.customerEmail || '', o.customerRole || '',
+    (o.items || []).length,
+    o.subtotal || 0, o.discount || 0, o.shippingCost || 0, o.total || 0,
+    o.status || '', o.paymentStatus || '',
+    o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-AU') : ''
+  ]));
+  downloadCSV('vibrantpetals_orders_' + today() + '.csv', rows);
+}
+window.exportOrders = exportOrders;
+
+async function exportUsers() {
+  showToast('Preparing users export…');
+  const data = await apiFetch('/admin/users?page=1&limit=500', { headers: apiHeaders() });
+  const rows = [['Username','First Name','Last Name','Email','Role','Status','Registered']];
+  (data.users || []).forEach(u => rows.push([
+    u.username || '', u.firstName || '', u.lastName || '',
+    u.email || '', u.role || 'Customer',
+    u.isActive ? 'Active' : 'Disabled',
+    u.registeredAt ? new Date(u.registeredAt).toLocaleDateString('en-AU') : ''
+  ]));
+  downloadCSV('vibrantpetals_users_' + today() + '.csv', rows);
+}
+window.exportUsers = exportUsers;
+
+async function exportCustomers() {
+  showToast('Preparing customers export…');
+  const data = await apiFetch('/admin/customers?page=1&limit=500', { headers: apiHeaders() });
+  const rows = [['Username','First Name','Last Name','Email','Type','Registered']];
+  (data.customers || []).forEach(c => rows.push([
+    c.username || '', c.firstName || '', c.lastName || '',
+    c.email || '', c.role || 'Customer',
+    c.registeredAt ? new Date(c.registeredAt).toLocaleDateString('en-AU') : ''
+  ]));
+  downloadCSV('vibrantpetals_customers_' + today() + '.csv', rows);
+}
+window.exportCustomers = exportCustomers;
+
+async function exportNewsletter() {
+  showToast('Preparing newsletter export…');
+  const data = await apiFetch('/newsletter/list?page=1&limit=1000', { headers: apiHeaders() });
+  const rows = [['Email','Subscribed On']];
+  (data.subscribers || []).forEach(s => rows.push([
+    s.email || '',
+    s.subscribedAt ? new Date(s.subscribedAt).toLocaleDateString('en-AU') : ''
+  ]));
+  downloadCSV('vibrantpetals_newsletter_' + today() + '.csv', rows);
+}
+window.exportNewsletter = exportNewsletter;
+
+async function exportCoupons() {
+  showToast('Preparing coupons export…');
+  const data = await apiFetch('/admin/coupons', { headers: apiHeaders() });
+  const rows = [['Code','Discount ($)','Description','Usage Count','Usage Limit','Expires','Status']];
+  (data.coupons || []).forEach(c => rows.push([
+    c.code || '', c.discount || 0, c.description || '',
+    c.usageCount || 0, c.usageLimit || 'Unlimited',
+    c.expiresAt ? new Date(c.expiresAt).toLocaleDateString('en-AU') : 'Never',
+    c.isActive ? 'Active' : 'Inactive'
+  ]));
+  downloadCSV('vibrantpetals_coupons_' + today() + '.csv', rows);
+}
+window.exportCoupons = exportCoupons;
+
+function today() {
+  return new Date().toISOString().slice(0,10).replace(/-/g,'');
+}
+
+checkAuth(); }
 document.getElementById('adminPwd')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
 
 // ── PANEL NAVIGATION ──────────────────────────────────────────────────────────
@@ -1315,6 +1532,110 @@ window.loadCustomers = loadCustomers;
 window.loadNewsletter = loadNewsletter;
 window.loadCoupons = loadCoupons;
 window.loadCategories = loadCategories;
+
+
+// ── CSV EXPORT ────────────────────────────────────────────────────────────────
+function downloadCSV(filename, rows) {
+  if (!rows.length) { showToast('No data to export', 'error'); return; }
+  const escape = v => {
+    const s = v == null ? '' : String(v);
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const csv = rows.map(r => r.map(escape).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('CSV downloaded: ' + filename, 'success');
+}
+
+async function exportProducts() {
+  showToast('Preparing products export…');
+  const data = await apiFetch('/products?page=1&limit=500&sort=dateCreated&order=desc', { headers: apiHeaders() });
+  const rows = [['Name','SKU','Price','Regular Price','Sale Price','Dealer Price','Stock Status','Stock Qty','Categories','Status','Featured']];
+  (data.products || []).forEach(p => rows.push([
+    p.name, p.sku || '', p.price || 0, p.regularPrice || 0,
+    p.salePrice != null ? p.salePrice : '', p.dealerPrice != null ? p.dealerPrice : '',
+    p.stockStatus || '', p.stockQty || 0,
+    (p.categories || []).join('; '), p.status || '', p.isFeatured ? 'Yes' : 'No'
+  ]));
+  downloadCSV('vibrantpetals_products_' + today() + '.csv', rows);
+}
+window.exportProducts = exportProducts;
+
+async function exportOrders() {
+  showToast('Preparing orders export…');
+  const data = await apiFetch('/admin/orders?page=1&limit=500', { headers: apiHeaders() });
+  const rows = [['Order #','Customer Email','Customer Role','Items','Subtotal','Discount','Shipping','Total','Status','Payment Status','Date']];
+  (data.orders || []).forEach(o => rows.push([
+    o.orderNumber || '', o.customerEmail || '', o.customerRole || '',
+    (o.items || []).length,
+    o.subtotal || 0, o.discount || 0, o.shippingCost || 0, o.total || 0,
+    o.status || '', o.paymentStatus || '',
+    o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-AU') : ''
+  ]));
+  downloadCSV('vibrantpetals_orders_' + today() + '.csv', rows);
+}
+window.exportOrders = exportOrders;
+
+async function exportUsers() {
+  showToast('Preparing users export…');
+  const data = await apiFetch('/admin/users?page=1&limit=500', { headers: apiHeaders() });
+  const rows = [['Username','First Name','Last Name','Email','Role','Status','Registered']];
+  (data.users || []).forEach(u => rows.push([
+    u.username || '', u.firstName || '', u.lastName || '',
+    u.email || '', u.role || 'Customer',
+    u.isActive ? 'Active' : 'Disabled',
+    u.registeredAt ? new Date(u.registeredAt).toLocaleDateString('en-AU') : ''
+  ]));
+  downloadCSV('vibrantpetals_users_' + today() + '.csv', rows);
+}
+window.exportUsers = exportUsers;
+
+async function exportCustomers() {
+  showToast('Preparing customers export…');
+  const data = await apiFetch('/admin/customers?page=1&limit=500', { headers: apiHeaders() });
+  const rows = [['Username','First Name','Last Name','Email','Type','Registered']];
+  (data.customers || []).forEach(c => rows.push([
+    c.username || '', c.firstName || '', c.lastName || '',
+    c.email || '', c.role || 'Customer',
+    c.registeredAt ? new Date(c.registeredAt).toLocaleDateString('en-AU') : ''
+  ]));
+  downloadCSV('vibrantpetals_customers_' + today() + '.csv', rows);
+}
+window.exportCustomers = exportCustomers;
+
+async function exportNewsletter() {
+  showToast('Preparing newsletter export…');
+  const data = await apiFetch('/newsletter/list?page=1&limit=1000', { headers: apiHeaders() });
+  const rows = [['Email','Subscribed On']];
+  (data.subscribers || []).forEach(s => rows.push([
+    s.email || '',
+    s.subscribedAt ? new Date(s.subscribedAt).toLocaleDateString('en-AU') : ''
+  ]));
+  downloadCSV('vibrantpetals_newsletter_' + today() + '.csv', rows);
+}
+window.exportNewsletter = exportNewsletter;
+
+async function exportCoupons() {
+  showToast('Preparing coupons export…');
+  const data = await apiFetch('/admin/coupons', { headers: apiHeaders() });
+  const rows = [['Code','Discount ($)','Description','Usage Count','Usage Limit','Expires','Status']];
+  (data.coupons || []).forEach(c => rows.push([
+    c.code || '', c.discount || 0, c.description || '',
+    c.usageCount || 0, c.usageLimit || 'Unlimited',
+    c.expiresAt ? new Date(c.expiresAt).toLocaleDateString('en-AU') : 'Never',
+    c.isActive ? 'Active' : 'Inactive'
+  ]));
+  downloadCSV('vibrantpetals_coupons_' + today() + '.csv', rows);
+}
+window.exportCoupons = exportCoupons;
+
+function today() {
+  return new Date().toISOString().slice(0,10).replace(/-/g,'');
+}
 
 checkAuth();
 </script>
