@@ -207,8 +207,16 @@
     .cat-intro {
       text-align: center;
       padding: 64px 32px 40px;
-      max-width: 760px;
+      max-width: 860px;
       margin: 0 auto;
+    }
+    .cat-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 400;
+      color: var(--dark);
+      margin-bottom: 24px;
+      letter-spacing: 0.01em;
     }
     .cat-intro p {
       font-family: 'Cormorant Garamond', serif;
@@ -222,7 +230,7 @@
     }
     .cat-card {
       position: relative; overflow: hidden;
-      height: 520px; cursor: pointer;
+      height: 560px; cursor: pointer;
     }
     .cat-card img {
       width: 100%; height: 100%;
@@ -250,25 +258,27 @@
     .section-title {
       font-family: 'Playfair Display', serif;
       font-size: 32px; font-weight: 400;
-      margin-bottom: 32px;
-      padding-left: 32px;
+      padding: 0 32px 20px;
+      margin-bottom: 36px;
+      border-bottom: 1px solid #e8e0d2;
     }
     .featured-wrap {
       position: relative;
     }
     .products-slider {
-      display: flex; gap: 0;
       overflow: hidden;
+      position: relative;
     }
     .products-track {
       display: flex;
       transition: transform .5s cubic-bezier(.4,0,.2,1);
-      width: 100%;
+      will-change: transform;
     }
     .product-card {
-      flex: 0 0 20%;
+      flex: 0 0 auto;
       padding: 0 12px;
       cursor: pointer;
+      box-sizing: border-box;
     }
     .product-card-inner {
       position: relative;
@@ -331,58 +341,63 @@
     }
 
     .slider-arrow {
-      position: absolute; top: 45%;
+      position: absolute; top: 42%;
       transform: translateY(-50%);
-      background: rgba(255,255,255,.9);
-      border: 1px solid #ddd;
-      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(255,255,255,.95);
+      border: 1px solid #e0d8cc;
+      width: 40px; height: 40px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; z-index: 10;
       color: var(--dark);
-      transition: background .2s;
-      box-shadow: 0 2px 10px rgba(0,0,0,.1);
+      font-size: 20px;
+      transition: background .2s, color .2s, opacity .2s;
+      box-shadow: 0 2px 12px rgba(0,0,0,.12);
     }
-    .slider-arrow:hover { background: var(--gold); color: #fff; }
-    .slider-prev { left: 8px; }
-    .slider-next { right: 8px; }
+    .slider-arrow:hover { background: var(--gold); color: #fff; border-color: var(--gold); }
+    .slider-arrow:disabled, .slider-arrow.hidden { opacity: 0.25; pointer-events: none; }
+    .slider-prev { left: 4px; }
+    .slider-next { right: 4px; }
 
     /* ── TESTIMONIAL ────────────────────────────────────────── */
     .testi-section {
       position: relative;
-      background-image: url('https://images.unsplash.com/photo-1533038590840-1cde6e668a91?w=1600&q=70');
+      background-image: url('https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=40&auto=format&fit=crop');
       background-size: cover; background-position: center;
-      padding: 90px 32px;
+      padding: 80px 32px;
       display: flex; align-items: center; justify-content: center;
-      min-height: 480px;
+      min-height: 500px;
     }
     .testi-section::before {
       content: ''; position: absolute; inset: 0;
-      background: rgba(0,0,0,.35);
+      background: rgba(30,30,30,.72);
     }
     .testi-card {
       position: relative; z-index: 1;
       background: #fff;
-      max-width: 900px; width: 100%;
-      padding: 60px 80px;
+      max-width: 1060px; width: 100%;
+      padding: 72px 100px;
       text-align: center;
     }
     .testi-heading {
       font-family: 'Playfair Display', serif;
-      font-size: 2rem; margin-bottom: 32px; color: var(--dark);
+      font-size: 2.2rem; font-weight: 400;
+      margin-bottom: 36px; color: var(--dark);
+      letter-spacing: 0.01em;
     }
     .testi-quote {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.2rem; line-height: 1.85; color: #555;
-      margin-bottom: 28px;
-      font-style: italic;
+      font-size: 1.25rem; line-height: 1.9; color: #444;
+      margin-bottom: 32px;
+      font-style: normal; font-weight: 400;
     }
     .testi-author {
-      font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;
+      font-family: 'Lato', sans-serif;
+      font-size: 13px; letter-spacing: 0.16em;
       color: var(--mid);
     }
 
     /* ── TRUST ──────────────────────────────────────────────── */
-    .trust-section { padding: 80px 32px; background: var(--cream2); }
+    .trust-section { padding: 90px 32px; background: #fff; }
     .trust-grid {
       max-width: 1100px; margin: 0 auto;
       display: grid; grid-template-columns: repeat(3,1fr); gap: 60px;
@@ -402,21 +417,26 @@
     /* ── FREE DELIVERY BANNER ───────────────────────────────── */
     .delivery-banner {
       position: relative; overflow: hidden;
-      min-height: 300px;
+      min-height: 420px;
       display: grid; grid-template-columns: 1fr 1fr;
     }
-    .delivery-img { position: relative; }
+    .delivery-img { position: relative; min-height: 420px; }
     .delivery-img img { width: 100%; height: 100%; object-fit: cover; }
     .delivery-content {
-      background: var(--cream2);
+      background-color: #f5f0e8;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(155,139,90,.06) 0%, transparent 60%),
+        radial-gradient(circle at 80% 20%, rgba(155,139,90,.04) 0%, transparent 50%);
       display: flex; align-items: center; justify-content: center;
-      padding: 60px 40px;
+      padding: 60px 52px;
     }
     .delivery-content h2 {
       font-family: 'Playfair Display', serif;
-      font-size: clamp(2rem, 3vw, 3rem);
+      font-size: clamp(2rem, 3vw, 3.2rem);
       line-height: 1.2;
       color: var(--dark);
+      font-weight: 400;
+      letter-spacing: 0.01em;
     }
 
     /* ── FOOTER ─────────────────────────────────────────────── */
@@ -708,7 +728,7 @@
     @media(max-width:900px){
       .cat-grid { grid-template-columns: repeat(2,1fr); }
       .trust-grid { grid-template-columns: 1fr; gap: 36px; }
-      .testi-card { padding: 40px 24px; }
+      .testi-card { padding: 40px 28px; }
       .footer-grid { grid-template-columns: 1fr; gap: 36px; }
       .delivery-banner { grid-template-columns: 1fr; }
       .delivery-img { height: 200px; }
@@ -795,6 +815,7 @@
 
 <!-- ── CATEGORY SHOWCASE ──────────────────────────────────── -->
 <div class="cat-intro">
+  <h2 class="cat-heading">Exquisite Floral Creations</h2>
   <p>Explore the breathtaking beauty of nature through our handpicked selection of the world's most exquisite flowers. From the timeless allure of roses to the vibrant hues of lilies and the delicate charm of orchids, our collection showcases nature's finest creations.</p>
 </div>
 
@@ -826,7 +847,7 @@
 <section class="testi-section" id="testiSection">
   <div class="testi-card">
     <h2 class="testi-heading">Testimonial</h2>
-    <p class="testi-quote">"I've been a loyal customer of VibrantPetals for years, and their loose flowers never disappoint! The quality is top-notch, and the blooms always last longer than expected. I highly recommend them to anyone looking for fresh, beautiful flowers delivered with care."</p>
+    <p class="testi-quote">“I’ve been a loyal customer of VibrantPetals for years, and their loose flowers never disappoint! The quality is top-notch, and the blooms always last longer than expected. I highly recommend them to anyone looking for fresh, beautiful flowers.”</p>
     <p class="testi-author">— Rajesh Patel —</p>
   </div>
 </section>
@@ -1065,43 +1086,59 @@ function showToast(msg, type=''){
 
 // ── FEATURED PRODUCTS ──────────────────────────────────────
 (async function(){
-  const track = document.getElementById('featuredTrack');
+  const track   = document.getElementById('featuredTrack');
+  const slider  = track.parentElement;
+  const prevBtn = document.getElementById('fpPrev');
+  const nextBtn = document.getElementById('fpNext');
+
+  // Skeleton placeholders
   track.innerHTML = Array(5).fill(`
-    <div class="product-card">
+    <div class="product-card" style="width:20%">
       <div class="product-card-inner">
-        <div class="product-img-wrap skeleton" style="height:200px;"></div>
+        <div class="product-img-wrap skeleton" style="aspect-ratio:1;"></div>
       </div>
-      <div style="margin-top:14px;"><div class="skeleton" style="height:14px;width:70%;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;width:40%;"></div></div>
+      <div style="margin-top:14px;">
+        <div class="skeleton" style="height:13px;width:70%;margin-bottom:8px;border-radius:3px;"></div>
+        <div class="skeleton" style="height:12px;width:40%;border-radius:3px;"></div>
+      </div>
     </div>`).join('');
 
   const data = await apiFetch('/products/featured').catch(()=>({products:[]}));
   const products = data.products || [];
-
   if(!products.length){
-    const fallback = await apiFetch('/products?limit=10').catch(()=>({products:[]}));
-    products.push(...(fallback.products||[]));
+    const fb = await apiFetch('/products?limit=10').catch(()=>({products:[]}));
+    products.push(...(fb.products||[]));
+  }
+  if(!products.length){
+    track.innerHTML='<p style="padding:32px;color:var(--mid);">No products yet.</p>';
+    prevBtn.style.display = nextBtn.style.display = 'none';
+    return;
   }
 
-  if(!products.length){ track.innerHTML='<p style="padding:20px;color:var(--mid)">No products available</p>'; return; }
-
-  const visible = 5;
+  const VISIBLE = window.innerWidth < 768 ? 2 : 5;
   let offset = 0;
 
-  function render(){
+  // Card width in px — recalculate on resize
+  function cardWidth(){ return slider.offsetWidth / VISIBLE; }
+
+  function renderCards(){
+    const cw = cardWidth();
     track.innerHTML = products.map(p => {
-      const price = p.salePrice ? `$${p.salePrice.toFixed(2)}` : p.price ? `$${p.price.toFixed(2)}` : '';
-      const regPrice = p.regularPrice && p.salePrice ? ` – $${p.regularPrice.toFixed(2)}` : '';
-      const img = p.images?.[0] || 'https://via.placeholder.com/300x300?text=Flower';
+      const hasRange = p.regularPrice && p.price && p.regularPrice !== p.price;
+      const priceStr = hasRange
+        ? `$${Math.min(p.price, p.regularPrice).toFixed(2)} – $${Math.max(p.price, p.regularPrice).toFixed(2)}`
+        : p.price ? `$${p.price.toFixed(2)}` : '';
+      const img = p.images?.[0] || '';
       const inStock = p.stockStatus !== 'outofstock';
       return `
-      <div class="product-card" onclick="location.href='product.html?id=${p._id}'">
+      <div class="product-card" style="width:${cw}px;" onclick="location.href='product.html?id=${p._id}'">
         <div class="product-card-inner">
           <div class="product-img-wrap">
-            <img src="${img}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x300?text=Flower'"/>
-            ${!inStock ? `<div class="stock-badge">Out Of Stock</div>` : ''}
+            ${img ? `<img src="${img}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'"/>` : `<div style="width:100%;aspect-ratio:1;background:var(--card-bg);"></div>`}
+            ${!inStock ? '<div class="stock-badge">Out Of Stock</div>' : ''}
             <div class="product-actions">
               <button class="arrow-btn product-action-btn" onclick="event.stopPropagation();addToCart('${p._id}')" title="Add to cart">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
               </button>
               <button class="product-action-btn" onclick="event.stopPropagation();addToWishlist('${p._id}')" title="Wishlist">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
@@ -1114,21 +1151,36 @@ function showToast(msg, type=''){
         </div>
         <div class="product-info">
           <div class="product-name">${p.name}</div>
-          <div class="product-price">${price}${regPrice}</div>
+          <div class="product-price">${priceStr}</div>
         </div>
       </div>`;
     }).join('');
-    track.style.transform = `translateX(-${offset * (100/visible)}%)`;
   }
 
-  render();
+  function goTo(n){
+    const max = Math.max(0, products.length - VISIBLE);
+    offset = Math.max(0, Math.min(n, max));
+    track.style.transform = `translateX(-${offset * cardWidth()}px)`;
+    prevBtn.classList.toggle('hidden', offset === 0);
+    nextBtn.classList.toggle('hidden', offset >= max);
+  }
 
-  document.getElementById('fpPrev').onclick = ()=>{
-    if(offset>0){ offset--; track.style.transform=`translateX(-${offset*(100/visible)}%)`; }
-  };
-  document.getElementById('fpNext').onclick = ()=>{
-    if(offset < products.length-visible){ offset++; track.style.transform=`translateX(-${offset*(100/visible)}%)`; }
-  };
+  renderCards();
+  goTo(0);
+
+  prevBtn.onclick = () => goTo(offset - 1);
+  nextBtn.onclick = () => goTo(offset + 1);
+
+  // Touch / drag swipe support
+  let touchStartX = 0;
+  track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend', e => {
+    const dx = touchStartX - e.changedTouches[0].clientX;
+    if(Math.abs(dx) > 40) goTo(offset + (dx > 0 ? 1 : -1));
+  });
+
+  // Recalculate on resize
+  window.addEventListener('resize', () => { renderCards(); goTo(offset); });
 })();
 
 // ── SEARCH ─────────────────────────────────────────────────
@@ -1292,7 +1344,7 @@ window.addEventListener('scroll',()=>{
 
 // ── SITE IMAGES ──────────────────────────────────────────────
 const FALLBACK_SITE_IMAGES = {
-  'testimonial_bg':      'https://images.unsplash.com/photo-1533038590840-1cde6e668a91?w=1600&q=70',
+  'testimonial_bg':      'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=40',
   'delivery_banner_img': 'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=800&q=80',
 };
 
