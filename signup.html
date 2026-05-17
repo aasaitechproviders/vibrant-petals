@@ -895,8 +895,8 @@ async function submitDealer() {
   btn.disabled = false; btn.textContent = '✿ Submit Application';
 
   if (data.success) {
-    localStorage.setItem('vp_token', data.token);
-    try { await apiFetch('/cart/merge', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ sessionId }) }); } catch (e) {}
+    // Dealer accounts are pending approval — do NOT store a token or merge cart
+    // data.token is intentionally not returned by the backend for dealers
     showSuccess('dealer', data.user?.username || body.firstName);
   } else {
     showMsg('step6Msg', data.message || 'Registration failed. Please try again.', 'err');
@@ -921,7 +921,7 @@ function showSuccess(type, name) {
     document.getElementById('successSub').textContent = 'Thank you for applying to become a Vibrant Petals Community Flower Partner.';
     const note = document.getElementById('successDealerNote');
     note.style.display = '';
-    note.textContent = '🌺 Our team will review your application and contact you via WhatsApp within 2–3 business days. In the meantime, you can explore our collection at retail prices.';
+    note.textContent = '🌺 Our team will review your application and contact you via WhatsApp within 2–3 business days. Your account will be activated after admin approval — you will then be able to log in and access dealer pricing.';
   }
 }
 
