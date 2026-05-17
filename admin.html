@@ -298,8 +298,9 @@
             <div class="card-title" style="font-size:14px;font-weight:700;">Product Categories</div>
             <button class="btn-primary" onclick="openCategoryModal()"><span style="font-size:16px">+</span>Add Category</button>
           </div>
+          <p style="font-size:13px;color:var(--mid);padding:0 20px 12px;">Each category can have an image shown on the homepage and category page. Click <b>Edit</b> to update any category's image.</p>
           <table class="data-table">
-            <thead><tr><th>Name</th><th>Slug</th><th>Products</th><th>Actions</th></tr></thead>
+            <thead><tr><th style="width:80px">Image</th><th>Name</th><th>Slug</th><th>Products</th><th>Actions</th></tr></thead>
             <tbody id="categoriesBody"></tbody>
           </table>
         </div>
@@ -551,11 +552,24 @@
     <div class="modal-head"><h3 id="catModalTitle">Add Category</h3><span class="modal-close" onclick="closeModal('categoryModal')">✕</span></div>
     <div class="modal-body">
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="catName" placeholder="Jasmine Strings"/></div>
-        <div class="form-group"><label class="form-label">Slug *</label><input class="form-input" id="catSlug" placeholder="jasmine-strings"/></div>
+        <div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="catName" placeholder="Pooja Garlands"/></div>
+        <div class="form-group"><label class="form-label">Slug *</label><input class="form-input" id="catSlug" placeholder="pooja-garlands"/></div>
       </div>
       <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="catDesc" placeholder="Fresh jasmine garlands and strings"/></div>
-      <div class="form-group"><label class="form-label">Image URL</label><input class="form-input" id="catImage" placeholder="https://example.com/category.jpg"/></div>
+      <div class="form-group">
+        <label class="form-label">Category Image</label>
+        <div id="catImgUploadZone" onclick="document.getElementById('catImgUploadFile').click()"
+          style="cursor:pointer;border:2px dashed #ddd;border-radius:6px;overflow:hidden;background:#fdf9f4;min-height:120px;display:flex;align-items:center;justify-content:center;position:relative;">
+          <img id="catImgUploadPreview" src="" style="width:100%;max-height:180px;object-fit:cover;display:none;"/>
+          <div id="catImgUploadPlaceholder" style="color:var(--mid);font-size:13px;padding:28px;text-align:center;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 8px;display:block;opacity:.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Click to upload image
+          </div>
+        </div>
+        <input type="file" id="catImgUploadFile" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif" style="display:none" onchange="handleCatModalImageFile(this.files[0])"/>
+        <input type="text" class="form-input" id="catImage" placeholder="Or paste image URL directly" style="margin-top:8px;" oninput="previewCatModalImg(this.value)"/>
+        <div id="catImgUploadProgress" style="font-size:12px;color:var(--mid);margin-top:4px;display:none;"></div>
+      </div>
       <div class="form-msg" id="catFormMsg"></div>
     </div>
     <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('categoryModal')">Cancel</button><button class="btn-primary" onclick="saveCategory()">Save Category</button></div>
@@ -1209,23 +1223,35 @@ document.getElementById('pName')?.addEventListener('input', function () {
 
 // ── CATEGORIES ────────────────────────────────────────────────────────────────
 async function loadCategories() {
-  const data = await apiFetch('/products/categories', { headers: apiHeaders() });
-  const cats = data.categories || data.data || [];
-  document.getElementById('categoriesBody').innerHTML = cats.length ? cats.map(c => {
-    const cid = c._id || c.id || '';
-    const safeName = (c.name || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+  const [catData, imgData] = await Promise.all([
+    apiFetch('/products/categories', { headers: apiHeaders() }),
+    apiFetch('/admin/category-images', { headers: apiHeaders() }),
+  ]);
+  const cats   = catData.categories || catData.data || [];
+  const imgMap = {};
+  (imgData.categoryImages || []).forEach(ci => { imgMap[ci.slug] = ci.image; });
+
+  document.getElementById('categoriesBody').innerHTML = cats.length ? cats.map(cat => {
+    const cid      = cat._id || cat.id || '';
+    const safeName = (cat.name || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+    const slug     = cat.slug || '';
+    const imgUrl   = imgMap[slug] || '';
+    const thumb    = imgUrl
+      ? `<img src="${imgUrl}" alt="" style="width:64px;height:44px;object-fit:cover;border-radius:4px;background:#eee;" onerror="this.style.display='none'"/>`
+      : `<div style="width:64px;height:44px;border-radius:4px;background:#f0ebe0;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:18px;">✦</div>`;
     return `<tr>
-      <td><b>${c.name}</b>${c.description ? `<br/><span style="font-size:12px;color:var(--mid)">${c.description}</span>` : ''}</td>
-      <td style="font-size:12px;color:var(--mid);font-family:monospace;">${c.slug || '—'}</td>
-      <td style="font-size:13px;color:var(--mid);">${c.count != null ? c.count + ' products' : '—'}</td>
+      <td>${thumb}</td>
+      <td><b>${cat.name}</b>${cat.description ? `<br/><span style="font-size:12px;color:var(--mid)">${cat.description}</span>` : ''}</td>
+      <td style="font-size:12px;color:var(--mid);font-family:monospace;">${slug || '—'}</td>
+      <td style="font-size:13px;color:var(--mid);">${cat.count != null ? cat.count + ' products' : '—'}</td>
       <td>
-        <div style="display:flex;gap:6px;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
           ${cid ? `<button class="btn-sm btn-edit" onclick="editCategory('${cid}')">Edit</button>` : ''}
           ${cid ? `<button class="btn-sm btn-delete" onclick="deleteCategory('${cid}','${safeName}')">Delete</button>` : ''}
         </div>
       </td>
     </tr>`;
-  }).join('') : `<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--mid);">No categories yet.</td></tr>`;
+  }).join('') : `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--mid);">No categories yet. Click + Add Category to get started.</td></tr>`;
 }
 
 function openCategoryModal() {
@@ -1236,46 +1262,65 @@ function openCategoryModal() {
   document.getElementById('catDesc').value = '';
   document.getElementById('catImage').value = '';
   document.getElementById('catFormMsg').className = 'form-msg';
+  document.getElementById('catImgUploadProgress').style.display = 'none';
+  previewCatModalImg('');
   document.getElementById('categoryModal').classList.add('open');
 }
 window.openCategoryModal = openCategoryModal;
 
 async function editCategory(id) {
-  const data = await apiFetch('/products/categories', { headers: apiHeaders() });
-  const cats = data.categories || data.data || [];
-  const c = cats.find(x => (x._id || x.id) === id);
-  if (!c) { showToast('Category not found', 'error'); return; }
+  // Load category data AND its current image in parallel
+  const [catData, imgData] = await Promise.all([
+    apiFetch('/products/categories', { headers: apiHeaders() }),
+    apiFetch('/admin/category-images', { headers: apiHeaders() }),
+  ]);
+  const cats   = catData.categories || catData.data || [];
+  const cat    = cats.find(x => (x._id || x.id) === id);
+  if (!cat) { showToast('Category not found', 'error'); return; }
+  const imgMap = {};
+  (imgData.categoryImages || []).forEach(ci => { imgMap[ci.slug] = ci.image; });
+
   editingCategoryId = id;
   document.getElementById('catModalTitle').textContent = 'Edit Category';
-  document.getElementById('catName').value = c.name || '';
-  document.getElementById('catSlug').value = c.slug || '';
-  document.getElementById('catDesc').value = c.description || '';
-  document.getElementById('catImage').value = c.image || '';
+  document.getElementById('catName').value = cat.name || '';
+  document.getElementById('catSlug').value = cat.slug || '';
+  document.getElementById('catDesc').value = cat.description || '';
+  // Prefer image from category-images collection (homepage source of truth)
+  const currentImg = imgMap[cat.slug] || cat.image || '';
+  document.getElementById('catImage').value = currentImg;
   document.getElementById('catFormMsg').className = 'form-msg';
+  document.getElementById('catImgUploadProgress').style.display = 'none';
+  previewCatModalImg(currentImg);
   document.getElementById('categoryModal').classList.add('open');
 }
 window.editCategory = editCategory;
 
 async function saveCategory() {
-  const name = document.getElementById('catName').value.trim();
-  const slug = document.getElementById('catSlug').value.trim();
+  const name  = document.getElementById('catName').value.trim();
+  const slug  = document.getElementById('catSlug').value.trim();
+  const image = document.getElementById('catImage').value.trim();
+  const msg   = document.getElementById('catFormMsg');
   if (!name || !slug) {
-    document.getElementById('catFormMsg').className = 'form-msg err';
-    document.getElementById('catFormMsg').textContent = 'Name and slug are required';
-    return;
+    msg.className = 'form-msg err'; msg.textContent = 'Name and slug are required'; return;
   }
-  const body = { name, slug, description: document.getElementById('catDesc').value, image: document.getElementById('catImage').value };
-  const url = editingCategoryId ? `/products/categories/${editingCategoryId}` : '/products/categories';
+  const body   = { name, slug, description: document.getElementById('catDesc').value, image };
+  const url    = editingCategoryId ? `/products/categories/${editingCategoryId}` : '/products/categories';
   const method = editingCategoryId ? 'PUT' : 'POST';
-  const data = await apiFetch(url, { method, headers: apiHeaders(), body: JSON.stringify(body) });
-  const msg = document.getElementById('catFormMsg');
+  const data   = await apiFetch(url, { method, headers: apiHeaders(), body: JSON.stringify(body) });
+
   if (data.success || data.category) {
+    // Also save image to category-images collection so homepage/category page updates
+    if (image && slug) {
+      await apiFetch(`/admin/category-images/${slug}`, {
+        method: 'PUT', headers: apiHeaders(),
+        body: JSON.stringify({ name, image })
+      });
+    }
     msg.className = 'form-msg ok';
     msg.textContent = editingCategoryId ? 'Category updated!' : 'Category created!';
-    setTimeout(() => { closeModal('categoryModal'); loadCategories(); }, 900);
+    setTimeout(() => { closeModal('categoryModal'); loadCategories(); }, 700);
   } else {
-    msg.className = 'form-msg err';
-    msg.textContent = data.message || 'Failed to save category';
+    msg.className = 'form-msg err'; msg.textContent = data.message || 'Failed to save category';
   }
 }
 window.saveCategory = saveCategory;
@@ -1287,6 +1332,33 @@ async function deleteCategory(id, name) {
   else showToast(data.message || 'Delete failed', 'error');
 }
 window.deleteCategory = deleteCategory;
+
+// Category modal image helpers
+function previewCatModalImg(url) {
+  const img = document.getElementById('catImgUploadPreview');
+  const ph  = document.getElementById('catImgUploadPlaceholder');
+  if (!img || !ph) return;
+  if (url) { img.src = url; img.style.display = 'block'; ph.style.display = 'none'; }
+  else     { img.style.display = 'none'; ph.style.display = ''; }
+}
+window.previewCatModalImg = previewCatModalImg;
+
+async function handleCatModalImageFile(file) {
+  if (!file) return;
+  const prog = document.getElementById('catImgUploadProgress');
+  prog.style.display = ''; prog.textContent = 'Uploading…';
+  try {
+    const presignRes  = await fetch(API + '/admin/upload/presign', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ filename: file.name, contentType: file.type, prefix: 'categories' }) });
+    const presignData = await presignRes.json();
+    if (!presignData.success) throw new Error(presignData.message || 'Presign failed');
+    await fetch(presignData.presignedUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+    document.getElementById('catImage').value = presignData.publicUrl;
+    previewCatModalImg(presignData.publicUrl);
+    prog.textContent = 'Upload complete ✓';
+  } catch (e) { prog.textContent = 'Upload failed: ' + e.message; }
+}
+window.handleCatModalImageFile = handleCatModalImageFile;
+
 
 document.getElementById('catName')?.addEventListener('input', function () {
   if (!editingCategoryId) document.getElementById('catSlug').value = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
