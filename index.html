@@ -206,7 +206,7 @@
     /* ── CATEGORY SHOWCASE ──────────────────────────────────── */
     .cat-intro {
       text-align: center;
-      padding: 64px 32px 40px;
+      padding: 56px 32px 36px;
       max-width: 860px;
       margin: 0 auto;
     }
@@ -227,28 +227,37 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 0;
+      border-top: 1px solid rgba(0,0,0,0.08);
     }
     .cat-card {
       position: relative; overflow: hidden;
       height: 560px; cursor: pointer;
+      border-right: 1px solid rgba(0,0,0,0.08);
     }
+    .cat-card:last-child { border-right: none; }
     .cat-card img {
       width: 100%; height: 100%;
       object-fit: cover;
       transition: transform .5s cubic-bezier(.4,0,.2,1);
     }
-    .cat-card:hover img { transform: scale(1.05); }
+    .cat-card:hover img { transform: scale(1.04); }
     .cat-card-label {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: var(--gold);
-      color: #fff;
+      position: absolute; bottom: 40px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(255,255,255,0.95);
+      color: var(--dark);
       text-align: center;
-      padding: 16px;
-      font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;
-      transform: translateY(100%);
-      transition: transform .3s;
+      padding: 14px 40px;
+      font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+      opacity: 0;
+      transition: opacity .3s, transform .3s;
+      white-space: nowrap;
+      min-width: 160px;
     }
-    .cat-card:hover .cat-card-label { transform: translateY(0); }
+    .cat-card:hover .cat-card-label {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
 
     /* ── FEATURED PRODUCTS ──────────────────────────────────── */
     .featured-section {
@@ -1368,10 +1377,11 @@ async function loadSiteImages(){
 
 // Fallback category images (used if API has no data yet)
 const FALLBACK_CAT_IMAGES = {
-  'pooja-garlands': { name:'Garlands',      image:'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=600&q=80' },
-  'loose-flowers':  { name:'Loose Flowers', image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=600&q=80' },
-  'strings':        { name:'Strings',       image:'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80' },
-  'leaves':         { name:'Leaves',        image:'https://images.unsplash.com/photo-1444930694458-01babf71870c?w=600&q=80' },
+  'pooja-garlands':              { name:'Garlands',                 image:'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=600&q=80' },
+  'loose-flowers':               { name:'Loose Flowers',            image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=600&q=80' },
+  'strings':                     { name:'Strings',                  image:'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80' },
+  'leaves':                      { name:'Leaves',                   image:'https://images.unsplash.com/photo-1515165562835-9e564d2b0e7e?w=600&q=80' },
+  'special-occasional-garlands': { name:'Special Garlands',         image:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
 };
 const CAT_DISPLAY_ORDER = ['pooja-garlands','loose-flowers','strings','leaves'];
 
@@ -1389,8 +1399,14 @@ async function loadCategoryCards(){
   catGrid.innerHTML = allSlugs.map(slug => {
     const cat = map[slug];
     if(!cat) return '';
+    const imgContent = cat.image
+      ? `<img src="${cat.image}" alt="${cat.name}" loading="lazy"
+           style="width:100%;height:100%;object-fit:cover;"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+         <div style="display:none;width:100%;height:100%;background:var(--card-bg);align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--mid);">${cat.name}</div>`
+      : `<div style="width:100%;height:100%;background:var(--card-bg);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--mid);">${cat.name}</div>`;
     return `<a href="category.html?cat=${slug}" class="cat-card">
-      <img src="${cat.image}" alt="${cat.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400?text=Flowers'"/>
+      ${imgContent}
       <div class="cat-card-label">${cat.name}</div>
     </a>`;
   }).join('');
