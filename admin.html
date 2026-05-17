@@ -160,6 +160,18 @@
     .order-detail-box p{color:var(--mid);line-height:1.8;}
     .toast{position:fixed;bottom:28px;right:28px;background:var(--dark);color:#fff;padding:14px 22px;border-radius:4px;font-size:13px;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:9999;}
     .toast.show{transform:translateY(0);opacity:1;}.toast.success{background:#2d7a2d;}.toast.error{background:#c0392b;}
+    .img-slot-card{border:1px solid #e8e0d2;border-radius:8px;overflow:hidden;background:#fff;transition:box-shadow .2s;}
+    .img-slot-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);}
+    .img-slot-thumb{position:relative;width:100%;aspect-ratio:16/7;overflow:hidden;background:#f5f0e8;}
+    .img-slot-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;}
+    .img-slot-card:hover .img-slot-thumb img{transform:scale(1.03);}
+    .img-slot-no{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.5);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:20px;}
+    .img-slot-body{padding:14px 16px;}
+    .img-slot-label{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:4px;}
+    .img-slot-meta{font-size:12px;color:var(--mid);margin-bottom:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .img-slot-btn{width:100%;padding:9px;font-size:13px;font-weight:600;letter-spacing:.04em;background:var(--gold);color:#fff;border:none;border-radius:5px;cursor:pointer;transition:background .2s;}
+    .img-slot-btn:hover{background:#7a6a3a;}
+    .img-slot-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:#ccc;font-size:12px;}
     .skeleton{background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
     .admin-login{min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;background:var(--dark);}
@@ -385,14 +397,10 @@
       <div class="panel" id="panel-banners">
         <div class="card">
           <div class="card-head">
-            <div class="card-title">Hero Banners</div>
-            <button class="btn-primary btn-sm" onclick="openBannerModal()">+ Add Banner</button>
+            <div class="card-title">Homepage Hero Banners</div>
           </div>
-          <p style="font-size:13px;color:var(--mid);padding:0 20px 12px;">Manage the homepage hero slideshow. Images appear in order number sequence.</p>
-          <table class="data-table">
-            <thead><tr><th style="width:80px">Image</th><th>Title</th><th>Button</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="bannersBody"></tbody>
-          </table>
+          <p style="font-size:13px;color:var(--mid);padding:0 20px 16px;">These are the 4 slides in the homepage hero slideshow. Click <b>Change Image</b> on any slide to update its image, title and button.</p>
+          <div id="bannersGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:0 20px 24px;"></div>
         </div>
       </div>
 
@@ -401,17 +409,11 @@
         <div class="card">
           <div class="card-head">
             <div class="card-title">Category Images</div>
-            <button class="btn-primary btn-sm" onclick="openCatImageModal()">+ Add / Edit</button>
           </div>
-          <p style="font-size:13px;color:var(--mid);padding:0 20px 12px;">Set the image shown for each category card on the homepage and the hero banner on the category page.</p>
-          <table class="data-table">
-            <thead><tr><th style="width:80px">Image</th><th>Category Name</th><th>Slug</th><th>Actions</th></tr></thead>
-            <tbody id="catImagesBody"></tbody>
-          </table>
+          <p style="font-size:13px;color:var(--mid);padding:0 20px 16px;">These images appear on the homepage category section and as the hero banner on each category page. Click <b>Change Image</b> to update any slot.</p>
+          <div id="catImagesGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:0 20px 24px;"></div>
         </div>
-      </div>
-
-    </div>
+      </div>    </div>
   </div>
 </div>
 
@@ -1687,92 +1689,93 @@ function today() {
 checkAuth();
 
 // ══════════════════════════════════════════════════════════
-//  BANNERS
+//  BANNERS  (slot-based, 4 fixed slides)
 // ══════════════════════════════════════════════════════════
-let editingBannerId = null;
+
+// Fallback defaults for each slot — shown when no API data exists yet
+const BANNER_DEFAULTS = [
+  { slot:1, title:'Handcrafted Strings<br>of Floral Beauty',  buttonText:'Shop Now',         buttonLink:'category.html?cat=strings',        image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=80' },
+  { slot:2, title:'Timeless Garlands<br>for Every Occasion',  buttonText:'Explore Garlands', buttonLink:'category.html?cat=pooja-garlands',  image:'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=1600&q=80' },
+  { slot:3, title:'Fresh Loose Flowers<br>Delivered to You',  buttonText:'Browse Flowers',   buttonLink:'category.html?cat=loose-flowers',   image:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80' },
+  { slot:4, title:'Sacred Leaves &amp; Foliage',             buttonText:'View Leaves',       buttonLink:'category.html?cat=leaves',          image:'https://images.unsplash.com/photo-1504386106331-3e4e71712b38?w=1600&q=80' },
+];
+
+let currentBannerData = {}; // slot → banner doc from API
+let editingBannerSlot = null;
 
 async function loadBanners() {
   const data = await apiFetch('/admin/banners', { headers: apiHeaders() });
-  const banners = data.banners || [];
-  document.getElementById('bannersBody').innerHTML = banners.length
-    ? banners.map(b => `<tr>
-        <td><img src="${b.image}" alt="" style="width:72px;height:44px;object-fit:cover;border-radius:4px;background:#eee;" onerror="this.style.background='#eee'"/></td>
-        <td style="font-size:13px;">${b.title || '<span style="color:var(--mid)">—</span>'}</td>
-        <td style="font-size:13px;">${b.buttonText ? `<a href="${b.buttonLink}" target="_blank" style="color:var(--gold)">${b.buttonText}</a>` : '<span style="color:var(--mid)">—</span>'}</td>
-        <td style="font-size:13px;">${b.order}</td>
-        <td><span class="status-pill" style="background:${b.isActive ? '#d4edda' : '#f8d7da'};color:${b.isActive ? '#155724' : '#721c24'}">${b.isActive ? 'Active' : 'Hidden'}</span></td>
-        <td style="display:flex;gap:6px;padding:12px 16px;">
-          <button class="btn-sm btn-edit" onclick="editBanner('${b._id}')">Edit</button>
-          <button class="btn-sm btn-delete" onclick="deleteBanner('${b._id}')">Delete</button>
-        </td>
-      </tr>`).join('')
-    : '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--mid);">No banners yet. Click + Add Banner to get started.</td></tr>';
+  currentBannerData = {};
+  (data.banners || []).forEach(b => { if (b.slot) currentBannerData[b.slot] = b; });
+  renderBannerGrid();
 }
 window.loadBanners = loadBanners;
 
-function openBannerModal(reset) {
-  reset = (reset !== false);
-  if (reset) {
-    editingBannerId = null;
-    document.getElementById('bannerModalTitle').textContent = 'Add Banner';
-    document.getElementById('bImage').value = '';
-    document.getElementById('bTitle').value = '';
-    document.getElementById('bBtnText').value = 'Shop Now';
-    document.getElementById('bBtnLink').value = '';
-    document.getElementById('bOrder').value = '1';
-    document.getElementById('bActive').checked = true;
-    document.getElementById('bannerImgPreview').style.display = 'none';
-    document.getElementById('bannerImgPlaceholder').style.display = '';
-    document.getElementById('bannerFormMsg').className = 'form-msg';
-    document.getElementById('bannerFormMsg').textContent = '';
-  }
+function renderBannerGrid() {
+  const grid = document.getElementById('bannersGrid');
+  if (!grid) return;
+  grid.innerHTML = BANNER_DEFAULTS.map(def => {
+    const live = currentBannerData[def.slot] || def;
+    const hasCustom = !!currentBannerData[def.slot];
+    const img = live.image || def.image;
+    const title = (live.title || def.title || '').replace(/<br>/gi, ' ');
+    const btnLabel = live.buttonText || def.buttonText || '';
+    return `<div class="img-slot-card">
+      <div class="img-slot-thumb">
+        <span class="img-slot-no">Slide ${def.slot}</span>
+        <img src="${img}" alt="Slide ${def.slot}" onerror="this.parentElement.innerHTML='<div class=\'img-slot-empty\'>No image set</div>'"/>
+        ${hasCustom ? '<span style="position:absolute;top:10px;right:10px;background:#28a745;color:#fff;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;">Custom</span>' : ''}
+      </div>
+      <div class="img-slot-body">
+        <div class="img-slot-label">${title || 'Slide ' + def.slot}</div>
+        <div class="img-slot-meta">${btnLabel ? '→ ' + btnLabel : 'No button set'}</div>
+        <button class="img-slot-btn" onclick="openBannerSlotModal(${def.slot})">✎ Change Image</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openBannerSlotModal(slot) {
+  editingBannerSlot = slot;
+  const def  = BANNER_DEFAULTS[slot - 1];
+  const live = currentBannerData[slot] || def;
+  document.getElementById('bannerModalTitle').textContent = `Edit Slide ${slot}`;
+  document.getElementById('bSlotLabel').textContent = `Slide ${slot}`;
+  document.getElementById('bImage').value    = live.image    || def.image    || '';
+  document.getElementById('bTitle').value    = (live.title   || def.title   || '').replace(/<br>/gi, '\n');
+  document.getElementById('bBtnText').value  = live.buttonText  || def.buttonText  || '';
+  document.getElementById('bBtnLink').value  = live.buttonLink  || def.buttonLink  || '';
+  document.getElementById('bActive').checked = live.isActive !== false;
+  document.getElementById('bannerFormMsg').className = 'form-msg';
+  document.getElementById('bannerFormMsg').textContent = '';
+  previewBannerImg(live.image || def.image || '');
+  document.getElementById('bannerUploadProgress').style.display = 'none';
   document.getElementById('bannerModal').classList.add('open');
 }
-window.openBannerModal = openBannerModal;
-
-async function editBanner(id) {
-  const data = await apiFetch('/admin/banners', { headers: apiHeaders() });
-  const b = (data.banners || []).find(x => String(x._id) === String(id));
-  if (!b) { showToast('Banner not found', 'error'); return; }
-  editingBannerId = id;
-  document.getElementById('bannerModalTitle').textContent = 'Edit Banner';
-  document.getElementById('bImage').value   = b.image || '';
-  document.getElementById('bTitle').value   = b.title || '';
-  document.getElementById('bBtnText').value = b.buttonText || '';
-  document.getElementById('bBtnLink').value = b.buttonLink || '';
-  document.getElementById('bOrder').value   = b.order ?? 1;
-  document.getElementById('bActive').checked = !!b.isActive;
-  previewBannerImg(b.image || '');
-  document.getElementById('bannerFormMsg').className = 'form-msg';
-  openBannerModal(false);
-}
-window.editBanner = editBanner;
+window.openBannerSlotModal = openBannerSlotModal;
 
 async function saveBanner() {
   const image      = document.getElementById('bImage').value.trim();
-  const title      = document.getElementById('bTitle').value.trim();
+  const rawTitle   = document.getElementById('bTitle').value;
+  const title      = rawTitle.replace(/\n/g, '<br>');
   const buttonText = document.getElementById('bBtnText').value.trim();
   const buttonLink = document.getElementById('bBtnLink').value.trim();
-  const order      = Number(document.getElementById('bOrder').value) || 0;
   const isActive   = document.getElementById('bActive').checked;
   const msgEl      = document.getElementById('bannerFormMsg');
   if (!image) { msgEl.className = 'form-msg error'; msgEl.textContent = 'Please provide a banner image.'; return; }
-  const body   = { image, title, buttonText, buttonLink, order, isActive };
-  const method = editingBannerId ? 'PUT' : 'POST';
-  const url    = editingBannerId ? `/admin/banners/${editingBannerId}` : '/admin/banners';
-  const data   = await apiFetch(url, { method, headers: apiHeaders(), body: JSON.stringify(body) });
-  if (data.success) { showToast(editingBannerId ? 'Banner updated' : 'Banner created', 'success'); closeModal('bannerModal'); loadBanners(); }
-  else { msgEl.className = 'form-msg error'; msgEl.textContent = data.message || 'Save failed'; }
+  const data = await apiFetch(`/admin/banners/slot/${editingBannerSlot}`, {
+    method: 'PUT', headers: apiHeaders(),
+    body: JSON.stringify({ image, title, buttonText, buttonLink, isActive })
+  });
+  if (data.success) {
+    showToast(`Slide ${editingBannerSlot} saved`, 'success');
+    closeModal('bannerModal');
+    loadBanners();
+  } else {
+    msgEl.className = 'form-msg error'; msgEl.textContent = data.message || 'Save failed';
+  }
 }
 window.saveBanner = saveBanner;
-
-async function deleteBanner(id) {
-  if (!confirm('Delete this banner?')) return;
-  const data = await apiFetch(`/admin/banners/${id}`, { method: 'DELETE', headers: apiHeaders() });
-  if (data.success) { showToast('Banner deleted', 'success'); loadBanners(); }
-  else showToast(data.message || 'Delete failed', 'error');
-}
-window.deleteBanner = deleteBanner;
 
 function previewBannerImg(url) {
   const img = document.getElementById('bannerImgPreview');
@@ -1799,78 +1802,83 @@ async function handleBannerImageFile(file) {
 window.handleBannerImageFile = handleBannerImageFile;
 
 // ══════════════════════════════════════════════════════════
-//  CATEGORY IMAGES
+//  CATEGORY IMAGES  (5 fixed slots)
 // ══════════════════════════════════════════════════════════
+
+const CAT_SLOTS = [
+  { slug:'pooja-garlands',              name:'Pooja Garlands',             image:'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=600&q=80' },
+  { slug:'loose-flowers',               name:'Loose Flowers',              image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=600&q=80' },
+  { slug:'strings',                     name:'Strings',                    image:'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80' },
+  { slug:'leaves',                      name:'Leaves',                     image:'https://images.unsplash.com/photo-1444930694458-01babf71870c?w=600&q=80' },
+  { slug:'special-occasional-garlands', name:'Special Occasional Garlands',image:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
+];
+
+let currentCatData = {};   // slug → { name, image } from API
 let editingCatSlug = null;
 
 async function loadCatImages() {
   const data = await apiFetch('/admin/category-images', { headers: apiHeaders() });
-  const cats = data.categoryImages || [];
-  document.getElementById('catImagesBody').innerHTML = cats.length
-    ? cats.map(c => `<tr>
-        <td><img src="${c.image}" alt="" style="width:72px;height:44px;object-fit:cover;border-radius:4px;background:#eee;" onerror="this.style.background='#eee'"/></td>
-        <td><b>${c.name || c.slug}</b></td>
-        <td style="font-size:12px;color:var(--mid);">${c.slug}</td>
-        <td style="display:flex;gap:6px;padding:12px 16px;">
-          <button class="btn-sm btn-edit" onclick="editCatImage('${c.slug}','${(c.name||'').replace(/'/g,'')}','${c.image.replace(/'/g,'')}')">Edit</button>
-          <button class="btn-sm btn-delete" onclick="deleteCatImage('${c.slug}')">Remove</button>
-        </td>
-      </tr>`).join('')
-    : '<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--mid);">No custom category images yet. Click + Add / Edit to set one.</td></tr>';
+  currentCatData = {};
+  (data.categoryImages || []).forEach(c => { currentCatData[c.slug] = c; });
+  renderCatGrid();
 }
 window.loadCatImages = loadCatImages;
 
-function openCatImageModal(reset) {
-  reset = (reset !== false);
-  if (reset) {
-    editingCatSlug = null;
-    document.getElementById('catImageModalTitle').textContent = 'Set Category Image';
-    document.getElementById('ciName').value  = '';
-    document.getElementById('ciSlug').value  = '';
-    document.getElementById('ciSlug').readOnly = false;
-    document.getElementById('ciImage').value = '';
-    document.getElementById('catImgPreview').style.display = 'none';
-    document.getElementById('catImgPlaceholder').style.display = '';
-    document.getElementById('catImageFormMsg').className = 'form-msg';
-    document.getElementById('catImageFormMsg').textContent = '';
-  }
-  document.getElementById('catImageModal').classList.add('open');
+function renderCatGrid() {
+  const grid = document.getElementById('catImagesGrid');
+  if (!grid) return;
+  grid.innerHTML = CAT_SLOTS.map(def => {
+    const live = currentCatData[def.slug];
+    const img  = (live && live.image) || def.image;
+    const name = (live && live.name)  || def.name;
+    const hasCustom = !!live;
+    return `<div class="img-slot-card">
+      <div class="img-slot-thumb">
+        <img src="${img}" alt="${name}" onerror="this.parentElement.innerHTML='<div class=\'img-slot-empty\'>No image set</div>'"/>
+        ${hasCustom ? '<span style="position:absolute;top:10px;right:10px;background:#28a745;color:#fff;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;">Custom</span>' : ''}
+      </div>
+      <div class="img-slot-body">
+        <div class="img-slot-label">${name}</div>
+        <div class="img-slot-meta">Slug: ${def.slug}</div>
+        <button class="img-slot-btn" onclick="openCatSlotModal('${def.slug}')">✎ Change Image</button>
+      </div>
+    </div>`;
+  }).join('');
 }
-window.openCatImageModal = openCatImageModal;
 
-function editCatImage(slug, name, image) {
+function openCatSlotModal(slug) {
   editingCatSlug = slug;
-  document.getElementById('catImageModalTitle').textContent = 'Edit Category Image';
-  document.getElementById('ciName').value  = name;
+  const def  = CAT_SLOTS.find(c => c.slug === slug);
+  const live = currentCatData[slug];
+  document.getElementById('catImageModalTitle').textContent = 'Change Image — ' + (def ? def.name : slug);
+  document.getElementById('ciName').value  = (live && live.name)  || (def && def.name)  || slug;
   document.getElementById('ciSlug').value  = slug;
   document.getElementById('ciSlug').readOnly = true;
-  document.getElementById('ciImage').value = image;
-  previewCatImg(image);
+  document.getElementById('ciImage').value = (live && live.image) || (def && def.image) || '';
   document.getElementById('catImageFormMsg').className = 'form-msg';
-  openCatImageModal(false);
+  document.getElementById('catImageFormMsg').textContent = '';
+  document.getElementById('catUploadProgress').style.display = 'none';
+  previewCatImg((live && live.image) || (def && def.image) || '');
+  document.getElementById('catImageModal').classList.add('open');
 }
-window.editCatImage = editCatImage;
+window.openCatSlotModal = openCatSlotModal;
 
 async function saveCatImage() {
   const name  = document.getElementById('ciName').value.trim();
   const slug  = document.getElementById('ciSlug').value.trim();
   const image = document.getElementById('ciImage').value.trim();
   const msgEl = document.getElementById('catImageFormMsg');
-  if (!slug)  { msgEl.className = 'form-msg error'; msgEl.textContent = 'Slug is required.'; return; }
   if (!image) { msgEl.className = 'form-msg error'; msgEl.textContent = 'Please provide an image.'; return; }
   const data = await apiFetch(`/admin/category-images/${slug}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ name: name || slug, image }) });
-  if (data.success) { showToast('Category image saved', 'success'); closeModal('catImageModal'); loadCatImages(); }
-  else { msgEl.className = 'form-msg error'; msgEl.textContent = data.message || 'Save failed'; }
+  if (data.success) {
+    showToast(name + ' image saved', 'success');
+    closeModal('catImageModal');
+    loadCatImages();
+  } else {
+    msgEl.className = 'form-msg error'; msgEl.textContent = data.message || 'Save failed';
+  }
 }
 window.saveCatImage = saveCatImage;
-
-async function deleteCatImage(slug) {
-  if (!confirm('Remove custom image for "' + slug + '"? It will revert to the default.')) return;
-  const data = await apiFetch(`/admin/category-images/${slug}`, { method: 'DELETE', headers: apiHeaders() });
-  if (data.success) { showToast('Category image removed', 'success'); loadCatImages(); }
-  else showToast(data.message || 'Failed', 'error');
-}
-window.deleteCatImage = deleteCatImage;
 
 function previewCatImg(url) {
   const img = document.getElementById('catImgPreview');
@@ -1901,45 +1909,46 @@ window.handleCatImageFile = handleCatImageFile;
 <!-- BANNER MODAL -->
 <div class="modal" id="bannerModal">
   <div class="modal-box">
-    <div class="modal-head"><h3 id="bannerModalTitle">Add Banner</h3><span class="modal-close" onclick="closeModal('bannerModal')">✕</span></div>
+    <div class="modal-head">
+      <h3 id="bannerModalTitle">Edit Slide</h3>
+      <span style="font-size:12px;color:rgba(255,255,255,.6);margin-left:10px;" id="bSlotLabel"></span>
+      <span class="modal-close" onclick="closeModal('bannerModal')">✕</span>
+    </div>
     <div class="modal-body">
-      <div class="form-group"><label class="form-label">Banner Image *</label>
-        <div class="img-upload-zone" id="bannerImgZone" onclick="document.getElementById('bannerImgFile').click()" style="cursor:pointer;border:2px dashed #ddd;border-radius:6px;padding:20px;text-align:center;background:#fdf9f4;">
-          <img id="bannerImgPreview" src="" style="max-height:120px;max-width:100%;display:none;margin:0 auto 8px;border-radius:4px;"/>
-          <div id="bannerImgPlaceholder" style="color:var(--mid);font-size:13px;">Click to upload or paste an image URL below</div>
+      <div class="form-group"><label class="form-label">Slide Image *</label>
+        <div id="bannerImgZone" onclick="document.getElementById('bannerImgFile').click()" style="cursor:pointer;border:2px dashed #ddd;border-radius:6px;overflow:hidden;text-align:center;background:#fdf9f4;min-height:100px;display:flex;align-items:center;justify-content:center;">
+          <img id="bannerImgPreview" src="" style="max-height:160px;max-width:100%;display:none;"/>
+          <div id="bannerImgPlaceholder" style="color:var(--mid);font-size:13px;padding:24px;">Click to upload an image</div>
         </div>
         <input type="file" id="bannerImgFile" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif" style="display:none" onchange="handleBannerImageFile(this.files[0])"/>
         <input type="text" class="form-input" id="bImage" placeholder="Or paste image URL directly" style="margin-top:8px;" oninput="previewBannerImg(this.value)"/>
         <div id="bannerUploadProgress" style="font-size:12px;color:var(--mid);margin-top:4px;display:none;"></div>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Title (HTML allowed, e.g. line break with &lt;br&gt;)</label><input class="form-input" id="bTitle" placeholder="Handcrafted Strings&lt;br&gt;of Floral Beauty"/></div>
-        <div class="form-group"><label class="form-label">Order #</label><input class="form-input" type="number" id="bOrder" value="1" min="0"/></div>
+      <div class="form-group"><label class="form-label">Slide Title <span style="font-size:11px;color:var(--mid)">(use a new line for line break)</span></label>
+        <textarea class="form-textarea" id="bTitle" rows="2" placeholder="Handcrafted Strings&#10;of Floral Beauty" style="resize:none;"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Button Text</label><input class="form-input" id="bBtnText" placeholder="Shop Now"/></div>
         <div class="form-group"><label class="form-label">Button Link</label><input class="form-input" id="bBtnLink" placeholder="category.html?cat=strings"/></div>
       </div>
-      <div class="form-group"><label class="form-label"><input type="checkbox" id="bActive" checked style="margin-right:6px;"/>Active (visible on homepage)</label></div>
+      <div class="form-group"><label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="bActive" checked/> Show this slide on homepage</label></div>
       <div class="form-msg" id="bannerFormMsg"></div>
     </div>
-    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('bannerModal')">Cancel</button><button class="btn-primary" onclick="saveBanner()">Save Banner</button></div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('bannerModal')">Cancel</button><button class="btn-primary" onclick="saveBanner()">Save Slide</button></div>
   </div>
 </div>
 
 <!-- CATEGORY IMAGE MODAL -->
 <div class="modal" id="catImageModal">
   <div class="modal-box">
-    <div class="modal-head"><h3 id="catImageModalTitle">Set Category Image</h3><span class="modal-close" onclick="closeModal('catImageModal')">✕</span></div>
+    <div class="modal-head"><h3 id="catImageModalTitle">Change Image</h3><span class="modal-close" onclick="closeModal('catImageModal')">✕</span></div>
     <div class="modal-body">
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Category Name *</label><input class="form-input" id="ciName" placeholder="Pooja Garlands"/></div>
-        <div class="form-group"><label class="form-label">Slug * <span style="font-size:11px;color:var(--mid)">(e.g. pooja-garlands)</span></label><input class="form-input" id="ciSlug" placeholder="pooja-garlands" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-')"/></div>
-      </div>
+      <input type="hidden" id="ciSlug"/>
+      <input type="hidden" id="ciName"/>
       <div class="form-group"><label class="form-label">Category Image *</label>
-        <div class="img-upload-zone" id="catImgZone" onclick="document.getElementById('catImgFile').click()" style="cursor:pointer;border:2px dashed #ddd;border-radius:6px;padding:20px;text-align:center;background:#fdf9f4;">
-          <img id="catImgPreview" src="" style="max-height:120px;max-width:100%;display:none;margin:0 auto 8px;border-radius:4px;"/>
-          <div id="catImgPlaceholder" style="color:var(--mid);font-size:13px;">Click to upload or paste an image URL below</div>
+        <div id="catImgZone" onclick="document.getElementById('catImgFile').click()" style="cursor:pointer;border:2px dashed #ddd;border-radius:6px;overflow:hidden;text-align:center;background:#fdf9f4;min-height:100px;display:flex;align-items:center;justify-content:center;">
+          <img id="catImgPreview" src="" style="max-height:160px;max-width:100%;display:none;"/>
+          <div id="catImgPlaceholder" style="color:var(--mid);font-size:13px;padding:24px;">Click to upload an image</div>
         </div>
         <input type="file" id="catImgFile" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif" style="display:none" onchange="handleCatImageFile(this.files[0])"/>
         <input type="text" class="form-input" id="ciImage" placeholder="Or paste image URL directly" style="margin-top:8px;" oninput="previewCatImg(this.value)"/>
@@ -1947,7 +1956,7 @@ window.handleCatImageFile = handleCatImageFile;
       </div>
       <div class="form-msg" id="catImageFormMsg"></div>
     </div>
-    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('catImageModal')">Cancel</button><button class="btn-primary" onclick="saveCatImage()">Save</button></div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('catImageModal')">Cancel</button><button class="btn-primary" onclick="saveCatImage()">Save Image</button></div>
   </div>
 </div>
 </body>
