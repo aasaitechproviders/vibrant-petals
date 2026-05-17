@@ -143,31 +143,36 @@
     }
     .slide-overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(90deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.1) 60%);
+      background: linear-gradient(90deg, rgba(0,0,0,.18) 0%, rgba(0,0,0,.05) 70%);
     }
     .slide-content {
-      position: absolute; bottom: 12%; left: 8%;
+      position: absolute; bottom: 10%; left: 6%;
       color: #fff;
+      background: rgba(0,0,0,0.42);
+      padding: 36px 44px 40px;
+      max-width: 520px;
+      backdrop-filter: blur(1px);
     }
     .slide-content h1 {
       font-family: 'Playfair Display', serif;
-      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-size: clamp(1.8rem, 3.5vw, 3rem);
       font-style: italic;
-      line-height: 1.2;
+      line-height: 1.25;
       margin-bottom: 28px;
-      text-shadow: 0 2px 20px rgba(0,0,0,.3);
+      text-shadow: none;
+      color: #fff;
     }
     .btn-shop {
       display: inline-block;
-      padding: 14px 36px;
+      padding: 13px 38px;
       border: 2px solid #fff;
-      color: #fff;
-      font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700;
-      background: transparent;
+      color: var(--dark);
+      font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;
+      background: #fff;
       transition: background .25s, color .25s;
-      border-radius: var(--radius);
+      border-radius: 30px;
     }
-    .btn-shop:hover { background: #fff; color: var(--dark); }
+    .btn-shop:hover { background: transparent; color: #fff; }
 
     .hero-dots {
       position: absolute; bottom: 24px; left: 50%;
@@ -341,8 +346,43 @@
     .slider-prev { left: 8px; }
     .slider-next { right: 8px; }
 
+    /* ── TESTIMONIAL ────────────────────────────────────────── */
+    .testi-section {
+      position: relative;
+      background-image: url('https://images.unsplash.com/photo-1533038590840-1cde6e668a91?w=1600&q=70');
+      background-size: cover; background-position: center;
+      padding: 90px 32px;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 480px;
+    }
+    .testi-section::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(0,0,0,.35);
+    }
+    .testi-card {
+      position: relative; z-index: 1;
+      background: #fff;
+      max-width: 900px; width: 100%;
+      padding: 60px 80px;
+      text-align: center;
+    }
+    .testi-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; margin-bottom: 32px; color: var(--dark);
+    }
+    .testi-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem; line-height: 1.85; color: #555;
+      margin-bottom: 28px;
+      font-style: italic;
+    }
+    .testi-author {
+      font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--mid);
+    }
+
     /* ── TRUST ──────────────────────────────────────────────── */
-    .trust-section { padding: 80px 32px; }
+    .trust-section { padding: 80px 32px; background: var(--cream2); }
     .trust-grid {
       max-width: 1100px; margin: 0 auto;
       display: grid; grid-template-columns: repeat(3,1fr); gap: 60px;
@@ -355,7 +395,7 @@
     }
     .trust-title {
       font-family: 'Playfair Display', serif;
-      font-size: 20px; margin-bottom: 14px;
+      font-size: 20px; margin-bottom: 14px; color: var(--dark);
     }
     .trust-text { font-size: 14px; color: var(--mid); line-height: 1.7; }
 
@@ -668,6 +708,7 @@
     @media(max-width:900px){
       .cat-grid { grid-template-columns: repeat(2,1fr); }
       .trust-grid { grid-template-columns: 1fr; gap: 36px; }
+      .testi-card { padding: 40px 24px; }
       .footer-grid { grid-template-columns: 1fr; gap: 36px; }
       .delivery-banner { grid-template-columns: 1fr; }
       .delivery-img { height: 200px; }
@@ -745,34 +786,7 @@
 <!-- ── HERO SLIDER ─────────────────────────────────────────── -->
 <section class="hero" id="hero">
   <div class="slides" id="slides">
-    <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=80')">
-      <div class="slide-overlay"></div>
-      <div class="slide-content">
-        <h1>Handcrafted Strings<br>of Floral Beauty</h1>
-        <a href="category.html?cat=strings" class="btn-shop">Shop Now</a>
-      </div>
-    </div>
-    <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=1600&q=80')">
-      <div class="slide-overlay"></div>
-      <div class="slide-content">
-        <h1>Timeless Garlands<br>for Every Occasion</h1>
-        <a href="category.html?cat=pooja-garlands" class="btn-shop">Explore Garlands</a>
-      </div>
-    </div>
-    <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80')">
-      <div class="slide-overlay"></div>
-      <div class="slide-content">
-        <h1>Fresh Loose Flowers<br>Delivered to You</h1>
-        <a href="category.html?cat=loose-flowers" class="btn-shop">Browse Flowers</a>
-      </div>
-    </div>
-    <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1504386106331-3e4e71712b38?w=1600&q=80')">
-      <div class="slide-overlay"></div>
-      <div class="slide-content">
-        <h1>Sacred Leaves &amp;<br>Foliage</h1>
-        <a href="category.html?cat=leaves" class="btn-shop">View Leaves</a>
-      </div>
-    </div>
+    <!-- Populated dynamically from /banners API -->
   </div>
   <button class="hero-arrow hero-prev" id="heroPrev">‹</button>
   <button class="hero-arrow hero-next" id="heroNext">›</button>
@@ -785,22 +799,11 @@
 </div>
 
 <div class="cat-grid">
-  <a href="category.html?cat=pooja-garlands" class="cat-card">
-    <img src="https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=600&q=80" alt="Garlands" loading="lazy"/>
-    <div class="cat-card-label">Garlands</div>
-  </a>
-  <a href="category.html?cat=loose-flowers" class="cat-card">
-    <img src="https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=600&q=80" alt="Loose Flowers" loading="lazy"/>
-    <div class="cat-card-label">Loose Flowers</div>
-  </a>
-  <a href="category.html?cat=strings" class="cat-card">
-    <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80" alt="Strings" loading="lazy"/>
-    <div class="cat-card-label">Strings</div>
-  </a>
-  <a href="category.html?cat=leaves" class="cat-card">
-    <img src="https://images.unsplash.com/photo-1444930694458-01babf71870c?w=600&q=80" alt="Leaves" loading="lazy"/>
-    <div class="cat-card-label">Leaves</div>
-  </a>
+  <!-- Populated dynamically from /category-images API -->
+  <div class="cat-card skeleton" style="height:340px;border-radius:var(--radius);"></div>
+  <div class="cat-card skeleton" style="height:340px;border-radius:var(--radius);"></div>
+  <div class="cat-card skeleton" style="height:340px;border-radius:var(--radius);"></div>
+  <div class="cat-card skeleton" style="height:340px;border-radius:var(--radius);"></div>
 </div>
 
 <!-- ── FEATURED PRODUCTS ─────────────────────────────────── -->
@@ -816,6 +819,15 @@
       </div>
       <button class="slider-arrow slider-next" id="fpNext">›</button>
     </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIAL ────────────────────────────────────────── -->
+<section class="testi-section" id="testiSection">
+  <div class="testi-card">
+    <h2 class="testi-heading">Testimonial</h2>
+    <p class="testi-quote">"I've been a loyal customer of VibrantPetals for years, and their loose flowers never disappoint! The quality is top-notch, and the blooms always last longer than expected. I highly recommend them to anyone looking for fresh, beautiful flowers delivered with care."</p>
+    <p class="testi-author">— Rajesh Patel —</p>
   </div>
 </section>
 
@@ -843,7 +855,7 @@
 <!-- ── FREE DELIVERY BANNER ──────────────────────────────── -->
 <section class="delivery-banner">
   <div class="delivery-img">
-    <img src="https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=800&q=80" alt="Flowers" loading="lazy"/>
+    <img id="deliveryBannerImg" src="https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=800&q=80" alt="Flowers" loading="lazy"/>
   </div>
   <div class="delivery-content">
     <h2>Enjoy Free Delivery on<br>Orders over $50 –<br>Shop Now!</h2>
@@ -997,28 +1009,57 @@ function showToast(msg, type=''){
 
 // ── HERO SLIDER ────────────────────────────────────────────
 (function(){
-  const slides = document.getElementById('slides');
-  const dotsEl = document.getElementById('heroDots');
-  const count = slides.children.length;
-  let cur = 0;
-  const dots = [];
+  const slidesEl = document.getElementById('slides');
+  const dotsEl   = document.getElementById('heroDots');
+  let cur = 0, dots = [], heroTimer = null;
 
-  for(let i=0;i<count;i++){
-    const d = document.createElement('button');
-    d.className='hero-dot'+(i===0?' active':'');
-    d.onclick = ()=>go(i);
-    dotsEl.appendChild(d);
-    dots.push(d);
+  // Default banners shown if API returns nothing
+  const FALLBACK_BANNERS = [
+    { image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=80', title:'Handcrafted Strings<br>of Floral Beauty',      buttonText:'Shop Now',          buttonLink:'category.html?cat=strings'        },
+    { image:'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=1600&q=80', title:'Timeless Garlands<br>for Every Occasion',      buttonText:'Explore Garlands',  buttonLink:'category.html?cat=pooja-garlands' },
+    { image:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80', title:'Fresh Loose Flowers<br>Delivered to You',         buttonText:'Browse Flowers',    buttonLink:'category.html?cat=loose-flowers'  },
+    { image:'https://images.unsplash.com/photo-1504386106331-3e4e71712b38?w=1600&q=80', title:'Sacred Leaves &amp;<br>Foliage',              buttonText:'View Leaves',       buttonLink:'category.html?cat=leaves'         },
+  ];
+
+  function buildHero(banners) {
+    const list = (banners && banners.length) ? banners : FALLBACK_BANNERS;
+    slidesEl.innerHTML = list.map(b => `
+      <div class="slide" style="background-image:url('${b.image}')">
+        <div class="slide-overlay"></div>
+        <div class="slide-content">
+          ${b.title ? `<h1>${b.title}</h1>` : ''}
+          ${b.buttonText && b.buttonLink ? `<a href="${b.buttonLink}" class="btn-shop">${b.buttonText}</a>` : ''}
+        </div>
+      </div>`).join('');
+    dotsEl.innerHTML = '';
+    dots = [];
+    list.forEach((_, i) => {
+      const d = document.createElement('button');
+      d.className = 'hero-dot' + (i === 0 ? ' active' : '');
+      d.onclick = () => go(i);
+      dotsEl.appendChild(d);
+      dots.push(d);
+    });
+    cur = 0;
+    if (heroTimer) clearInterval(heroTimer);
+    heroTimer = setInterval(() => go(cur + 1), 5000);
   }
 
-  function go(n){
-    cur = (n+count)%count;
-    slides.style.transform = `translateX(-${cur*100}%)`;
-    dots.forEach((d,i)=>d.classList.toggle('active',i===cur));
+  function go(n) {
+    const count = slidesEl.children.length;
+    if (!count) return;
+    cur = (n + count) % count;
+    slidesEl.style.transform = `translateX(-${cur * 100}%)`;
+    dots.forEach((d, i) => d.classList.toggle('active', i === cur));
   }
 
-  document.getElementById('heroPrev').onclick = ()=>go(cur-1);
-  document.getElementById('heroNext').onclick = ()=>go(cur+1);
+  document.getElementById('heroPrev').onclick = () => go(cur - 1);
+  document.getElementById('heroNext').onclick = () => go(cur + 1);
+
+  // Load banners from API, fall back to defaults
+  apiFetch('/banners').then(data => {
+    buildHero(data.banners && data.banners.length ? data.banners : null);
+  }).catch(() => buildHero(null));
   setInterval(()=>go(cur+1), 5000);
 })();
 
@@ -1249,8 +1290,63 @@ window.addEventListener('scroll',()=>{
   document.getElementById('backTop').classList.toggle('visible', window.scrollY>400);
 });
 
+// ── SITE IMAGES ──────────────────────────────────────────────
+const FALLBACK_SITE_IMAGES = {
+  'testimonial_bg':      'https://images.unsplash.com/photo-1533038590840-1cde6e668a91?w=1600&q=70',
+  'delivery_banner_img': 'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=800&q=80',
+};
+
+async function loadSiteImages(){
+  try {
+    const data = await apiFetch('/site-images');
+    if(!data.siteImages) return;
+    const si = data.siteImages;
+    // Testimonial background
+    const tsBg = si['testimonial_bg']?.image || FALLBACK_SITE_IMAGES['testimonial_bg'];
+    const tsEl = document.getElementById('testiSection');
+    if(tsEl && tsBg) tsEl.style.backgroundImage = `url('${tsBg}')`;
+    // Delivery banner image
+    const dbImg = si['delivery_banner_img']?.image || FALLBACK_SITE_IMAGES['delivery_banner_img'];
+    const dbEl  = document.getElementById('deliveryBannerImg');
+    if(dbEl && dbImg) dbEl.src = dbImg;
+  } catch(e){}
+}
+
 // ── INIT ───────────────────────────────────────────────────
+
+// Fallback category images (used if API has no data yet)
+const FALLBACK_CAT_IMAGES = {
+  'pooja-garlands': { name:'Garlands',      image:'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=600&q=80' },
+  'loose-flowers':  { name:'Loose Flowers', image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=600&q=80' },
+  'strings':        { name:'Strings',       image:'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80' },
+  'leaves':         { name:'Leaves',        image:'https://images.unsplash.com/photo-1444930694458-01babf71870c?w=600&q=80' },
+};
+const CAT_DISPLAY_ORDER = ['pooja-garlands','loose-flowers','strings','leaves'];
+
+async function loadCategoryCards(){
+  const catGrid = document.querySelector('.cat-grid');
+  if(!catGrid) return;
+  let map = { ...FALLBACK_CAT_IMAGES };
+  try {
+    const data = await apiFetch('/category-images');
+    if(data.categoryImages && Object.keys(data.categoryImages).length){
+      map = { ...map, ...data.categoryImages };
+    }
+  } catch(e){}
+  const allSlugs = [...new Set([...CAT_DISPLAY_ORDER, ...Object.keys(map)])];
+  catGrid.innerHTML = allSlugs.map(slug => {
+    const cat = map[slug];
+    if(!cat) return '';
+    return `<a href="category.html?cat=${slug}" class="cat-card">
+      <img src="${cat.image}" alt="${cat.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400?text=Flowers'"/>
+      <div class="cat-card-label">${cat.name}</div>
+    </a>`;
+  }).join('');
+}
+
 loadCart();
+loadCategoryCards();
+loadSiteImages();
 </script>
 </body>
 </html>
