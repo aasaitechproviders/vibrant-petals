@@ -1776,10 +1776,10 @@ checkAuth();
 
 // Fallback defaults for each slot — shown when no API data exists yet
 const BANNER_DEFAULTS = [
-  { slot:1, title:'Handcrafted Strings<br>of Floral Beauty',  buttonText:'Shop Now',         buttonLink:'category.html?cat=strings',        image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=80' },
-  { slot:2, title:'Timeless Garlands<br>for Every Occasion',  buttonText:'Explore Garlands', buttonLink:'category.html?cat=pooja-garlands',  image:'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=1600&q=80' },
-  { slot:3, title:'Fresh Loose Flowers<br>Delivered to You',  buttonText:'Browse Flowers',   buttonLink:'category.html?cat=loose-flowers',   image:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80' },
-  { slot:4, title:'Sacred Leaves &amp; Foliage',             buttonText:'View Leaves',       buttonLink:'category.html?cat=leaves',          image:'https://images.unsplash.com/photo-1504386106331-3e4e71712b38?w=1600&q=80' },
+  { slot:1, title:'Traditional Elegance<br>for Your Special Occasions', buttonText:'Shop Now', buttonLink:'category.html?cat=pooja-garlands', image:'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=1600&q=80' },
+  { slot:2, title:"Nature's Beauty,<br>Freshly Delivered",              buttonText:'Shop Now', buttonLink:'category.html?cat=loose-flowers',  image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=80' },
+  { slot:3, title:'Handcrafted Strings,<br>of Floral Beauty',           buttonText:'Shop Now', buttonLink:'category.html?cat=strings',        image:'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=80' },
+  { slot:4, title:'Greenery to Enhance<br>Your Floral Creations',       buttonText:'Shop Now', buttonLink:'category.html?cat=leaves',          image:'https://images.unsplash.com/photo-1444930694458-01babf71870c?w=1600&q=80' },
 ];
 
 let currentBannerData = {}; // slot → banner doc from API
@@ -2048,7 +2048,7 @@ window.handleCatImageFile = handleCatImageFile;
 
 const SITE_IMAGE_SLOTS = [
   { key:'testimonial_bg', label:'Testimonial Section Background', description:'Dark background image shown behind the Testimonial section', fallback:'https://images.unsplash.com/photo-1533038590840-1cde6e668a91?w=1600&q=70', aspect:'16/5' },
-  { key:'delivery_banner_img', label:'Free Delivery Banner — Left Photo', description:'Flower photo on the left side of the "Free Delivery" section', fallback:'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=800&q=80', aspect:'4/3' },
+  { key:'delivery_banner_img', label:'Free Delivery Banner — Left Photo', description:'Full-width image for the Free Delivery section (flowers on left + texture on right in one image, e.g. FreeShipping.jpg)', fallback:'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=800&q=80', aspect:'4/3' },
 ];
 let currentSiteImageData = {};
 let editingSiteKey = null;
