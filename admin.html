@@ -1943,12 +1943,12 @@ window.handleBannerImageFile = handleBannerImageFile;
 //  CATEGORY IMAGES  (5 fixed slots)
 // ══════════════════════════════════════════════════════════
 
+// Exactly 4 homepage category slots (special-occasional-garlands is nav-only)
 const CAT_SLOTS = [
-  { slug:'pooja-garlands',              name:'Pooja Garlands',             image:'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=600&q=80' },
-  { slug:'loose-flowers',               name:'Loose Flowers',              image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=600&q=80' },
-  { slug:'strings',                     name:'Strings',                    image:'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80' },
-  { slug:'leaves',                      name:'Leaves',                     image:'https://images.unsplash.com/photo-1444930694458-01babf71870c?w=600&q=80' },
-  { slug:'special-occasional-garlands', name:'Special Occasional Garlands',image:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
+  { slug:'pooja-garlands', name:'Pooja Garlands', image:'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=600&q=80' },
+  { slug:'loose-flowers',  name:'Loose Flowers',  image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=600&q=80' },
+  { slug:'strings',        name:'Strings',        image:'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80' },
+  { slug:'leaves',         name:'Leaves',         image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80' },
 ];
 
 let currentCatData = {};   // slug → { name, image } from API
