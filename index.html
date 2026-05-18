@@ -204,9 +204,13 @@
     .section-wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
 
     /* ── CATEGORY SHOWCASE ──────────────────────────────────── */
+    .cat-section {
+      background: var(--cream2);
+      padding: 70px 0 80px;
+    }
     .cat-intro {
       text-align: center;
-      padding: 56px 32px 36px;
+      padding: 0 32px 44px;
       max-width: 860px;
       margin: 0 auto;
     }
@@ -215,7 +219,7 @@
       font-size: clamp(2rem, 4vw, 3rem);
       font-weight: 400;
       color: var(--dark);
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       letter-spacing: 0.01em;
     }
     .cat-intro p {
@@ -223,43 +227,46 @@
       font-size: 18px; color: var(--mid);
       line-height: 1.7;
     }
+    .cat-grid-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
     .cat-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 0;
-      border-top: 1px solid rgba(0,0,0,0.08);
+      gap: 16px;
     }
     .cat-card {
       position: relative; overflow: hidden;
-      display: block;                               /* force block even though it's an <a> */
-      height: 520px; cursor: pointer;
-      border-right: 1px solid rgba(0,0,0,0.08);
+      display: block;
+      height: 460px; cursor: pointer;
+      border-radius: 6px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+      transition: box-shadow .3s, transform .3s;
     }
-    .cat-card:last-child { border-right: none; }
+    .cat-card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,.14);
+      transform: translateY(-3px);
+    }
     .cat-card img {
-      position: absolute; inset: 0;                /* pin image to fill card exactly */
+      position: absolute; inset: 0;
       width: 100%; height: 100%;
       object-fit: cover; object-position: center;
       transition: transform .5s cubic-bezier(.4,0,.2,1);
     }
     .cat-card:hover img { transform: scale(1.04); }
     .cat-card-label {
-      position: absolute; bottom: 40px; left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: rgba(255,255,255,0.95);
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(255,255,255,0.92);
       color: var(--dark);
       text-align: center;
-      padding: 14px 40px;
-      font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
-      opacity: 0;
-      transition: opacity .3s, transform .3s;
-      white-space: nowrap;
-      min-width: 160px;
+      padding: 16px 20px;
+      font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
     }
-    .cat-card:hover .cat-card-label {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    .cat-card:hover .cat-card-label { transform: translateY(0); }
 
     /* ── FEATURED PRODUCTS ──────────────────────────────────── */
     .featured-section {
@@ -757,7 +764,9 @@
 
     /* ── RESPONSIVE ─────────────────────────────────────────── */
     @media(max-width:900px){
-      .cat-grid { grid-template-columns: repeat(2,1fr); }
+      .cat-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+      .cat-grid-wrap { padding: 0 16px; }
+      .cat-card { height: 300px; }
       .trust-grid { grid-template-columns: 1fr; gap: 36px; }
       .testi-card { padding: 40px 28px; }
       .testi-arrow { font-size: 18px; padding: 8px 10px; }
@@ -772,7 +781,8 @@
       nav ul { display: none; }
     }
     @media(max-width:600px){
-      .cat-grid { grid-template-columns: 1fr 1fr; }
+      .cat-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .cat-card { height: 340px; }
       .cat-card { height: 260px; }
     }
   </style>
@@ -850,18 +860,21 @@
 </section>
 
 <!-- ── CATEGORY SHOWCASE ──────────────────────────────────── -->
-<div class="cat-intro">
-  <h2 class="cat-heading">Exquisite Floral Creations</h2>
-  <p>Explore the breathtaking beauty of nature through our handpicked selection of the world's most exquisite flowers. From the timeless allure of roses to the vibrant hues of lilies and the delicate charm of orchids, our collection showcases nature's finest creations.</p>
-</div>
-
-<div class="cat-grid">
-  <!-- Populated dynamically from /category-images API -->
-  <div class="cat-card skeleton" style="height:340px;border-radius:var(--radius);"></div>
-  <div class="cat-card skeleton" style="height:340px;border-radius:var(--radius);"></div>
-  <div class="cat-card skeleton" style="height:340px;border-radius:var(--radius);"></div>
-  <div class="cat-card skeleton" style="height:340px;border-radius:var(--radius);"></div>
-</div>
+<section class="cat-section">
+  <div class="cat-intro">
+    <h2 class="cat-heading">Exquisite Floral Creations</h2>
+    <p>Explore the breathtaking beauty of nature through our handpicked selection of the world's most exquisite flowers. From the timeless allure of roses to the vibrant hues of lilies and the delicate charm of orchids, our collection showcases nature's finest creations.</p>
+  </div>
+  <div class="cat-grid-wrap">
+    <div class="cat-grid">
+      <!-- Populated dynamically from /category-images API -->
+      <div class="cat-card skeleton" style="height:460px;border-radius:6px;"></div>
+      <div class="cat-card skeleton" style="height:460px;border-radius:6px;"></div>
+      <div class="cat-card skeleton" style="height:460px;border-radius:6px;"></div>
+      <div class="cat-card skeleton" style="height:460px;border-radius:6px;"></div>
+    </div>
+  </div>
+</section>
 
 <!-- ── FEATURED PRODUCTS ─────────────────────────────────── -->
 <section class="featured-section">
