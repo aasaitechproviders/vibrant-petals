@@ -339,7 +339,8 @@ const LIMIT      = 12;
 const catNameMap = {};
 
 // ── HERO ──────────────────────────────────────────────────────────────────────
-const heroImgs = {
+// Fallback hero images (used if API has no data)
+const FALLBACK_HERO_IMGS = {
   strings:                        'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=70',
   leaves:                         'https://images.unsplash.com/photo-1444930694458-01babf71870c?w=1600&q=70',
   'loose-flowers':                'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=70',
@@ -347,7 +348,7 @@ const heroImgs = {
   'special-occasional-garlands':  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=70',
   all:                            'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=1600&q=70',
 };
-const heroTitles = {
+const FALLBACK_HERO_TITLES = {
   strings:'Strings', leaves:'Leaves',
   'loose-flowers':'Loose Flowers',
   'pooja-garlands':'Pooja Garlands',
@@ -355,14 +356,31 @@ const heroTitles = {
   all:'All Products',
 };
 
-function setHero(){
-  // Strip common "all--" prefix that comes from API slugifying "All | X" → "all--x"
-  const heroKey = currentCat.replace(/^all--/,'');
-  document.getElementById('catHeroImg').src  = heroImgs[heroKey]||heroImgs[currentCat]||heroImgs.all;
-  document.getElementById('catHeroTitle').textContent = heroTitles[heroKey]||heroTitles[currentCat]||'Shop';
-  document.title = (heroTitles[heroKey]||heroTitles[currentCat]||'Shop')+' – VibrantPetals';
+// categoryImagesMap is populated from API asynchronously
+let categoryImagesMap = {};
+
+async function loadCategoryImagesMap(){
+  try {
+    const data = await apiFetch('/category-images');
+    if(data.categoryImages) categoryImagesMap = data.categoryImages;
+  } catch(e){}
+  setHero();
 }
+
+function setHero(){
+  const heroKey = currentCat.replace(/^all--/,'');
+  // Prefer API image, fall back to hardcoded
+  const apiEntry   = categoryImagesMap[heroKey] || categoryImagesMap[currentCat];
+  const imgUrl     = apiEntry?.image || FALLBACK_HERO_IMGS[heroKey] || FALLBACK_HERO_IMGS[currentCat] || FALLBACK_HERO_IMGS.all;
+  const titleText  = apiEntry?.name  || FALLBACK_HERO_TITLES[heroKey] || FALLBACK_HERO_TITLES[currentCat] || 'Shop';
+  document.getElementById('catHeroImg').src           = imgUrl;
+  document.getElementById('catHeroTitle').textContent = titleText;
+  document.title = titleText + ' – VibrantPetals';
+}
+
+// Set a placeholder image immediately, then load real one from API
 setHero();
+loadCategoryImagesMap();
 
 // Active nav highlight
 const navMap = {strings:'navStrings','loose-flowers':'navLoose',leaves:'navLeaves','pooja-garlands':'navGarlands','special-occasional-garlands':'navGarlands'};
