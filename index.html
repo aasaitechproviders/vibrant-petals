@@ -1449,27 +1449,34 @@ async function loadSiteImages(){
 // ── INIT ───────────────────────────────────────────────────
 
 // Fallback category images (used if API has no data yet)
+// Exactly 4 fallbacks matching original site categories (no special-occasional here)
 const FALLBACK_CAT_IMAGES = {
-  'pooja-garlands':              { name:'Garlands',                 image:'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=600&q=80' },
-  'loose-flowers':               { name:'Loose Flowers',            image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=600&q=80' },
-  'strings':                     { name:'Strings',                  image:'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80' },
-  'leaves':                      { name:'Leaves',                   image:'https://images.unsplash.com/photo-1515165562835-9e564d2b0e7e?w=600&q=80' },
-  'special-occasional-garlands': { name:'Special Garlands',         image:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
+  'pooja-garlands': { name:'Garlands',      image:'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=600&q=80' },
+  'loose-flowers':  { name:'Loose Flowers', image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=600&q=80' },
+  'strings':        { name:'Strings',       image:'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80' },
+  'leaves':         { name:'Leaves',        image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80' },
 };
+// Fixed 4-item order — never expands to show more (matches original homepage)
 const CAT_DISPLAY_ORDER = ['pooja-garlands','loose-flowers','strings','leaves'];
 
 async function loadCategoryCards(){
   const catGrid = document.querySelector('.cat-grid');
   if(!catGrid) return;
-  let map = { ...FALLBACK_CAT_IMAGES };
+
+  // Start with fallbacks, then overlay API images (only for the 4 known slugs)
+  const map = { ...FALLBACK_CAT_IMAGES };
   try {
     const data = await apiFetch('/category-images');
-    if(data.categoryImages && Object.keys(data.categoryImages).length){
-      map = { ...map, ...data.categoryImages };
+    if(data.categoryImages){
+      // Only apply API images for the 4 display slugs — ignore any extras
+      CAT_DISPLAY_ORDER.forEach(slug => {
+        if(data.categoryImages[slug]) map[slug] = data.categoryImages[slug];
+      });
     }
   } catch(e){}
-  const allSlugs = [...new Set([...CAT_DISPLAY_ORDER, ...Object.keys(map)])];
-  catGrid.innerHTML = allSlugs.map(slug => {
+
+  // Always render EXACTLY 4 cards in fixed order
+  catGrid.innerHTML = CAT_DISPLAY_ORDER.map(slug => {
     const cat = map[slug];
     if(!cat) return '';
     const imgContent = cat.image
