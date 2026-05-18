@@ -10,9 +10,9 @@
   <style>
     /* ── TOKENS ─────────────────────────────────────────────── */
     :root {
-      --gold:      #9B8B5A;
-      --gold-dark: #7A6B3F;
-      --gold-lt:   #C5B483;
+      --gold:      #b99b51;
+      --gold-dark: #a37a10;
+      --gold-lt:   #c9af77;
       --cream:     #FAF7F2;
       --cream2:    #F2EDE3;
       --dark:      #1A1A1A;
@@ -367,23 +367,37 @@
     .slider-prev { left: 4px; }
     .slider-next { right: 4px; }
 
-    /* ── TESTIMONIAL ────────────────────────────────────────── */
+    /* ── TESTIMONIAL SLIDER ─────────────────────────────────── */
     .testi-section {
       position: relative;
       background-image: url('https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=40&auto=format&fit=crop');
       background-size: cover; background-position: center;
-      padding: 80px 32px;
+      padding: 72px 80px;
       display: flex; align-items: center; justify-content: center;
+      gap: 24px;
       min-height: 500px;
     }
     .testi-section::before {
       content: ''; position: absolute; inset: 0;
       background: rgba(30,30,30,.72);
     }
+    .testi-arrow {
+      position: relative; z-index: 2;
+      flex-shrink: 0;
+      background: none; border: none;
+      color: rgba(255,255,255,.75);
+      font-size: 26px; line-height: 1;
+      cursor: pointer;
+      padding: 12px 8px;
+      transition: color .2s;
+      font-family: serif;
+    }
+    .testi-arrow:hover { color: #fff; }
     .testi-card {
       position: relative; z-index: 1;
       background: #fff;
-      max-width: 1060px; width: 100%;
+      flex: 1;
+      max-width: 1060px;
       padding: 72px 100px;
       text-align: center;
     }
@@ -393,6 +407,10 @@
       margin-bottom: 36px; color: var(--dark);
       letter-spacing: 0.01em;
     }
+    .testi-slides { position: relative; min-height: 160px; }
+    .testi-slide { display: none; animation: testiIn .4s ease; }
+    .testi-slide.active { display: block; }
+    @keyframes testiIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
     .testi-quote {
       font-family: 'Cormorant Garamond', serif;
       font-size: 1.25rem; line-height: 1.9; color: #444;
@@ -413,7 +431,6 @@
     }
     .trust-item {}
     .trust-check {
-      font-size: 42px; color: var(--gold);
       margin-bottom: 16px;
       line-height: 1;
     }
@@ -424,25 +441,24 @@
     .trust-text { font-size: 14px; color: var(--mid); line-height: 1.7; }
 
     /* ── FREE DELIVERY BANNER ───────────────────────────────── */
+    /* Full-width bg image (flowers + texture in one photo, like FreeShipping.jpg) */
     .delivery-banner {
-      position: relative; overflow: hidden;
       min-height: 420px;
       display: grid; grid-template-columns: 1fr 1fr;
+      background-image: url('https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=1600&q=80');
+      background-size: cover;
+      background-position: left center;
     }
-    .delivery-img { position: relative; min-height: 420px; }
-    .delivery-img img { width: 100%; height: 100%; object-fit: cover; }
+    .delivery-left { /* empty — shows left half of background photo */ }
     .delivery-content {
-      background-color: #f5f0e8;
-      background-image:
-        radial-gradient(circle at 20% 50%, rgba(155,139,90,.06) 0%, transparent 60%),
-        radial-gradient(circle at 80% 20%, rgba(155,139,90,.04) 0%, transparent 50%);
+      background: rgba(237,232,222,0.90);
       display: flex; align-items: center; justify-content: center;
       padding: 60px 52px;
     }
     .delivery-content h2 {
       font-family: 'Playfair Display', serif;
       font-size: clamp(2rem, 3vw, 3.2rem);
-      line-height: 1.2;
+      line-height: 1.25;
       color: var(--dark);
       font-weight: 400;
       letter-spacing: 0.01em;
@@ -738,6 +754,8 @@
       .cat-grid { grid-template-columns: repeat(2,1fr); }
       .trust-grid { grid-template-columns: 1fr; gap: 36px; }
       .testi-card { padding: 40px 28px; }
+      .testi-arrow { font-size: 20px; padding: 8px 4px; }
+      .testi-section { padding: 60px 16px; gap: 12px; }
       .footer-grid { grid-template-columns: 1fr; gap: 36px; }
       .delivery-banner { grid-template-columns: 1fr; }
       .delivery-img { height: 200px; }
@@ -852,30 +870,48 @@
   </div>
 </section>
 
-<!-- ── TESTIMONIAL ────────────────────────────────────────── -->
+<!-- ── TESTIMONIAL SLIDER ────────────────────────────────── -->
 <section class="testi-section" id="testiSection">
+  <button class="testi-arrow testi-prev" id="testiPrev" aria-label="Previous testimonial">&#8592;</button>
   <div class="testi-card">
     <h2 class="testi-heading">Testimonial</h2>
-    <p class="testi-quote">“I’ve been a loyal customer of VibrantPetals for years, and their loose flowers never disappoint! The quality is top-notch, and the blooms always last longer than expected. I highly recommend them to anyone looking for fresh, beautiful flowers.”</p>
-    <p class="testi-author">— Rajesh Patel —</p>
+    <div class="testi-slides" id="testiSlides">
+      <div class="testi-slide active">
+        <p class="testi-quote">“I’ve been a loyal customer of VibrantPetals for years, and their loose flowers never disappoint! The quality is top-notch, and the blooms always last longer than expected. I highly recommend them to anyone looking for fresh, beautiful flowers.”</p>
+        <p class="testi-author">— Rajesh Patel —</p>
+      </div>
+      <div class="testi-slide">
+        <p class="testi-quote">“I ordered a stunning garland for my sister’s wedding from VibrantPetals, and it was absolutely perfect! The craftsmanship was exceptional, and it added such an elegant touch to the ceremony. Highly recommend!”</p>
+        <p class="testi-author">— Priya Sharma —</p>
+      </div>
+      <div class="testi-slide">
+        <p class="testi-quote">“I recently purchased a bunch of leaves from VibrantPetals to create a floral arrangement for my home, and I couldn’t be happier with the result! The leaves were fresh, vibrant, and absolutely stunning.”</p>
+        <p class="testi-author">— Ananya Kumar —</p>
+      </div>
+      <div class="testi-slide">
+        <p class="testi-quote">“VibrantPetals never fails to impress with their wide selection of products and impeccable service. I ordered a beautiful garland for a family function, and it arrived right on time, looking even more stunning in person. Thank you!”</p>
+        <p class="testi-author">— Sanjay Gupta —</p>
+      </div>
+    </div>
   </div>
+  <button class="testi-arrow testi-next" id="testiNext" aria-label="Next testimonial">&#8594;</button>
 </section>
 
 <!-- ── TRUST BADGES ───────────────────────────────────────── -->
 <section class="trust-section">
   <div class="trust-grid">
     <div class="trust-item">
-      <div class="trust-check">✓</div>
+      <div class="trust-check"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:36px;height:36px;fill:var(--gold);"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"/></svg></div>
       <h3 class="trust-title">Quality You Can Trust</h3>
       <p class="trust-text">At VibrantPetals, quality is our priority. We handpick the finest flowers and foliage to create beautiful garlands, loose flowers, and leaves that exceed expectations.</p>
     </div>
     <div class="trust-item">
-      <div class="trust-check">✓</div>
+      <div class="trust-check"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:36px;height:36px;fill:var(--gold);"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"/></svg></div>
       <h3 class="trust-title">Excellence in Every Bloom</h3>
       <p class="trust-text">Experience excellence with VibrantPetals. Our dedication to superior service ensures that every garland, loose flower, and leaf is crafted with care and attention to detail.</p>
     </div>
     <div class="trust-item">
-      <div class="trust-check">✓</div>
+      <div class="trust-check"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:36px;height:36px;fill:var(--gold);"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"/></svg></div>
       <h3 class="trust-title">Unmatched Service</h3>
       <p class="trust-text">VibrantPetals delivers unmatched service and unforgettable blooms. From vibrant garlands to fresh loose flowers and lush leaves, we're committed to providing the best for our customers.</p>
     </div>
@@ -883,10 +919,9 @@
 </section>
 
 <!-- ── FREE DELIVERY BANNER ──────────────────────────────── -->
-<section class="delivery-banner">
-  <div class="delivery-img">
-    <img id="deliveryBannerImg" src="https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=800&q=80" alt="Flowers" loading="lazy"/>
-  </div>
+<!-- Background image spans full width (flowers left + texture right in one image, like FreeShipping.jpg) -->
+<section class="delivery-banner" id="deliveryBannerSection">
+  <div class="delivery-left"></div>
   <div class="delivery-content">
     <h2>Enjoy Free Delivery on<br>Orders over $50 –<br>Shop Now!</h2>
   </div>
@@ -1044,11 +1079,12 @@ function showToast(msg, type=''){
   let cur = 0, dots = [], heroTimer = null;
 
   // Default banners shown if API returns nothing
+  // Fallback banners matching original site slide titles exactly
   const FALLBACK_BANNERS = [
-    { image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=80', title:'Handcrafted Strings<br>of Floral Beauty',      buttonText:'Shop Now',          buttonLink:'category.html?cat=strings'        },
-    { image:'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=1600&q=80', title:'Timeless Garlands<br>for Every Occasion',      buttonText:'Explore Garlands',  buttonLink:'category.html?cat=pooja-garlands' },
-    { image:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80', title:'Fresh Loose Flowers<br>Delivered to You',         buttonText:'Browse Flowers',    buttonLink:'category.html?cat=loose-flowers'  },
-    { image:'https://images.unsplash.com/photo-1504386106331-3e4e71712b38?w=1600&q=80', title:'Sacred Leaves &amp;<br>Foliage',              buttonText:'View Leaves',       buttonLink:'category.html?cat=leaves'         },
+    { image:'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=1600&q=80', title:'Traditional Elegance<br>for Your Special Occasions', buttonText:'Shop Now', buttonLink:'category.html?cat=pooja-garlands' },
+    { image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=80', title:"Nature's Beauty,<br>Freshly Delivered",              buttonText:'Shop Now', buttonLink:'category.html?cat=loose-flowers'  },
+    { image:'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=80', title:'Handcrafted Strings,<br>of Floral Beauty',           buttonText:'Shop Now', buttonLink:'category.html?cat=strings'        },
+    { image:'https://images.unsplash.com/photo-1444930694458-01babf71870c?w=1600&q=80', title:'Greenery to Enhance<br>Your Floral Creations',       buttonText:'Shop Now', buttonLink:'category.html?cat=leaves'         },
   ];
 
   function buildHero(banners) {
@@ -1351,10 +1387,47 @@ window.addEventListener('scroll',()=>{
   document.getElementById('backTop').classList.toggle('visible', window.scrollY>400);
 });
 
+// ── TESTIMONIAL SLIDER ───────────────────────────────────────
+(function(){
+  const slides  = Array.from(document.querySelectorAll('.testi-slide'));
+  const prevBtn = document.getElementById('testiPrev');
+  const nextBtn = document.getElementById('testiNext');
+  if (!slides.length || !prevBtn) return;
+
+  let cur = 0, timer = null;
+
+  function goTo(n) {
+    slides[cur].classList.remove('active');
+    cur = (n + slides.length) % slides.length;
+    slides[cur].classList.add('active');
+  }
+
+  function startAuto() {
+    clearInterval(timer);
+    timer = setInterval(() => goTo(cur + 1), 5000);
+  }
+
+  prevBtn.addEventListener('click', () => { goTo(cur - 1); startAuto(); });
+  nextBtn.addEventListener('click', () => { goTo(cur + 1); startAuto(); });
+
+  // Touch swipe support
+  let tx = 0;
+  const card = document.querySelector('.testi-card');
+  if (card) {
+    card.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+    card.addEventListener('touchend', e => {
+      const dx = tx - e.changedTouches[0].clientX;
+      if (Math.abs(dx) > 40) { goTo(cur + (dx > 0 ? 1 : -1)); startAuto(); }
+    });
+  }
+
+  startAuto();
+})();
+
 // ── SITE IMAGES ──────────────────────────────────────────────
 const FALLBACK_SITE_IMAGES = {
   'testimonial_bg':      'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=40',
-  'delivery_banner_img': 'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=800&q=80',
+  'delivery_banner_img': 'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=1600&q=80',
 };
 
 async function loadSiteImages(){
@@ -1366,10 +1439,10 @@ async function loadSiteImages(){
     const tsBg = si['testimonial_bg']?.image || FALLBACK_SITE_IMAGES['testimonial_bg'];
     const tsEl = document.getElementById('testiSection');
     if(tsEl && tsBg) tsEl.style.backgroundImage = `url('${tsBg}')`;
-    // Delivery banner image
+    // Delivery banner — sets background on section (full-width composite image)
     const dbImg = si['delivery_banner_img']?.image || FALLBACK_SITE_IMAGES['delivery_banner_img'];
-    const dbEl  = document.getElementById('deliveryBannerImg');
-    if(dbEl && dbImg) dbEl.src = dbImg;
+    const dbEl  = document.getElementById('deliveryBannerSection');
+    if(dbEl && dbImg) dbEl.style.backgroundImage = "url('" + dbImg + "')";
   } catch(e){}
 }
 
