@@ -27,7 +27,7 @@
 
     /* ── RESET ──────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
     body { font-family: 'Lato', sans-serif; background: var(--cream); color: var(--dark); overflow-x: hidden; }
     a { text-decoration: none; color: inherit; }
     img { max-width: 100%; display: block; }
@@ -136,7 +136,7 @@
       height: calc(100vh - var(--nav-h) - var(--bar-h));
       min-height: 500px; max-height: 800px;
     }
-    .slides { display: flex; height: 100%; transition: transform .7s cubic-bezier(.4,0,.2,1); }
+    .slides { display: flex; width: 100%; height: 100%; transition: transform .7s cubic-bezier(.4,0,.2,1); }
     .slide {
       min-width: 100%; height: 100%; position: relative;
       background-size: cover; background-position: center;
@@ -231,13 +231,15 @@
     }
     .cat-card {
       position: relative; overflow: hidden;
-      height: 560px; cursor: pointer;
+      display: block;                               /* force block even though it's an <a> */
+      height: 520px; cursor: pointer;
       border-right: 1px solid rgba(0,0,0,0.08);
     }
     .cat-card:last-child { border-right: none; }
     .cat-card img {
+      position: absolute; inset: 0;                /* pin image to fill card exactly */
       width: 100%; height: 100%;
-      object-fit: cover;
+      object-fit: cover; object-position: center;
       transition: transform .5s cubic-bezier(.4,0,.2,1);
     }
     .cat-card:hover img { transform: scale(1.04); }
@@ -372,32 +374,36 @@
       position: relative;
       background-image: url('https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=40&auto=format&fit=crop');
       background-size: cover; background-position: center;
-      padding: 72px 80px;
+      padding: 72px 0;                             /* no horizontal padding — arrows sit in safe zones */
       display: flex; align-items: center; justify-content: center;
-      gap: 24px;
+      gap: 0;
       min-height: 500px;
+      overflow: hidden;                            /* prevent arrows from causing scroll */
     }
     .testi-section::before {
       content: ''; position: absolute; inset: 0;
       background: rgba(30,30,30,.72);
     }
     .testi-arrow {
-      position: relative; z-index: 2;
-      flex-shrink: 0;
+      position: absolute; z-index: 2;
+      top: 50%; transform: translateY(-50%);
       background: none; border: none;
       color: rgba(255,255,255,.75);
       font-size: 26px; line-height: 1;
       cursor: pointer;
-      padding: 12px 8px;
+      padding: 12px 16px;
       transition: color .2s;
       font-family: serif;
     }
     .testi-arrow:hover { color: #fff; }
+    .testi-prev { left: 24px; }
+    .testi-next { right: 24px; }
     .testi-card {
       position: relative; z-index: 1;
       background: #fff;
-      flex: 1;
+      width: 100%;
       max-width: 1060px;
+      margin: 0 auto;
       padding: 72px 100px;
       text-align: center;
     }
@@ -754,8 +760,11 @@
       .cat-grid { grid-template-columns: repeat(2,1fr); }
       .trust-grid { grid-template-columns: 1fr; gap: 36px; }
       .testi-card { padding: 40px 28px; }
-      .testi-arrow { font-size: 20px; padding: 8px 4px; }
-      .testi-section { padding: 60px 16px; gap: 12px; }
+      .testi-arrow { font-size: 18px; padding: 8px 10px; }
+      .testi-section { padding: 60px 0; }
+      .testi-card { padding: 40px 56px; }
+      .testi-prev { left: 8px; }
+      .testi-next { right: 8px; }
       .footer-grid { grid-template-columns: 1fr; gap: 36px; }
       .delivery-banner { grid-template-columns: 1fr; }
       .delivery-img { height: 200px; }
@@ -1481,10 +1490,10 @@ async function loadCategoryCards(){
     if(!cat) return '';
     const imgContent = cat.image
       ? `<img src="${cat.image}" alt="${cat.name}" loading="lazy"
-           style="width:100%;height:100%;object-fit:cover;"
+           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-         <div style="display:none;width:100%;height:100%;background:var(--card-bg);align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--mid);">${cat.name}</div>`
-      : `<div style="width:100%;height:100%;background:var(--card-bg);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--mid);">${cat.name}</div>`;
+         <div style="display:none;position:absolute;inset:0;background:var(--card-bg);align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--mid);">${cat.name}</div>`
+      : `<div style="position:absolute;inset:0;background:var(--card-bg);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--mid);">${cat.name}</div>`;
     return `<a href="category.html?cat=${slug}" class="cat-card">
       ${imgContent}
       <div class="cat-card-label">${cat.name}</div>
