@@ -320,7 +320,7 @@
             </div>
           </div>
           <table class="data-table">
-            <thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Payment</th><th>Date</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Assignment</th><th>Date</th><th>Actions</th></tr></thead>
             <tbody id="ordersBody"></tbody>
           </table>
           <div class="table-pagination" id="ordPag"></div>
@@ -466,6 +466,45 @@
         </div>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- DEALER APPROVAL MODAL -->
+<div class="modal" id="dealerApprovalModal">
+  <div class="modal-box modal-wide">
+    <div class="modal-head"><h3>Dealer Application Review</h3><span class="modal-close" onclick="closeModal('dealerApprovalModal')">✕</span></div>
+    <div class="modal-body" id="daModalBody" style="max-height:60vh;overflow-y:auto;"></div>
+    <div class="modal-footer" style="gap:10px;">
+      <button class="btn-cancel" onclick="closeModal('dealerApprovalModal')">Close</button>
+      <button class="btn-delete" id="daRejectBtn">✕ Reject Application</button>
+      <button class="btn-primary" id="daApproveBtn" style="background:#27ae60;">✓ Approve Dealer + Territory</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER ASSIGN MODAL -->
+<div class="modal" id="orderAssignModal">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="oamTitle">Assign Order</h3><span class="modal-close" onclick="closeModal('orderAssignModal')">✕</span></div>
+    <div class="modal-body">
+      <div id="oamSuggestion" style="padding:12px;background:#fffdf0;border:1px solid #e8e0d2;border-radius:4px;font-size:13px;margin-bottom:16px;display:none;"></div>
+      <div class="form-group">
+        <label class="form-label">Assign To</label>
+        <select class="form-select" id="oamType" onchange="loadAssignOptions()">
+          <option value="dealer">Dealer</option>
+          <option value="outlet">Retail Outlet</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Select</label>
+        <select class="form-select" id="oamTarget"><option value="">Loading…</option></select>
+      </div>
+      <div class="form-msg" id="oamMsg"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('orderAssignModal')">Cancel</button>
+      <button class="btn-primary" onclick="confirmAssignOrder()">Assign Order</button>
     </div>
   </div>
 </div>
@@ -1670,15 +1709,24 @@ async function loadOrders() {
     const oid = o._id || o.id || '';
     const status2 = o.status || 'pending';
     const payStatus = o.paymentStatus || 'pending';
+    const assign = o.assignment || {};
+    const assignBadge = assign.assignedToName
+      ? `<span style="font-size:11px;background:#d4edda;color:#155724;padding:2px 8px;border-radius:10px;">✓ ${assign.assignedToName}</span>`
+      : (assign.suggestedDealerName
+          ? `<span style="font-size:11px;background:#fff3cd;color:#856404;padding:2px 8px;border-radius:10px;">💡 ${assign.suggestedDealerName}</span>`
+          : `<span style="font-size:11px;color:#aaa;">Unassigned</span>`);
     return `<tr>
       <td><b>${o.orderNumber || '—'}</b></td>
       <td style="font-size:13px;">${o.customerEmail || '—'}${o.customerRole === 'Dealer' ? '<br/><span class="status-pill s-dealer" style="font-size:10px;">Dealer</span>' : ''}</td>
       <td style="font-size:13px;">${(o.items || []).length} item${(o.items || []).length !== 1 ? 's' : ''}</td>
       <td><b>$${(o.total || 0).toFixed(2)}</b></td>
       <td><span class="status-pill s-${status2}">${status2}</span></td>
-      <td><span class="status-pill" style="background:${payStatus === 'paid' ? '#d4edda' : '#fff3cd'};color:${payStatus === 'paid' ? '#155724' : '#856404'}">${payStatus}</span></td>
+      <td>${assignBadge}</td>
       <td style="font-size:12px;color:var(--mid)">${new Date(o.createdAt).toLocaleDateString()}</td>
-      <td><button class="btn-sm btn-view" onclick="openOrderModal('${oid}')">View</button></td>
+      <td style="display:flex;gap:4px;">
+        <button class="btn-sm btn-view" onclick="openOrderModal('${oid}')">View</button>
+        <button class="btn-sm btn-edit" onclick="openOrderAssignModal('${oid}','${o.orderNumber||''}','${assign.suggestedDealerId||''}','${assign.suggestedDealerName||''}')">Assign</button>
+      </td>
     </tr>`;
   }).join('') : `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--mid);">No orders found</td></tr>`;
   renderPag('ordPag', ordPage, pag.totalPages, 'ordPage', 'loadOrders');
@@ -1724,17 +1772,83 @@ async function openOrderModal(id) {
     </table>` : '<div style="color:var(--mid);font-size:13px;">No items</div>';
 
   const addr = o.shippingAddress || o.address || {};
+  const snap = o.pickupOutletSnapshot || {};
+  const assign = o.assignment || {};
+  const assignedHtml = assign.assignedToName
+    ? `<div style="background:#d4edda;padding:10px 14px;border-radius:4px;font-size:13px;color:#155724;margin-bottom:8px;">✓ Assigned to: <b>${assign.assignedToName}</b> (${assign.assignedToType || ''})</div>`
+    : (assign.suggestedDealerName
+        ? `<div style="background:#fff3cd;padding:10px 14px;border-radius:4px;font-size:13px;color:#856404;margin-bottom:8px;">💡 Suggested dealer: <b>${assign.suggestedDealerName}</b> (based on territory)</div>`
+        : '');
   document.getElementById('omDetailGrid').innerHTML = `
+    ${assignedHtml}
     <div class="order-detail-box">
       <div class="order-detail-box-title">Customer</div>
       <p>${o.customerEmail || '—'}<br/>${o.customerName || ''}</p>
     </div>
     <div class="order-detail-box">
-      <div class="order-detail-box-title">Shipping Address</div>
-      <p>${addr.firstName || ''} ${addr.lastName || ''}<br/>${addr.address1 || addr.street || ''}<br/>${addr.city || ''}, ${addr.state || ''} ${addr.postcode || addr.zip || ''}<br/>${addr.country || ''}</p>
+      <div class="order-detail-box-title">🏪 Pickup Outlet</div>
+      <p><b>${snap.name || '—'}</b><br/>${snap.address || ''}<br/>${snap.suburb || ''}, ${snap.state || ''}<br/>${snap.phone ? '📞 ' + snap.phone : ''}<br/>${snap.hours ? '⏰ ' + snap.hours : ''}</p>
     </div>`;
 }
 window.openOrderModal = openOrderModal;
+
+// ── ORDER ASSIGNMENT ──────────────────────────────────────────────────────────
+let assigningOrderId = null;
+
+async function openOrderAssignModal(orderId, orderNum, suggestedDealerId, suggestedDealerName) {
+  assigningOrderId = orderId;
+  document.getElementById('oamTitle').textContent = `Assign Order #${orderNum}`;
+  const sug = document.getElementById('oamSuggestion');
+  if (suggestedDealerName) {
+    sug.style.display = '';
+    sug.innerHTML = `💡 <b>Suggested:</b> ${suggestedDealerName} (dealer for this territory)
+      <button onclick="document.getElementById('oamType').value='dealer';loadAssignOptions().then(()=>{document.getElementById('oamTarget').value='${suggestedDealerId}';})"
+        style="margin-left:10px;padding:3px 10px;font-size:11px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;">Use this dealer</button>`;
+  } else {
+    sug.style.display = 'none';
+  }
+  document.getElementById('oamMsg').textContent = '';
+  document.getElementById('orderAssignModal').classList.add('open');
+  await loadAssignOptions();
+}
+window.openOrderAssignModal = openOrderAssignModal;
+
+async function loadAssignOptions() {
+  const type = document.getElementById('oamType').value;
+  const sel  = document.getElementById('oamTarget');
+  sel.innerHTML = '<option value="">Loading…</option>';
+  if (type === 'dealer') {
+    const data = await apiFetch('/admin/users?role=Dealer&limit=100', { headers: apiHeaders() });
+    const dealers = (data.users || []).filter(u => u.isActive);
+    sel.innerHTML = '<option value="">Select dealer…</option>' +
+      dealers.map(u => `<option value="${u._id}">${u.firstName || ''} ${u.lastName || ''} (${u.username}) · ${(u.assignedTerritories || []).join(', ') || 'no territory'}</option>`).join('');
+  } else {
+    const data = await apiFetch('/admin/retail-outlets', { headers: apiHeaders() });
+    const outlets = (data.outlets || []).filter(o => o.isActive);
+    sel.innerHTML = '<option value="">Select outlet…</option>' +
+      outlets.map(o => `<option value="${o._id}">${o.name} — ${o.suburb}, ${o.state}</option>`).join('');
+  }
+  return true;
+}
+window.loadAssignOptions = loadAssignOptions;
+
+async function confirmAssignOrder() {
+  const assignedToType = document.getElementById('oamType').value;
+  const assignedToId   = document.getElementById('oamTarget').value;
+  const msg = document.getElementById('oamMsg');
+  if (!assignedToId) { msg.className = 'form-msg err'; msg.textContent = 'Please select a dealer or outlet.'; return; }
+  const data = await apiFetch(`/orders/${assigningOrderId}/assign`, {
+    method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ assignedToType, assignedToId }),
+  });
+  if (data.success) {
+    showToast(data.message || 'Order assigned', 'success');
+    closeModal('orderAssignModal');
+    loadOrders();
+  } else {
+    msg.className = 'form-msg err'; msg.textContent = data.message || 'Assignment failed';
+  }
+}
+window.confirmAssignOrder = confirmAssignOrder;
 
 async function saveOrderStatus() {
   const status = document.getElementById('omStatus').value;
@@ -1860,12 +1974,16 @@ async function loadUsers() {
      const statusBg  = isPendingDealer ? '#fff3cd' : (u.isActive ? '#d4edda' : '#f8d7da');
      const statusClr = isPendingDealer ? '#856404' : (u.isActive ? '#155724' : '#721c24');
      const statusLbl = isPendingDealer ? 'Pending Approval' : (u.isActive ? 'Active' : 'Disabled');
+     const di = u.dealerInfo || {};
+     const dealerExtra = u.role === 'Dealer' ? `<br/><span style="font-size:11px;color:var(--gold);">
+       ${di.state || ''}${di.desiredTerritory ? ' · ' + di.desiredTerritory : ''}
+       ${di.businessType ? ' · ' + di.businessType : ''}
+     </span>` : '';
      const actionBtns = isPendingDealer
-       ? `<button class="btn-sm btn-edit" onclick="toggleUserStatus('${uid}',true)" style="background:#28a745;color:#fff;border:none;">Approve</button>
-          <button class="btn-sm btn-delete" onclick="toggleUserStatus('${uid}',false)">Reject</button>`
+       ? `<button class="btn-sm btn-edit" onclick="openDealerApprovalModal('${uid}')" style="background:#9B8B5A;color:#fff;border:none;">Review</button>`
        : `<button class="btn-sm ${u.isActive ? 'btn-delete' : 'btn-edit'}" onclick="toggleUserStatus('${uid}',${!u.isActive})">${u.isActive ? 'Disable' : 'Enable'}</button>`;
      return `<tr${isPendingDealer ? ' style="background:#fffdf0;"' : ''}>
-       <td><b>${u.username || '—'}</b>${u.firstName ? `<br/><span style="font-size:12px;color:var(--mid)">${u.firstName} ${u.lastName || ''}</span>` : ''}</td>
+       <td><b>${u.username || '—'}</b>${u.firstName ? `<br/><span style="font-size:12px;color:var(--mid)">${u.firstName} ${u.lastName || ''}</span>` : ''}${dealerExtra}</td>
        <td style="font-size:13px;">${u.email}</td>
        <td><span class="status-pill ${roleClass[u.role] || 's-customer'}">${u.role || 'Customer'}</span></td>
        <td style="font-size:12px;color:var(--mid)">${new Date(u.registeredAt || u.createdAt).toLocaleDateString()}</td>
@@ -1878,6 +1996,43 @@ async function loadUsers() {
    }).join('') : `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--mid);">No users found</td></tr>`;
   renderPag('userPag', userPage, pag.totalPages, 'userPage', 'loadUsers');
 }
+
+// ── DEALER APPROVAL MODAL ─────────────────────────────────────────────────────
+async function openDealerApprovalModal(uid) {
+  const data = await apiFetch(`/admin/users?page=1&limit=100`, { headers: apiHeaders() });
+  const user = (data.users || []).find(u => u._id === uid || u.id === uid);
+  if (!user) { showToast('Failed to load dealer details', 'error'); return; }
+  const di = user.dealerInfo || {};
+  const pending = (user.pendingTerritories || []).map(t => t.name || t.slug).join(', ') || '—';
+  document.getElementById('daModalBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div class="order-detail-box"><div class="order-detail-box-title">Account</div>
+        <p><b>${user.username}</b><br/>${user.email}<br/>${user.firstName || ''} ${user.lastName || ''}</p></div>
+      <div class="order-detail-box"><div class="order-detail-box-title">Territory Request</div>
+        <p><b>State:</b> ${di.state || '—'}<br/><b>Territory:</b> ${di.desiredTerritory || pending || '—'}<br/>
+        <b>Pending:</b> ${pending}</p></div>
+    </div>
+    <div class="order-detail-box" style="margin-bottom:12px;"><div class="order-detail-box-title">Business Info</div>
+      <p><b>Type:</b> ${di.businessType || '—'}&nbsp;&nbsp;<b>Shop:</b> ${di.shopName || '—'}<br/>
+      <b>Activities:</b> ${(di.activities || []).join(', ') || '—'}<br/>
+      <b>Mobile:</b> ${di.mobile || '—'}</p></div>
+    <div class="order-detail-box" style="margin-bottom:12px;"><div class="order-detail-box-title">Sales & Logistics</div>
+      <p><b>Customers/week:</b> ${di.customersPerWeek || '—'}&nbsp;&nbsp;
+      <b>Subscription:</b> ${di.subscriptionInterest || '—'}<br/>
+      <b>Preferred days:</b> ${(di.preferredDays || []).join(', ') || '—'}<br/>
+      <b>Can deliver:</b> ${di.canDeliver || '—'}</p></div>
+    <div class="order-detail-box"><div class="order-detail-box-title">Motivation</div>
+      <p style="white-space:pre-wrap;">${di.motivation || '—'}</p></div>
+    <div style="margin-top:12px;padding:12px;background:#fff3cd;border-radius:4px;font-size:13px;color:#856404;">
+      <b>How they heard about us:</b> ${di.howHeard || '—'} &nbsp;·&nbsp;
+      <b>Pre-order comfort:</b> ${di.preorderComfort || '—'}<br/>
+      <b>Applied:</b> ${user.registeredAt ? new Date(user.registeredAt).toLocaleString() : '—'}
+    </div>`;
+  document.getElementById('daApproveBtn').onclick = () => { closeModal('dealerApprovalModal'); toggleUserStatus(uid, true); };
+  document.getElementById('daRejectBtn').onclick  = () => { closeModal('dealerApprovalModal'); toggleUserStatus(uid, false); };
+  document.getElementById('dealerApprovalModal').classList.add('open');
+}
+window.openDealerApprovalModal = openDealerApprovalModal;
 
 function openUserRoleModal(id, username, email, role) {
   editingUserId = id;
