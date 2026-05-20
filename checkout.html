@@ -160,55 +160,36 @@
         <div class="coupon-msg" id="couponMsg"></div>
       </div>
 
-      <!-- SHIPPING ADDRESS -->
+      <!-- PICKUP OUTLET SELECTOR -->
       <div class="form-section">
-        <div class="form-section-title">Shipping Details</div>
-        <!-- Saved addresses dropdown (shown when logged in) -->
-        <div class="saved-addr-strip" id="savedAddrStrip">
-          <label>Use a saved address</label>
-          <select class="saved-addr-select" id="savedAddrSelect" onchange="fillFromSaved()">
-            <option value="">— Fill manually —</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">First Name <span>*</span></label><input type="text" class="form-input" id="sFirst" placeholder="Jane"/></div>
-          <div class="form-group"><label class="form-label">Last Name <span>*</span></label><input type="text" class="form-input" id="sLast" placeholder="Smith"/></div>
-        </div>
-        <div class="form-row full">
-          <div class="form-group"><label class="form-label">Street Address <span>*</span></label><input type="text" class="form-input" id="sStreet" placeholder="123 Jasmine Lane"/></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">City <span>*</span></label><input type="text" class="form-input" id="sCity" placeholder="Melbourne"/></div>
-          <div class="form-group"><label class="form-label">State <span>*</span></label><input type="text" class="form-input" id="sState" placeholder="VIC"/></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Postcode <span>*</span></label><input type="text" class="form-input" id="sPostcode" placeholder="3000"/></div>
-          <div class="form-group"><label class="form-label">Country</label><input type="text" class="form-input" id="sCountry" value="Australia"/></div>
-        </div>
-        <div class="form-row full">
-          <div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="sPhone" placeholder="+61 400 000 000"/></div>
-        </div>
-      </div>
+        <div class="form-section-title">🏪 Select Pickup Outlet</div>
+        <p style="font-size:14px;color:var(--mid);margin-bottom:20px;line-height:1.6;">All orders are <strong>pickup only</strong>. Choose a retail outlet convenient for you. Your preferred territory's outlets are shown first.</p>
 
-      <!-- BILLING ADDRESS -->
-      <div class="form-section">
-        <div class="form-section-title">Billing Details</div>
-        <label class="same-billing"><input type="checkbox" id="sameBilling" checked/> Same as shipping address</label>
-        <div id="billingFields" style="display:none;">
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-input" id="bFirst"/></div>
-            <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-input" id="bLast"/></div>
+        <!-- State filter -->
+        <div class="form-row" style="margin-bottom:16px;">
+          <div class="form-group">
+            <label class="form-label">Filter by State</label>
+            <select class="form-select" id="outletStateFilter" onchange="loadOutlets()">
+              <option value="">All States</option>
+              <option value="Melbourne">Melbourne</option>
+              <option value="Sydney">Sydney</option>
+            </select>
           </div>
-          <div class="form-row full"><div class="form-group"><label class="form-label">Street Address</label><input type="text" class="form-input" id="bStreet"/></div></div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">City</label><input type="text" class="form-input" id="bCity"/></div>
-            <div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" id="bState"/></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Postcode</label><input type="text" class="form-input" id="bPostcode"/></div>
-            <div class="form-group"><label class="form-label">Country</label><input type="text" class="form-input" id="bCountry" value="Australia"/></div>
+          <div class="form-group">
+            <label class="form-label">Filter by Territory</label>
+            <select class="form-select" id="outletTerritoryFilter" onchange="loadOutlets()">
+              <option value="">All Territories</option>
+            </select>
           </div>
         </div>
+
+        <!-- Outlet cards -->
+        <div id="outletList" style="display:flex;flex-direction:column;gap:12px;">
+          <div class="skeleton" style="height:80px;border-radius:4px;"></div>
+          <div class="skeleton" style="height:80px;border-radius:4px;"></div>
+        </div>
+        <input type="hidden" id="selectedOutletId"/>
+        <div id="outletMsg" style="font-size:13px;margin-top:8px;color:#c0392b;display:none;"></div>
       </div>
 
       <!-- PAYMENT -->
@@ -397,30 +378,28 @@ function handlePlaceOrder(){
 
 async function placeOrder(){
   const btn=document.getElementById('placeOrderBtn');
-  const sFirst=document.getElementById('sFirst').value.trim();
-  const sLast=document.getElementById('sLast').value.trim();
-  const sStreet=document.getElementById('sStreet').value.trim();
-  const sCity=document.getElementById('sCity').value.trim();
-  const sState=document.getElementById('sState').value.trim();
-  const sPostcode=document.getElementById('sPostcode').value.trim();
-  if(!sFirst||!sLast||!sStreet||!sCity||!sState||!sPostcode){showToast('Please fill all required shipping fields.','error');return;}
-  const shippingAddress={firstName:sFirst,lastName:sLast,address:sStreet,city:sCity,state:sState,postcode:sPostcode,country:document.getElementById('sCountry').value,phone:document.getElementById('sPhone').value};
-  const sameBilling=document.getElementById('sameBilling').checked;
-  const billingAddress=sameBilling?shippingAddress:{
-    firstName:document.getElementById('bFirst').value,lastName:document.getElementById('bLast').value,
-    address:document.getElementById('bStreet').value,city:document.getElementById('bCity').value,
-    state:document.getElementById('bState').value,postcode:document.getElementById('bPostcode').value,
-    country:document.getElementById('bCountry').value,
-  };
+  const pickupOutletId=document.getElementById('selectedOutletId').value;
+  if(!pickupOutletId){
+    document.getElementById('outletMsg').textContent='Please select a pickup outlet.';
+    document.getElementById('outletMsg').style.display='';
+    document.getElementById('outletList').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  document.getElementById('outletMsg').style.display='none';
   const paymentMethod=document.querySelector('input[name="payment"]:checked').value;
   const notes=document.getElementById('orderNotes').value;
   btn.disabled=true;btn.textContent='Placing order...';
-  const data=await apiFetch('/orders',{method:'POST',headers:apiHeaders(),body:JSON.stringify({shippingAddress,billingAddress,paymentMethod,notes})});
+  const data=await apiFetch('/orders',{method:'POST',headers:apiHeaders(),body:JSON.stringify({pickupOutletId,paymentMethod,notes})});
   btn.disabled=false;btn.textContent='Place Order';
   if(data.success){
     document.getElementById('checkoutMain').style.display='none';
     const succ=document.getElementById('orderSuccess');succ.classList.add('show');
     document.getElementById('orderNumDisplay').textContent='Order #'+data.order.orderNumber;
+    const snap=data.order.pickupOutletSnapshot;
+    if(snap){
+      const pickupInfo=document.getElementById('pickupOutletInfo');
+      if(pickupInfo) pickupInfo.textContent=`Pickup from: ${snap.name}, ${snap.address}, ${snap.suburb} · ${snap.hours||''}`;
+    }
     window.scrollTo({top:0,behavior:'smooth'});
   }else{
     showToast(data.message||'Failed to place order','error');
@@ -482,10 +461,78 @@ async function doModalRegister(){
   }else{msg.textContent=data.message||'Registration failed';msg.className='gate-msg err';}
 }
 
+// ── OUTLET PICKER ─────────────────────────────────────────────────────────────
+let allOutlets = [];
+
+async function loadOutlets() {
+  const stateFilter     = document.getElementById('outletStateFilter').value;
+  const territoryFilter = document.getElementById('outletTerritoryFilter').value;
+  let qs = '';
+  if (stateFilter)     qs += 'state=' + encodeURIComponent(stateFilter) + '&';
+  if (territoryFilter) qs += 'territory=' + encodeURIComponent(territoryFilter) + '&';
+  const data = await apiFetch('/retail-outlets?' + qs).catch(() => ({ outlets: [] }));
+  allOutlets = data.outlets || [];
+  renderOutlets(allOutlets);
+  if (stateFilter) {
+    const td = await apiFetch('/territories?state=' + encodeURIComponent(stateFilter)).catch(() => ({ territories: [] }));
+    const terrSel = document.getElementById('outletTerritoryFilter');
+    terrSel.innerHTML = '<option value="">All Territories</option>';
+    (td.territories || []).forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.slug; opt.textContent = t.name;
+      terrSel.appendChild(opt);
+    });
+  } else {
+    document.getElementById('outletTerritoryFilter').innerHTML = '<option value="">All Territories</option>';
+  }
+}
+window.loadOutlets = loadOutlets;
+
+function renderOutlets(outlets) {
+  const list       = document.getElementById('outletList');
+  const selectedId = document.getElementById('selectedOutletId').value;
+  if (!outlets.length) {
+    list.innerHTML = '<div style="padding:24px;text-align:center;font-size:14px;color:var(--mid);border:1px dashed #e8e0d2;border-radius:4px;">No pickup outlets found for this filter.</div>';
+    return;
+  }
+  list.innerHTML = outlets.map(function(o) {
+    const sel = o._id.toString() === selectedId;
+    const borderColor = sel ? 'var(--gold)' : '#e8e0d2';
+    const bg = sel ? '#FFFBF3' : '#fff';
+    const dotBorder = sel ? 'var(--gold)' : '#ddd';
+    const dotBg = sel ? 'var(--gold)' : '#fff';
+    const check = sel ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : '';
+    return '<div onclick="selectOutlet(\'' + o._id + '\')" style="border:2px solid ' + borderColor + ';border-radius:4px;padding:16px 20px;cursor:pointer;background:' + bg + ';transition:border-color .2s,background .2s;display:flex;align-items:flex-start;gap:14px;">' +
+      '<div style="font-size:22px;margin-top:2px;">&#x1F3EA;</div>' +
+      '<div style="flex:1;">' +
+        '<div style="font-size:14px;font-weight:700;color:var(--dark);margin-bottom:4px;">' + o.name + '</div>' +
+        '<div style="font-size:13px;color:var(--mid);">' + o.address + ', ' + o.suburb + ' &middot; ' + o.state + '</div>' +
+        (o.phone ? '<div style="font-size:12px;color:var(--mid);margin-top:2px;">&#128222; ' + o.phone + '</div>' : '') +
+        (o.hours ? '<div style="font-size:12px;color:var(--gold);margin-top:2px;">&#9200; ' + o.hours + '</div>' : '') +
+      '</div>' +
+      '<div style="width:22px;height:22px;border-radius:50%;border:2px solid ' + dotBorder + ';background:' + dotBg + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + check + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function selectOutlet(id) {
+  document.getElementById('selectedOutletId').value = id;
+  document.getElementById('outletMsg').style.display = 'none';
+  renderOutlets(allOutlets);
+}
+window.selectOutlet = selectOutlet;
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init(){
   await loadCart();
-  if(token)await loadSavedAddresses();
+  await loadOutlets();
+  if(token){
+    const me = await apiFetch('/auth/me',{headers:apiHeaders()}).catch(function(){return null;});
+    if(me&&me.user&&me.user.preferredState){
+      document.getElementById('outletStateFilter').value = me.user.preferredState;
+      await loadOutlets();
+    }
+  }
 }
 
 init();
