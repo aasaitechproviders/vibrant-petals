@@ -436,6 +436,21 @@
             </span>
           </div>
         </div>
+        <div class="form-group">
+          <label class="form-label">State <span class="req">*</span></label>
+          <select class="form-select" id="cState" onchange="onCustomerStateChange()">
+            <option value="">Select your state…</option>
+            <option value="Melbourne">Melbourne</option>
+            <option value="Sydney">Sydney</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your Territory / Suburb <span class="req">*</span></label>
+          <select class="form-select" id="cTerritory" disabled>
+            <option value="">Select state first…</option>
+          </select>
+          <div class="input-note" style="margin-top:6px;font-size:12px;color:var(--light);">This is used to find your nearest pickup outlet.</div>
+        </div>
         <div class="msg" id="custMsg"></div>
         <button class="btn-primary" id="custSubmitBtn" onclick="submitCustomer()">Create Account →</button>
         <div class="divider">or sign up as a dealer to get wholesale prices</div>
@@ -504,17 +519,19 @@
             <div class="input-note">We'll add you to our Dealer WhatsApp group for order coordination.</div>
           </div>
           <div class="form-group">
-            <label class="form-label">City <span class="req">*</span></label>
-            <div class="radio-group two-col">
-              <label class="radio-option"><input type="radio" name="dCity" value="Sydney"/> Sydney</label>
-              <label class="radio-option"><input type="radio" name="dCity" value="Melbourne"/> Melbourne</label>
-              <label class="radio-option"><input type="radio" name="dCity" value="Brisbane"/> Brisbane</label>
-              <label class="radio-option"><input type="radio" name="dCity" value="Other"/> Other</label>
-            </div>
+            <label class="form-label">State <span class="req">*</span></label>
+            <select class="form-select" id="dState" onchange="onDealerStateChange()">
+              <option value="">Select your state…</option>
+              <option value="Melbourne">Melbourne</option>
+              <option value="Sydney">Sydney</option>
+            </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Suburb / Area <span class="req">*</span></label>
-            <input class="form-input" id="dSuburb" placeholder="e.g. Parramatta, Dandenong" type="text"/>
+            <label class="form-label">Desired Territory <span class="req">*</span></label>
+            <select class="form-select" id="dTerritory" disabled>
+              <option value="">Select state first…</option>
+            </select>
+            <div class="input-note" style="margin-top:6px;font-size:12px;color:var(--light);">One dealer per territory. Territories marked as taken or under review are unavailable.</div>
           </div>
           <div class="msg" id="step2Msg"></div>
           <div class="form-nav">
@@ -694,6 +711,54 @@ async function apiFetch(path, opts = {}) {
   catch (e) { return { success: false, message: e.message }; }
 }
 
+// ── TERRITORY DATA ──────────────────────────────────────────────────────────────
+// Keyed by state; loaded from API on page load; status: open/pending/assigned
+let territoriesData = { Melbourne: [], Sydney: [] };
+
+async function loadTerritories() {
+  try {
+    const data = await apiFetch('/territories');
+    if (data.territories) {
+      territoriesData.Melbourne = data.territories.filter(t => t.state === 'Melbourne');
+      territoriesData.Sydney    = data.territories.filter(t => t.state === 'Sydney');
+    }
+  } catch (e) { /* use empty, user will see "no territories" */ }
+}
+
+function populateTerritorySelect(selectEl, state) {
+  const list = territoriesData[state] || [];
+  selectEl.innerHTML = '<option value="">Select your territory…</option>';
+  if (!list.length) {
+    selectEl.innerHTML = '<option value="">No territories loaded</option>';
+    selectEl.disabled = true;
+    return;
+  }
+  list.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.slug;
+    const taken  = t.status === 'assigned';
+    const review = t.status === 'pending';
+    opt.textContent = taken ? `${t.name} (Taken)` : review ? `${t.name} (Under Review)` : t.name;
+    opt.disabled = taken || review;
+    selectEl.appendChild(opt);
+  });
+  selectEl.disabled = false;
+}
+
+function onCustomerStateChange() {
+  const state    = document.getElementById('cState').value;
+  const terr     = document.getElementById('cTerritory');
+  if (!state) { terr.innerHTML = '<option value="">Select state first…</option>'; terr.disabled = true; return; }
+  populateTerritorySelect(terr, state);
+}
+
+function onDealerStateChange() {
+  const state = document.getElementById('dState').value;
+  const terr  = document.getElementById('dTerritory');
+  if (!state) { terr.innerHTML = '<option value="">Select state first…</option>'; terr.disabled = true; return; }
+  populateTerritorySelect(terr, state);
+}
+
 // ── TYPE TOGGLE ────────────────────────────────────────────────────────────────
 function setType(type) {
   document.getElementById('typeCustomer').classList.toggle('active', type === 'customer');
@@ -762,25 +827,25 @@ function validateStep(step) {
     return true;
   }
   if (step === 2) {
-    const mob = document.getElementById('dMobile').value.trim();
-    const city = getRadio('dCity');
-    const suburb = document.getElementById('dSuburb').value.trim();
-    if (!mob) { showMsg('step2Msg', 'Please enter your mobile number.', 'err'); return false; }
-    if (!city) { showMsg('step2Msg', 'Please select your city.', 'err'); return false; }
-    if (!suburb) { showMsg('step2Msg', 'Please enter your suburb / area.', 'err'); return false; }
+    const mob   = document.getElementById('dMobile').value.trim();
+    const state = document.getElementById('dState').value;
+    const terr  = document.getElementById('dTerritory').value;
+    if (!mob)   { showMsg('step2Msg', 'Please enter your mobile number.', 'err'); return false; }
+    if (!state) { showMsg('step2Msg', 'Please select your state (Melbourne or Sydney).', 'err'); return false; }
+    if (!terr)  { showMsg('step2Msg', 'Please select your desired territory.', 'err'); return false; }
     return true;
   }
   if (step === 3) {
-    const biz = getRadio('dBizType');
+    const biz  = getRadio('dBizType');
     const acts = getChecked('dActivity');
-    if (!biz) { showMsg('step3Msg', 'Please tell us about your current business status.', 'err'); return false; }
+    if (!biz)         { showMsg('step3Msg', 'Please tell us about your current business status.', 'err'); return false; }
     if (!acts.length) { showMsg('step3Msg', 'Please select at least one type of activity.', 'err'); return false; }
     return true;
   }
   if (step === 4) {
-    const cc = getRadio('dCustomerCount');
+    const cc  = getRadio('dCustomerCount');
     const sub = getRadio('dSubscription');
-    if (!cc) { showMsg('step4Msg', 'Please select how many customers you can reach per week.', 'err'); return false; }
+    if (!cc)  { showMsg('step4Msg', 'Please select how many customers you can reach per week.', 'err'); return false; }
     if (!sub) { showMsg('step4Msg', 'Please indicate your subscription model interest.', 'err'); return false; }
     return true;
   }
@@ -791,13 +856,13 @@ function validateStep(step) {
   }
   if (step === 6) {
     const motivation = document.getElementById('dMotivation').value.trim();
-    const preorder = getRadio('dPreorder');
-    const hear = getRadio('dHearAbout');
-    const decl = document.getElementById('dDeclaration').checked;
+    const preorder   = getRadio('dPreorder');
+    const hear       = getRadio('dHearAbout');
+    const decl       = document.getElementById('dDeclaration').checked;
     if (!motivation) { showMsg('step6Msg', 'Please tell us why you want to be a partner.', 'err'); return false; }
-    if (!preorder) { showMsg('step6Msg', 'Please answer the pre-order question.', 'err'); return false; }
-    if (!hear) { showMsg('step6Msg', 'Please tell us how you heard about us.', 'err'); return false; }
-    if (!decl) { showMsg('step6Msg', 'Please confirm the declaration to proceed.', 'err'); return false; }
+    if (!preorder)   { showMsg('step6Msg', 'Please answer the pre-order question.', 'err'); return false; }
+    if (!hear)       { showMsg('step6Msg', 'Please tell us how you heard about us.', 'err'); return false; }
+    if (!decl)       { showMsg('step6Msg', 'Please confirm the declaration to proceed.', 'err'); return false; }
     return true;
   }
   return true;
@@ -816,18 +881,20 @@ window.goStep = goStep;
 
 // ── CUSTOMER SUBMIT ─────────────────────────────────────────────────────────────
 async function submitCustomer() {
-  const firstName = document.getElementById('cFirstName').value.trim();
-  const lastName  = document.getElementById('cLastName').value.trim();
-  const username  = document.getElementById('cUsername').value.trim();
-  const email     = document.getElementById('cEmail').value.trim();
-  const password  = document.getElementById('cPassword').value;
-  const msgEl     = document.getElementById('custMsg');
-  msgEl.style.display = 'none';
+  const firstName        = document.getElementById('cFirstName').value.trim();
+  const lastName         = document.getElementById('cLastName').value.trim();
+  const username         = document.getElementById('cUsername').value.trim();
+  const email            = document.getElementById('cEmail').value.trim();
+  const password         = document.getElementById('cPassword').value;
+  const preferredState   = document.getElementById('cState').value;
+  const preferredTerritory = document.getElementById('cTerritory').value;
 
   if (!firstName || !lastName) { showMsg('custMsg', 'Please enter your first and last name.', 'err'); return; }
-  if (!username) { showMsg('custMsg', 'Please choose a username.', 'err'); return; }
+  if (!username)               { showMsg('custMsg', 'Please choose a username.', 'err'); return; }
   if (!email || !email.includes('@')) { showMsg('custMsg', 'Please enter a valid email address.', 'err'); return; }
-  if (password.length < 8) { showMsg('custMsg', 'Password must be at least 8 characters.', 'err'); return; }
+  if (password.length < 8)    { showMsg('custMsg', 'Password must be at least 8 characters.', 'err'); return; }
+  if (!preferredState)         { showMsg('custMsg', 'Please select your state (Melbourne or Sydney).', 'err'); return; }
+  if (!preferredTerritory)     { showMsg('custMsg', 'Please select your territory / suburb.', 'err'); return; }
 
   const btn = document.getElementById('custSubmitBtn');
   btn.disabled = true; btn.textContent = 'Creating account…';
@@ -835,7 +902,7 @@ async function submitCustomer() {
   const data = await apiFetch('/auth/register', {
     method: 'POST',
     headers: apiHeaders(false),
-    body: JSON.stringify({ username, email, password, firstName, lastName })
+    body: JSON.stringify({ username, email, password, firstName, lastName, preferredState, preferredTerritory }),
   });
 
   btn.disabled = false; btn.textContent = 'Create Account →';
@@ -857,22 +924,25 @@ async function submitDealer() {
   const btn = document.getElementById('dealerSubmitBtn');
   btn.disabled = true; btn.textContent = 'Submitting application…';
 
+  const desiredState     = document.getElementById('dState').value;
+  const desiredTerritory = document.getElementById('dTerritory').value;
+
   const dealerInfo = {
-    fullName:      document.getElementById('dFullName').value.trim(),
-    mobile:        document.getElementById('dMobile').value.trim(),
-    city:          getRadio('dCity'),
-    suburb:        document.getElementById('dSuburb').value.trim(),
-    businessType:  getRadio('dBizType'),
-    activities:    getChecked('dActivity'),
-    shopName:      document.getElementById('dShopName').value.trim(),
-    customersPerWeek: getRadio('dCustomerCount'),
+    fullName:             document.getElementById('dFullName').value.trim(),
+    mobile:               document.getElementById('dMobile').value.trim(),
+    state:                desiredState,
+    desiredTerritory,
+    businessType:         getRadio('dBizType'),
+    activities:           getChecked('dActivity'),
+    shopName:             document.getElementById('dShopName').value.trim(),
+    customersPerWeek:     getRadio('dCustomerCount'),
     subscriptionInterest: getRadio('dSubscription'),
-    preferredDays: getChecked('dDays'),
-    canDeliver:    getRadio('dDelivery'),
-    motivation:    document.getElementById('dMotivation').value.trim(),
-    preorderComfort: getRadio('dPreorder'),
-    howHeard:      getRadio('dHearAbout'),
-    applicationDate: new Date().toISOString(),
+    preferredDays:        getChecked('dDays'),
+    canDeliver:           getRadio('dDelivery'),
+    motivation:           document.getElementById('dMotivation').value.trim(),
+    preorderComfort:      getRadio('dPreorder'),
+    howHeard:             getRadio('dHearAbout'),
+    applicationDate:      new Date().toISOString(),
   };
 
   const body = {
@@ -881,22 +951,20 @@ async function submitDealer() {
     password:  document.getElementById('dPassword').value,
     firstName: document.getElementById('dFirstName').value.trim(),
     lastName:  document.getElementById('dLastName').value.trim(),
-    // Send role as Dealer pending approval, or Customer with dealerInfo for backend to handle
     role: 'Dealer',
-    dealerInfo
+    dealerInfo,
+    desiredTerritory, // soft-locks territory on backend during signup
   };
 
   const data = await apiFetch('/auth/register', {
     method: 'POST',
     headers: apiHeaders(false),
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
 
   btn.disabled = false; btn.textContent = '✿ Submit Application';
 
   if (data.success) {
-    // Dealer accounts are pending approval — do NOT store a token or merge cart
-    // data.token is intentionally not returned by the backend for dealers
     showSuccess('dealer', data.user?.username || body.firstName);
   } else {
     showMsg('step6Msg', data.message || 'Registration failed. Please try again.', 'err');
@@ -914,14 +982,14 @@ function showSuccess(type, name) {
   if (type === 'customer') {
     document.getElementById('successIcon').textContent = '🌸';
     document.getElementById('successTitle').textContent = `Welcome, ${name}!`;
-    document.getElementById('successSub').textContent = 'Your account has been created. You can now browse our full collection and place orders online.';
+    document.getElementById('successSub').textContent = 'Your account has been created. You can now browse our full collection and place orders for pickup from your nearest outlet.';
   } else {
     document.getElementById('successIcon').textContent = '⭐';
     document.getElementById('successTitle').textContent = `Application Received, ${name}!`;
     document.getElementById('successSub').textContent = 'Thank you for applying to become a Vibrant Petals Community Flower Partner.';
     const note = document.getElementById('successDealerNote');
     note.style.display = '';
-    note.textContent = '🌺 Our team will review your application and contact you via WhatsApp within 2–3 business days. Your account will be activated after admin approval — you will then be able to log in and access dealer pricing.';
+    note.textContent = '🌺 Our team will review your application and contact you via WhatsApp within 14 days. Your requested territory has been reserved while under review. Your account will be activated after admin approval.';
   }
 }
 
@@ -929,8 +997,8 @@ function showSuccess(type, name) {
 document.getElementById('dFirstName').addEventListener('input', updateFullName);
 document.getElementById('dLastName').addEventListener('input', updateFullName);
 function updateFullName() {
-  const fn = document.getElementById('dFirstName').value.trim();
-  const ln = document.getElementById('dLastName').value.trim();
+  const fn   = document.getElementById('dFirstName').value.trim();
+  const ln   = document.getElementById('dLastName').value.trim();
   const full = document.getElementById('dFullName');
   if (!full.dataset.edited) full.value = [fn, ln].filter(Boolean).join(' ');
 }
@@ -947,8 +1015,9 @@ if (localStorage.getItem('vp_token')) {
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('type') === 'dealer') setType('dealer');
 
-// Build initial progress
+// Build initial progress + load territories
 buildProgress();
+loadTerritories();
 </script>
 </body>
 </html>
