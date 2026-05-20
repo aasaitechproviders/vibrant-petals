@@ -80,6 +80,7 @@
     .order-status{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
     .status-pending{background:#fff3cd;color:#856404;}.status-processing{background:#cce5ff;color:#004085;}
     .status-shipped{background:#d4edda;color:#155724;}.status-delivered{background:#d4edda;color:#155724;}
+    .status-ready-for-pickup{background:#cce5ff;color:#004085;}
     .status-cancelled{background:#f8d7da;color:#721c24;}.status-refunded{background:#e2d9f3;color:#4a235a;}
     .order-detail-btn{font-size:12px;color:var(--gold);font-weight:700;text-decoration:underline;cursor:pointer;margin-right:8px;}
     .order-cancel-btn{font-size:12px;color:#c0392b;font-weight:700;text-decoration:underline;cursor:pointer;}
@@ -728,13 +729,16 @@ async function viewOrder(id){
   if(!data||!data.order){showToast('Could not load order','error');return;}
   const o=data.order;
   document.getElementById('modalOrderNum').textContent='Order #'+o.orderNumber;
-  const sa=o.shippingAddress||{};
+  const snap=o.pickupOutletSnapshot||{};
+  const pickupHtml=snap.name
+    ? `<b>${snap.name}</b><br/>${snap.address||''}<br/>${snap.suburb||''}${snap.suburb&&snap.state?', ':''}${snap.state||''}${snap.phone?'<br/>📞 '+snap.phone:''}`
+    : '—';
   document.getElementById('modalOrderBody').innerHTML=`
     <div class="order-info-grid">
       <div class="order-info-item"><div class="order-info-label">Order Date</div>${new Date(o.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'})}</div>
-      <div class="order-info-item"><div class="order-info-label">Status</div><span class="order-status status-${o.status}">${o.status}</span></div>
+      <div class="order-info-item"><div class="order-info-label">Status</div><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></div>
       <div class="order-info-item"><div class="order-info-label">Payment</div>${o.paymentMethod||'—'} · <em>${o.paymentStatus||'pending'}</em></div>
-      <div class="order-info-item"><div class="order-info-label">Shipping To</div>${[sa.firstName,sa.lastName].filter(Boolean).join(' ')}<br/>${sa.address||''}<br/>${sa.city||''} ${sa.postcode||''}</div>
+      <div class="order-info-item"><div class="order-info-label">🏪 Pickup At</div>${pickupHtml}</div>
     </div>
     <div class="order-items-list">
       ${(o.items||[]).map(i=>`<div class="order-item-row">
@@ -746,7 +750,7 @@ async function viewOrder(id){
     </div>
     <div class="order-totals">
       <div class="order-total-row"><span>Subtotal</span><span>$${(o.subtotal||0).toFixed(2)}</span></div>
-      <div class="order-total-row"><span>Shipping</span><span>${o.shippingCost===0?'Free':'$'+(o.shippingCost||9.99).toFixed(2)}</span></div>
+      <div class="order-total-row"><span>Pickup</span><span>In-store (free)</span></div>
       ${o.discount?`<div class="order-total-row"><span>Discount</span><span>-$${o.discount.toFixed(2)}</span></div>`:''}
       <div class="order-total-row grand"><span>Total</span><span>$${(o.total||0).toFixed(2)}</span></div>
     </div>`;
@@ -872,19 +876,48 @@ async function loadDealerOrders() {
     el.innerHTML = '<p style="color:var(--mid);font-size:14px;">No orders assigned to you yet. Orders will appear here once admin assigns them to you.</p>';
     return;
   }
-  el.innerHTML = `<table class="orders-table"><thead><tr><th>Order #</th><th>Customer</th><th>Pickup Outlet</th><th>Date</th><th>Status</th><th>Total</th></tr></thead>
+
+  // Allowed dealer transitions (mirrors backend DEALER_TRANSITIONS)
+  const DEALER_TRANSITIONS = {
+    processing:       { label: 'Mark Ready for Pickup', next: 'ready_for_pickup', btnClass: 'gold' },
+    ready_for_pickup: { label: 'Mark as Collected',     next: 'delivered',        btnClass: 'outline' },
+  };
+
+  el.innerHTML = `<table class="orders-table"><thead><tr>
+    <th>Order #</th><th>Customer</th><th>Pickup Outlet</th><th>Date</th><th>Status</th><th>Total</th><th>Action</th>
+  </tr></thead>
   <tbody>${orders.map(o => {
-    const snap = o.pickupOutletSnapshot || {};
+    const snap       = o.pickupOutletSnapshot || {};
+    const transition = DEALER_TRANSITIONS[o.status];
+    const actionBtn  = transition
+      ? `<button class="btn-sm ${transition.btnClass}" onclick="updateDealerOrderStatus('${o._id}','${transition.next}','${o.orderNumber}')" style="white-space:nowrap;">${transition.label}</button>`
+      : `<span style="font-size:12px;color:var(--mid);">—</span>`;
     return `<tr>
       <td><b>${o.orderNumber}</b></td>
       <td style="font-size:12px;">${o.customerEmail||'—'}</td>
       <td style="font-size:12px;">${snap.name||'—'}<br/><span style="color:var(--mid);">${snap.suburb||''}${snap.suburb&&snap.state?', ':''} ${snap.state||''}</span></td>
       <td style="font-size:12px;">${new Date(o.createdAt).toLocaleDateString()}</td>
-      <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
+      <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
       <td><b>$${(o.total||0).toFixed(2)}</b></td>
+      <td>${actionBtn}</td>
     </tr>`;
   }).join('')}</tbody></table>`;
 }
+
+// FIX: dealer-scoped status update — calls PUT /dealer/orders/:id/status
+async function updateDealerOrderStatus(id, newStatus, orderNum) {
+  if (!confirm(`Update order #${orderNum} to "${newStatus.replace(/_/g,' ')}"?`)) return;
+  const data = await apiFetch(`/dealer/orders/${id}/status`, {
+    method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus })
+  });
+  if (data.success) {
+    showToast(`Order #${orderNum} → ${newStatus.replace(/_/g,' ')}`, 'success');
+    loadDealerOrders();
+  } else {
+    showToast(data.message || 'Status update failed', 'error');
+  }
+}
+window.updateDealerOrderStatus = updateDealerOrderStatus;
 
 
 // ── DEALER RETAIL OUTLETS ─────────────────────────────────────────────────────
@@ -904,9 +937,9 @@ async function loadOutletsPanel() {
 async function loadDealerOutlets() {
   const el = document.getElementById('dealerOutletsContent');
   if (!el) return;
-  // Fetch all outlets and filter by this dealer's userId
-  const data = await apiFetch('/retail-outlets');
-  const outlets = (data.outlets || []).filter(o => o.dealerId && o.dealerId.toString() === userData?._id?.toString());
+  // FIX: use scoped dealer endpoint — returns only this dealer's outlets
+  const data = await apiFetch('/dealer/outlets', { headers: apiHeaders() });
+  const outlets = data.outlets || [];
   if (!outlets.length) {
     el.innerHTML = `<div style="text-align:center;padding:28px;color:var(--mid);">
       <div style="font-size:36px;margin-bottom:10px;">🏪</div>
@@ -1008,14 +1041,13 @@ async function saveOutletFromAccount() {
   const btn = document.getElementById('outletSaveBtn');
   btn.disabled = true; btn.textContent = editId ? 'Saving…' : 'Submitting…';
 
-  // Admin-only endpoint — shows message to contact admin if dealer isn't admin
-  // In production, add a dealer-specific outlet endpoint
-  const body = { name, address, suburb, state, territorySlug, dealerId: userData._id?.toString(), phone, hours, isActive: true };
+  // FIX: use dealer-scoped endpoints — no admin credentials required
+  const body = { name, address, suburb, state, territorySlug, phone, hours };
   let data;
   if (editId) {
-    data = await apiFetch(`/admin/retail-outlets/${editId}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify(body) });
+    data = await apiFetch(`/dealer/outlets/${editId}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify(body) });
   } else {
-    data = await apiFetch('/admin/retail-outlets', { method: 'POST', headers: apiHeaders(), body: JSON.stringify(body) });
+    data = await apiFetch('/dealer/outlets', { method: 'POST', headers: apiHeaders(), body: JSON.stringify(body) });
   }
 
   btn.disabled = false; btn.textContent = editId ? 'Save Changes' : 'Submit Outlet';
