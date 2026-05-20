@@ -359,11 +359,53 @@
       <!-- DEALER PORTAL -->
       <div class="acct-panel" id="panel-dealer">
         <div class="panel-title">Dealer Portal</div>
-        <div class="dealer-info-card">
-          <div class="dealer-badge-lg">⭐</div>
-          <h3>Wholesale Account Active</h3>
-          <p>You're registered as a VibrantPetals Dealer. You see exclusive dealer pricing on all products and can place bulk orders at wholesale rates.</p>
+
+        <!-- Territories -->
+        <div class="form-card">
+          <div class="form-card-title">MY TERRITORIES</div>
+          <div id="dealerTerritoriesContent">
+            <div class="skeleton" style="height:60px;border-radius:4px;"></div>
+          </div>
         </div>
+
+        <!-- Request Another Territory -->
+        <div class="form-card">
+          <div class="form-card-title">REQUEST A NEW TERRITORY</div>
+          <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.6;">You can request additional territories. Each request is reviewed by admin within 14 days. One territory is locked per request — open territories only.</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">State</label>
+              <select class="form-select" id="reqTerritoryState" onchange="onDealerReqStateChange()">
+                <option value="">Select state…</option>
+                <option value="Melbourne">Melbourne</option>
+                <option value="Sydney">Sydney</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Territory</label>
+              <select class="form-select" id="reqTerritorySlug" disabled>
+                <option value="">Select state first…</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-save" onclick="requestTerritory()">Submit Request</button>
+          <div class="form-msg" id="terrReqMsg" style="display:none;"></div>
+        </div>
+
+        <!-- Territory Request History -->
+        <div class="form-card">
+          <div class="form-card-title">TERRITORY HISTORY</div>
+          <div id="dealerTerritoryHistory" style="font-size:13px;color:var(--mid);">Loading…</div>
+        </div>
+
+        <!-- Assigned Orders -->
+        <div class="form-card">
+          <div class="form-card-title">ORDERS ASSIGNED TO ME</div>
+          <p style="font-size:13px;color:var(--mid);margin-bottom:12px;">These are customer orders assigned to you for fulfillment at your pickup outlet.</p>
+          <div id="dealerOrdersContent"><div class="skeleton" style="height:80px;border-radius:4px;"></div></div>
+        </div>
+
+        <!-- Benefits -->
         <div class="form-card">
           <div class="form-card-title">DEALER BENEFITS</div>
           <ul style="font-size:14px;color:var(--mid);line-height:2;margin-top:4px;padding-left:16px;list-style:disc;">
@@ -372,10 +414,6 @@
             <li>Dedicated dealer coupon codes</li>
             <li>Bulk order support — contact us for custom quotes</li>
           </ul>
-        </div>
-        <div class="form-card">
-          <div class="form-card-title">RECENT DEALER ORDERS</div>
-          <div id="dealerOrdersContent"><div class="skeleton" style="height:80px;border-radius:4px;"></div></div>
         </div>
       </div>
     </main>
@@ -458,7 +496,7 @@ function showPanel(name,el){
   if(el)el.classList.add('active');
   if(name==='orders')loadOrders(1);
   if(name==='addresses')loadAddresses();
-  if(name==='dealer')loadDealerOrders();
+  if(name==='dealer')loadDealerPanel();
 }
 window.showPanel=showPanel;
 
@@ -618,19 +656,135 @@ async function viewOrder(id){
 function closeOrderModal(){document.getElementById('orderModal').classList.remove('open');}
 window.viewOrder=viewOrder;window.closeOrderModal=closeOrderModal;
 
-// ── DEALER ORDERS ─────────────────────────────────────────────────────────────
-async function loadDealerOrders(){
-  const el=document.getElementById('dealerOrdersContent');
-  const data=await apiFetch('/orders?limit=5',{headers:apiHeaders()});
-  const orders=data.orders||[];
-  if(!orders.length){el.innerHTML='<p style="color:var(--mid);font-size:14px;">No orders yet.</p>';return;}
-  el.innerHTML=`<table class="orders-table"><thead><tr><th>Order #</th><th>Date</th><th>Status</th><th>Total</th></tr></thead>
-  <tbody>${orders.map(o=>`<tr>
-    <td><b>${o.orderNumber}</b></td>
-    <td>${new Date(o.createdAt).toLocaleDateString()}</td>
-    <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
-    <td><b>$${(o.total||0).toFixed(2)}</b></td>
-  </tr>`).join('')}</tbody></table>`;
+// ── DEALER PANEL ──────────────────────────────────────────────────────────────
+let dealerReqTerritoriesData = { Melbourne: [], Sydney: [] };
+
+async function loadDealerPanel() {
+  await Promise.all([ loadDealerTerritories(), loadDealerOrders() ]);
+}
+
+async function loadDealerTerritories() {
+  const el = document.getElementById('dealerTerritoriesContent');
+  const hist = document.getElementById('dealerTerritoryHistory');
+  const data = await apiFetch('/dealer/territories', { headers: apiHeaders() });
+  if (!data.assigned && !data.pending) {
+    el.innerHTML = '<p style="color:var(--mid);font-size:14px;">No territories yet.</p>';
+    if (hist) hist.textContent = 'No territory requests on record.';
+    return;
+  }
+  const assigned = data.assigned || [];
+  const pending  = data.pending  || [];
+
+  // Current territories block
+  if (!assigned.length && !pending.length) {
+    el.innerHTML = '<p style="color:var(--mid);font-size:14px;">No territories assigned or pending yet.</p>';
+  } else {
+    el.innerHTML = [
+      ...assigned.map(t => `
+        <div style="display:flex;align-items:center;gap:14px;padding:14px;border:1px solid #e8e0d2;border-radius:4px;margin-bottom:10px;background:#fff;">
+          <div style="font-size:22px;">📍</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:14px;">${t.name}</div>
+            <div style="font-size:12px;color:var(--mid);">${t.state}</div>
+          </div>
+          <span style="background:#d4edda;color:#155724;border:1px solid #c3e6cb;padding:4px 12px;border-radius:10px;font-size:11px;font-weight:700;">✓ Assigned</span>
+        </div>`),
+      ...pending.map(t => {
+        const urgent = t.daysLeft <= 3;
+        return `<div style="display:flex;align-items:center;gap:14px;padding:14px;border:1px solid ${urgent?'#f5c6cb':'#ffeeba'};border-radius:4px;margin-bottom:10px;background:${urgent?'#fff5f5':'#fffdf0'};">
+          <div style="font-size:22px;">⏳</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:14px;">${t.name}</div>
+            <div style="font-size:12px;color:var(--mid);">${t.state} · Pending admin review</div>
+          </div>
+          <span style="background:${urgent?'#f8d7da':'#fff3cd'};color:${urgent?'#721c24':'#856404'};padding:4px 12px;border-radius:10px;font-size:11px;font-weight:700;">${t.daysLeft}d left</span>
+        </div>`;
+      }),
+    ].join('');
+  }
+
+  // History
+  if (hist) {
+    const histRows = [
+      ...assigned.map(t => `<tr><td><b>${t.name}</b></td><td>${t.state}</td><td><span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">Assigned</span></td><td>—</td></tr>`),
+      ...pending.map(t  => `<tr><td><b>${t.name}</b></td><td>${t.state}</td><td><span style="background:#fff3cd;color:#856404;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">Pending</span></td><td>${t.daysLeft}d remaining</td></tr>`),
+    ];
+    hist.innerHTML = histRows.length
+      ? `<table class="orders-table"><thead><tr><th>Territory</th><th>State</th><th>Status</th><th>Deadline</th></tr></thead><tbody>${histRows.join('')}</tbody></table>`
+      : '<p style="color:var(--mid);">No territory requests on record.</p>';
+  }
+
+  // Populate request dropdown with territories not already held
+  dealerReqTerritoriesData = { Melbourne: [], Sydney: [] };
+  const heldSlugs = [...assigned.map(t=>t.slug), ...pending.map(t=>t.slug)];
+  const allData = await apiFetch('/territories').catch(() => ({ territories: [] }));
+  (allData.territories || []).forEach(t => {
+    if (!dealerReqTerritoriesData[t.state]) dealerReqTerritoriesData[t.state] = [];
+    dealerReqTerritoriesData[t.state].push({ ...t, alreadyHeld: heldSlugs.includes(t.slug) });
+  });
+}
+
+async function onDealerReqStateChange() {
+  const state = document.getElementById('reqTerritoryState').value;
+  const sel   = document.getElementById('reqTerritorySlug');
+  sel.innerHTML = '<option value="">Select territory…</option>';
+  if (!state) { sel.disabled = true; return; }
+  const list = dealerReqTerritoriesData[state] || [];
+  list.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.slug;
+    const taken  = t.status === 'assigned';
+    const review = t.status === 'pending';
+    const held   = t.alreadyHeld;
+    opt.textContent = held ? `${t.name} (Already requested)` : taken ? `${t.name} (Taken)` : review ? `${t.name} (Under Review)` : t.name;
+    opt.disabled = taken || review || held;
+    sel.appendChild(opt);
+  });
+  sel.disabled = false;
+}
+window.onDealerReqStateChange = onDealerReqStateChange;
+
+async function requestTerritory() {
+  const slug = document.getElementById('reqTerritorySlug').value;
+  const msg  = document.getElementById('terrReqMsg');
+  msg.style.display = 'none';
+  if (!slug) { msg.style.display = 'block'; msg.className = 'form-msg err'; msg.textContent = 'Please select a territory.'; return; }
+  const data = await apiFetch('/dealer/territories/request', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ slug }) });
+  msg.style.display = 'block';
+  if (data.success) {
+    msg.className = 'form-msg ok';
+    msg.textContent = '✓ Request submitted — pending admin review within 14 days.';
+    document.getElementById('reqTerritoryState').value = '';
+    document.getElementById('reqTerritorySlug').innerHTML = '<option value="">Select state first…</option>';
+    document.getElementById('reqTerritorySlug').disabled = true;
+    await loadDealerTerritories();
+  } else {
+    msg.className = 'form-msg err';
+    msg.textContent = data.message || 'Request failed.';
+  }
+}
+window.requestTerritory = requestTerritory;
+
+async function loadDealerOrders() {
+  const el = document.getElementById('dealerOrdersContent');
+  const data = await apiFetch('/dealer/orders?limit=20', { headers: apiHeaders() });
+  const orders = data.orders || [];
+  if (!orders.length) {
+    el.innerHTML = '<p style="color:var(--mid);font-size:14px;">No orders assigned to you yet. Orders will appear here once admin assigns them to you.</p>';
+    return;
+  }
+  el.innerHTML = `<table class="orders-table"><thead><tr><th>Order #</th><th>Customer</th><th>Pickup Outlet</th><th>Date</th><th>Status</th><th>Total</th></tr></thead>
+  <tbody>${orders.map(o => {
+    const snap = o.pickupOutletSnapshot || {};
+    return `<tr>
+      <td><b>${o.orderNumber}</b></td>
+      <td style="font-size:12px;">${o.customerEmail||'—'}</td>
+      <td style="font-size:12px;">${snap.name||'—'}<br/><span style="color:var(--mid);">${snap.suburb||''}${snap.suburb&&snap.state?', ':''} ${snap.state||''}</span></td>
+      <td style="font-size:12px;">${new Date(o.createdAt).toLocaleDateString()}</td>
+      <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
+      <td><b>$${(o.total||0).toFixed(2)}</b></td>
+    </tr>`;
+  }).join('')}</tbody></table>`;
 }
 
 // ── ADDRESSES ─────────────────────────────────────────────────────────────────
