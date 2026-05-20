@@ -799,16 +799,7 @@
   <div class="nav-inner">
     <!-- Logo -->
     <a href="index.html" class="nav-logo">
-      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="16" cy="16" r="7" fill="#9B8B5A" opacity=".2"/>
-        <circle cx="16" cy="7" r="4" fill="#9B8B5A" opacity=".7"/>
-        <circle cx="23" cy="11" r="4" fill="#9B8B5A" opacity=".7"/>
-        <circle cx="23" cy="21" r="4" fill="#9B8B5A" opacity=".7"/>
-        <circle cx="16" cy="25" r="4" fill="#9B8B5A" opacity=".7"/>
-        <circle cx="9" cy="21" r="4" fill="#9B8B5A" opacity=".7"/>
-        <circle cx="9" cy="11" r="4" fill="#9B8B5A" opacity=".7"/>
-        <circle cx="16" cy="16" r="5" fill="#9B8B5A"/>
-      </svg>
+      <img src="logo.png" alt="Vibrant Petals Logo" style="width:28px;height:28px;object-fit:contain;" />
       Vibrant Petals
     </a>
 
@@ -1012,7 +1003,7 @@
     <div class="modal-head">
       <div>
         <div class="modal-brand">
-          <svg width="20" height="20" viewBox="0 0 32 32" fill="#fff" opacity=".8"><circle cx="16" cy="16" r="5"/><circle cx="16" cy="5" r="3.5"/><circle cx="23" cy="10" r="3.5"/><circle cx="23" cy="22" r="3.5"/><circle cx="16" cy="27" r="3.5"/><circle cx="9" cy="22" r="3.5"/><circle cx="9" cy="10" r="3.5"/></svg>
+          <img src="logo.png" alt="Vibrant Petals Logo" style="width:20px;height:20px;object-fit:contain;opacity:.9;filter:brightness(10);" />
           Vibrant Petals
         </div>
         <div class="modal-head-title">Sign In</div>
@@ -1293,15 +1284,23 @@ document.getElementById('loginSubmit').onclick = async ()=>{
   const msg   = document.getElementById('loginMsg');
   const err   = document.getElementById('loginErr');
   msg.style.display=err.style.display='none';
+
+  // ── Basic validations ──────────────────────────────────────
+  if (!email) { err.textContent='Please enter your email address.'; err.style.display='block'; return; }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) { err.textContent='Please enter a valid email address.'; err.style.display='block'; return; }
+  if (!pwd) { err.textContent='Please enter your password.'; err.style.display='block'; return; }
+  if (pwd.length < 6) { err.textContent='Password must be at least 6 characters.'; err.style.display='block'; return; }
+  // ──────────────────────────────────────────────────────────
+
   const data = await apiFetch('/auth/login',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email,password:pwd})}).catch(()=>({success:false,message:'Network error'}));
   if(data.success){
     token = data.token;
     localStorage.setItem('vp_token', token);
     // Merge guest cart into user cart
     try{await apiFetch('/cart/merge',{method:'POST',headers:apiHeaders(),body:JSON.stringify({sessionId})});}catch(e){}
-    msg.textContent='Welcome back, '+data.user.username+'!'; msg.style.display='block';
-    setTimeout(()=>loginModal.classList.remove('open'),1200);
-    loadCart();
+    msg.textContent='Welcome back, '+data.user.username+'! Redirecting…'; msg.style.display='block';
+    setTimeout(()=>{ window.location.href='account.html'; },1200);
   } else {
     err.textContent=data.message||'Login failed'; err.style.display='block';
   }
