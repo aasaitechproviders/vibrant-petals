@@ -317,6 +317,30 @@
           <button class="btn-save" onclick="saveProfile()">Save Changes</button>
           <div class="form-msg" id="profMsg" style="display:none;"></div>
         </div>
+
+        <!-- Location Preferences (customers only) -->
+        <div class="form-card" id="locationPrefCard">
+          <div class="form-card-title">PICKUP LOCATION PREFERENCES</div>
+          <p style="font-size:13px;color:var(--mid);margin-bottom:18px;line-height:1.6;">Your preferred state and territory help us show you the nearest pickup outlets at checkout.</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">State</label>
+              <select class="form-select" id="profState" onchange="onProfStateChange()">
+                <option value="">Select state…</option>
+                <option value="Melbourne">Melbourne</option>
+                <option value="Sydney">Sydney</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Territory / Suburb</label>
+              <select class="form-select" id="profTerritory" disabled>
+                <option value="">Select state first…</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-save" onclick="saveLocation()">Update Location</button>
+          <div class="form-msg" id="locMsg" style="display:none;"></div>
+        </div>
       </div>
 
       <!-- PASSWORD -->
@@ -471,6 +495,18 @@ async function loadMe(){
   // Show dealer nav item
   if(userData.role==='Dealer'||userData.role==='Administrator')document.getElementById('navDealer').style.display='flex';
   if(userData.role==='Administrator')document.getElementById('navAdmin').style.display='flex';
+  // Location preferences (customers only)
+  if(userData.role==='Customer'){
+    await loadProfTerritories();
+    if(userData.preferredState){
+      document.getElementById('profState').value=userData.preferredState;
+      await onProfStateChange();
+      if(userData.preferredTerritory)document.getElementById('profTerritory').value=userData.preferredTerritory;
+    }
+  } else {
+    const lc=document.getElementById('locationPrefCard');
+    if(lc) lc.style.display='none';
+  }
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
@@ -688,6 +724,55 @@ async function deleteAddress(addrId){
   else showToast('Failed to remove address','error');
 }
 window.deleteAddress=deleteAddress;
+
+// ── LOCATION PREFERENCES ──────────────────────────────────────────────────────
+let profTerritoriesData = { Melbourne: [], Sydney: [] };
+
+async function loadProfTerritories() {
+  try {
+    const data = await apiFetch('/territories');
+    if (data.territories) {
+      profTerritoriesData.Melbourne = data.territories.filter(t => t.state === 'Melbourne');
+      profTerritoriesData.Sydney    = data.territories.filter(t => t.state === 'Sydney');
+    }
+  } catch(e) {}
+}
+
+async function onProfStateChange() {
+  const state = document.getElementById('profState').value;
+  const terrSel = document.getElementById('profTerritory');
+  terrSel.innerHTML = '<option value="">Select territory…</option>';
+  if (!state) { terrSel.disabled = true; return; }
+  if (!profTerritoriesData[state]?.length) await loadProfTerritories();
+  const list = profTerritoriesData[state] || [];
+  list.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.slug; opt.textContent = t.name;
+    terrSel.appendChild(opt);
+  });
+  terrSel.disabled = false;
+}
+window.onProfStateChange = onProfStateChange;
+
+async function saveLocation() {
+  const preferredState     = document.getElementById('profState').value;
+  const preferredTerritory = document.getElementById('profTerritory').value;
+  const msg = document.getElementById('locMsg');
+  if (!preferredState)     { msg.style.display='block'; msg.className='form-msg err'; msg.textContent='Please select a state.'; return; }
+  if (!preferredTerritory) { msg.style.display='block'; msg.className='form-msg err'; msg.textContent='Please select a territory.'; return; }
+  const data = await apiFetch('/auth/me', { method:'PUT', headers:apiHeaders(), body:JSON.stringify({preferredState, preferredTerritory}) });
+  msg.style.display = 'block';
+  if (data.success) {
+    msg.className = 'form-msg ok';
+    msg.textContent = 'Location preferences saved!';
+    userData.preferredState = preferredState;
+    userData.preferredTerritory = preferredTerritory;
+  } else {
+    msg.className = 'form-msg err';
+    msg.textContent = data.message || 'Update failed';
+  }
+}
+window.saveLocation = saveLocation;
 
 // ── SAVE PROFILE ──────────────────────────────────────────────────────────────
 async function saveProfile(){
