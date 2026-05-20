@@ -485,26 +485,31 @@
 
 <!-- ORDER ASSIGN MODAL -->
 <div class="modal" id="orderAssignModal">
-  <div class="modal-box">
+  <div class="modal-box modal-wide">
     <div class="modal-head"><h3 id="oamTitle">Assign Order</h3><span class="modal-close" onclick="closeModal('orderAssignModal')">✕</span></div>
     <div class="modal-body">
-      <div id="oamSuggestion" style="padding:12px;background:#fffdf0;border:1px solid #e8e0d2;border-radius:4px;font-size:13px;margin-bottom:16px;display:none;"></div>
-      <div class="form-group">
-        <label class="form-label">Assign To</label>
-        <select class="form-select" id="oamType" onchange="loadAssignOptions()">
-          <option value="dealer">Dealer</option>
-          <option value="outlet">Retail Outlet</option>
-        </select>
+      <div id="oamSuggestion" style="padding:12px 16px;background:linear-gradient(135deg,rgba(155,139,90,.08),rgba(155,139,90,.15));border:1px solid rgba(155,139,90,.3);border-radius:4px;font-size:13px;margin-bottom:16px;display:none;"></div>
+      <!-- Order snapshot -->
+      <div id="oamOrderInfo" style="background:var(--cream2);border:1px solid #e8e0d2;border-radius:4px;padding:12px 16px;margin-bottom:16px;font-size:13px;display:none;"></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Assignment Type</label>
+          <select class="form-select" id="oamType" onchange="loadAssignOptions()">
+            <option value="dealer">👤 Assign to Dealer</option>
+            <option value="outlet">🏪 Assign to Retail Outlet</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="oamTargetLabel">Select Dealer</label>
+          <select class="form-select" id="oamTarget"><option value="">Loading…</option></select>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Select</label>
-        <select class="form-select" id="oamTarget"><option value="">Loading…</option></select>
-      </div>
+      <div id="oamAssigneeInfo" style="background:#fff;border:1px solid #e8e0d2;border-radius:4px;padding:12px;font-size:13px;display:none;margin-top:4px;"></div>
       <div class="form-msg" id="oamMsg"></div>
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal('orderAssignModal')">Cancel</button>
-      <button class="btn-primary" onclick="confirmAssignOrder()">Assign Order</button>
+      <button class="btn-primary" onclick="confirmAssignOrder()">✓ Assign Order</button>
     </div>
   </div>
 </div>
@@ -1725,7 +1730,7 @@ async function loadOrders() {
       <td style="font-size:12px;color:var(--mid)">${new Date(o.createdAt).toLocaleDateString()}</td>
       <td style="display:flex;gap:4px;">
         <button class="btn-sm btn-view" onclick="openOrderModal('${oid}')">View</button>
-        <button class="btn-sm btn-edit" onclick="openOrderAssignModal('${oid}','${o.orderNumber||''}','${assign.suggestedDealerId||''}','${assign.suggestedDealerName||''}')">Assign</button>
+        <button class="btn-sm btn-edit" onclick="openOrderAssignModal('${oid}','${o.orderNumber||''}','${assign.suggestedDealerId||''}','${assign.suggestedDealerName||''}',${JSON.stringify(o.pickupOutletSnapshot||{})})">Assign</button>
       </td>
     </tr>`;
   }).join('') : `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--mid);">No orders found</td></tr>`;
@@ -1795,39 +1800,76 @@ window.openOrderModal = openOrderModal;
 // ── ORDER ASSIGNMENT ──────────────────────────────────────────────────────────
 let assigningOrderId = null;
 
-async function openOrderAssignModal(orderId, orderNum, suggestedDealerId, suggestedDealerName) {
+async function openOrderAssignModal(orderId, orderNum, suggestedDealerId, suggestedDealerName, orderSnap) {
   assigningOrderId = orderId;
+  _cachedDealers = null; _cachedOutlets = null; // refresh caches
   document.getElementById('oamTitle').textContent = `Assign Order #${orderNum}`;
   const sug = document.getElementById('oamSuggestion');
   if (suggestedDealerName) {
     sug.style.display = '';
-    sug.innerHTML = `💡 <b>Suggested:</b> ${suggestedDealerName} (dealer for this territory)
-      <button onclick="document.getElementById('oamType').value='dealer';loadAssignOptions().then(()=>{document.getElementById('oamTarget').value='${suggestedDealerId}';})"
-        style="margin-left:10px;padding:3px 10px;font-size:11px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;">Use this dealer</button>`;
+    sug.innerHTML = `💡 <b>Suggested dealer:</b> ${suggestedDealerName} — territory dealer for this order.
+      <button onclick="document.getElementById('oamType').value='dealer';loadAssignOptions().then(()=>{document.getElementById('oamTarget').value='${suggestedDealerId}';document.getElementById('oamTarget').dispatchEvent(new Event('change'));})"
+        style="margin-left:10px;padding:4px 12px;font-size:11px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;font-weight:700;">Use this dealer ↗</button>`;
   } else {
     sug.style.display = 'none';
   }
+  // Show order pickup info
+  const oi = document.getElementById('oamOrderInfo');
+  if (orderSnap) {
+    oi.style.display = '';
+    oi.innerHTML = `<b>Pickup:</b> ${orderSnap.name||'—'}, ${orderSnap.suburb||''}, ${orderSnap.state||''}`;
+  } else { oi.style.display = 'none'; }
+  document.getElementById('oamMsg').className = 'form-msg';
   document.getElementById('oamMsg').textContent = '';
   document.getElementById('orderAssignModal').classList.add('open');
   await loadAssignOptions();
 }
 window.openOrderAssignModal = openOrderAssignModal;
 
+let _cachedDealers = null;
+let _cachedOutlets = null;
+
 async function loadAssignOptions() {
   const type = document.getElementById('oamType').value;
   const sel  = document.getElementById('oamTarget');
+  const lbl  = document.getElementById('oamTargetLabel');
+  const info = document.getElementById('oamAssigneeInfo');
+  info.style.display = 'none';
   sel.innerHTML = '<option value="">Loading…</option>';
   if (type === 'dealer') {
-    const data = await apiFetch('/admin/users?role=Dealer&limit=100', { headers: apiHeaders() });
-    const dealers = (data.users || []).filter(u => u.isActive);
-    sel.innerHTML = '<option value="">Select dealer…</option>' +
-      dealers.map(u => `<option value="${u._id}">${u.firstName || ''} ${u.lastName || ''} (${u.username}) · ${(u.assignedTerritories || []).join(', ') || 'no territory'}</option>`).join('');
+    lbl.textContent = 'Select Dealer';
+    if (!_cachedDealers) {
+      const data = await apiFetch('/admin/users?role=Dealer&limit=200', { headers: apiHeaders() });
+      _cachedDealers = (data.users || []).filter(u => u.isActive);
+    }
+    sel.innerHTML = '<option value="">— Select a dealer —</option>' +
+      _cachedDealers.map(u => {
+        const terrs = (u.assignedTerritories || []).join(', ') || 'no territory assigned';
+        return `<option value="${u._id}" data-info="${encodeURIComponent(JSON.stringify({name:(u.firstName||'')+' '+(u.lastName||''),email:u.email,territories:terrs}))}">${u.firstName || ''} ${u.lastName || ''} (${u.username}) · ${(u.assignedTerritories||[]).slice(0,2).join(', ')+(u.assignedTerritories?.length>2?' +more':'')}</option>`;
+      }).join('');
   } else {
-    const data = await apiFetch('/admin/retail-outlets', { headers: apiHeaders() });
-    const outlets = (data.outlets || []).filter(o => o.isActive);
-    sel.innerHTML = '<option value="">Select outlet…</option>' +
-      outlets.map(o => `<option value="${o._id}">${o.name} — ${o.suburb}, ${o.state}</option>`).join('');
+    lbl.textContent = 'Select Retail Outlet';
+    if (!_cachedOutlets) {
+      const data = await apiFetch('/admin/retail-outlets', { headers: apiHeaders() });
+      _cachedOutlets = (data.outlets || []).filter(o => o.isActive);
+    }
+    sel.innerHTML = '<option value="">— Select an outlet —</option>' +
+      _cachedOutlets.map(o => `<option value="${o._id}" data-info="${encodeURIComponent(JSON.stringify({name:o.name,address:o.address+', '+o.suburb+', '+o.state,territory:o.territorySlug,hours:o.hours||'—'}))}">${o.name} — ${o.suburb}, ${o.state}</option>`).join('');
   }
+  sel.onchange = function() {
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt || !opt.dataset.info) { info.style.display='none'; return; }
+    try {
+      const d = JSON.parse(decodeURIComponent(opt.dataset.info));
+      if (type === 'dealer') {
+        info.style.display = '';
+        info.innerHTML = `<b>👤 ${d.name}</b> · ${d.email}<br><span style="color:var(--mid);">Territories: ${d.territories}</span>`;
+      } else {
+        info.style.display = '';
+        info.innerHTML = `<b>🏪 ${d.name}</b><br><span style="color:var(--mid);">${d.address}</span><br><span style="color:var(--mid);">Territory: ${d.territory} · Hours: ${d.hours}</span>`;
+      }
+    } catch(e){}
+  };
   return true;
 }
 window.loadAssignOptions = loadAssignOptions;
