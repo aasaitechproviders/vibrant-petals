@@ -280,11 +280,6 @@ function showToast(msg,type=''){const t=document.getElementById('toast');t.textC
 let cartData=null;
 let savedAddresses=[];
 
-// ── BILLING TOGGLE ────────────────────────────────────────────────────────────
-document.getElementById('sameBilling').addEventListener('change',function(){
-  document.getElementById('billingFields').style.display=this.checked?'none':'block';
-});
-
 // ── PAYMENT OPTION HIGHLIGHT ──────────────────────────────────────────────────
 document.querySelectorAll('.payment-opt').forEach(opt=>{
   opt.addEventListener('click',function(){
@@ -318,43 +313,6 @@ function renderSummary(cart){
   document.getElementById('sumShipping').textContent=cart.shippingCost===0?'Free 🎉':'$'+(cart.shippingCost||9.99).toFixed(2);
   document.getElementById('sumTotal').textContent='$'+(cart.total||0).toFixed(2);
 }
-
-// ── SAVED ADDRESSES ───────────────────────────────────────────────────────────
-async function loadSavedAddresses(){
-  if(!token)return;
-  const data=await apiFetch('/auth/addresses',{headers:apiHeaders()});
-  savedAddresses=data.addresses||[];
-  if(!savedAddresses.length)return;
-  const strip=document.getElementById('savedAddrStrip');
-  const sel=document.getElementById('savedAddrSelect');
-  strip.style.display='block';
-  sel.innerHTML='<option value="">— Fill manually —</option>';
-  savedAddresses.forEach((a,i)=>{
-    const opt=document.createElement('option');
-    opt.value=i;
-    opt.textContent=`${a.label||'Address'}: ${a.firstName} ${a.lastName||''}, ${a.city}`;
-    sel.appendChild(opt);
-  });
-  // Auto-fill with default address
-  const defIdx=savedAddresses.findIndex(a=>a.isDefault);
-  if(defIdx>-1){sel.value=defIdx;fillFromSaved();}
-}
-
-function fillFromSaved(){
-  const idx=document.getElementById('savedAddrSelect').value;
-  if(idx==='')return;
-  const a=savedAddresses[idx];
-  if(!a)return;
-  document.getElementById('sFirst').value=a.firstName||'';
-  document.getElementById('sLast').value=a.lastName||'';
-  document.getElementById('sStreet').value=a.address||'';
-  document.getElementById('sCity').value=a.city||'';
-  document.getElementById('sState').value=a.state||'';
-  document.getElementById('sPostcode').value=a.postcode||'';
-  document.getElementById('sCountry').value=a.country||'Australia';
-  document.getElementById('sPhone').value=a.phone||'';
-}
-window.fillFromSaved=fillFromSaved;
 
 // ── COUPON ────────────────────────────────────────────────────────────────────
 async function applyCoupon(){
@@ -435,8 +393,8 @@ async function doModalLogin(){
     token=data.token;localStorage.setItem('vp_token',token);
     await mergeCart();
     closeLoginModal();
-    await loadCart();     // Reload cart with merged/user cart
-    await loadSavedAddresses();
+    await loadCart();
+    await loadOutlets();
     // Proceed straight to placing the order
     placeOrder();
   }else{msg.textContent=data.message||'Login failed';msg.className='gate-msg err';}
@@ -456,7 +414,7 @@ async function doModalRegister(){
     await mergeCart();
     closeLoginModal();
     await loadCart();
-    await loadSavedAddresses();
+    await loadOutlets();
     placeOrder();
   }else{msg.textContent=data.message||'Registration failed';msg.className='gate-msg err';}
 }
