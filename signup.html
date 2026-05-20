@@ -324,7 +324,7 @@
 <header>
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
-      <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="7" fill="#9B8B5A" opacity=".2"/><circle cx="16" cy="7" r="4" fill="#9B8B5A" opacity=".7"/><circle cx="16" cy="16" r="5" fill="#9B8B5A"/></svg>
+      <img src="logo.png" alt="Vibrant Petals Logo" style="width:28px;height:28px;object-fit:contain;" />
       Vibrant Petals
     </a>
     <div class="nav-links">
@@ -925,7 +925,8 @@ function validateStep(step) {
     const pw = document.getElementById('dPassword').value;
     if (!fn || !ln) { showMsg('step1Msg', 'Please enter your first and last name.', 'err'); return false; }
     if (!un) { showMsg('step1Msg', 'Please choose a username.', 'err'); return false; }
-    if (!em || !em.includes('@')) { showMsg('step1Msg', 'Please enter a valid email address.', 'err'); return false; }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!em || !emailRegex.test(em)) { showMsg('step1Msg', 'Please enter a valid email address.', 'err'); return false; }
     if (pw.length < 8) { showMsg('step1Msg', 'Password must be at least 8 characters.', 'err'); return false; }
     return true;
   }
@@ -994,7 +995,8 @@ async function submitCustomer() {
 
   if (!firstName || !lastName) { showMsg('custMsg', 'Please enter your first and last name.', 'err'); return; }
   if (!username)               { showMsg('custMsg', 'Please choose a username.', 'err'); return; }
-  if (!email || !email.includes('@')) { showMsg('custMsg', 'Please enter a valid email address.', 'err'); return; }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) { showMsg('custMsg', 'Please enter a valid email address.', 'err'); return; }
   if (password.length < 8)    { showMsg('custMsg', 'Password must be at least 8 characters.', 'err'); return; }
   if (!preferredState)         { showMsg('custMsg', 'Please select your state (Melbourne or Sydney).', 'err'); return; }
   if (!preferredTerritory)     { showMsg('custMsg', 'Please select your territory / suburb.', 'err'); return; }
@@ -1134,9 +1136,10 @@ async function submitOutlet() {
 
   if (!firstName || !lastName)      { showMsg('outletMsg', 'Please enter your first and last name.', 'err'); return; }
   if (!username)                     { showMsg('outletMsg', 'Please choose a username.', 'err'); return; }
-  if (!email || !email.includes('@')){ showMsg('outletMsg', 'Please enter a valid email address.', 'err'); return; }
+  const outletEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !outletEmailRegex.test(email)){ showMsg('outletMsg', 'Please enter a valid email address.', 'err'); return; }
   if (password.length < 6)           { showMsg('outletMsg', 'Password must be at least 6 characters.', 'err'); return; }
-  if (!mobile)                       { showMsg('outletMsg', 'Please enter your mobile number.', 'err'); return; }
+  if (!mobile || !/^\+?[\d\s\-()]{7,15}$/.test(mobile)) { showMsg('outletMsg', 'Please enter a valid mobile number.', 'err'); return; }
   if (!storeName)                    { showMsg('outletMsg', 'Please enter your store name.', 'err'); return; }
   if (!address || !suburb)           { showMsg('outletMsg', 'Please enter your store address and suburb.', 'err'); return; }
   if (!state)                        { showMsg('outletMsg', 'Please select a state.', 'err'); return; }
