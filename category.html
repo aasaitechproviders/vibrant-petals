@@ -37,9 +37,7 @@
     .nav-icon-btn svg{width:22px;height:22px;stroke-width:1.6;}
     .badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
 
-    .cat-hero{position:relative;height:280px;overflow:hidden;background:#d6e4ed;}
-    .cat-hero img{width:100%;height:100%;object-fit:cover;filter:brightness(.7);}
-    .cat-hero-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:42px;font-style:italic;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,.4);letter-spacing:.02em;}
+    /* Removed .cat-hero styles entirely */
 
     .shop-layout{max-width:1280px;margin:0 auto;padding:40px 32px;display:grid;grid-template-columns:220px 1fr;gap:40px;}
     .sidebar-section{margin-bottom:32px;}
@@ -216,17 +214,14 @@
   </div>
 </header>
 
-<div class="cat-hero">
-  <img id="catHeroImg" src="https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=1600&q=70" alt="Shop"/>
-  <div class="cat-hero-text" id="catHeroTitle">Shop</div>
-</div>
+<!-- Hero banner removed entirely -->
 
 <div class="shop-layout">
   <aside class="sidebar">
     <div class="sidebar-section">
       <div class="sidebar-title">Categories</div>
       <ul class="cat-list" id="catList">
-        <li><a href="category.html?cat=all" class="active">All <span>–</span></a></li>
+        <!-- "All" option will be omitted from here -->
       </ul>
     </div>
   </aside>
@@ -318,14 +313,13 @@ localStorage.setItem('vp_session', sessionId);
 function apiHeaders(auth=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(auth&&token)h['Authorization']='Bearer '+token;return h;}
 async function apiFetch(path,opts={}){try{const r=await fetch(API+path,opts);return r.json();}catch(e){return{success:false,message:e.message};}}
 
-// Decode role from JWT without verifying (client-side display only)
 function getTokenRole(){
   try{if(!token)return null;const p=token.split('.')[1];const j=JSON.parse(atob(p.replace(/-/g,'+').replace(/_/g,'/')));return j.role||null;}
   catch{return null;}
 }
 function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 
-// ── URL / STATE ───────────────────────────────────────────────────────────────
+// URL / state
 const params = new URLSearchParams(location.search);
 let currentCat   = params.get('cat')||'all';
 let currentPage  = 1;
@@ -334,67 +328,21 @@ let currentOrder = 'desc';
 let totalPages   = 1;
 const LIMIT      = 12;
 
-// KEY FIX: map slug → actual category name returned by API
-// Populated by loadCategories() before loadProducts() runs
 const catNameMap = {};
-
-// ── HERO ──────────────────────────────────────────────────────────────────────
-// Fallback hero images (used if API has no data)
-const FALLBACK_HERO_IMGS = {
-  strings:                        'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=70',
-  leaves:                         'https://images.unsplash.com/photo-1444930694458-01babf71870c?w=1600&q=70',
-  'loose-flowers':                'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=1600&q=70',
-  'pooja-garlands':               'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=1600&q=70',
-  'special-occasional-garlands':  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=70',
-  all:                            'https://images.unsplash.com/photo-1487530811015-780df97e8b27?w=1600&q=70',
-};
-const FALLBACK_HERO_TITLES = {
-  strings:'Strings', leaves:'Leaves',
-  'loose-flowers':'Loose Flowers',
-  'pooja-garlands':'Pooja Garlands',
-  'special-occasional-garlands':'Special Garlands',
-  all:'All Products',
-};
-
-// categoryImagesMap is populated from API asynchronously
-let categoryImagesMap = {};
-
-async function loadCategoryImagesMap(){
-  try {
-    const data = await apiFetch('/category-images');
-    if(data.categoryImages) categoryImagesMap = data.categoryImages;
-  } catch(e){}
-  setHero();
-}
-
-function setHero(){
-  const heroKey = currentCat.replace(/^all--/,'');
-  // Prefer API image, fall back to hardcoded
-  const apiEntry   = categoryImagesMap[heroKey] || categoryImagesMap[currentCat];
-  const imgUrl     = apiEntry?.image || FALLBACK_HERO_IMGS[heroKey] || FALLBACK_HERO_IMGS[currentCat] || FALLBACK_HERO_IMGS.all;
-  const titleText  = apiEntry?.name  || FALLBACK_HERO_TITLES[heroKey] || FALLBACK_HERO_TITLES[currentCat] || 'Shop';
-  document.getElementById('catHeroImg').src           = imgUrl;
-  document.getElementById('catHeroTitle').textContent = titleText;
-  document.title = titleText + ' – VibrantPetals';
-}
-
-// Set a placeholder image immediately, then load real one from API
-setHero();
-loadCategoryImagesMap();
 
 // Active nav highlight
 const navMap = {strings:'navStrings','loose-flowers':'navLoose',leaves:'navLeaves','pooja-garlands':'navGarlands','special-occasional-garlands':'navGarlands'};
 const heroKey = currentCat.replace(/^all--/,'');
 if(navMap[heroKey]) document.getElementById(navMap[heroKey])?.classList.add('active');
 
-// ── CATEGORIES SIDEBAR ────────────────────────────────────────────────────────
+// ── CATEGORIES SIDEBAR (excluding "All") ────────────────────────────────────
 async function loadCategories(){
   const data = await apiFetch('/products/categories').catch(()=>({categories:[]}));
-  const cats = data.categories||[];
-
-  // Populate the name map: slug → actual name
+  let cats = data.categories||[];
+  // Filter out the "All" category if it exists (by slug or name)
+  cats = cats.filter(c => c.slug !== 'all' && c.name !== 'All');
+  // Populate name map
   cats.forEach(c => { catNameMap[c.slug] = c.name; });
-
   const list = document.getElementById('catList');
   list.innerHTML = cats.map(c => {
     const isActive = c.slug === currentCat;
@@ -416,13 +364,10 @@ async function loadProducts(){
 
   let catParam = '';
   if(currentCat !== 'all'){
-    // Use the real category name from the map if available.
-    // This handles "all--loose-flowers" → "All | Loose Flowers" correctly.
     const catName = catNameMap[currentCat];
     if(catName && catName !== 'All'){
       catParam = '&category=' + encodeURIComponent(catName);
     } else if(!catName){
-      // Fallback: convert slug to readable form (works for nav links like "loose-flowers")
       catParam = '&category=' + encodeURIComponent(currentCat.replace(/-/g,' '));
     }
   }
@@ -478,7 +423,6 @@ function renderProducts(products){
 function formatPrice(p){
   const role=getTokenRole();
   const isDealer=role==='Dealer';
-  // Dealer sees their wholesale price if set
   if(isDealer && p.dealerPrice) return `<span style="color:#F5A623;font-weight:700;">⭐ $${p.dealerPrice.toFixed(2)}</span>`;
   if(p.salePrice && p.regularPrice) return `$${p.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${p.regularPrice.toFixed(2)}</span>`;
   if(p.price) return `$${p.price.toFixed(2)}`;
@@ -611,10 +555,10 @@ document.getElementById('nlSubmit').onclick=async()=>{
 
 window.addEventListener('scroll',()=>document.getElementById('backTop').classList.toggle('visible',window.scrollY>400));
 
-// ── INIT: load categories first (builds catNameMap), then products ─────────────
+// ── INIT: load categories first, then products ────────────────────────────────
 (async()=>{
   loadCart();
-  await loadCategories();   // must finish before loadProducts so catNameMap is ready
+  await loadCategories();
   loadProducts();
 })();
 </script>
