@@ -225,6 +225,9 @@
       <div class="nav-item" id="nav-banners" onclick="showPanel('banners',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Banners</div>
       <div class="nav-item" id="nav-catimages" onclick="showPanel('catimages',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Category Images</div>
       <div class="nav-item" id="nav-siteimages" onclick="showPanel('siteimages',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>Section Backgrounds</div>
+      <div class="nav-section-label">Dealer Network</div>
+      <div class="nav-item" id="nav-territories" onclick="showPanel('territories',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Territories</div>
+      <div class="nav-item" id="nav-outlets" onclick="showPanel('outlets',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Retail Outlets</div>
       <div class="nav-divider"></div>
     </nav>
     <div class="sidebar-footer">
@@ -424,6 +427,88 @@
         </div>
       </div>
 
+      <!-- ══ TERRITORIES ══ -->
+      <div class="panel" id="panel-territories">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Territory Management</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <select id="terrStateFilter" class="form-select" style="width:160px;padding:8px 12px;font-size:13px;" onchange="loadTerritories()">
+                <option value="">All States</option>
+                <option value="Melbourne">Melbourne</option>
+                <option value="Sydney">Sydney</option>
+              </select>
+              <select id="terrStatusFilter" class="form-select" style="width:160px;padding:8px 12px;font-size:13px;" onchange="loadTerritories()">
+                <option value="">All Statuses</option>
+                <option value="open">Open</option>
+                <option value="pending">Pending</option>
+                <option value="assigned">Assigned</option>
+              </select>
+              <button class="btn-add" onclick="seedTerritories()" style="background:#555;" title="Run once after first deploy to seed all 78 territories">🌱 Seed</button>
+            </div>
+          </div>
+          <div id="territoriesTableWrap">
+            <div class="skeleton" style="height:200px;margin:20px;border-radius:4px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ RETAIL OUTLETS ══ -->
+      <div class="panel" id="panel-outlets">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Retail Outlets</div>
+            <button class="btn-add" onclick="openOutletModal()">+ Add Outlet</button>
+          </div>
+          <div id="outletsTableWrap">
+            <div class="skeleton" style="height:200px;margin:20px;border-radius:4px;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- OUTLET MODAL -->
+<div class="modal" id="outletModal">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="outletModalTitle">Add Retail Outlet</h3><span class="modal-close" onclick="closeOutletModal()">✕</span></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Outlet Name *</label><input class="form-input" id="oName" placeholder="VibrantPetals Tarneit Store"/></div>
+        <div class="form-group">
+          <label class="form-label">State *</label>
+          <select class="form-select" id="oState" onchange="loadOutletTerritories()">
+            <option value="">Select state…</option>
+            <option value="Melbourne">Melbourne</option>
+            <option value="Sydney">Sydney</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Territory *</label>
+          <select class="form-select" id="oTerritory" disabled><option value="">Select state first…</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Suburb *</label><input class="form-input" id="oSuburb" placeholder="Tarneit"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Street Address *</label><input class="form-input" id="oAddress" placeholder="Shop 4, Tarneit Central, 533 Derrimut Rd"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="oPhone" placeholder="03 9000 0001"/></div>
+        <div class="form-group"><label class="form-label">Opening Hours</label><input class="form-input" id="oHours" placeholder="Mon–Sat 9am–6pm"/></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Active</label>
+        <select class="form-select" id="oActive">
+          <option value="true">Yes — visible to customers</option>
+          <option value="false">No — hidden</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeOutletModal()">Cancel</button>
+      <button class="btn-save" onclick="saveOutlet()">Save Outlet</button>
     </div>
   </div>
 </div>
@@ -857,7 +942,199 @@ checkAuth(); }
 document.getElementById('adminPwd')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
 
 // ── PANEL NAVIGATION ──────────────────────────────────────────────────────────
-const panelLoaders = { products: loadProducts, orders: loadOrders, users: loadUsers, customers: loadCustomers, newsletter: loadNewsletter, coupons: loadCoupons, categories: loadCategories, banners: loadBanners, catimages: loadCatImages, siteimages: loadSiteImages };
+const panelLoaders = { products: loadProducts, orders: loadOrders, users: loadUsers, customers: loadCustomers, newsletter: loadNewsletter, coupons: loadCoupons, categories: loadCategories, banners: loadBanners, catimages: loadCatImages, siteimages: loadSiteImages, territories: loadTerritories, outlets: loadOutlets };
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  TERRITORIES
+// ══════════════════════════════════════════════════════════════════════════════
+
+async function seedTerritories() {
+  if (!confirm('Seed all 78 territories and dummy outlets? This is idempotent — safe to run again.')) return;
+  const data = await apiFetch('/admin/seed/territories', { method: 'POST', headers: apiHeaders() });
+  if (data.success) {
+    showToast(`Seeded: ${data.territoriesSeeded} territories, ${data.outletsSeeded} outlets`, 'success');
+    loadTerritories();
+  } else {
+    showToast(data.message || 'Seed failed', 'error');
+  }
+}
+
+async function loadTerritories() {
+  const state  = document.getElementById('terrStateFilter')?.value  || '';
+  const status = document.getElementById('terrStatusFilter')?.value || '';
+  let qs = '';
+  if (state)  qs += `state=${encodeURIComponent(state)}&`;
+  if (status) qs += `status=${encodeURIComponent(status)}&`;
+  const data = await apiFetch('/admin/territories?' + qs, { headers: apiHeaders() });
+  const wrap = document.getElementById('territoriesTableWrap');
+  if (!data.success || !data.territories) { wrap.innerHTML = `<p style="padding:20px;color:#c0392b;">${data.message||'Failed to load territories'}</p>`; return; }
+  const list = data.territories;
+  if (!list.length) { wrap.innerHTML = '<p style="padding:20px;color:var(--mid);">No territories found for these filters.</p>'; return; }
+
+  const statusBadge = s => {
+    const map = { open: ['#27ae60','Open'], pending: ['#e67e22','Pending'], assigned: ['#9B8B5A','Assigned'] };
+    const [col, label] = map[s] || ['#aaa', s];
+    return `<span style="background:${col}15;color:${col};border:1px solid ${col}40;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;letter-spacing:.05em;">${label}</span>`;
+  };
+
+  const now = Date.now();
+  wrap.innerHTML = `
+    <table class="data-table">
+      <thead><tr>
+        <th>Territory</th><th>State</th><th>Status</th><th>Dealer / Applicant</th><th>Deadline</th><th style="text-align:right;">Actions</th>
+      </tr></thead>
+      <tbody>
+        ${list.map(t => {
+          const countdown = t.status === 'pending' && t.daysLeft !== undefined
+            ? `<span style="color:${t.daysLeft <= 3 ? '#c0392b' : '#e67e22'};font-weight:700;">${t.daysLeft}d left</span>`
+            : '—';
+          const dealer = t.status === 'assigned' ? (t.dealerId || '—') : t.status === 'pending' ? (t.pendingDealerId || '—') : '—';
+          const actions = t.status === 'pending'
+            ? `<button onclick="territoryAction('${t.slug}','approve')" style="padding:5px 12px;font-size:12px;background:#27ae60;color:#fff;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">✓ Approve</button>
+               <button onclick="territoryAction('${t.slug}','reject')"  style="padding:5px 12px;font-size:12px;background:#c0392b;color:#fff;border:none;border-radius:3px;cursor:pointer;">✕ Reject</button>`
+            : t.status === 'assigned'
+            ? `<button onclick="territoryAction('${t.slug}','unassign')" style="padding:5px 12px;font-size:12px;background:#555;color:#fff;border:none;border-radius:3px;cursor:pointer;">Unassign</button>`
+            : '<span style="color:#aaa;font-size:12px;">—</span>';
+          return `<tr>
+            <td><strong>${t.name}</strong></td>
+            <td>${t.state}</td>
+            <td>${statusBadge(t.status)}</td>
+            <td style="font-size:12px;color:var(--mid);">${dealer}</td>
+            <td>${countdown}</td>
+            <td style="text-align:right;">${actions}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div style="padding:12px 20px;font-size:12px;color:var(--mid);border-top:1px solid #f0ebe0;">
+      Total: ${list.length} territories shown
+    </div>`;
+}
+
+async function territoryAction(slug, action) {
+  const labels = { approve: 'Approve', reject: 'Reject', unassign: 'Unassign' };
+  if (!confirm(`${labels[action]} territory "${slug}"?`)) return;
+  const data = await apiFetch(`/admin/territories/${slug}/${action}`, { method: 'PUT', headers: apiHeaders() });
+  if (data.success) { showToast(data.message, 'success'); loadTerritories(); }
+  else showToast(data.message || `${action} failed`, 'error');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  RETAIL OUTLETS
+// ══════════════════════════════════════════════════════════════════════════════
+let editingOutletId = null;
+let adminTerritoriesCache = {};
+
+async function loadOutlets() {
+  const data = await apiFetch('/admin/retail-outlets', { headers: apiHeaders() });
+  const wrap = document.getElementById('outletsTableWrap');
+  if (!data.success) { wrap.innerHTML = `<p style="padding:20px;color:#c0392b;">${data.message||'Failed'}</p>`; return; }
+  const list = data.outlets || [];
+  if (!list.length) {
+    wrap.innerHTML = `<div style="padding:40px;text-align:center;color:var(--mid);">
+      <div style="font-size:32px;margin-bottom:12px;">🏪</div>
+      <p>No retail outlets yet. <a href="#" onclick="openOutletModal()" style="color:var(--gold);font-weight:700;">Add the first one</a></p>
+    </div>`;
+    return;
+  }
+  wrap.innerHTML = `
+    <table class="data-table">
+      <thead><tr>
+        <th>Outlet Name</th><th>Location</th><th>Territory</th><th>Phone</th><th>Hours</th><th>Status</th><th style="text-align:right;">Actions</th>
+      </tr></thead>
+      <tbody>
+        ${list.map(o => `<tr>
+          <td><strong>${o.name}</strong></td>
+          <td>${o.suburb}, ${o.state}</td>
+          <td style="font-size:12px;color:var(--mid);">${o.territorySlug}</td>
+          <td style="font-size:13px;">${o.phone || '—'}</td>
+          <td style="font-size:12px;color:var(--mid);">${o.hours || '—'}</td>
+          <td><span style="background:${o.isActive?'#27ae6015':'#aaa15'};color:${o.isActive?'#27ae60':'#aaa'};border:1px solid ${o.isActive?'#27ae6040':'#aaa40'};padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">${o.isActive?'Active':'Inactive'}</span></td>
+          <td style="text-align:right;">
+            <button onclick="editOutlet(${JSON.stringify(JSON.stringify(o))})" style="padding:5px 12px;font-size:12px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">Edit</button>
+            <button onclick="deleteOutlet('${o._id}')" style="padding:5px 12px;font-size:12px;background:#c0392b;color:#fff;border:none;border-radius:3px;cursor:pointer;">Delete</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="padding:12px 20px;font-size:12px;color:var(--mid);border-top:1px solid #f0ebe0;">${list.length} outlet${list.length!==1?'s':''} total</div>`;
+}
+
+async function loadOutletTerritories() {
+  const state = document.getElementById('oState').value;
+  const terrSel = document.getElementById('oTerritory');
+  terrSel.innerHTML = '<option value="">Loading…</option>';
+  terrSel.disabled = true;
+  if (!state) { terrSel.innerHTML = '<option value="">Select state first…</option>'; return; }
+  if (!adminTerritoriesCache[state]) {
+    const data = await apiFetch(`/territories?state=${encodeURIComponent(state)}`);
+    adminTerritoriesCache[state] = data.territories || [];
+  }
+  terrSel.innerHTML = '<option value="">Select territory…</option>';
+  adminTerritoriesCache[state].forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.slug; opt.textContent = t.name;
+    terrSel.appendChild(opt);
+  });
+  terrSel.disabled = false;
+}
+
+function openOutletModal(outlet) {
+  editingOutletId = outlet ? outlet._id : null;
+  document.getElementById('outletModalTitle').textContent = outlet ? 'Edit Outlet' : 'Add Retail Outlet';
+  document.getElementById('oName').value    = outlet?.name    || '';
+  document.getElementById('oSuburb').value  = outlet?.suburb  || '';
+  document.getElementById('oAddress').value = outlet?.address || '';
+  document.getElementById('oPhone').value   = outlet?.phone   || '';
+  document.getElementById('oHours').value   = outlet?.hours   || '';
+  document.getElementById('oActive').value  = outlet?.isActive === false ? 'false' : 'true';
+  document.getElementById('oState').value   = outlet?.state   || '';
+  const terrSel = document.getElementById('oTerritory');
+  terrSel.innerHTML = '<option value="">Select state first…</option>';
+  terrSel.disabled = true;
+  if (outlet?.state) {
+    loadOutletTerritories().then(() => {
+      if (outlet.territorySlug) document.getElementById('oTerritory').value = outlet.territorySlug;
+    });
+  }
+  document.getElementById('outletModal').classList.add('open');
+}
+window.openOutletModal = openOutletModal;
+
+function closeOutletModal() { document.getElementById('outletModal').classList.remove('open'); }
+window.closeOutletModal = closeOutletModal;
+
+function editOutlet(jsonStr) {
+  try { openOutletModal(JSON.parse(jsonStr)); } catch(e) { showToast('Failed to load outlet data', 'error'); }
+}
+window.editOutlet = editOutlet;
+
+async function saveOutlet() {
+  const name          = document.getElementById('oName').value.trim();
+  const state         = document.getElementById('oState').value;
+  const territorySlug = document.getElementById('oTerritory').value;
+  const suburb        = document.getElementById('oSuburb').value.trim();
+  const address       = document.getElementById('oAddress').value.trim();
+  const phone         = document.getElementById('oPhone').value.trim();
+  const hours         = document.getElementById('oHours').value.trim();
+  const isActive      = document.getElementById('oActive').value !== 'false';
+  if (!name || !state || !territorySlug || !suburb || !address) { showToast('Name, state, territory, suburb and address are required', 'error'); return; }
+  const body = { name, state, territorySlug, suburb, address, phone, hours, isActive };
+  const url  = editingOutletId ? `/admin/retail-outlets/${editingOutletId}` : '/admin/retail-outlets';
+  const meth = editingOutletId ? 'PUT' : 'POST';
+  const data = await apiFetch(url, { method: meth, headers: apiHeaders(), body: JSON.stringify(body) });
+  if (data.success) { showToast(`Outlet ${editingOutletId ? 'updated' : 'created'}`, 'success'); closeOutletModal(); loadOutlets(); }
+  else showToast(data.message || 'Save failed', 'error');
+}
+window.saveOutlet = saveOutlet;
+
+async function deleteOutlet(id) {
+  if (!confirm('Delete this outlet? This cannot be undone.')) return;
+  const data = await apiFetch(`/admin/retail-outlets/${id}`, { method: 'DELETE', headers: apiHeaders() });
+  if (data.success) { showToast('Outlet deleted', 'success'); loadOutlets(); }
+  else showToast(data.message || 'Delete failed', 'error');
+}
+window.deleteOutlet = deleteOutlet;
 const panelTitles = { dashboard: 'Dashboard', products: 'Products', categories: 'Categories', orders: 'Orders', coupons: 'Coupons', users: 'Users', customers: 'Customers', newsletter: 'Newsletter' };
 
 function showPanel(name, el) {
@@ -879,7 +1156,23 @@ async function loadDashboard() {
     <div class="stat-card"><div class="stat-icon gold">📦</div><div><div class="stat-val">${s.products.total}</div><div class="stat-label">Total Products</div><div class="stat-sub">${s.products.inStock} in stock · ${s.products.outOfStock} out</div></div></div>
     <div class="stat-card"><div class="stat-icon blue">🛒</div><div><div class="stat-val">${s.orders.total}</div><div class="stat-label">Total Orders</div><div class="stat-sub">${s.orders.pending} pending · ${s.orders.thisMonth} this month</div></div></div>
     <div class="stat-card"><div class="stat-icon orange">⭐</div><div><div class="stat-val">${s.dealers?.total || 0}</div><div class="stat-label">Dealers</div><div class="stat-sub">${s.customers?.total || 0} retail customers</div></div></div>
-    <div class="stat-card"><div class="stat-icon purple">📧</div><div><div class="stat-val">${s.newsletter.subscribers}</div><div class="stat-label">Subscribers</div><div class="stat-sub">Active newsletter list</div></div></div>`;
+    <div class="stat-card"><div class="stat-icon purple">📧</div><div><div class="stat-val">${s.newsletter.subscribers}</div><div class="stat-label">Subscribers</div><div class="stat-sub">Active newsletter list</div></div></div>
+    <div class="stat-card" style="cursor:pointer;" onclick="showPanel('territories',document.getElementById('nav-territories'))">
+      <div class="stat-icon" style="background:#9B8B5A20;color:#9B8B5A;">📍</div>
+      <div>
+        <div class="stat-val">${s.territories?.assigned || 0}/${s.territories?.total || 0}</div>
+        <div class="stat-label">Territories Assigned</div>
+        <div class="stat-sub" style="${s.territories?.pending > 0 ? 'color:#e67e22;font-weight:700;' : ''}">${s.territories?.pending || 0} pending review · ${s.territories?.open || 0} open</div>
+      </div>
+    </div>
+    <div class="stat-card" style="cursor:pointer;" onclick="showPanel('outlets',document.getElementById('nav-outlets'))">
+      <div class="stat-icon" style="background:#27ae6020;color:#27ae60;">🏪</div>
+      <div>
+        <div class="stat-val">${s.outlets?.total || 0}</div>
+        <div class="stat-label">Retail Outlets</div>
+        <div class="stat-sub">Active pickup locations</div>
+      </div>
+    </div>`;
   document.getElementById('dashRevenue').innerHTML = `<div class="revenue-big">$${(s.revenue.total || 0).toFixed(2)}</div><div class="revenue-sub">Total Revenue (paid orders)</div><div style="text-align:center;padding-bottom:20px;font-size:14px;color:var(--mid)">This month: <b style="color:var(--gold)">$${(s.revenue.thisMonth || 0).toFixed(2)}</b></div>`;
   document.getElementById('dashQuickStats').innerHTML = `<div style="display:flex;flex-direction:column;gap:14px;">
     <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--mid)">Delivered</span><b>${s.orders.delivered}</b></div>
