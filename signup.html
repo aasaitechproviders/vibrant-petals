@@ -125,8 +125,8 @@
     /* Type selector */
     .type-selector {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
       margin-bottom: 32px;
     }
     .type-btn {
@@ -398,12 +398,17 @@
         <button class="type-btn active" id="typeCustomer" onclick="setType('customer')">
           <div class="type-btn-icon">🛒</div>
           <div class="type-btn-label">Customer</div>
-          <div class="type-btn-sub">Shop & order online</div>
+          <div class="type-btn-sub">Shop &amp; order online</div>
         </button>
         <button class="type-btn" id="typeDealer" onclick="setType('dealer')">
           <div class="type-btn-icon">⭐</div>
           <div class="type-btn-label">Dealer / Partner</div>
-          <div class="type-btn-sub">Wholesale & distribution</div>
+          <div class="type-btn-sub">Wholesale &amp; territory</div>
+        </button>
+        <button class="type-btn" id="typeOutlet" onclick="setType('outlet')">
+          <div class="type-btn-icon">🏪</div>
+          <div class="type-btn-label">Retail Outlet</div>
+          <div class="type-btn-sub">Register a store</div>
         </button>
       </div>
 
@@ -453,11 +458,7 @@
         </div>
         <div class="msg" id="custMsg"></div>
         <button class="btn-primary" id="custSubmitBtn" onclick="submitCustomer()">Create Account →</button>
-        <div class="divider">or sign up as a dealer to get wholesale prices</div>
-        <button class="type-btn" style="width:100%;flex-direction:row;justify-content:center;gap:12px;padding:14px 20px;" onclick="setType('dealer')">
-          <span style="font-size:18px;">⭐</span>
-          <div style="text-align:left;"><div style="font-size:14px;font-weight:700;color:var(--dark);">Become a Dealer Partner</div><div style="font-size:11px;color:var(--light);">Wholesale pricing · Festival priority · WhatsApp support</div></div>
-        </button>
+
       </div>
 
       <!-- ══ DEALER FORM ══ -->
@@ -686,6 +687,105 @@
 
       </div><!-- /dealerForm -->
 
+
+      <!-- ══ RETAIL OUTLET FORM ══ -->
+      <div id="outletForm" style="display:none;">
+
+        <div class="section-badge">🏪 Retail Outlet Registration</div>
+        <h3 class="section-title">Register your pickup store</h3>
+        <p class="section-desc">Register your store as a VibrantPetals pickup point. Customers in your territory will see your outlet at checkout. Your account will be activated after admin review.</p>
+
+        <!-- Contact person -->
+        <div class="form-group half-row">
+          <div>
+            <label class="form-label">Your First Name <span class="req">*</span></label>
+            <input class="form-input" id="oFirstName" placeholder="Priya" type="text"/>
+          </div>
+          <div>
+            <label class="form-label">Your Last Name <span class="req">*</span></label>
+            <input class="form-input" id="oLastName" placeholder="Sharma" type="text"/>
+          </div>
+        </div>
+        <div class="form-group half-row">
+          <div>
+            <label class="form-label">Username <span class="req">*</span></label>
+            <input class="form-input" id="oUsername" placeholder="tarneit_flowers" type="text"/>
+          </div>
+          <div>
+            <label class="form-label">Mobile / WhatsApp <span class="req">*</span></label>
+            <input class="form-input" id="oMobile" placeholder="+61 4XX XXX XXX" type="tel"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address <span class="req">*</span></label>
+          <input class="form-input" id="oEmail" placeholder="store@email.com" type="email"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password <span class="req">*</span></label>
+          <div class="input-wrap">
+            <input class="form-input" id="oPassword" placeholder="Min. 8 characters" type="password"/>
+            <span class="pwd-toggle" onclick="togglePwd('oPassword', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="divider">outlet details</div>
+
+        <div class="form-group">
+          <label class="form-label">Outlet / Store Name <span class="req">*</span></label>
+          <input class="form-input" id="oStoreName" placeholder="e.g. VibrantPetals Tarneit Store" type="text"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Street Address <span class="req">*</span></label>
+          <input class="form-input" id="oAddress" placeholder="Shop 4, Tarneit Central, 533 Derrimut Rd" type="text"/>
+        </div>
+        <div class="form-group half-row">
+          <div>
+            <label class="form-label">Suburb <span class="req">*</span></label>
+            <input class="form-input" id="oSuburb" placeholder="Tarneit" type="text"/>
+          </div>
+          <div>
+            <label class="form-label">State <span class="req">*</span></label>
+            <select class="form-select" id="oState" onchange="onOutletStateChange()">
+              <option value="">Select state…</option>
+              <option value="Melbourne">Melbourne</option>
+              <option value="Sydney">Sydney</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Territory (Pickup Zone) <span class="req">*</span></label>
+          <select class="form-select" id="oTerritory" disabled>
+            <option value="">Select state first…</option>
+          </select>
+          <div class="input-note">Customers in this territory will see your store as a pickup option.</div>
+        </div>
+        <div class="form-group half-row">
+          <div>
+            <label class="form-label">Store Phone</label>
+            <input class="form-input" id="oStorePhone" placeholder="03 9000 0001" type="tel"/>
+          </div>
+          <div>
+            <label class="form-label">Trading Hours</label>
+            <input class="form-input" id="oHours" placeholder="Mon–Sat 9am–6pm" type="text"/>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:20px;padding:16px;background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);">
+          <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;">
+            <input type="checkbox" id="oDeclaration" style="width:17px;height:17px;accent-color:var(--gold);margin-top:2px;flex-shrink:0;"/>
+            <span style="font-size:13px;color:var(--mid);line-height:1.6;">
+              <strong style="color:var(--dark);">Declaration</strong> — I confirm all details are accurate and I am authorised to register this location as a VibrantPetals pickup outlet.
+            </span>
+          </label>
+        </div>
+
+        <div class="msg" id="outletMsg"></div>
+        <button class="btn-primary" id="outletSubmitBtn" onclick="submitOutlet()" style="margin-top:16px;">🏪 Register Outlet →</button>
+
+      </div><!-- /outletForm -->
+
       <div class="login-strip">Already have an account? <a href="account.html">Sign in here</a></div>
 
     </div><!-- /mainForm -->
@@ -761,10 +861,13 @@ function onDealerStateChange() {
 
 // ── TYPE TOGGLE ────────────────────────────────────────────────────────────────
 function setType(type) {
-  document.getElementById('typeCustomer').classList.toggle('active', type === 'customer');
-  document.getElementById('typeDealer').classList.toggle('active', type === 'dealer');
+  ['customer','dealer','outlet'].forEach(t => {
+    const btn = document.getElementById('type' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (btn) btn.classList.toggle('active', t === type);
+  });
   document.getElementById('customerForm').style.display = type === 'customer' ? '' : 'none';
   document.getElementById('dealerForm').style.display   = type === 'dealer'   ? '' : 'none';
+  document.getElementById('outletForm').style.display   = type === 'outlet'   ? '' : 'none';
   if (type === 'dealer') buildProgress();
 }
 window.setType = setType;
@@ -973,7 +1076,7 @@ async function submitDealer() {
 window.submitDealer = submitDealer;
 
 // ── SUCCESS ─────────────────────────────────────────────────────────────────────
-function showSuccess(type, name) {
+function showSuccess(type, name, storeName) {
   document.getElementById('mainForm').style.display = 'none';
   const sc = document.getElementById('successScreen');
   sc.style.display = '';
@@ -983,6 +1086,13 @@ function showSuccess(type, name) {
     document.getElementById('successIcon').textContent = '🌸';
     document.getElementById('successTitle').textContent = `Welcome, ${name}!`;
     document.getElementById('successSub').textContent = 'Your account has been created. You can now browse our full collection and place orders for pickup from your nearest outlet.';
+  } else if (type === 'outlet') {
+    document.getElementById('successIcon').textContent = '🏪';
+    document.getElementById('successTitle').textContent = `Outlet Registered, ${name}!`;
+    document.getElementById('successSub').textContent = `Thank you for registering ${storeName || 'your store'} as a VibrantPetals pickup outlet.`;
+    const note = document.getElementById('successDealerNote');
+    note.style.display = '';
+    note.textContent = '✅ Our team will review your outlet details and activate your store within a few business days. You will be notified via WhatsApp once your outlet is live and accepting customer pickups.';
   } else {
     document.getElementById('successIcon').textContent = '⭐';
     document.getElementById('successTitle').textContent = `Application Received, ${name}!`;
@@ -992,6 +1102,83 @@ function showSuccess(type, name) {
     note.textContent = '🌺 Our team will review your application and contact you via WhatsApp within 14 days. Your requested territory has been reserved while under review. Your account will be activated after admin approval.';
   }
 }
+
+
+// ── RETAIL OUTLET SIGNUP ──────────────────────────────────────────────────────
+function onOutletStateChange() {
+  const state = document.getElementById('oState').value;
+  const terr  = document.getElementById('oTerritory');
+  if (!state) { terr.innerHTML = '<option value="">Select state first…</option>'; terr.disabled = true; return; }
+  populateTerritorySelect(terr, state);
+}
+window.onOutletStateChange = onOutletStateChange;
+
+async function submitOutlet() {
+  const firstName  = document.getElementById('oFirstName').value.trim();
+  const lastName   = document.getElementById('oLastName').value.trim();
+  const username   = document.getElementById('oUsername').value.trim();
+  const mobile     = document.getElementById('oMobile').value.trim();
+  const email      = document.getElementById('oEmail').value.trim();
+  const password   = document.getElementById('oPassword').value;
+  const storeName  = document.getElementById('oStoreName').value.trim();
+  const address    = document.getElementById('oAddress').value.trim();
+  const suburb     = document.getElementById('oSuburb').value.trim();
+  const state      = document.getElementById('oState').value;
+  const territory  = document.getElementById('oTerritory').value;
+  const storePhone = document.getElementById('oStorePhone').value.trim();
+  const hours      = document.getElementById('oHours').value.trim();
+  const decl       = document.getElementById('oDeclaration').checked;
+
+  const msg = document.getElementById('outletMsg');
+  msg.style.display = 'none';
+
+  if (!firstName || !lastName)      { showMsg('outletMsg', 'Please enter your first and last name.', 'err'); return; }
+  if (!username)                     { showMsg('outletMsg', 'Please choose a username.', 'err'); return; }
+  if (!email || !email.includes('@')){ showMsg('outletMsg', 'Please enter a valid email address.', 'err'); return; }
+  if (password.length < 6)           { showMsg('outletMsg', 'Password must be at least 6 characters.', 'err'); return; }
+  if (!mobile)                       { showMsg('outletMsg', 'Please enter your mobile number.', 'err'); return; }
+  if (!storeName)                    { showMsg('outletMsg', 'Please enter your store name.', 'err'); return; }
+  if (!address || !suburb)           { showMsg('outletMsg', 'Please enter your store address and suburb.', 'err'); return; }
+  if (!state)                        { showMsg('outletMsg', 'Please select a state.', 'err'); return; }
+  if (!territory)                    { showMsg('outletMsg', 'Please select your territory.', 'err'); return; }
+  if (!decl)                         { showMsg('outletMsg', 'Please confirm the declaration to proceed.', 'err'); return; }
+
+  const btn = document.getElementById('outletSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Registering…';
+
+  const body = {
+    username, email, password, firstName, lastName,
+    role: 'Dealer',
+    dealerInfo: {
+      type:          'retail_outlet',
+      mobile,
+      storeName,
+      storeAddress:  address,
+      suburb,
+      state,
+      territory,
+      storePhone,
+      hours,
+      applicationDate: new Date().toISOString(),
+    },
+    desiredTerritory: territory,
+  };
+
+  const data = await apiFetch('/auth/register', {
+    method: 'POST',
+    headers: apiHeaders(false),
+    body: JSON.stringify(body),
+  });
+
+  btn.disabled = false; btn.textContent = '🏪 Register Outlet →';
+
+  if (data.success) {
+    showSuccess('outlet', data.user?.username || firstName, storeName);
+  } else {
+    showMsg('outletMsg', data.message || 'Registration failed. Please try again.', 'err');
+  }
+}
+window.submitOutlet = submitOutlet;
 
 // Auto-fill full name from first + last
 document.getElementById('dFirstName').addEventListener('input', updateFullName);
@@ -1013,7 +1200,9 @@ if (localStorage.getItem('vp_token')) {
 
 // Auto-select type from URL param (e.g. signup.html?type=dealer)
 const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('type') === 'dealer') setType('dealer');
+const typeParam = urlParams.get('type');
+if (typeParam === 'dealer') setType('dealer');
+else if (typeParam === 'outlet') setType('outlet');
 
 // Build initial progress + load territories
 buildProgress();
