@@ -195,23 +195,23 @@
       <button class="tab-btn" onclick="switchTab('register',this)">Create Account</button>
     </div>
     <div class="tab-panel active" id="tab-login">
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <button class="login-type-btn active" id="ltCustomer" onclick="setLoginType('customer',this)" style="flex:1;padding:10px 8px;border:2px solid var(--gold);background:#fff;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;">🛒 Customer</button>
+        <button class="login-type-btn" id="ltDealer" onclick="setLoginType('dealer',this)" style="flex:1;padding:10px 8px;border:2px solid #e8e0d2;background:#fff;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;">⭐ Dealer</button>
+        <button class="login-type-btn" id="ltAdmin" onclick="setLoginType('admin',this)" style="flex:1;padding:10px 8px;border:2px solid #e8e0d2;background:#fff;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;">🔑 Admin</button>
+      </div>
+      <div id="loginTypeHint" style="font-size:12px;color:var(--mid);margin-bottom:10px;padding:8px 12px;background:var(--cream2);border-radius:4px;">Customer account — shop and manage your orders.</div>
       <input type="email" class="gate-input" id="gLoginEmail" placeholder="Email address *"/>
       <input type="password" class="gate-input" id="gLoginPwd" placeholder="Password *"/>
       <button class="btn-gate" onclick="doLogin()">Sign In</button>
       <div class="gate-msg" id="gLoginMsg"></div>
+      <p style="font-size:12px;color:var(--light);text-align:center;margin-top:12px;">Dealer accounts require admin approval before first login.</p>
     </div>
     <div class="tab-panel" id="tab-register">
-      <input type="text" class="gate-input" id="gRegUser" placeholder="Username *"/>
-      <input type="email" class="gate-input" id="gRegEmail" placeholder="Email address *"/>
-      <input type="password" class="gate-input" id="gRegPwd" placeholder="Password (min 6 chars) *"/>
-      <input type="text" class="gate-input" id="gRegFirst" placeholder="First name"/>
-      <input type="text" class="gate-input" id="gRegLast" placeholder="Last name"/>
-      <select class="gate-select" id="gRegRole">
-        <option value="Customer">I'm a Customer (retail)</option>
-        <option value="Dealer">I'm a Dealer (wholesale)</option>
-      </select>
-      <button class="btn-gate" onclick="doRegister()">Create Account</button>
-      <div class="gate-msg" id="gRegMsg"></div>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:14px;">To create a <b>Customer</b> or <b>Dealer</b> account, use our full signup page:</p>
+      <a href="signup.html" style="display:block;width:100%;padding:14px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-align:center;border-radius:4px;margin-bottom:10px;">Create Customer Account →</a>
+      <a href="signup.html?type=dealer" style="display:block;width:100%;padding:14px;background:var(--dark);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-align:center;border-radius:4px;">Apply as Dealer Partner ⭐</a>
+      <p style="font-size:11px;color:var(--light);text-align:center;margin-top:14px;">Admin accounts are created by the system administrator.</p>
     </div>
   </div>
 </div>
@@ -245,6 +245,9 @@
         </div>
         <div class="acct-nav-item" id="navDealer" style="display:none;" onclick="showPanel('dealer',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Dealer Portal
+        </div>
+        <div class="acct-nav-item" id="navOutlets" style="display:none;" onclick="showPanel('outlets',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>My Retail Outlets
         </div>
         <div class="acct-nav-item" id="navAdmin" style="display:none;" onclick="location.href='admin.html'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Admin Panel ↗
@@ -420,6 +423,88 @@
   </div>
 </div>
 
+      <!-- DEALER RETAIL OUTLETS PANEL -->
+      <div class="acct-panel" id="panel-outlets">
+        <div class="panel-title">My Retail Outlets</div>
+
+        <!-- Current Outlets -->
+        <div class="form-card">
+          <div class="form-card-title" style="display:flex;justify-content:space-between;align-items:center;">
+            MY REGISTERED OUTLETS
+            <button class="btn-sm gold" onclick="openOutletForm()">+ Register New Outlet</button>
+          </div>
+          <div id="dealerOutletsContent">
+            <div class="skeleton" style="height:80px;border-radius:4px;"></div>
+          </div>
+        </div>
+
+        <!-- Register / Edit Outlet Form -->
+        <div class="form-card" id="outletFormCard" style="display:none;">
+          <div class="form-card-title" id="outletFormTitle">REGISTER NEW OUTLET</div>
+          <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.6;">As a dealer, you can operate retail outlets in any territory — not just your assigned one. Fill in the outlet details and it will be submitted for admin review.</p>
+          <input type="hidden" id="editingOutletId"/>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Outlet Name *</label>
+              <input type="text" class="form-input" id="outletName" placeholder="e.g. VibrantPetals Tarneit Store"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-input" id="outletPhone" placeholder="+61 3 9000 0001"/>
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label class="form-label">Street Address *</label>
+              <input type="text" class="form-input" id="outletAddress" placeholder="Shop 4, Tarneit Central, 533 Derrimut Rd"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Suburb *</label>
+              <input type="text" class="form-input" id="outletSuburb" placeholder="Tarneit"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">State *</label>
+              <select class="form-select" id="outletState" onchange="loadOutletTerritoryOptions()">
+                <option value="">Select state…</option>
+                <option value="Melbourne">Melbourne</option>
+                <option value="Sydney">Sydney</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Territory *</label>
+              <select class="form-select" id="outletTerritory" disabled>
+                <option value="">Select state first…</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Trading Hours</label>
+              <input type="text" class="form-input" id="outletHours" placeholder="Mon–Sat 9am–6pm"/>
+            </div>
+          </div>
+          <div class="form-msg" id="outletFormMsg" style="display:none;"></div>
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button class="btn-save" id="outletSaveBtn" onclick="saveOutletFromAccount()">Submit Outlet</button>
+            <button class="btn-sm outline" onclick="closeOutletForm()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Info box -->
+        <div class="form-card" style="background:linear-gradient(135deg,rgba(155,139,90,.05),rgba(155,139,90,.1));border-color:rgba(155,139,90,.3);">
+          <div class="form-card-title">HOW RETAIL OUTLETS WORK</div>
+          <ul style="font-size:14px;color:var(--mid);line-height:2.2;padding-left:18px;list-style:disc;">
+            <li>You can register retail outlets in <strong>any territory</strong> — not just your assigned one</li>
+            <li>Each outlet is linked to your dealer account for order routing</li>
+            <li>Customers select your outlet as a pickup point at checkout</li>
+            <li>Admin reviews and activates new outlet registrations</li>
+            <li>You can operate multiple outlets across Melbourne &amp; Sydney</li>
+          </ul>
+        </div>
+      </div>
+
 <!-- ORDER DETAIL MODAL -->
 <div class="order-modal" id="orderModal">
   <div class="order-modal-box">
@@ -481,6 +566,19 @@ async function apiFetch(p,o={}){
 function showToast(m,t=''){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+(t||'');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
 
 // ── TAB SWITCH (login gate) ───────────────────────────────────────────────────
+function setLoginType(type, btn) {
+  document.querySelectorAll('.login-type-btn').forEach(b => { b.style.borderColor='#e8e0d2'; b.style.background='#fff'; });
+  btn.style.borderColor = 'var(--gold)';
+  btn.style.background = 'rgba(155,139,90,.06)';
+  const hints = {
+    customer: 'Customer account — shop, track orders and manage your wishlist.',
+    dealer: 'Dealer / Partner account — wholesale pricing and territory management.',
+    admin: 'Administrator account — full platform access. Contact your system admin for credentials.'
+  };
+  document.getElementById('loginTypeHint').textContent = hints[type] || '';
+}
+window.setLoginType = setLoginType;
+
 function switchTab(name,btn){
   document.querySelectorAll('.tabs .tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
@@ -497,6 +595,7 @@ function showPanel(name,el){
   if(name==='orders')loadOrders(1);
   if(name==='addresses')loadAddresses();
   if(name==='dealer')loadDealerPanel();
+  if(name==='outlets')loadOutletsPanel();
 }
 window.showPanel=showPanel;
 
@@ -531,7 +630,7 @@ async function loadMe(){
   const roleLabel={Customer:'Customer',Dealer:'Dealer ⭐',Administrator:'Admin'};
   document.getElementById('acctRoleBadge').innerHTML=`<span class="role-badge ${roleMap[userData.role]||'role-customer'}">${roleLabel[userData.role]||userData.role}</span>`;
   // Show dealer nav item
-  if(userData.role==='Dealer'||userData.role==='Administrator')document.getElementById('navDealer').style.display='flex';
+  if(userData.role==='Dealer'||userData.role==='Administrator'){document.getElementById('navDealer').style.display='flex';document.getElementById('navOutlets').style.display='flex';}
   if(userData.role==='Administrator')document.getElementById('navAdmin').style.display='flex';
   // Location preferences (customers only)
   if(userData.role==='Customer'){
@@ -786,6 +885,154 @@ async function loadDealerOrders() {
     </tr>`;
   }).join('')}</tbody></table>`;
 }
+
+
+// ── DEALER RETAIL OUTLETS ─────────────────────────────────────────────────────
+let dealerOutletTerritoriesData = { Melbourne: [], Sydney: [] };
+
+async function loadOutletsPanel() {
+  await loadDealerOutlets();
+  // Preload territories
+  const td = await apiFetch('/territories');
+  dealerOutletTerritoriesData = { Melbourne: [], Sydney: [] };
+  (td.territories || []).forEach(t => {
+    if (!dealerOutletTerritoriesData[t.state]) dealerOutletTerritoriesData[t.state] = [];
+    dealerOutletTerritoriesData[t.state].push(t);
+  });
+}
+
+async function loadDealerOutlets() {
+  const el = document.getElementById('dealerOutletsContent');
+  if (!el) return;
+  // Fetch all outlets and filter by this dealer's userId
+  const data = await apiFetch('/retail-outlets');
+  const outlets = (data.outlets || []).filter(o => o.dealerId && o.dealerId.toString() === userData?._id?.toString());
+  if (!outlets.length) {
+    el.innerHTML = `<div style="text-align:center;padding:28px;color:var(--mid);">
+      <div style="font-size:36px;margin-bottom:10px;">🏪</div>
+      <p style="font-size:14px;margin-bottom:14px;">No retail outlets registered yet.</p>
+      <button class="btn-sm gold" onclick="openOutletForm()">Register Your First Outlet</button>
+    </div>`;
+    return;
+  }
+  el.innerHTML = outlets.map(o => `
+    <div style="display:flex;align-items:flex-start;gap:14px;padding:16px;border:1px solid #e8e0d2;border-radius:4px;margin-bottom:10px;background:#fff;">
+      <div style="font-size:28px;flex-shrink:0;">🏪</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:15px;margin-bottom:4px;">${o.name}</div>
+        <div style="font-size:13px;color:var(--mid);">${o.address}, ${o.suburb}, ${o.state}</div>
+        ${o.phone ? `<div style="font-size:13px;color:var(--mid);">${o.phone}</div>` : ''}
+        ${o.hours ? `<div style="font-size:12px;color:var(--light);">${o.hours}</div>` : ''}
+        <div style="font-size:11px;color:var(--light);margin-top:4px;">Territory: ${o.territorySlug}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+        <span style="padding:4px 12px;border-radius:10px;font-size:11px;font-weight:700;background:${o.isActive?'#d4edda':'#f8d7da'};color:${o.isActive?'#155724':'#721c24'};">${o.isActive?'Active':'Inactive'}</span>
+        <button class="btn-sm outline" onclick="editOutletFromAccount(${JSON.stringify(JSON.stringify(o))})">Edit</button>
+      </div>
+    </div>`).join('');
+}
+
+function openOutletForm() {
+  document.getElementById('editingOutletId').value = '';
+  document.getElementById('outletFormTitle').textContent = 'REGISTER NEW OUTLET';
+  document.getElementById('outletName').value = '';
+  document.getElementById('outletPhone').value = '';
+  document.getElementById('outletAddress').value = '';
+  document.getElementById('outletSuburb').value = '';
+  document.getElementById('outletState').value = '';
+  document.getElementById('outletTerritory').innerHTML = '<option value="">Select state first…</option>';
+  document.getElementById('outletTerritory').disabled = true;
+  document.getElementById('outletHours').value = '';
+  document.getElementById('outletSaveBtn').textContent = 'Submit Outlet';
+  document.getElementById('outletFormCard').style.display = '';
+  document.getElementById('outletFormCard').scrollIntoView({ behavior: 'smooth' });
+}
+window.openOutletForm = openOutletForm;
+
+function closeOutletForm() {
+  document.getElementById('outletFormCard').style.display = 'none';
+  document.getElementById('outletFormMsg').style.display = 'none';
+}
+window.closeOutletForm = closeOutletForm;
+
+function editOutletFromAccount(jsonStr) {
+  const o = JSON.parse(jsonStr);
+  document.getElementById('editingOutletId').value = o._id;
+  document.getElementById('outletFormTitle').textContent = 'EDIT OUTLET';
+  document.getElementById('outletName').value = o.name || '';
+  document.getElementById('outletPhone').value = o.phone || '';
+  document.getElementById('outletAddress').value = o.address || '';
+  document.getElementById('outletSuburb').value = o.suburb || '';
+  document.getElementById('outletState').value = o.state || '';
+  loadOutletTerritoryOptions();
+  setTimeout(() => { document.getElementById('outletTerritory').value = o.territorySlug || ''; }, 300);
+  document.getElementById('outletHours').value = o.hours || '';
+  document.getElementById('outletSaveBtn').textContent = 'Save Changes';
+  document.getElementById('outletFormCard').style.display = '';
+  document.getElementById('outletFormCard').scrollIntoView({ behavior: 'smooth' });
+}
+window.editOutletFromAccount = editOutletFromAccount;
+
+function loadOutletTerritoryOptions() {
+  const state = document.getElementById('outletState').value;
+  const sel = document.getElementById('outletTerritory');
+  sel.innerHTML = '<option value="">Select territory…</option>';
+  if (!state) { sel.disabled = true; return; }
+  const list = dealerOutletTerritoriesData[state] || [];
+  list.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.slug;
+    opt.textContent = t.name;
+    sel.appendChild(opt);
+  });
+  sel.disabled = false;
+}
+window.loadOutletTerritoryOptions = loadOutletTerritoryOptions;
+
+async function saveOutletFromAccount() {
+  const editId = document.getElementById('editingOutletId').value;
+  const name = document.getElementById('outletName').value.trim();
+  const phone = document.getElementById('outletPhone').value.trim();
+  const address = document.getElementById('outletAddress').value.trim();
+  const suburb = document.getElementById('outletSuburb').value.trim();
+  const state = document.getElementById('outletState').value;
+  const territorySlug = document.getElementById('outletTerritory').value;
+  const hours = document.getElementById('outletHours').value.trim();
+  const msg = document.getElementById('outletFormMsg');
+  msg.style.display = 'none';
+
+  if (!name || !address || !suburb || !state || !territorySlug) {
+    msg.className = 'form-msg err'; msg.textContent = 'Please fill in all required fields.'; msg.style.display = 'block'; return;
+  }
+
+  const btn = document.getElementById('outletSaveBtn');
+  btn.disabled = true; btn.textContent = editId ? 'Saving…' : 'Submitting…';
+
+  // Admin-only endpoint — shows message to contact admin if dealer isn't admin
+  // In production, add a dealer-specific outlet endpoint
+  const body = { name, address, suburb, state, territorySlug, dealerId: userData._id?.toString(), phone, hours, isActive: true };
+  let data;
+  if (editId) {
+    data = await apiFetch(`/admin/retail-outlets/${editId}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify(body) });
+  } else {
+    data = await apiFetch('/admin/retail-outlets', { method: 'POST', headers: apiHeaders(), body: JSON.stringify(body) });
+  }
+
+  btn.disabled = false; btn.textContent = editId ? 'Save Changes' : 'Submit Outlet';
+
+  if (data.success) {
+    msg.className = 'form-msg ok';
+    msg.textContent = editId ? '✓ Outlet updated successfully.' : '✓ Outlet registered — pending admin activation.';
+    msg.style.display = 'block';
+    setTimeout(() => { closeOutletForm(); loadDealerOutlets(); }, 1500);
+    showToast(editId ? 'Outlet updated' : 'Outlet registered', 'success');
+  } else {
+    msg.className = 'form-msg err';
+    msg.textContent = data.message || 'Failed to save outlet.';
+    msg.style.display = 'block';
+  }
+}
+window.saveOutletFromAccount = saveOutletFromAccount;
 
 // ── ADDRESSES ─────────────────────────────────────────────────────────────────
 let editingAddrId=null;
