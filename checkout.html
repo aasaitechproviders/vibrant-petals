@@ -13,7 +13,7 @@
     .ann-bar{background:var(--gold);color:#fff;text-align:center;font-size:13px;letter-spacing:.06em;height:var(--bar-h);display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:200;}
     header{position:sticky;top:var(--bar-h);z-index:190;background:#fff;border-bottom:1px solid #e8e0d2;height:var(--nav-h);}
     .nav-inner{max-width:1280px;margin:0 auto;padding:0 32px;height:100%;display:flex;align-items:center;justify-content:space-between;}
-    .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:22px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-family:"Playfair Display",serif;font-size:22px;height:100%;}.nav-logo img{height:100%;width:auto;object-fit:contain;display:block;}
     nav ul{display:flex;align-items:center;gap:36px;}
     nav ul li a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--dark);transition:color .2s;}
     nav ul li a:hover{color:var(--gold);}
@@ -114,10 +114,10 @@
   </style>
 </head>
 <body>
-<div class="ann-bar">Enjoy Free Delivery on Orders Over $50 – Shop Now!</div>
+<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne Enjoy Free Delivery on Orders Over $50 – Shop Now!amp; Sydney</div>
 <header>
   <div class="nav-inner">
-    <a href="index.html" class="nav-logo"><img src="logo.png" alt="Vibrant Petals Logo" style="width:50px;height:40px;object-fit:contain;" />Vibrant Petals</a>
+    <a href="index.html" class="nav-logo"><img src="logo.png" alt="Vibrant Petals Logo" />Vibrant Petals</a>
     <nav><ul><li><a href="index.html">Home</a></li><li><a href="category.html?cat=all">Shop</a></li></ul></nav>
     <div class="nav-icons">
       <button class="nav-icon-btn" onclick="location.href='account.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
@@ -228,7 +228,7 @@
       <hr class="summary-divider"/>
       <div class="summary-row"><span>Subtotal</span><span id="sumSubtotal">—</span></div>
       <div class="summary-row"><span>Discount</span><span id="sumDiscount">—</span></div>
-      <div class="summary-row"><span>Shipping</span><span id="sumShipping">—</span></div>
+      <div class="summary-row"><span>Pickup</span><span>Free (In-store) 🎉</span></div>
       <div class="summary-row grand"><span>Total</span><span id="sumTotal">—</span></div>
       <button class="btn-place-order" id="placeOrderBtn" onclick="handlePlaceOrder()">Place Order</button>
       <p class="order-terms">By placing your order, you agree to our <a href="#" style="color:var(--gold)">Terms of Service</a> and <a href="#" style="color:var(--gold)">Privacy Policy</a>.</p>
@@ -273,7 +273,7 @@
   </div>
 </div>
 
-<footer>Copyright © VibrantPetals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></footer>
+<footer>Copyright © Nivas Vibrant Petals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></footer>
 <div class="toast" id="toast"></div>
 
 <script>
