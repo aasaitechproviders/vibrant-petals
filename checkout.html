@@ -258,6 +258,14 @@
       <input type="password" class="gate-input" id="mRegPwd" placeholder="Password (min 6 chars) *"/>
       <input type="text" class="gate-input" id="mRegFirst" placeholder="First name"/>
       <input type="text" class="gate-input" id="mRegLast" placeholder="Last name"/>
+      <select class="gate-select" id="mRegState" onchange="onModalRegStateChange()">
+        <option value="">Select your state *</option>
+        <option value="Melbourne">Melbourne</option>
+        <option value="Sydney">Sydney</option>
+      </select>
+      <select class="gate-select" id="mRegTerritory">
+        <option value="">Select your area *</option>
+      </select>
       <button class="btn-gate" onclick="doModalRegister()">Register & Continue</button>
       <div class="gate-msg" id="mRegMsg"></div>
       <p style="font-size:12px;color:var(--mid);text-align:center;margin-top:12px;">Want to join as a Dealer? <a href="signup.html?type=dealer" style="color:var(--gold);font-weight:700;">Apply here</a></p>
@@ -400,15 +408,33 @@ async function doModalLogin(){
   }else{msg.textContent=data.message||'Login failed';msg.className='gate-msg err';}
 }
 
+async function onModalRegStateChange(){
+  const state = document.getElementById('mRegState').value;
+  const terrSel = document.getElementById('mRegTerritory');
+  terrSel.innerHTML = '<option value="">Select your area *</option>';
+  if(!state) return;
+  const td = await apiFetch('/territories?state=' + encodeURIComponent(state)).catch(()=>({territories:[]}));
+  (td.territories||[]).forEach(t=>{
+    const opt = document.createElement('option');
+    opt.value = t.slug; opt.textContent = t.name;
+    terrSel.appendChild(opt);
+  });
+}
+window.onModalRegStateChange = onModalRegStateChange;
+
 async function doModalRegister(){
   const username=document.getElementById('mRegUser').value.trim();
   const email=document.getElementById('mRegEmail').value.trim();
   const pwd=document.getElementById('mRegPwd').value;
   const firstName=document.getElementById('mRegFirst').value.trim();
   const lastName=document.getElementById('mRegLast').value.trim();
+  const preferredState=document.getElementById('mRegState').value;
+  const preferredTerritory=document.getElementById('mRegTerritory').value;
   const msg=document.getElementById('mRegMsg');msg.textContent='';
+  if(!preferredState){msg.textContent='Please select your state.';msg.className='gate-msg err';return;}
+  if(!preferredTerritory){msg.textContent='Please select your area/territory.';msg.className='gate-msg err';return;}
   // Checkout registration is always Customer — dealers must apply via the signup page
-  const data=await apiFetch('/auth/register',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({username,email,password:pwd,firstName,lastName,role:'Customer'})});
+  const data=await apiFetch('/auth/register',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({username,email,password:pwd,firstName,lastName,role:'Customer',preferredState,preferredTerritory})});
   if(data.success&&data.token){
     token=data.token;localStorage.setItem('vp_token',token);
     await mergeCart();
@@ -434,12 +460,14 @@ async function loadOutlets() {
   if (stateFilter) {
     const td = await apiFetch('/territories?state=' + encodeURIComponent(stateFilter)).catch(() => ({ territories: [] }));
     const terrSel = document.getElementById('outletTerritoryFilter');
+    const prevVal = territoryFilter; // save before rebuild
     terrSel.innerHTML = '<option value="">All Territories</option>';
     (td.territories || []).forEach(t => {
       const opt = document.createElement('option');
       opt.value = t.slug; opt.textContent = t.name;
       terrSel.appendChild(opt);
     });
+    if (prevVal) terrSel.value = prevVal; // restore selection
   } else {
     document.getElementById('outletTerritoryFilter').innerHTML = '<option value="">All Territories</option>';
   }
@@ -450,7 +478,12 @@ function renderOutlets(outlets) {
   const list       = document.getElementById('outletList');
   const selectedId = document.getElementById('selectedOutletId').value;
   if (!outlets.length) {
-    list.innerHTML = '<div style="padding:24px;text-align:center;font-size:14px;color:var(--mid);border:1px dashed #e8e0d2;border-radius:4px;">No pickup outlets found for this filter.</div>';
+    const stateFilter = document.getElementById('outletStateFilter').value;
+    const terrFilter  = document.getElementById('outletTerritoryFilter').value;
+    const clearBtn = terrFilter
+      ? `<button onclick="document.getElementById('outletTerritoryFilter').value='';loadOutlets();" style="margin-top:12px;padding:8px 18px;background:var(--gold);color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.05em;">Show All in ${stateFilter||'Selected State'}</button>`
+      : '';
+    list.innerHTML = `<div style="padding:24px;text-align:center;font-size:14px;color:var(--mid);border:1px dashed #e8e0d2;border-radius:4px;">No pickup outlets found for this filter.${clearBtn ? '<br>' + clearBtn : ''}</div>`;
     return;
   }
   list.innerHTML = outlets.map(function(o) {
