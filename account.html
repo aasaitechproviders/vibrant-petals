@@ -235,7 +235,7 @@
         <div class="acct-nav-item" onclick="showPanel('orders',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>My Orders
         </div>
-        <div class="acct-nav-item" id="navAddresses" onclick="showPanel('addresses',this)">
+        <div class="acct-nav-item" id="navAddresses" style="display:none;" onclick="showPanel('addresses',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Addresses
         </div>
         <div class="acct-nav-item" onclick="showPanel('profile',this)">
@@ -253,7 +253,7 @@
         <div class="acct-nav-item" id="navAdmin" style="display:none;" onclick="location.href='admin.html'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Admin Panel ↗
         </div>
-        <div class="acct-nav-item" onclick="location.href='wishlist.html'">
+        <div class="acct-nav-item" id="navWishlist" onclick="location.href='wishlist.html'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Wishlist
         </div>
         <div class="acct-nav-divider"></div>
@@ -277,7 +277,7 @@
           <div class="form-card-title">RECENT ORDERS</div>
           <div id="dashRecentOrders"><div class="skeleton" style="height:60px;border-radius:4px;margin-bottom:10px;"></div><div class="skeleton" style="height:60px;border-radius:4px;"></div></div>
         </div>
-        <div class="form-card" style="margin-top:16px;">
+        <div class="form-card" id="dashQuickLinks" style="margin-top:16px;">
           <div class="form-card-title">QUICK LINKS</div>
           <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;">
             <a href="category.html?cat=all" style="display:inline-block;padding:10px 20px;border:1px solid var(--gold);color:var(--gold);font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);">Shop Now</a>
@@ -428,18 +428,7 @@
       <div class="acct-panel" id="panel-outlets">
         <div class="panel-title">My Retail Outlets</div>
 
-        <!-- Current Outlets -->
-        <div class="form-card">
-          <div class="form-card-title" style="display:flex;justify-content:space-between;align-items:center;">
-            MY REGISTERED OUTLETS
-            <button class="btn-sm gold" onclick="openOutletForm()">+ Register New Outlet</button>
-          </div>
-          <div id="dealerOutletsContent">
-            <div class="skeleton" style="height:80px;border-radius:4px;"></div>
-          </div>
-        </div>
-
-        <!-- Register / Edit Outlet Form -->
+        <!-- Register / Edit Outlet Form (shown above list when active) -->
         <div class="form-card" id="outletFormCard" style="display:none;">
           <div class="form-card-title" id="outletFormTitle">REGISTER NEW OUTLET</div>
           <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.6;">As a dealer, you can operate retail outlets in any territory — not just your assigned one. Fill in the outlet details and it will be submitted for admin review.</p>
@@ -490,6 +479,17 @@
           <div style="display:flex;gap:10px;margin-top:16px;">
             <button class="btn-save" id="outletSaveBtn" onclick="saveOutletFromAccount()">Submit Outlet</button>
             <button class="btn-sm outline" onclick="closeOutletForm()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Current Outlets -->
+        <div class="form-card">
+          <div class="form-card-title" style="display:flex;justify-content:space-between;align-items:center;">
+            MY REGISTERED OUTLETS
+            <button class="btn-sm gold" onclick="openOutletForm()">+ Register New Outlet</button>
+          </div>
+          <div id="dealerOutletsContent">
+            <div class="skeleton" style="height:80px;border-radius:4px;"></div>
           </div>
         </div>
 
@@ -630,9 +630,13 @@ async function loadMe(){
   const roleMap={Customer:'role-customer',Dealer:'role-dealer',Administrator:'role-administrator'};
   const roleLabel={Customer:'Customer',Dealer:'Dealer ⭐',Administrator:'Admin'};
   document.getElementById('acctRoleBadge').innerHTML=`<span class="role-badge ${roleMap[userData.role]||'role-customer'}">${roleLabel[userData.role]||userData.role}</span>`;
-  // Show dealer nav item
+  // Show dealer nav items
   if(userData.role==='Dealer'||userData.role==='Administrator'){document.getElementById('navDealer').style.display='flex';document.getElementById('navOutlets').style.display='flex';}
-  if(userData.role==='Administrator')document.getElementById('navAdmin').style.display='flex';
+  if(userData.role==='Administrator'){document.getElementById('navAdmin').style.display='flex';}
+  // Addresses only for customers (pickup-only model makes it less relevant for dealers)
+  if(userData.role==='Customer'){document.getElementById('navAddresses').style.display='flex';}
+  // Wishlist not relevant for admin
+  if(userData.role==='Administrator'){const nw=document.getElementById('navWishlist');if(nw)nw.style.display='none';}
   // Location preferences (customers only)
   if(userData.role==='Customer'){
     await loadProfTerritories();
@@ -649,14 +653,21 @@ async function loadMe(){
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
 async function loadDashboard(){
+  const isAdmin = userData?.role === 'Administrator';
+  // Hide customer-facing quick links for admin
+  const ql = document.getElementById('dashQuickLinks');
+  if(ql && isAdmin) ql.style.display = 'none';
+
+  const fetchWishlist = !isAdmin ? apiFetch('/wishlist',{headers:apiHeaders()}) : Promise.resolve({wishlist:{products:[]}});
   const [od,wd]=await Promise.all([
     apiFetch('/orders?limit=3',{headers:apiHeaders()}),
-    apiFetch('/wishlist',{headers:apiHeaders()})
+    fetchWishlist
   ]);
   const orders=od.orders||[];
   document.getElementById('statOrders').textContent=od.pagination?.total||orders.length;
   document.getElementById('statSpent').textContent='$'+(orders.reduce((s,o)=>s+(o.total||0),0)).toFixed(2);
-  document.getElementById('statWish').textContent=(wd.wishlist?.products||[]).length;
+  if(!isAdmin) document.getElementById('statWish').textContent=(wd.wishlist?.products||[]).length;
+  else document.getElementById('statWish').closest('.stat-card').style.display='none';
   if(!orders.length){
     document.getElementById('dashRecentOrders').innerHTML='<p style="color:var(--mid);font-size:14px;">No orders yet. <a href="category.html?cat=all" style="color:var(--gold)">Start shopping!</a></p>';
     return;
@@ -978,7 +989,7 @@ function openOutletForm() {
   document.getElementById('outletHours').value = '';
   document.getElementById('outletSaveBtn').textContent = 'Submit Outlet';
   document.getElementById('outletFormCard').style.display = '';
-  document.getElementById('outletFormCard').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('panel-outlets').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 window.openOutletForm = openOutletForm;
 
