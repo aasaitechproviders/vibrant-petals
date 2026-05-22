@@ -16,7 +16,8 @@
     .ann-bar{background:var(--gold);color:#fff;text-align:center;font-size:13px;letter-spacing:.06em;height:var(--bar-h);display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:200;}
     header{position:sticky;top:var(--bar-h);z-index:190;background:#fff;border-bottom:1px solid #e8e0d2;height:var(--nav-h);}
     .nav-inner{max-width:1280px;margin:0 auto;padding:0 32px;height:100%;display:flex;align-items:center;justify-content:space-between;}
-    .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:22px;font-weight:400;}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:22px;font-weight:400;height:100%;}
+    .nav-logo img{height:100%;width:auto;object-fit:contain;display:block;}
     nav ul{display:flex;align-items:center;gap:36px;}
     nav ul li a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--dark);padding-bottom:4px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
     nav ul li a:hover{color:var(--gold);border-bottom-color:var(--gold);}
@@ -197,12 +198,12 @@
 </head>
 <body>
 
-<div class="ann-bar">Enjoy Free Delivery on Orders Over $50 – Shop Now!</div>
+<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne Enjoy Free Delivery on Orders Over $50 – Shop Now!amp; Sydney</div>
 
 <header>
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
-      <img src="logo.png" alt="Vibrant Petals Logo" style="width:50px;height:40px;object-fit:contain;" />
+      <img src="logo.png" alt="Vibrant Petals Logo" />
       Vibrant Petals
     </a>
     <nav><ul>
@@ -287,9 +288,10 @@
   <div class="footer-grid">
     <div>
       <h4 class="footer-col-title">Get in touch</h4>
-      <div class="footer-contact"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>fusionmacimpex@gmail.com</div>
-      <div style="margin-top:16px;font-size:14px;color:var(--mid)">Follow us:</div>
-      <div class="social-row"><a href="#" class="social-icon">𝕏</a><a href="#" class="social-icon">f</a></div>
+      <div class="footer-contact"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>nivafoodsintl@gmail.com</div>
+      <div class="footer-contact" style="margin-top:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.22 2 2 0 012.22 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>+61 416 424 745</div>
+      <div class="footer-contact" style="margin-top:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>1/20 Lonhro Blvd, Cranbourne West VIC 3977</div>
+      <div class="footer-contact" style="margin-top:6px;padding-left:26px;font-size:12px;">Niva Foods Aus Pty Ltd</div>
     </div>
     <div><h4 class="footer-col-title">Help</h4><div class="footer-links"><a href="#">About Us</a><a href="#">Terms of Service</a><a href="#">Privacy Policy</a><a href="#">FAQs</a></div></div>
     <div>
@@ -299,7 +301,7 @@
       <button class="btn-subscribe" id="nlSubmit">Subscribe</button>
     </div>
   </div>
-  <div class="footer-bottom">Copyright © VibrantPetals. All Rights Reserved.</div>
+  <div class="footer-bottom">Copyright © Nivas Vibrant Petals. All Rights Reserved.</div>
 </footer>
 
 <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
@@ -341,7 +343,7 @@
   <div class="cart-head"><h3>Shopping Cart(<span id="cartCountHead">0</span>)</h3><button id="cartClose" style="font-size:22px;color:var(--mid);">✕</button></div>
   <div class="cart-body" id="cartBody"><div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><p>Your cart is currently empty.</p><a href="category.html?cat=all" class="btn-shop-all">Shop All Products</a></div></div>
   <div class="cart-foot" id="cartFoot" style="display:none;">
-    <div class="cart-totals"><div class="cart-total-row"><span>Subtotal</span><span id="cartSubtotal">$0.00</span></div><div class="cart-total-row"><span>Shipping</span><span id="cartShipping">$9.99</span></div><div class="cart-total-row grand"><span>Total</span><span id="cartTotal">$0.00</span></div></div>
+    <div class="cart-totals"><div class="cart-total-row"><span>Subtotal</span><span id="cartSubtotal">$0.00</span></div><div class="cart-total-row"><span>Pickup</span><span>Free (In-store)</span></div><div class="cart-total-row grand"><span>Total</span><span id="cartTotal">$0.00</span></div></div>
     <button class="btn-checkout" onclick="location.href='checkout.html'">Proceed to Checkout</button>
   </div>
 </div>
@@ -411,11 +413,15 @@ function renderProduct(p){
         ${inStock?'● In Stock':'● Out of Stock'}
       </div>
       ${p.shortDescription?`<p class="product-desc">${p.shortDescription}</p>`:''}
+      ${p.stockQty>0?`<div style="font-size:13px;color:var(--mid);margin-bottom:8px;">Available quantity: <strong style="color:var(--dark);">${p.stockQty}</strong></div>`:''}
       <div class="add-section">
-        <div class="qty-control">
-          <button class="qty-btn" onclick="changeQtyLocal(-1)">−</button>
-          <input class="qty-val" type="number" id="qtyInput" value="1" min="1" max="99" readonly/>
-          <button class="qty-btn" onclick="changeQtyLocal(1)">+</button>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);">Quantity</label>
+          <div class="qty-control">
+            <button class="qty-btn" onclick="changeQtyLocal(-1)">−</button>
+            <input class="qty-val" type="number" id="qtyInput" value="1" min="1" max="99" readonly/>
+            <button class="qty-btn" onclick="changeQtyLocal(1)">+</button>
+          </div>
         </div>
         <button class="btn-add" id="addCartBtn" ${!inStock?'disabled':''} onclick="addToCart('${p._id}')">
           ${inStock?'Add to Cart':'Out of Stock'}
@@ -436,6 +442,7 @@ function renderProduct(p){
     <table style="width:100%;border-collapse:collapse;">
       ${p.sku?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;width:140px;">SKU</td><td style="padding:10px 0;color:var(--mid)">${p.sku}</td></tr>`:''}
       ${p.stockStatus?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;">Availability</td><td style="padding:10px 0;color:var(--mid)">${p.stockStatus==='instock'?'In Stock':'Out of Stock'}</td></tr>`:''}
+      ${p.stockQty!=null?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;">Quantity Available</td><td style="padding:10px 0;color:var(--mid)">${p.stockQty}</td></tr>`:''}
       ${p.categories?.length?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;">Categories</td><td style="padding:10px 0;color:var(--mid)">${p.categories.join(', ')}</td></tr>`:''}
       ${p.tags?.length?`<tr><td style="padding:10px 0;font-weight:700;">Tags</td><td style="padding:10px 0;color:var(--mid)">${p.tags.join(', ')}</td></tr>`:''}
     </table>`;
