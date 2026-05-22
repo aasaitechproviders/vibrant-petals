@@ -317,9 +317,10 @@
       <div class="panel" id="panel-orders">
         <div class="card">
           <div class="table-toolbar">
-            <div style="display:flex;gap:10px;align-items:center;">
-              <select class="filter-select" id="ordStatusFilter" onchange="loadOrders()"><option value="">All Statuses</option><option value="pending">Pending</option><option value="processing">Processing</option><option value="ready_for_pickup">Ready for Pickup</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option><option value="refunded">Refunded</option></select>
-              <select class="filter-select" id="ordPayFilter" onchange="loadOrders()"><option value="">All Payments</option><option value="pending">Unpaid</option><option value="paid">Paid</option></select>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <select class="filter-select" id="ordRoleFilter" onchange="ordPage=1;loadOrders()"><option value="">All Accounts</option><option value="Customer">Customers Only</option><option value="Dealer">Dealers Only</option></select>
+              <select class="filter-select" id="ordStatusFilter" onchange="ordPage=1;loadOrders()"><option value="">All Statuses</option><option value="pending">Pending</option><option value="processing">Processing</option><option value="ready_for_pickup">Ready for Pickup</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option><option value="refunded">Refunded</option></select>
+              <select class="filter-select" id="ordPayFilter" onchange="ordPage=1;loadOrders()"><option value="">All Payments</option><option value="pending">Unpaid</option><option value="paid">Paid</option></select>
               <button class="btn-export btn-sm" onclick="exportOrders()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
             </div>
           </div>
@@ -1727,12 +1728,16 @@ document.getElementById('catName')?.addEventListener('input', function () {
 // ── ORDERS ────────────────────────────────────────────────────────────────────
 async function loadOrders() {
   const status = document.getElementById('ordStatusFilter')?.value || '';
-  const pay = document.getElementById('ordPayFilter')?.value || '';
+  const pay    = document.getElementById('ordPayFilter')?.value    || '';
+  const role   = document.getElementById('ordRoleFilter')?.value   || '';
   let url = `/admin/orders?page=${ordPage}&limit=${LIMIT}`;
   if (status) url += `&status=${status}`;
-  if (pay) url += `&paymentStatus=${pay}`;
+  if (pay)    url += `&paymentStatus=${pay}`;
   const data = await apiFetch(url, { headers: apiHeaders() });
-  const orders = data.orders || []; const pag = data.pagination || { total: 0, totalPages: 1 };
+  let orders = data.orders || [];
+  // Client-side role filter (backend doesn't have customerRole filter param)
+  if (role) orders = orders.filter(o => (o.customerRole || 'Customer') === role);
+  const pag = data.pagination || { total: 0, totalPages: 1 };
   document.getElementById('ordersBody').innerHTML = orders.length ? orders.map(o => {
     const oid = o._id || o.id || '';
     const status2 = o.status || 'pending';
@@ -1811,12 +1816,16 @@ async function openOrderModal(id) {
     ${assignedHtml}
     <div class="order-detail-box">
       <div class="order-detail-box-title">Customer</div>
-      <p>${o.customerEmail || '—'}<br/>${o.customerName || ''}</p>
+      <p>${o.customerEmail || '—'}<br/>${o.customerName || ''}${o.customerRole ? `<br/><span style="font-size:11px;font-weight:700;background:${o.customerRole==='Dealer'?'#fff3cd':'#d4edda'};color:${o.customerRole==='Dealer'?'#856404':'#155724'};padding:2px 8px;border-radius:10px;">${o.customerRole}</span>` : ''}</p>
     </div>
     <div class="order-detail-box">
       <div class="order-detail-box-title">🏪 Pickup Outlet</div>
       <p><b>${snap.name || '—'}</b><br/>${snap.address || ''}<br/>${snap.suburb || ''}, ${snap.state || ''}<br/>${snap.phone ? '📞 ' + snap.phone : ''}<br/>${snap.hours ? '⏰ ' + snap.hours : ''}</p>
-    </div>`;
+    </div>
+    ${o.notes ? `<div class="order-detail-box" style="grid-column:1/-1;background:#FBF9F4;">
+      <div class="order-detail-box-title">📝 Order Notes</div>
+      <p style="color:var(--dark);white-space:pre-wrap;">${o.notes}</p>
+    </div>` : ''}`;
 }
 window.openOrderModal = openOrderModal;
 
