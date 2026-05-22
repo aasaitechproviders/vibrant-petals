@@ -67,7 +67,9 @@
       display: flex; align-items: center; gap: 10px;
       font-family: 'Playfair Display', serif;
       font-size: 22px; font-weight: 400; color: var(--dark);
+      height: 100%;
     }
+    .nav-logo img { height: 100%; width: auto; object-fit: contain; display: block; }
     .nav-logo svg { width: 28px; height: 28px; }
 
     nav ul {
@@ -819,7 +821,7 @@
 
 <!-- ANNOUNCEMENT BAR -->
 <div class="ann-bar">
-  Enjoy Free Delivery on Orders Over $50 – Shop Now!
+  Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney
 </div>
 
 <!-- HEADER / NAV -->
@@ -827,7 +829,7 @@
   <div class="nav-inner">
     <!-- Logo -->
     <a href="index.html" class="nav-logo">
-      <img src="logo.png" alt="Vibrant Petals Logo" style="width:50px;height:40px;object-fit:contain;" />
+      <img src="logo.png" alt="Vibrant Petals Logo" />
       Vibrant Petals
     </a>
 
@@ -969,7 +971,7 @@
 <section class="delivery-banner" id="deliveryBannerSection">
   <div class="delivery-left"></div>
   <div class="delivery-content">
-    <h2>Enjoy Free Delivery on<br>Orders over $50 –<br>Shop Now!</h2>
+    <h2>Free In-Store Pickup at<br>Selected Retail Outlets –<br>Melbourne &amp; Sydney</h2>
   </div>
 </section>
 
@@ -980,18 +982,18 @@
       <h4 class="footer-col-title">Get in touch</h4>
       <div class="footer-contact">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
-        fusionmacimpex@gmail.com
+        nivafoodsintl@gmail.com
       </div>
-      <div style="margin-top:16px;font-size:14px;color:var(--mid);">Follow us:</div>
-      <div class="social-row">
-        <a href="#" class="social-icon">𝕏</a>
-        <a href="#" class="social-icon" title="Instagram">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
-        </a>
-        <a href="#" class="social-icon">f</a>
-        <a href="#" class="social-icon" title="TikTok">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12a4 4 0 104 4V4a5 5 0 005 5"/></svg>
-        </a>
+      <div class="footer-contact" style="margin-top:10px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.22 2 2 0 012.22 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+        +61 416 424 745
+      </div>
+      <div class="footer-contact" style="margin-top:10px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        1/20 Lonhro Blvd, Cranbourne West VIC 3977
+      </div>
+      <div class="footer-contact" style="margin-top:6px;padding-left:26px;font-size:12px;">
+        Niva Foods Aus Pty Ltd
       </div>
     </div>
     <div>
@@ -1012,7 +1014,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    Copyright © VibrantPetals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a>
+    Copyright © Nivas Vibrant Petals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a>
   </div>
 </footer>
 
@@ -1077,7 +1079,7 @@
   <div class="cart-foot" id="cartFoot" style="display:none;">
     <div class="cart-totals">
       <div class="cart-total-row"><span>Subtotal</span><span id="cartSubtotal">$0.00</span></div>
-      <div class="cart-total-row"><span>Shipping</span><span id="cartShipping">$9.99</span></div>
+      <div class="cart-total-row"><span>Pickup</span><span>Free (In-store)</span></div>
       <div class="cart-total-row grand"><span>Total</span><span id="cartTotal">$0.00</span></div>
     </div>
     <button class="btn-checkout" onclick="location.href='checkout.html'">Proceed to Checkout</button>
@@ -1289,7 +1291,7 @@ searchInput.addEventListener('input', ()=>{
   const q = searchInput.value.trim();
   if(q.length<2){ searchResults.innerHTML=''; return; }
   searchTimer = setTimeout(async ()=>{
-    const data = await apiFetch(`/products/search?q=${encodeURIComponent(q)}&limit=5`).catch(()=>({products:[]}));
+    const data = await apiFetch(`/products/search?q=${encodeURIComponent(q)}&limit=20`).catch(()=>({products:[]}));
     const prods = data.products||[];
     if(!prods.length){ searchResults.innerHTML='<p style="color:var(--mid);font-size:14px;">No results found</p>'; return; }
     searchResults.innerHTML = prods.map(p=>`
