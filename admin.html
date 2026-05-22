@@ -239,7 +239,10 @@
 
   <div class="main">
     <div class="topbar">
-      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <button id="topbarBackBtn" onclick="showPanel('dashboard')" style="display:none;background:none;border:1px solid #e8e0d2;border-radius:4px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;color:var(--mid);letter-spacing:.04em;transition:border-color .2s,color .2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)';" onmouseout="this.style.borderColor='#e8e0d2';this.style.color='var(--mid)';">← Dashboard</button>
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      </div>
       <div class="topbar-right">
         <a href="index.html" target="_blank" class="view-site-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>View Store</a>
         <div class="topbar-user"><div class="topbar-avatar" id="adminAvatar">A</div><span id="adminName">Admin</span></div>
@@ -1010,16 +1013,33 @@ async function loadTerritories() {
   let qs = '';
   if (state)  qs += `state=${encodeURIComponent(state)}&`;
   if (status) qs += `status=${encodeURIComponent(status)}&`;
-  const data = await apiFetch('/admin/territories?' + qs, { headers: apiHeaders() });
+  const [data, usersData] = await Promise.all([
+    apiFetch('/admin/territories?' + qs, { headers: apiHeaders() }),
+    apiFetch('/admin/users?role=Dealer&limit=200', { headers: apiHeaders() }),
+  ]);
   const wrap = document.getElementById('territoriesTableWrap');
   if (!data.success || !data.territories) { wrap.innerHTML = `<p style="padding:20px;color:#c0392b;">${data.message||'Failed to load territories'}</p>`; return; }
   const list = data.territories;
   if (!list.length) { wrap.innerHTML = '<p style="padding:20px;color:var(--mid);">No territories found for these filters.</p>'; return; }
 
+  // Build dealer lookup map id→name
+  const dealerMap = {};
+  (usersData.users || []).forEach(u => {
+    const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || u.username || u.email;
+    dealerMap[u._id.toString()] = { name, email: u.email, phone: u.dealerInfo?.mobile || '' };
+  });
+
   const statusBadge = s => {
     const map = { open: ['#27ae60','Open'], pending: ['#e67e22','Pending'], assigned: ['#9B8B5A','Assigned'] };
     const [col, label] = map[s] || ['#aaa', s];
     return `<span style="background:${col}15;color:${col};border:1px solid ${col}40;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;letter-spacing:.05em;">${label}</span>`;
+  };
+
+  const dealerCell = (id) => {
+    if (!id) return '<span style="color:#aaa;font-size:12px;">—</span>';
+    const d = dealerMap[id.toString()];
+    if (!d) return `<span style="font-size:12px;color:var(--mid);">${id.toString().slice(-6)}…</span>`;
+    return `<div style="font-size:13px;font-weight:700;">${d.name}</div>${d.email ? `<div style="font-size:11px;color:var(--mid);">${d.email}</div>` : ''}${d.phone ? `<div style="font-size:11px;color:var(--mid);">${d.phone}</div>` : ''}`;
   };
 
   const now = Date.now();
@@ -1033,7 +1053,7 @@ async function loadTerritories() {
           const countdown = t.status === 'pending' && t.daysLeft !== undefined
             ? `<span style="color:${t.daysLeft <= 3 ? '#c0392b' : '#e67e22'};font-weight:700;">${t.daysLeft}d left</span>`
             : '—';
-          const dealer = t.status === 'assigned' ? (t.dealerId || '—') : t.status === 'pending' ? (t.pendingDealerId || '—') : '—';
+          const dealerId = t.status === 'assigned' ? t.dealerId : t.status === 'pending' ? t.pendingDealerId : null;
           const actions = t.status === 'pending'
             ? `<button onclick="territoryAction('${t.slug}','approve')" style="padding:5px 12px;font-size:12px;background:#27ae60;color:#fff;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">✓ Approve</button>
                <button onclick="territoryAction('${t.slug}','reject')"  style="padding:5px 12px;font-size:12px;background:#c0392b;color:#fff;border:none;border-radius:3px;cursor:pointer;">✕ Reject</button>`
@@ -1044,7 +1064,7 @@ async function loadTerritories() {
             <td><strong>${t.name}</strong></td>
             <td>${t.state}</td>
             <td>${statusBadge(t.status)}</td>
-            <td style="font-size:12px;color:var(--mid);">${dealer}</td>
+            <td>${dealerCell(dealerId)}</td>
             <td>${countdown}</td>
             <td style="text-align:right;">${actions}</td>
           </tr>`;
@@ -1180,7 +1200,7 @@ async function deleteOutlet(id) {
   else showToast(data.message || 'Delete failed', 'error');
 }
 window.deleteOutlet = deleteOutlet;
-const panelTitles = { dashboard: 'Dashboard', products: 'Products', categories: 'Categories', orders: 'Orders', coupons: 'Coupons', users: 'Users', customers: 'Customers', newsletter: 'Newsletter' };
+const panelTitles = { dashboard: 'Dashboard', products: 'Products', categories: 'Categories', orders: 'Orders', coupons: 'Coupons', users: 'Users', customers: 'Customers', newsletter: 'Newsletter', territories: 'Territory Management', outlets: 'Retail Outlets', banners: 'Banners', catimages: 'Category Images', siteimages: 'Site Images' };
 
 function showPanel(name, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -1188,6 +1208,8 @@ function showPanel(name, el) {
   document.getElementById('panel-' + name).classList.add('active');
   if (el) el.classList.add('active');
   document.getElementById('topbarTitle').textContent = panelTitles[name] || name;
+  const backBtn = document.getElementById('topbarBackBtn');
+  if (backBtn) backBtn.style.display = name === 'dashboard' ? 'none' : 'inline-flex';
   if (panelLoaders[name]) panelLoaders[name]();
 }
 window.showPanel = showPanel;
