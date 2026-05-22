@@ -283,6 +283,11 @@
     .input-wrap { position: relative; }
     .input-wrap .form-input { padding-right: 46px; }
     .pwd-toggle { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--light); cursor: pointer; transition: color .2s; }
+    /* Hide browser's native password reveal icon (Edge/Chrome/IE) */
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear { display: none; }
+    input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidden; }
+    input[type="password"]::-webkit-textfield-decoration-container { display: none; }
     .pwd-toggle:hover { color: var(--dark); }
     .pwd-toggle svg { width: 18px; height: 18px; display: block; }
 
@@ -435,7 +440,7 @@
         <div class="form-group">
           <label class="form-label">Password <span class="req">*</span></label>
           <div class="input-wrap">
-            <input class="form-input" id="cPassword" placeholder="Min. 8 characters" type="password"/>
+            <input class="form-input" id="cPassword" placeholder="Min. 8 characters" type="password" autocomplete="new-password"/>
             <span class="pwd-toggle" onclick="togglePwd('cPassword', this)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="eyeIconC"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </span>
@@ -497,7 +502,7 @@
           <div class="form-group">
             <label class="form-label">Password <span class="req">*</span></label>
             <div class="input-wrap">
-              <input class="form-input" id="dPassword" placeholder="Min. 8 characters" type="password"/>
+              <input class="form-input" id="dPassword" placeholder="Min. 8 characters" type="password" autocomplete="new-password"/>
               <span class="pwd-toggle" onclick="togglePwd('dPassword', this)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </span>
@@ -723,7 +728,7 @@
         <div class="form-group">
           <label class="form-label">Password <span class="req">*</span></label>
           <div class="input-wrap">
-            <input class="form-input" id="oPassword" placeholder="Min. 8 characters" type="password"/>
+            <input class="form-input" id="oPassword" placeholder="Min. 8 characters" type="password" autocomplete="new-password"/>
             <span class="pwd-toggle" onclick="togglePwd('oPassword', this)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </span>
