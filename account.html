@@ -13,7 +13,7 @@
     .ann-bar{background:var(--gold);color:#fff;text-align:center;font-size:13px;letter-spacing:.06em;height:var(--bar-h);display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:200;}
     header{position:sticky;top:var(--bar-h);z-index:190;background:#fff;border-bottom:1px solid #e8e0d2;height:var(--nav-h);}
     .nav-inner{max-width:1280px;margin:0 auto;padding:0 32px;height:100%;display:flex;align-items:center;justify-content:space-between;}
-    .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:22px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-family:"Playfair Display",serif;font-size:22px;height:100%;}.nav-logo img{height:100%;width:auto;object-fit:contain;display:block;}
     nav ul{display:flex;align-items:center;gap:36px;}
     nav ul li a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--dark);padding-bottom:4px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
     nav ul li a:hover{color:var(--gold);border-bottom-color:var(--gold);}
@@ -159,10 +159,10 @@
   </style>
 </head>
 <body>
-<div class="ann-bar">Enjoy Free Delivery on Orders Over $50 – Shop Now!</div>
+<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne Enjoy Free Delivery on Orders Over $50 – Shop Now!amp; Sydney</div>
 <header>
   <div class="nav-inner">
-    <a href="index.html" class="nav-logo"><img src="logo.png" alt="Vibrant Petals Logo" style="width:50px;height:40px;object-fit:contain;" />Vibrant Petals</a>
+    <a href="index.html" class="nav-logo"><img src="logo.png" alt="Vibrant Petals Logo" />Vibrant Petals</a>
     <nav><ul>
       <li><a href="index.html">Home</a></li>
       <li><a href="category.html?cat=strings">Strings</a></li>
@@ -235,9 +235,7 @@
         <div class="acct-nav-item" onclick="showPanel('orders',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>My Orders
         </div>
-        <div class="acct-nav-item" id="navAddresses" style="display:none;" onclick="showPanel('addresses',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Addresses
-        </div>
+        <!-- Addresses removed — pickup-only model, no door delivery -->
         <div class="acct-nav-item" onclick="showPanel('profile',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile Settings
         </div>
@@ -293,12 +291,8 @@
         <div class="orders-pagination" id="ordersPagination"></div>
       </div>
 
-      <!-- ADDRESSES -->
-      <div class="acct-panel" id="panel-addresses">
-        <div class="panel-title">Saved Addresses</div>
-        <div id="addressesContent"><div class="skeleton" style="height:120px;border-radius:4px;"></div></div>
-        <button class="btn-save" style="margin-top:4px;" onclick="openAddrModal()">+ Add New Address</button>
-      </div>
+      <!-- ADDRESSES — hidden, pickup-only model -->
+      <div class="acct-panel" id="panel-addresses" style="display:none!important;"></div>
 
       <!-- PROFILE -->
       <div class="acct-panel" id="panel-profile">
@@ -551,7 +545,7 @@
   </div>
 </div>
 
-<footer>Copyright © VibrantPetals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></footer>
+<footer>Copyright © Nivas Vibrant Petals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></footer>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -633,8 +627,7 @@ async function loadMe(){
   // Show dealer nav items
   if(userData.role==='Dealer'||userData.role==='Administrator'){document.getElementById('navDealer').style.display='flex';document.getElementById('navOutlets').style.display='flex';}
   if(userData.role==='Administrator'){document.getElementById('navAdmin').style.display='flex';}
-  // Addresses only for customers (pickup-only model makes it less relevant for dealers)
-  if(userData.role==='Customer'){document.getElementById('navAddresses').style.display='flex';}
+  // Addresses removed — pickup-only model
   // Wishlist not relevant for admin
   if(userData.role==='Administrator'){const nw=document.getElementById('navWishlist');if(nw)nw.style.display='none';}
   // Location preferences (customers only)
@@ -764,7 +757,8 @@ async function viewOrder(id){
       <div class="order-total-row"><span>Pickup</span><span>In-store (free)</span></div>
       ${o.discount?`<div class="order-total-row"><span>Discount</span><span>-$${o.discount.toFixed(2)}</span></div>`:''}
       <div class="order-total-row grand"><span>Total</span><span>$${(o.total||0).toFixed(2)}</span></div>
-    </div>`;
+    </div>
+    ${o.notes?`<div style="margin-top:16px;padding:12px 16px;background:#FBF9F4;border:1px solid #e8e0d2;border-radius:4px;font-size:13px;"><span style="font-weight:700;color:var(--mid);letter-spacing:.06em;text-transform:uppercase;font-size:11px;">Order Notes</span><p style="margin-top:6px;color:var(--dark);line-height:1.7;">${o.notes}</p></div>`:''}`;
   document.getElementById('orderModal').classList.add('open');
 }
 function closeOrderModal(){document.getElementById('orderModal').classList.remove('open');}
