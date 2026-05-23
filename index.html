@@ -793,6 +793,72 @@
     .back-top.visible { opacity: 1; pointer-events: all; }
 
     /* ── RESPONSIVE ─────────────────────────────────────────── */
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none; flex-direction: column; justify-content: center; gap: 5px;
+      width: 36px; height: 36px; background: none; border: none; cursor: pointer;
+      padding: 4px; border-radius: 4px; transition: background .15s;
+    }
+    .hamburger:hover { background: var(--cream2); }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--dark); border-radius: 2px;
+      transition: transform .25s, opacity .25s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── MOBILE NAV DRAWER ── */
+    .mobile-nav {
+      display: none; position: fixed; inset: 0; z-index: 800;
+    }
+    .mobile-nav.open { display: block; }
+    .mobile-nav-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,.45);
+    }
+    .mobile-nav-drawer {
+      position: absolute; top: 0; left: 0; bottom: 0; width: min(300px, 85vw);
+      background: #fff; overflow-y: auto; box-shadow: 4px 0 30px rgba(0,0,0,.12);
+      display: flex; flex-direction: column;
+      transform: translateX(-100%); transition: transform .28s cubic-bezier(.4,0,.2,1);
+    }
+    .mobile-nav.open .mobile-nav-drawer { transform: translateX(0); }
+    .mobile-nav-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px; border-bottom: 1px solid #e8e0d2;
+      font-family: 'Playfair Display', serif; font-size: 18px; color: var(--dark);
+    }
+    .mobile-nav-close {
+      font-size: 22px; color: var(--mid); background: none; border: none; cursor: pointer;
+      line-height: 1; padding: 2px 6px; border-radius: 4px; transition: background .15s;
+    }
+    .mobile-nav-close:hover { background: var(--cream2); }
+    .mobile-nav ul { list-style: none; padding: 10px 0; margin: 0; flex: 1; }
+    .mobile-nav ul li a,
+    .mobile-nav ul li button {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 14px 20px; font-size: 14px; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--dark);
+      background: none; border: none; cursor: pointer; text-align: left;
+      border-bottom: 1px solid #f5f0e8; transition: background .15s, color .15s;
+      text-decoration: none;
+    }
+    .mobile-nav ul li a:hover,
+    .mobile-nav ul li button:hover { background: var(--cream2); color: var(--gold); }
+    .mobile-nav-sub {
+      display: none; background: var(--cream2); border-bottom: 1px solid #e8e0d2;
+    }
+    .mobile-nav-sub.open { display: block; }
+    .mobile-nav-sub a {
+      padding: 11px 20px 11px 36px !important; font-size: 13px !important;
+      letter-spacing: .05em !important; color: var(--mid) !important;
+      border-bottom: 1px solid #ede8de !important;
+    }
+    .mobile-nav-sub a:hover { color: var(--gold) !important; }
+    .mobile-nav-arrow { font-size: 11px; transition: transform .2s; }
+    .mobile-nav-arrow.open { transform: rotate(180deg); }
+
     @media(max-width:900px){
       .cat-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
       .cat-grid-wrap { padding: 0 16px; }
@@ -809,6 +875,7 @@
       .delivery-img { height: 200px; }
       .product-card { flex: 0 0 50%; }
       nav ul { display: none; }
+      .hamburger { display: flex; }
     }
     @media(max-width:600px){
       .cat-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -871,9 +938,39 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         <span class="badge" id="cartCount">0</span>
       </button>
+      <!-- Hamburger — mobile only -->
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" onclick="openMobileNav()">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </header>
+
+<!-- ── MOBILE NAV DRAWER ──────────────────────────────────── -->
+<div class="mobile-nav" id="mobileNav">
+  <div class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
+  <div class="mobile-nav-drawer">
+    <div class="mobile-nav-head">
+      <span>🌸 Vibrant Petals</span>
+      <button class="mobile-nav-close" onclick="closeMobileNav()">✕</button>
+    </div>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="category.html?cat=strings">Strings</a></li>
+      <li>
+        <button onclick="toggleMobileSub('garlandsSub',this)">
+          Garlands <span class="mobile-nav-arrow" id="garlandsArrow">▾</span>
+        </button>
+        <div class="mobile-nav-sub" id="garlandsSub">
+          <a href="category.html?cat=pooja-garlands">Pooja Garlands</a>
+          <a href="category.html?cat=special-occasional-garlands">Special Occasional Garlands</a>
+        </div>
+      </li>
+      <li><a href="category.html?cat=loose-flowers">Loose Flowers</a></li>
+      <li><a href="category.html?cat=leaves">Leaves</a></li>
+    </ul>
+  </div>
+</div>
 
 <!-- ── HERO SLIDER ─────────────────────────────────────────── -->
 <section class="hero" id="hero">
@@ -1093,6 +1190,18 @@
 // ── CONFIG ─────────────────────────────────────────────────
 const API = 'https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
 
+// Check if stored token is expired before using it
+(function(){
+  const raw = localStorage.getItem('vp_token');
+  if(raw){
+    try{
+      const payload = JSON.parse(atob(raw.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+      if(payload.exp && payload.exp * 1000 < Date.now()){
+        localStorage.removeItem('vp_token');
+      }
+    }catch(e){ localStorage.removeItem('vp_token'); }
+  }
+})();
 let token = localStorage.getItem('vp_token') || '';
 let sessionId = localStorage.getItem('vp_session') || (() => {
   const s = 'sess_' + Math.random().toString(36).slice(2);
@@ -1327,6 +1436,27 @@ function doHeaderLogout(){
   localStorage.removeItem('vp_token');
   location.reload();
 }
+
+// ── MOBILE NAV ────────────────────────────────────────────────────────────────
+function openMobileNav(){
+  document.getElementById('mobileNav').classList.add('open');
+  document.getElementById('hamburgerBtn').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeMobileNav(){
+  document.getElementById('mobileNav').classList.remove('open');
+  document.getElementById('hamburgerBtn').classList.remove('open');
+  document.body.style.overflow='';
+}
+function toggleMobileSub(id, btn){
+  const sub=document.getElementById(id);
+  const arrow=document.getElementById('garlandsArrow');
+  const isOpen=sub.classList.toggle('open');
+  if(arrow) arrow.classList.toggle('open', isOpen);
+}
+// Close on Escape
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeMobileNav(); });
+
 buildAcctDrop();
 document.getElementById('modalClose').onclick = ()=>loginModal.classList.remove('open');
 loginModal.addEventListener('click', e=>{ if(e.target===loginModal) loginModal.classList.remove('open'); });
