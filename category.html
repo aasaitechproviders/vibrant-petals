@@ -181,11 +181,37 @@
     .back-top{position:fixed;bottom:28px;right:28px;width:42px;height:42px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 16px rgba(0,0,0,.18);opacity:0;pointer-events:none;transition:opacity .3s;z-index:400;cursor:pointer;}
     .back-top.visible{opacity:1;pointer-events:all;}
 
+    
+    /* ── HAMBURGER & MOBILE NAV ── */
+    .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:none;border:none;cursor:pointer;padding:4px;border-radius:4px;transition:background .15s;}
+    .hamburger:hover{background:var(--cream2,#F5F0E8);}
+    .hamburger span{display:block;width:22px;height:2px;background:var(--dark,#1A1A1A);border-radius:2px;transition:transform .25s,opacity .25s;}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .hamburger.open span:nth-child(2){opacity:0;}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+    .mobile-nav{display:none;position:fixed;inset:0;z-index:800;}
+    .mobile-nav.open{display:block;}
+    .mobile-nav-overlay{position:absolute;inset:0;background:rgba(0,0,0,.45);}
+    .mobile-nav-drawer{position:absolute;top:0;left:0;bottom:0;width:min(300px,85vw);background:#fff;overflow-y:auto;box-shadow:4px 0 30px rgba(0,0,0,.12);display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);}
+    .mobile-nav.open .mobile-nav-drawer{transform:translateX(0);}
+    .mobile-nav-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #e8e0d2;font-family:'Playfair Display',serif;font-size:18px;color:var(--dark,#1A1A1A);}
+    .mobile-nav-close{font-size:22px;color:var(--mid,#7A7065);background:none;border:none;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px;transition:background .15s;}
+    .mobile-nav-close:hover{background:var(--cream2,#F5F0E8);}
+    .mobile-nav ul{list-style:none;padding:10px 0;margin:0;flex:1;}
+    .mobile-nav ul li a,.mobile-nav ul li button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 20px;font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dark,#1A1A1A);background:none;border:none;cursor:pointer;text-align:left;border-bottom:1px solid #f5f0e8;transition:background .15s,color .15s;text-decoration:none;}
+    .mobile-nav ul li a:hover,.mobile-nav ul li button:hover{background:var(--cream2,#F5F0E8);color:var(--gold,#9B8B5A);}
+    .mobile-nav-sub{display:none;background:var(--cream2,#F5F0E8);border-bottom:1px solid #e8e0d2;}
+    .mobile-nav-sub.open{display:block;}
+    .mobile-nav-sub a{padding:11px 20px 11px 36px!important;font-size:13px!important;letter-spacing:.05em!important;color:var(--mid,#7A7065)!important;border-bottom:1px solid #ede8de!important;}
+    .mobile-nav-sub a:hover{color:var(--gold,#9B8B5A)!important;}
+    .mobile-nav-arrow{font-size:11px;transition:transform .2s;}
+    .mobile-nav-arrow.open{transform:rotate(180deg);}
     @media(max-width:900px){
       .shop-layout{grid-template-columns:1fr;}.sidebar{display:none;}
       .products-grid{grid-template-columns:repeat(2,1fr);}
       .footer-grid{grid-template-columns:1fr;gap:36px;}
       nav ul{display:none;}
+      .hamburger{display:flex;}
     }
   </style>
 </head>
@@ -222,9 +248,32 @@
       </div>
       <button class="nav-icon-btn" onclick="location.href='wishlist.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount">0</span></button>
       <button class="nav-icon-btn" id="cartBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="badge" id="cartCount">0</span></button>
+      <!-- Hamburger — mobile only -->
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" onclick="openMobileNav()"><span></span><span></span><span></span></button>
     </div>
   </div>
 </header>
+
+<!-- ── MOBILE NAV DRAWER ──────────────────────────────────── -->
+<div class="mobile-nav" id="mobileNav">
+  <div class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
+  <div class="mobile-nav-drawer">
+    <div class="mobile-nav-head"><span>🌸 Vibrant Petals</span><button class="mobile-nav-close" onclick="closeMobileNav()">✕</button></div>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="category.html?cat=strings">Strings</a></li>
+      <li>
+        <button onclick="toggleMobileSub('garlandsSub',this)">Garlands <span class="mobile-nav-arrow" id="garlandsArrow">▾</span></button>
+        <div class="mobile-nav-sub" id="garlandsSub">
+          <a href="category.html?cat=pooja-garlands">Pooja Garlands</a>
+          <a href="category.html?cat=special-occasional-garlands">Special Occasional Garlands</a>
+        </div>
+      </li>
+      <li><a href="category.html?cat=loose-flowers">Loose Flowers</a></li>
+      <li><a href="category.html?cat=leaves">Leaves</a></li>
+    </ul>
+  </div>
+</div>
 
 <!-- Hero banner removed entirely -->
 
@@ -315,6 +364,7 @@
 
 <script>
 const API = 'https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
+(function(){const raw=localStorage.getItem('vp_token');if(raw){try{const p=JSON.parse(atob(raw.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(p.exp&&p.exp*1000<Date.now())localStorage.removeItem('vp_token');}catch(e){localStorage.removeItem('vp_token');}}})();
 let token = localStorage.getItem('vp_token')||'';
 let sessionId = localStorage.getItem('vp_session')||'sess_'+Math.random().toString(36).slice(2);
 localStorage.setItem('vp_session', sessionId);
