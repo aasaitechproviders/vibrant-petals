@@ -110,6 +110,7 @@
 
 <script>
 const API='https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
+(function(){const raw=localStorage.getItem('vp_token');if(raw){try{const p=JSON.parse(atob(raw.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(p.exp&&p.exp*1000<Date.now())localStorage.removeItem('vp_token');}catch(e){localStorage.removeItem('vp_token');}}})();
 let token=localStorage.getItem('vp_token')||'';
 let sessionId=localStorage.getItem('vp_session')||'sess_'+Math.random().toString(36).slice(2);
 function apiHeaders(a=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(a&&token)h['Authorization']='Bearer '+token;return h;}
