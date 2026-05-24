@@ -182,13 +182,13 @@
     .back-top.visible{opacity:1;pointer-events:all;}
     .skeleton{background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-    .search-overlay{position:fixed;inset:0;background:rgba(250,247,242,.97);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .search-overlay{position:fixed;inset:0;background:rgba(250,247,242,.97);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:15vh;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .25s;}
     .search-overlay.open{opacity:1;pointer-events:all;}
     .search-close{position:absolute;top:20px;right:24px;font-size:28px;cursor:pointer;}
     .search-label{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:24px;}
     .search-bar{display:flex;align-items:center;width:min(600px,90vw);border-bottom:2px solid var(--dark);padding-bottom:10px;gap:12px;}
     .search-bar input{flex:1;border:none;background:transparent;font-size:20px;outline:none;font-family:'Cormorant Garamond',serif;}
-    .search-results{width:min(600px,90vw);margin-top:24px;display:flex;flex-direction:column;gap:12px;}
+    .search-results{width:min(600px,90vw);margin-top:24px;display:flex;flex-direction:column;gap:12px;max-height:55vh;overflow-y:auto;padding-right:4px;}
     .search-result-item{display:flex;align-items:center;gap:16px;padding:12px;background:#fff;border:1px solid #e8e0d2;cursor:pointer;}
     .search-result-item:hover{border-color:var(--gold);}
     .search-result-item img{width:50px;height:50px;object-fit:cover;}
@@ -590,7 +590,7 @@ document.getElementById('searchInput').addEventListener('input',function(){
   clearTimeout(st);const q=this.value.trim();
   if(q.length<2){document.getElementById('searchResults').innerHTML='';return;}
   st=setTimeout(async()=>{
-    const data=await apiFetch(`/products/search?q=${encodeURIComponent(q)}&limit=5`).catch(()=>({products:[]}));
+    const data=await apiFetch(`/products/search?q=${encodeURIComponent(q)}&limit=20`).catch(()=>({products:[]}));
     document.getElementById('searchResults').innerHTML=(data.products||[]).map(p=>`<div class="search-result-item" onclick="location.href='product.html?id=${p._id}'"><img src="${p.images?.[0]||'https://placehold.co/50'}" onerror="this.src='https://placehold.co/50'"/><div><div style="font-size:14px;font-weight:600;">${p.name}</div><div style="font-size:13px;color:var(--mid)">${p.price?'$'+p.price.toFixed(2):''}</div></div></div>`).join('')||'<p style="color:var(--mid);font-size:14px;">No results found</p>';
   },300);
 });
