@@ -856,7 +856,7 @@ function populateTerritorySelect(selectEl, state) {
     opt.value = t.slug;
     const taken  = t.status === 'assigned';
     const review = t.status === 'pending';
-    opt.textContent = taken ? `${t.name} (Taken)` : review ? `${t.name} (Under Review)` : t.name;
+    opt.textContent = taken ? `${t.name} (Reserved)` : review ? `${t.name} (Under Review)` : t.name;
     opt.disabled = taken || review;
     selectEl.appendChild(opt);
   });
