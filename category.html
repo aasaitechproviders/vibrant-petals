@@ -356,7 +356,7 @@
       <div class="cart-total-row"><span>Pickup</span><span>Free (In-store)</span></div>
       <div class="cart-total-row grand"><span>Total</span><span id="cartTotal">$0.00</span></div>
     </div>
-    <button class="btn-checkout" onclick="location.href='checkout.html'">Proceed to Checkout</button>
+    <button class="btn-checkout" onclick="handleCheckout()">Proceed to Checkout</button>
   </div>
 </div>
 
@@ -584,6 +584,8 @@ async function addToWishlist(productId){
   showToast(data.success?'Added to wishlist!':data.message||'Error',data.success?'success':'error');
 }
 window.addToCart=addToCart;window.changeQty=changeQty;window.removeFromCart=removeFromCart;window.addToWishlist=addToWishlist;
+function handleCheckout(){ location.href='checkout.html'; }
+window.handleCheckout=handleCheckout;
 
 // ── SEARCH ────────────────────────────────────────────────────────────────────
 const searchOverlay=document.getElementById('searchOverlay');
