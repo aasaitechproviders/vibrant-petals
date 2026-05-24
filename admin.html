@@ -741,7 +741,7 @@ const API = 'https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.
 
 var token = localStorage.getItem('vp_token') || localStorage.getItem('vp_admin_token') || '';
 var userData = null;
-var editingProductId = null, editingOrderId = null, editingUserId = null, editingCouponId = null, editingCategoryId = null;
+var editingProductId = null, editingOrderId = null, editingUserId = null, editingCouponId = null, editingCategorySlug = null;
 var prodPage = 1, ordPage = 1, userPage = 1, custPage = 1, nlPage = 1, couponPage = 1;
 const LIMIT = 15;
 
@@ -1688,23 +1688,25 @@ async function loadCategories() {
   const imgMap = {};
   (imgData.categoryImages || []).forEach(ci => { imgMap[ci.slug] = ci.image; });
 
-  document.getElementById('categoriesBody').innerHTML = cats.length ? cats.map(cat => {
-    const cid      = cat._id || cat.id || '';
-    const safeName = (cat.name || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+  // Filter out the synthetic "All" entry — not a real category
+  const realCats = cats.filter(c => c.slug !== 'all');
+
+  document.getElementById('categoriesBody').innerHTML = realCats.length ? realCats.map(cat => {
     const slug     = cat.slug || '';
+    const safeName = (cat.name || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
     const imgUrl   = imgMap[slug] || '';
     const thumb    = imgUrl
       ? `<img src="${imgUrl}" alt="" style="width:64px;height:44px;object-fit:cover;border-radius:4px;background:#eee;" onerror="this.style.display='none'"/>`
       : `<div style="width:64px;height:44px;border-radius:4px;background:#f0ebe0;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:18px;">✦</div>`;
     return `<tr>
       <td>${thumb}</td>
-      <td><b>${cat.name}</b>${cat.description ? `<br/><span style="font-size:12px;color:var(--mid)">${cat.description}</span>` : ''}</td>
+      <td><b>${cat.name}</b></td>
       <td style="font-size:12px;color:var(--mid);font-family:monospace;">${slug || '—'}</td>
       <td style="font-size:13px;color:var(--mid);">${cat.count != null ? cat.count + ' products' : '—'}</td>
       <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          ${cid ? `<button class="btn-sm btn-edit" onclick="editCategory('${cid}')">Edit</button>` : ''}
-          ${cid ? `<button class="btn-sm btn-delete" onclick="deleteCategory('${cid}','${safeName}')">Delete</button>` : ''}
+          <button class="btn-sm btn-edit"   onclick="editCategory('${slug}','${safeName}')">Edit</button>
+          <button class="btn-sm btn-delete" onclick="deleteCategory('${slug}','${safeName}')">Delete Image</button>
         </div>
       </td>
     </tr>`;
@@ -1712,7 +1714,7 @@ async function loadCategories() {
 }
 
 function openCategoryModal() {
-  editingCategoryId = null;
+  editingCategorySlug = null;
   document.getElementById('catModalTitle').textContent = 'Add Category';
   document.getElementById('catName').value = '';
   document.getElementById('catSlug').value = '';
@@ -1725,25 +1727,17 @@ function openCategoryModal() {
 }
 window.openCategoryModal = openCategoryModal;
 
-async function editCategory(id) {
-  // Load category data AND its current image in parallel
-  const [catData, imgData] = await Promise.all([
-    apiFetch('/products/categories', { headers: apiHeaders() }),
-    apiFetch('/admin/category-images', { headers: apiHeaders() }),
-  ]);
-  const cats   = catData.categories || catData.data || [];
-  const cat    = cats.find(x => (x._id || x.id) === id);
-  if (!cat) { showToast('Category not found', 'error'); return; }
-  const imgMap = {};
+async function editCategory(slug, name) {
+  const imgData = await apiFetch('/admin/category-images', { headers: apiHeaders() });
+  const imgMap  = {};
   (imgData.categoryImages || []).forEach(ci => { imgMap[ci.slug] = ci.image; });
 
-  editingCategoryId = id;
+  editingCategorySlug = slug;
   document.getElementById('catModalTitle').textContent = 'Edit Category';
-  document.getElementById('catName').value = cat.name || '';
-  document.getElementById('catSlug').value = cat.slug || '';
-  document.getElementById('catDesc').value = cat.description || '';
-  // Prefer image from category-images collection (homepage source of truth)
-  const currentImg = imgMap[cat.slug] || cat.image || '';
+  document.getElementById('catName').value  = name || slug;
+  document.getElementById('catSlug').value  = slug;
+  document.getElementById('catDesc').value  = '';
+  const currentImg = imgMap[slug] || '';
   document.getElementById('catImage').value = currentImg;
   document.getElementById('catFormMsg').className = 'form-msg';
   document.getElementById('catImgUploadProgress').style.display = 'none';
@@ -1754,27 +1748,20 @@ window.editCategory = editCategory;
 
 async function saveCategory() {
   const name  = document.getElementById('catName').value.trim();
-  const slug  = document.getElementById('catSlug').value.trim();
+  const slug  = document.getElementById('catSlug').value.trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
   const image = document.getElementById('catImage').value.trim();
   const msg   = document.getElementById('catFormMsg');
-  if (!name || !slug) {
-    msg.className = 'form-msg err'; msg.textContent = 'Name and slug are required'; return;
-  }
-  const body   = { name, slug, description: document.getElementById('catDesc').value, image };
-  const url    = editingCategoryId ? `/products/categories/${editingCategoryId}` : '/products/categories';
-  const method = editingCategoryId ? 'PUT' : 'POST';
-  const data   = await apiFetch(url, { method, headers: apiHeaders(), body: JSON.stringify(body) });
+  if (!name || !slug) { msg.className = 'form-msg err'; msg.textContent = 'Name and slug are required'; return; }
+  if (!image)         { msg.className = 'form-msg err'; msg.textContent = 'Please upload or enter an image URL'; return; }
 
-  if (data.success || data.category) {
-    // Also save image to category-images collection so homepage/category page updates
-    if (image && slug) {
-      await apiFetch(`/admin/category-images/${slug}`, {
-        method: 'PUT', headers: apiHeaders(),
-        body: JSON.stringify({ name, image })
-      });
-    }
+  // Save to category-images (the source of truth for name + image)
+  const data = await apiFetch(`/admin/category-images/${slug}`, {
+    method: 'PUT', headers: apiHeaders(),
+    body: JSON.stringify({ name, image }),
+  });
+  if (data.success || data.categoryImage) {
     msg.className = 'form-msg ok';
-    msg.textContent = editingCategoryId ? 'Category updated!' : 'Category created!';
+    msg.textContent = editingCategorySlug ? 'Category updated!' : 'Category added!';
     setTimeout(() => { closeModal('categoryModal'); loadCategories(); }, 700);
   } else {
     msg.className = 'form-msg err'; msg.textContent = data.message || 'Failed to save category';
@@ -1782,10 +1769,10 @@ async function saveCategory() {
 }
 window.saveCategory = saveCategory;
 
-async function deleteCategory(id, name) {
-  if (!confirm(`Delete category "${name}"? Products will not be deleted.`)) return;
-  const data = await apiFetch(`/products/categories/${id}`, { method: 'DELETE', headers: apiHeaders() });
-  if (data.success) { showToast('Category deleted', 'success'); loadCategories(); }
+async function deleteCategory(slug, name) {
+  if (!confirm(`Remove image for category "${name}"? The category will still appear as long as products use it.`)) return;
+  const data = await apiFetch(`/admin/category-images/${slug}`, { method: 'DELETE', headers: apiHeaders() });
+  if (data.success) { showToast('Category image removed', 'success'); loadCategories(); }
   else showToast(data.message || 'Delete failed', 'error');
 }
 window.deleteCategory = deleteCategory;
@@ -1818,7 +1805,7 @@ window.handleCatModalImageFile = handleCatModalImageFile;
 
 
 document.getElementById('catName')?.addEventListener('input', function () {
-  if (!editingCategoryId) document.getElementById('catSlug').value = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  if (!editingCategorySlug) document.getElementById('catSlug').value = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 });
 
 // ── ORDERS ────────────────────────────────────────────────────────────────────
