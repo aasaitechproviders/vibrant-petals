@@ -449,6 +449,7 @@
                 <option value="pending">Pending</option>
                 <option value="assigned">Assigned</option>
               </select>
+              <button class="btn-add" onclick="openTerritoryModal()">+ Add Territory</button>
               <button class="btn-add" onclick="seedTerritories()" style="background:#555;" title="Run once after first deploy to seed all 78 territories">🌱 Seed</button>
             </div>
           </div>
@@ -520,7 +521,35 @@
 </div>
 
 <!-- OUTLET MODAL -->
-<div class="modal" id="outletModal">
+<!-- TERRITORY MODAL -->
+<div class="modal" id="territoryModal">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="territoryModalTitle">Add Territory</h3><span class="modal-close" onclick="closeTerritoryModal()">✕</span></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Territory Name *</label>
+          <input class="form-input" id="tName" placeholder="e.g. Footscray"/>
+          <div style="font-size:11px;color:var(--mid);margin-top:4px;">Slug is auto-generated from the name.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">State *</label>
+          <select class="form-select" id="tState">
+            <option value="">Select state…</option>
+            <option value="Melbourne">Melbourne</option>
+            <option value="Sydney">Sydney</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeTerritoryModal()">Cancel</button>
+      <button class="btn-save" onclick="saveTerritory()">Save Territory</button>
+    </div>
+  </div>
+</div>
+
+<!-- OUTLET MODAL -->
   <div class="modal-box">
     <div class="modal-head"><h3 id="outletModalTitle">Add Retail Outlet</h3><span class="modal-close" onclick="closeOutletModal()">✕</span></div>
     <div class="modal-body">
@@ -1060,7 +1089,7 @@ async function loadTerritories() {
                <button onclick="territoryAction('${t.slug}','reject')"  style="padding:5px 12px;font-size:12px;background:#c0392b;color:#fff;border:none;border-radius:3px;cursor:pointer;">✕ Reject</button>`
             : t.status === 'assigned'
             ? `<button onclick="territoryAction('${t.slug}','unassign')" style="padding:5px 12px;font-size:12px;background:#555;color:#fff;border:none;border-radius:3px;cursor:pointer;">Unassign</button>`
-            : '<span style="color:#aaa;font-size:12px;">—</span>';
+            : `<button onclick="deleteTerritory('${t.slug}','${t.name}')" style="padding:5px 12px;font-size:12px;background:#c0392b;color:#fff;border:none;border-radius:3px;cursor:pointer;">Delete</button>`;
           return `<tr>
             <td><strong>${t.name}</strong></td>
             <td>${t.state}</td>
@@ -1084,6 +1113,47 @@ async function territoryAction(slug, action) {
   if (data.success) { showToast(data.message, 'success'); loadTerritories(); }
   else showToast(data.message || `${action} failed`, 'error');
 }
+
+// ── ADD / DELETE TERRITORY ────────────────────────────────────────────────────
+function openTerritoryModal() {
+  document.getElementById('tName').value  = '';
+  document.getElementById('tState').value = '';
+  document.getElementById('territoryModal').classList.add('open');
+}
+window.openTerritoryModal = openTerritoryModal;
+
+function closeTerritoryModal() {
+  document.getElementById('territoryModal').classList.remove('open');
+}
+window.closeTerritoryModal = closeTerritoryModal;
+
+async function saveTerritory() {
+  const name  = document.getElementById('tName').value.trim();
+  const state = document.getElementById('tState').value;
+  if (!name)  { showToast('Territory name is required', 'error'); return; }
+  if (!state) { showToast('Please select a state', 'error'); return; }
+  const data = await apiFetch('/admin/territories', {
+    method: 'POST', headers: apiHeaders(),
+    body: JSON.stringify({ name, state }),
+  });
+  if (data.success) {
+    showToast(`Territory "${name}" created`, 'success');
+    closeTerritoryModal();
+    adminTerritoriesCache = {}; // clear territory cache so outlet modal repopulates
+    loadTerritories();
+  } else {
+    showToast(data.message || 'Failed to create territory', 'error');
+  }
+}
+window.saveTerritory = saveTerritory;
+
+async function deleteTerritory(slug, name) {
+  if (!confirm(`Delete territory "${name}"? This cannot be undone.`)) return;
+  const data = await apiFetch(`/admin/territories/${slug}`, { method: 'DELETE', headers: apiHeaders() });
+  if (data.success) { showToast(data.message, 'success'); loadTerritories(); }
+  else showToast(data.message || 'Delete failed', 'error');
+}
+window.deleteTerritory = deleteTerritory;
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  RETAIL OUTLETS
