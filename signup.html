@@ -525,6 +525,20 @@
             <div class="input-note">We'll add you to our Dealer WhatsApp group for order coordination.</div>
           </div>
           <div class="form-group">
+            <label class="form-label">Street Address <span class="req">*</span></label>
+            <input class="form-input" id="dAddress" placeholder="e.g. 12 Floral Ave" type="text"/>
+          </div>
+          <div class="form-group half-row">
+            <div>
+              <label class="form-label">Suburb <span class="req">*</span></label>
+              <input class="form-input" id="dSuburb" placeholder="e.g. Tarneit" type="text"/>
+            </div>
+            <div>
+              <label class="form-label">Postcode <span class="req">*</span></label>
+              <input class="form-input" id="dPostcode" placeholder="e.g. 3029" type="text" maxlength="4"/>
+            </div>
+          </div>
+          <div class="form-group">
             <label class="form-label">State <span class="req">*</span></label>
             <select class="form-select" id="dState" onchange="onDealerStateChange()">
               <option value="">Select your state…</option>
@@ -997,12 +1011,18 @@ function validateStep(step) {
     return true;
   }
   if (step === 2) {
-    const mob   = document.getElementById('dMobile').value.trim();
-    const state = document.getElementById('dState').value;
-    const terr  = document.getElementById('dTerritory').value;
-    if (!mob)   { showMsg('step2Msg', 'Please enter your mobile number.', 'err'); return false; }
-    if (!state) { showMsg('step2Msg', 'Please select your state (Melbourne or Sydney).', 'err'); return false; }
-    if (!terr)  { showMsg('step2Msg', 'Please select your desired territory.', 'err'); return false; }
+    const mob      = document.getElementById('dMobile').value.trim();
+    const address  = document.getElementById('dAddress').value.trim();
+    const suburb   = document.getElementById('dSuburb').value.trim();
+    const postcode = document.getElementById('dPostcode').value.trim();
+    const state    = document.getElementById('dState').value;
+    const terr     = document.getElementById('dTerritory').value;
+    if (!mob)      { showMsg('step2Msg', 'Please enter your mobile number.', 'err'); return false; }
+    if (!address)  { showMsg('step2Msg', 'Please enter your street address.', 'err'); return false; }
+    if (!suburb)   { showMsg('step2Msg', 'Please enter your suburb.', 'err'); return false; }
+    if (!postcode) { showMsg('step2Msg', 'Please enter your postcode.', 'err'); return false; }
+    if (!state)    { showMsg('step2Msg', 'Please select your state (Melbourne or Sydney).', 'err'); return false; }
+    if (!terr)     { showMsg('step2Msg', 'Please select your desired territory.', 'err'); return false; }
     return true;
   }
   if (step === 3) {
@@ -1101,6 +1121,9 @@ async function submitDealer() {
   const dealerInfo = {
     fullName:             document.getElementById('dFullName').value.trim(),
     mobile:               document.getElementById('dMobile').value.trim(),
+    address:              document.getElementById('dAddress').value.trim(),
+    suburb:               document.getElementById('dSuburb').value.trim(),
+    postcode:             document.getElementById('dPostcode').value.trim(),
     state:                desiredState,
     desiredTerritory,
     businessType:         getRadio('dBizType'),
