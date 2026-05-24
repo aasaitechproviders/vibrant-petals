@@ -519,10 +519,14 @@ async function init(){
   await loadCart();
   await loadOutlets();
   if(token){
-    const me = await apiFetch('/auth/me',{headers:apiHeaders()}).catch(function(){return null;});
+    const me = await apiFetch(`/auth/me`,{headers:apiHeaders()}).catch(function(){return null;});
     if(me&&me.user&&me.user.preferredState){
-      document.getElementById('outletStateFilter').value = me.user.preferredState;
+      document.getElementById(`outletStateFilter`).value = me.user.preferredState;
       await loadOutlets();
+      if(me.user.preferredTerritory){
+        document.getElementById(`outletTerritoryFilter`).value = me.user.preferredTerritory;
+        await loadOutlets();
+      }
     }
   }
 }
