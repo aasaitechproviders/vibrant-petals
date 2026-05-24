@@ -2125,6 +2125,7 @@ async function loadUsers() {
      const dealerExtra = u.role === 'Dealer' ? `<br/><span style="font-size:11px;color:var(--gold);">
        ${di.state || ''}${di.desiredTerritory ? ' · ' + di.desiredTerritory : ''}
        ${di.businessType ? ' · ' + di.businessType : ''}
+       ${di.address ? '<br/>' + di.address + ', ' + (di.suburb || '') + ' ' + (di.postcode || '') : ''}
      </span>` : '';
      const actionBtns = isPendingDealer
        ? `<button class="btn-sm btn-edit" onclick="openDealerApprovalModal('${uid}')" style="background:#9B8B5A;color:#fff;border:none;">Review</button>`
@@ -2162,7 +2163,8 @@ async function openDealerApprovalModal(uid) {
     <div class="order-detail-box" style="margin-bottom:12px;"><div class="order-detail-box-title">Business Info</div>
       <p><b>Type:</b> ${di.businessType || '—'}&nbsp;&nbsp;<b>Shop:</b> ${di.shopName || '—'}<br/>
       <b>Activities:</b> ${(di.activities || []).join(', ') || '—'}<br/>
-      <b>Mobile:</b> ${di.mobile || '—'}</p></div>
+      <b>Mobile:</b> ${di.mobile || '—'}<br/>
+      <b>Address:</b> ${di.address ? `${di.address}, ${di.suburb || ''} ${di.postcode || ''}`.trim().replace(/,\s*$/, '') : '—'}</p></div>
     <div class="order-detail-box" style="margin-bottom:12px;"><div class="order-detail-box-title">Sales & Logistics</div>
       <p><b>Customers/week:</b> ${di.customersPerWeek || '—'}&nbsp;&nbsp;
       <b>Subscription:</b> ${di.subscriptionInterest || '—'}<br/>
