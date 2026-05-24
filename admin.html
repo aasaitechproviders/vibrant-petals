@@ -1819,7 +1819,10 @@ async function loadOrders() {
           ? `<span style="font-size:11px;background:#fff3cd;color:#856404;padding:2px 8px;border-radius:10px;">💡 ${assign.suggestedDealerName}</span>`
           : `<span style="font-size:11px;color:#aaa;">Unassigned</span>`);
     return `<tr>
-      <td><b>${o.orderNumber || '—'}</b></td>
+      <td>
+        <b>${o.orderNumber || '—'}</b>
+        ${o.notes ? `<div style="margin-top:3px;font-size:11px;color:var(--mid);max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.notes.replace(/"/g,'&quot;')}">📝 ${o.notes}</div>` : ''}
+      </td>
       <td style="font-size:13px;">${o.customerEmail || '—'}${o.customerRole === 'Dealer' ? '<br/><span class="status-pill s-dealer" style="font-size:10px;">Dealer</span>' : ''}</td>
       <td style="font-size:13px;">${(o.items || []).length} item${(o.items || []).length !== 1 ? 's' : ''}</td>
       <td><b>$${(o.total || 0).toFixed(2)}</b></td>
