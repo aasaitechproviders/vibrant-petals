@@ -90,7 +90,7 @@
         <button class="nav-icon-btn" id="loginBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
         <div class="acct-drop" id="acctDrop"></div>
       </div>
-      <button class="nav-icon-btn" onclick="location.href='wishlist.html'" style="color:var(--gold)"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount">0</span></button>
+      <button class="nav-icon-btn" onclick="location.href='wishlist.html'" style="color:var(--gold)"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount" style="display:none;">0</span></button>
       <button class="nav-icon-btn" onclick="location.href='checkout.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="badge" id="cartCount">0</span></button>
     </div>
   </div>
@@ -140,7 +140,8 @@ async function loadWishlist(){
   }
   const data=await apiFetch('/wishlist',{headers:apiHeaders()}).catch(()=>({wishlist:{products:[]}}));
   const products=(data.wishlist?.products)||[];
-  document.getElementById('wishCount').textContent=products.length;
+  const wCount = document.getElementById('wishCount');
+  if(wCount){ wCount.textContent=products.length; wCount.style.display=products.length>0?'flex':'none'; }
 
   if(!products.length){
     document.getElementById('wishlistContent').innerHTML=`<div class="wishlist-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><h2>Your Wishlist is Empty</h2><p>Browse our flowers and click the heart icon to save your favourites.</p><a href="category.html?cat=all" class="btn-shop">Shop All Products</a></div>`;
