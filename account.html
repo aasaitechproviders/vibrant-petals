@@ -913,7 +913,10 @@ async function loadDealerOrders() {
       ? `<button class="btn-sm ${transition.btnClass}" onclick="updateDealerOrderStatus('${o._id}','${transition.next}','${o.orderNumber}')" style="white-space:nowrap;">${transition.label}</button>`
       : `<span style="font-size:12px;color:var(--mid);">—</span>`;
     return `<tr>
-      <td><b>${o.orderNumber}</b></td>
+      <td>
+        <b>${o.orderNumber}</b>
+        ${o.notes ? `<div style="margin-top:4px;font-size:11px;color:var(--mid);line-height:1.5;max-width:180px;"><span style="font-weight:700;text-transform:uppercase;letter-spacing:.05em;">📝 Notes:</span> ${o.notes}</div>` : ''}
+      </td>
       <td style="font-size:12px;">${o.customerEmail||'—'}</td>
       <td style="font-size:12px;">${snap.name||'—'}<br/><span style="color:var(--mid);">${snap.suburb||''}${snap.suburb&&snap.state?', ':''} ${snap.state||''}</span></td>
       <td style="font-size:12px;">${new Date(o.createdAt).toLocaleDateString()}</td>
