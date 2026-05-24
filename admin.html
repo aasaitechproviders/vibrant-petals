@@ -1491,6 +1491,16 @@ async function loadDashboard() {
   const data = await apiFetch('/admin/dashboard', { headers: apiHeaders() });
   if (!data || !data.success) return;
   const s = data.stats;
+
+  // If backend hasn't been updated yet, fetch counts separately
+  if (s.orders.customerOrders == null || s.orders.dealerOrders == null) {
+    const [custData, dealData] = await Promise.all([
+      apiFetch('/admin/orders?customerRole=Customer&limit=1', { headers: apiHeaders() }),
+      apiFetch('/admin/orders?customerRole=Dealer&limit=1',   { headers: apiHeaders() }),
+    ]);
+    s.orders.customerOrders = custData.pagination?.total ?? 0;
+    s.orders.dealerOrders   = dealData.pagination?.total ?? 0;
+  }
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card"><div class="stat-icon gold">📦</div><div><div class="stat-val">${s.products.total}</div><div class="stat-label">Total Products</div><div class="stat-sub">${s.products.inStock} in stock · ${s.products.outOfStock} out</div></div></div>
     <div class="stat-card"><div class="stat-icon blue">🛒</div><div><div class="stat-val">${s.orders.total}</div><div class="stat-label">Total Orders</div><div class="stat-sub">${s.orders.pending} pending · ${s.orders.thisMonth} this month</div></div></div>
