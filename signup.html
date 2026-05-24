@@ -325,7 +325,7 @@
 </head>
 <body>
 
-<div class="ann-bar">Authorized Community Flower Partner Programme – Melbourne &amp; Sydney</div>
+<div class="ann-bar">Authorized Dealer Programme – Melbourne &amp; Sydney</div>
 <header>
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
@@ -347,8 +347,8 @@
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
       VibrantPetals Community
     </div>
-    <h1 class="panel-heading">Join the <em>Floral</em><br/>Partner Network</h1>
-    <p class="panel-sub">Whether you're a home-based entrepreneur or a florist, become part of our growing community of flower partners across Melbourne &amp; Sydney.</p>
+    <h1 class="panel-heading">Join the <em>Floral</em><br/>Dealer Network</h1>
+    <p class="panel-sub">Whether you're a home-based entrepreneur or a florist, become part of our growing network of dealers across Melbourne &amp; Sydney.</p>
     <div class="panel-perks">
       <div class="perk-item">
         <div class="perk-icon">🛍️</div>
@@ -375,7 +375,7 @@
         <div class="perk-icon">💬</div>
         <div class="perk-text">
           <strong>WhatsApp Support</strong>
-          Dedicated partner support group for ordering &amp; coordination.
+          Dedicated dealer support group for ordering &amp; coordination.
         </div>
       </div>
     </div>
@@ -407,7 +407,7 @@
         </button>
         <button class="type-btn" id="typeDealer" onclick="setType('dealer')">
           <div class="type-btn-icon">⭐</div>
-          <div class="type-btn-label">Dealer / Partner</div>
+          <div class="type-btn-label">Dealer</div>
           <div class="type-btn-sub">Wholesale &amp; territory</div>
         </button>
         <button class="type-btn" id="typeOutlet" onclick="setType('outlet')">
@@ -550,7 +550,7 @@
         <div class="dealer-step" id="dStep3">
           <div class="section-badge">Step 3 of 6 · Business Background</div>
           <h3 class="section-title">Tell us about your business</h3>
-          <p class="section-desc">This helps us understand your distribution capacity and tailor our partnership to you.</p>
+          <p class="section-desc">This helps us understand your distribution capacity and tailor our dealer arrangement to you.</p>
           <div class="form-group">
             <label class="form-label">Are you currently running any business? <span class="req">*</span></label>
             <div class="radio-group">
@@ -651,7 +651,7 @@
           <h3 class="section-title">Almost done!</h3>
           <p class="section-desc">Tell us a little more about your motivation — this helps us support you best.</p>
           <div class="form-group">
-            <label class="form-label">Why are you interested in becoming a Community Flower Partner? <span class="req">*</span></label>
+            <label class="form-label">Why are you interested in becoming a Dealer? <span class="req">*</span></label>
             <textarea class="form-textarea" id="dMotivation" placeholder="Tell us about your passion for flowers, your community connections, or your business goals..."></textarea>
           </div>
           <div class="form-group">
@@ -968,7 +968,7 @@ function validateStep(step) {
     const preorder   = getRadio('dPreorder');
     const hear       = getRadio('dHearAbout');
     const decl       = document.getElementById('dDeclaration').checked;
-    if (!motivation) { showMsg('step6Msg', 'Please tell us why you want to be a partner.', 'err'); return false; }
+    if (!motivation) { showMsg('step6Msg', 'Please tell us why you want to be a dealer.', 'err'); return false; }
     if (!preorder)   { showMsg('step6Msg', 'Please answer the pre-order question.', 'err'); return false; }
     if (!hear)       { showMsg('step6Msg', 'Please tell us how you heard about us.', 'err'); return false; }
     if (!decl)       { showMsg('step6Msg', 'Please confirm the declaration to proceed.', 'err'); return false; }
@@ -1103,7 +1103,7 @@ function showSuccess(type, name, storeName) {
   } else {
     document.getElementById('successIcon').textContent = '⭐';
     document.getElementById('successTitle').textContent = `Application Received, ${name}!`;
-    document.getElementById('successSub').textContent = 'Thank you for applying to become a Vibrant Petals Community Flower Partner.';
+    document.getElementById('successSub').textContent = 'Thank you for applying to become a Vibrant Petals Dealer.';
     const note = document.getElementById('successDealerNote');
     note.style.display = '';
     note.textContent = '🌺 Our team will review your application and contact you via WhatsApp within 14 days. Your requested territory has been reserved while under review. Your account will be activated after admin approval.';
