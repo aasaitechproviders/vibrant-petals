@@ -1878,7 +1878,6 @@ async function openOrderModal(id) {
       </tbody>
     </table>` : '<div style="color:var(--mid);font-size:13px;">No items</div>';
 
-  const addr = o.shippingAddress || o.address || {};
   const snap = o.pickupOutletSnapshot || {};
   const assign = o.assignment || {};
   const assignedHtml = assign.assignedToName
