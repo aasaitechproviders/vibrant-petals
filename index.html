@@ -569,7 +569,9 @@
       background: rgba(250,247,242,.97);
       z-index: 500;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
+      align-items: center; justify-content: flex-start;
+      padding-top: 15vh;
+      overflow-y: auto;
       opacity: 0; pointer-events: none;
       transition: opacity .25s;
     }
@@ -600,6 +602,9 @@
       width: min(600px, 90vw);
       margin-top: 24px;
       display: flex; flex-direction: column; gap: 12px;
+      max-height: 55vh;
+      overflow-y: auto;
+      padding-right: 4px;
     }
     .search-result-item {
       display: flex; align-items: center; gap: 16px;
