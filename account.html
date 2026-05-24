@@ -221,7 +221,7 @@
     <div class="tab-panel" id="tab-register">
       <p style="font-size:13px;color:var(--mid);margin-bottom:14px;">To create a <b>Customer</b> or <b>Dealer</b> account, use our full signup page:</p>
       <a href="signup.html" style="display:block;width:100%;padding:14px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-align:center;border-radius:4px;margin-bottom:10px;">Create Customer Account →</a>
-      <a href="signup.html?type=dealer" style="display:block;width:100%;padding:14px;background:var(--dark);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-align:center;border-radius:4px;">Apply as Dealer Partner ⭐</a>
+      <a href="signup.html?type=dealer" style="display:block;width:100%;padding:14px;background:var(--dark);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-align:center;border-radius:4px;">Apply as Dealer ⭐</a>
       <p style="font-size:11px;color:var(--light);text-align:center;margin-top:14px;">Admin accounts are created by the system administrator.</p>
     </div>
   </div>
@@ -582,7 +582,7 @@ function setLoginType(type, btn) {
   btn.style.background = 'rgba(155,139,90,.06)';
   const hints = {
     customer: 'Customer account — shop, track orders and manage your wishlist.',
-    dealer: 'Dealer / Partner account — wholesale pricing and territory management.',
+    dealer: 'Dealer account — wholesale pricing and territory management.',
     admin: 'Administrator account — full platform access. Contact your system admin for credentials.'
   };
   document.getElementById('loginTypeHint').textContent = hints[type] || '';
