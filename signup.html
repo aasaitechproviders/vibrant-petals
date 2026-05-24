@@ -36,8 +36,8 @@
     /* ── NAV ── */
     header { background: #fff; border-bottom: 1px solid #e8e0d2; height: var(--nav-h); }
     .nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 32px; height: 100%; display: flex; align-items: center; justify-content: space-between; }
-    .nav-logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; color: var(--dark); }
-    .nav-logo svg { width: 28px; height: 28px; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; color: var(--dark); height: 100%; }
+    .nav-logo img { height: 100%; width: auto; object-fit: contain; display: block; }
     .nav-links { display: flex; align-items: center; gap: 20px; font-size: 13px; color: var(--mid); }
     .nav-links a:hover { color: var(--gold); }
 
@@ -329,7 +329,7 @@
 <header>
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
-      <img src="logo.png" alt="Vibrant Petals Logo" style="width:50px;height:40px;object-fit:contain;" />
+      <img src="logo.png" alt="Vibrant Petals Logo" />
       Vibrant Petals
     </a>
     <div class="nav-links">
@@ -342,14 +342,14 @@
 
   <!-- ── LEFT PANEL ── -->
   <div class="signup-panel-left">
-    <div class="panel-florals">✿</div>
-    <div class="panel-badge">
+    <div class="panel-florals" id="panelFloral">✿</div>
+    <div class="panel-badge" id="panelBadge">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
       VibrantPetals Community
     </div>
-    <h1 class="panel-heading">Join the <em>Floral</em><br/>Dealer Network</h1>
-    <p class="panel-sub">Whether you're a home-based entrepreneur or a florist, become part of our growing network of dealers across Melbourne &amp; Sydney.</p>
-    <div class="panel-perks">
+    <h1 class="panel-heading" id="panelHeading">Join the <em>Floral</em><br/>Dealer Network</h1>
+    <p class="panel-sub" id="panelSub">Whether you're a home-based entrepreneur or a florist, become part of our growing network of dealers across Melbourne &amp; Sydney.</p>
+    <div class="panel-perks" id="panelPerks">
       <div class="perk-item">
         <div class="perk-icon">🛍️</div>
         <div class="perk-text">
@@ -865,6 +865,66 @@ function onDealerStateChange() {
 }
 
 // ── TYPE TOGGLE ────────────────────────────────────────────────────────────────
+// ── LEFT PANEL CONTENT PER TYPE ───────────────────────────────────────────────
+const PANEL_CONTENT = {
+  customer: {
+    floral: '✿',
+    badge:  '🌸 Welcome to VibrantPetals',
+    heading: 'Fresh Flowers,<br/><em>Delivered to You</em>',
+    sub: 'Create your free account and explore our handpicked collection of fresh strings, garlands, loose flowers and leaves — available for pickup at your nearest outlet.',
+    perks: [
+      { icon: '🌺', title: 'Wide Collection',    desc: 'Strings, garlands, loose flowers and leaves for every occasion and festival.' },
+      { icon: '🏪', title: 'Easy Pickup',         desc: 'Order online and collect from your nearest VibrantPetals retail outlet — no waiting.' },
+      { icon: '🎉', title: 'Festival Ready',      desc: 'Always stocked for Diwali, Navratri, Pongal and all special occasions.' },
+      { icon: '💳', title: 'Simple & Secure',     desc: 'Fast checkout, order tracking and a saved wishlist — all in one place.' },
+    ],
+  },
+  dealer: {
+    floral: '✿',
+    badge:  '⭐ Authorized Dealer Programme',
+    heading: 'Join the <em>Floral</em><br/>Dealer Network',
+    sub: 'Whether you\'re a home-based entrepreneur or a florist, become part of our growing network of dealers across Melbourne &amp; Sydney.',
+    perks: [
+      { icon: '🛍️', title: 'Wholesale Pricing',  desc: 'Exclusive dealer rates on all fresh flower strings &amp; garlands.' },
+      { icon: '📦', title: 'Pre-Order Model',     desc: 'No unsold stock — you only order what you\'ve already sold.' },
+      { icon: '🌸', title: 'Festival Priority',   desc: 'First allocation during Diwali, Navratri &amp; other festive seasons.' },
+      { icon: '💬', title: 'WhatsApp Support',    desc: 'Dedicated dealer support group for ordering &amp; coordination.' },
+    ],
+  },
+  outlet: {
+    floral: '🏪',
+    badge:  '🏪 Retail Outlet Registration',
+    heading: 'Register Your<br/><em>Pickup Store</em>',
+    sub: 'List your store as a VibrantPetals pickup point. Customers in your territory will find and choose your outlet at checkout.',
+    perks: [
+      { icon: '📍', title: 'Territory Visibility', desc: 'Your store appears to all customers in your suburb and territory.' },
+      { icon: '📦', title: 'Easy Fulfillment',     desc: 'Receive order alerts and manage pickups at your own pace.' },
+      { icon: '🌸', title: 'Festive Volume',       desc: 'Benefit from peak demand during festivals — more footfall, more sales.' },
+      { icon: '✅', title: 'Admin Activation',     desc: 'Our team reviews and activates your outlet within a few business days.' },
+    ],
+  },
+};
+
+function updateLeftPanel(type) {
+  const c = PANEL_CONTENT[type] || PANEL_CONTENT.customer;
+  document.getElementById('panelFloral').textContent  = c.floral;
+  document.getElementById('panelBadge').innerHTML     = c.badge;
+  document.getElementById('panelHeading').innerHTML   = c.heading;
+  document.getElementById('panelSub').innerHTML       = c.sub;
+  document.getElementById('panelPerks').innerHTML     = c.perks.map(p => `
+    <div class="perk-item">
+      <div class="perk-icon">${p.icon}</div>
+      <div class="perk-text"><strong>${p.title}</strong>${p.desc}</div>
+    </div>`).join('');
+  // Update ann-bar text
+  const annBar = document.querySelector('.ann-bar');
+  if (annBar) {
+    if (type === 'customer') annBar.textContent = 'Free In-Store Pickup at Selected Retail Outlets Across Melbourne & Sydney';
+    else if (type === 'dealer') annBar.textContent = 'Authorized Dealer Programme – Melbourne & Sydney';
+    else annBar.textContent = 'Register Your Store as a VibrantPetals Pickup Outlet';
+  }
+}
+
 function setType(type) {
   ['customer','dealer','outlet'].forEach(t => {
     const btn = document.getElementById('type' + t.charAt(0).toUpperCase() + t.slice(1));
@@ -874,6 +934,7 @@ function setType(type) {
   document.getElementById('dealerForm').style.display   = type === 'dealer'   ? '' : 'none';
   document.getElementById('outletForm').style.display   = type === 'outlet'   ? '' : 'none';
   if (type === 'dealer') buildProgress();
+  updateLeftPanel(type);
 }
 window.setType = setType;
 
@@ -1211,6 +1272,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const typeParam = urlParams.get('type');
 if (typeParam === 'dealer') setType('dealer');
 else if (typeParam === 'outlet') setType('outlet');
+else updateLeftPanel('customer'); // default — set customer panel content on load
 
 // Build initial progress + load territories
 buildProgress();
