@@ -1294,7 +1294,18 @@ async function loadDashboard() {
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card"><div class="stat-icon gold">📦</div><div><div class="stat-val">${s.products.total}</div><div class="stat-label">Total Products</div><div class="stat-sub">${s.products.inStock} in stock · ${s.products.outOfStock} out</div></div></div>
     <div class="stat-card"><div class="stat-icon blue">🛒</div><div><div class="stat-val">${s.orders.total}</div><div class="stat-label">Total Orders</div><div class="stat-sub">${s.orders.pending} pending · ${s.orders.thisMonth} this month</div></div></div>
-    <div class="stat-card"><div class="stat-icon orange">⭐</div><div><div class="stat-val">${s.dealers?.total || 0}</div><div class="stat-label">Dealers</div><div class="stat-sub">${s.customers?.total || 0} retail customers</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:#d4edda20;color:#27ae60;">👤</div><div><div class="stat-val">${s.orders.customerOrders ?? '—'}</div><div class="stat-label">Customer Orders</div><div class="stat-sub">Orders placed by customers</div></div></div>
+    <div class="stat-card"><div class="stat-icon orange">⭐</div><div><div class="stat-val">${s.orders.dealerOrders ?? '—'}</div><div class="stat-label">Dealer Orders</div><div class="stat-sub">Orders placed by dealers</div></div></div>
+    <div class="stat-card" style="cursor:pointer;${(s.dealers?.pendingSignups ?? 0) > 0 ? 'border-color:#e67e22;' : ''}" onclick="showPanel('users',document.getElementById('nav-users'))">
+      <div class="stat-icon orange">⭐</div>
+      <div>
+        <div class="stat-val">${s.dealers?.total || 0}</div>
+        <div class="stat-label">Total Dealers</div>
+        <div class="stat-sub" style="${(s.dealers?.pendingSignups ?? 0) > 0 ? 'color:#e67e22;font-weight:700;' : ''}">
+          ${(s.dealers?.pendingSignups ?? 0) > 0 ? `⚠️ ${s.dealers.pendingSignups} pending review` : `${s.customers?.total || 0} retail customers`}
+        </div>
+      </div>
+    </div>
     <div class="stat-card"><div class="stat-icon purple">📧</div><div><div class="stat-val">${s.newsletter.subscribers}</div><div class="stat-label">Subscribers</div><div class="stat-sub">Active newsletter list</div></div></div>
     <div class="stat-card" style="cursor:pointer;" onclick="showPanel('territories',document.getElementById('nav-territories'))">
       <div class="stat-icon" style="background:#9B8B5A20;color:#9B8B5A;">📍</div>
@@ -1316,6 +1327,8 @@ async function loadDashboard() {
   document.getElementById('dashQuickStats').innerHTML = `<div style="display:flex;flex-direction:column;gap:14px;">
     <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--mid)">Delivered</span><b>${s.orders.delivered}</b></div>
     <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--mid)">Total Users</span><b>${s.users.total}</b></div>
+    <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--mid)">New Users (7d)</span><b>${s.users.newThisWeek ?? 0}</b></div>
+    <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--mid)">Dealers Pending</span><b style="color:${(s.dealers?.pendingSignups ?? 0) > 0 ? '#e67e22' : 'inherit'}">${s.dealers?.pendingSignups ?? '—'}</b></div>
     <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--mid)">In Stock</span><b style="color:#2d7a2d">${s.products.inStock}</b></div>
     <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--mid)">Out of Stock</span><b style="color:#c0392b">${s.products.outOfStock}</b></div>
   </div>`;
