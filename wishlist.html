@@ -22,6 +22,13 @@
     .nav-icon-btn:hover{color:var(--gold);}
     .nav-icon-btn svg{width:22px;height:22px;stroke-width:1.6;}
     .badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+    .acct-icon-wrap{position:relative;}
+    .acct-icon-wrap .acct-drop{display:none;position:absolute;top:100%;padding-top:10px;right:0;background:#fff;border:1px solid #e8e0d2;box-shadow:0 8px 30px rgba(0,0,0,.1);min-width:160px;z-index:9999;}
+    .acct-icon-wrap:hover .acct-drop{display:block;}
+    .acct-drop a,.acct-drop button{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;border:none;background:none;font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;color:var(--dark);cursor:pointer;text-align:left;border-bottom:1px solid #f0ebe0;transition:background .15s;}
+    .acct-drop a:last-child,.acct-drop button:last-child{border-bottom:none;}
+    .acct-drop a:hover,.acct-drop button:hover{background:var(--cream2);color:var(--gold);}
+    .acct-drop .drop-logout{color:#c0392b;}.acct-drop .drop-logout:hover{background:#fce4e4;color:#c0392b;}
 
     /* HERO */
     .page-hero{position:relative;height:240px;background:#d6e4ed;overflow:hidden;}
@@ -79,7 +86,10 @@
       <li><a href="category.html?cat=all">Shop</a></li>
     </ul></nav>
     <div class="nav-icons">
-      <button class="nav-icon-btn" onclick="location.href='account.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+      <div class="acct-icon-wrap">
+        <button class="nav-icon-btn" id="loginBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+        <div class="acct-drop" id="acctDrop"></div>
+      </div>
       <button class="nav-icon-btn" onclick="location.href='wishlist.html'" style="color:var(--gold)"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount">0</span></button>
       <button class="nav-icon-btn" onclick="location.href='checkout.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="badge" id="cartCount">0</span></button>
     </div>
@@ -175,6 +185,19 @@ async function clearWishlist(){
 }
 window.addToCart=addToCart;window.removeFromWishlist=removeFromWishlist;window.clearWishlist=clearWishlist;
 
+function buildAcctDrop(){
+  const drop=document.getElementById('acctDrop');
+  if(!drop)return;
+  if(token){
+    drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Account</a><button class="drop-logout" onclick="localStorage.removeItem('vp_token');location.reload()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</button>`;
+    document.getElementById('loginBtn').onclick=()=>{location.href='account.html';};
+  }else{
+    drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Sign In</a><a href="signup.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Register</a>`;
+    document.getElementById('loginBtn').onclick=()=>{location.href='account.html';};
+  }
+}
+
+buildAcctDrop();
 loadCartCount();
 loadWishlist();
 </script>
