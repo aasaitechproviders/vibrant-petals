@@ -540,24 +540,20 @@
   <div class="modal-box modal-wide">
     <div class="modal-head"><h3 id="oamTitle">Assign Order</h3><span class="modal-close" onclick="closeModal('orderAssignModal')">✕</span></div>
     <div class="modal-body">
-      <div id="oamSuggestion" style="padding:12px 16px;background:linear-gradient(135deg,rgba(155,139,90,.08),rgba(155,139,90,.15));border:1px solid rgba(155,139,90,.3);border-radius:4px;font-size:13px;margin-bottom:16px;display:none;"></div>
-      <!-- Order snapshot -->
-      <div id="oamOrderInfo" style="background:var(--cream2);border:1px solid #e8e0d2;border-radius:4px;padding:12px 16px;margin-bottom:16px;font-size:13px;display:none;"></div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Assignment Type</label>
-          <select class="form-select" id="oamType" onchange="loadAssignOptions()">
-            <option value="retail">🏪 Assign to Retail User</option>
-            <option value="dealer">👤 Assign to Dealer</option>
-            <option value="outlet">🔧 Assign to Outlet (admin-created)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label" id="oamTargetLabel">Select Dealer</label>
-          <select class="form-select" id="oamTarget"><option value="">Loading…</option></select>
-        </div>
+      <!-- Customer's chosen pickup info -->
+      <div id="oamOrderInfo" style="background:var(--cream2);border:1px solid #e8e0d2;border-radius:4px;padding:12px 16px;margin-bottom:14px;font-size:13px;display:none;"></div>
+      <!-- Suggestion banner -->
+      <div id="oamSuggestion" style="padding:12px 16px;background:linear-gradient(135deg,rgba(39,174,96,.08),rgba(39,174,96,.14));border:1px solid rgba(39,174,96,.3);border-radius:4px;font-size:13px;margin-bottom:14px;display:none;"></div>
+      <!-- Pickup outlets list (only pickup-enabled in matching state) -->
+      <div class="form-group">
+        <label class="form-label">Select Pickup Outlet <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--mid);font-size:12px;">— showing only pickup-enabled outlets in the order's state</span></label>
+        <select class="form-select" id="oamTarget" style="margin-bottom:10px;"><option value="">Loading available outlets…</option></select>
       </div>
       <div id="oamAssigneeInfo" style="background:#fff;border:1px solid #e8e0d2;border-radius:4px;padding:12px;font-size:13px;display:none;margin-top:4px;"></div>
+      <!-- No outlets warning -->
+      <div id="oamNoOutlets" style="display:none;padding:14px;background:#fce4e4;border:1px solid #f5c6cb;border-radius:4px;font-size:13px;color:#721c24;">
+        ⚠️ No pickup-enabled outlets found in this state. Enable pickup for an outlet first, or <a href="#" onclick="closeModal('orderAssignModal');showPanel('outlets',document.getElementById('nav-outlets'));" style="color:#721c24;font-weight:700;">go to Retail Outlets</a>.
+      </div>
       <div class="form-msg" id="oamMsg"></div>
     </div>
     <div class="modal-footer">
@@ -2344,6 +2340,7 @@ window.openOrderAssignModalById = openOrderAssignModalById;
 async function openOrderAssignModal(orderId, orderNum, assignment, outletSnap, pickupOutletId) {
   assigningOrderId = orderId;
   _assignPickupOutletId = pickupOutletId || null;
+  _assignOrderState     = outletSnap?.state || null;
   _cachedDealers = null; _cachedOutlets = null; _cachedRetailUsers = null;
   document.getElementById('oamTitle').textContent = `Assign Order #${orderNum}`;
 
@@ -2360,8 +2357,7 @@ async function openOrderAssignModal(orderId, orderNum, assignment, outletSnap, p
       ? `${icon} <b>Outlet Owner (Retail):</b> ${assignee} — owns the outlet the customer chose.`
       : `${icon} <b>Territory Dealer:</b> ${assignee} — territory dealer for this order.`;
     sug.innerHTML = `${label}
-      <button onclick="document.getElementById('oamType').value='${assigneeType}';loadAssignOptions().then(()=>{document.getElementById('oamTarget').value='${assigneeId}';document.getElementById('oamTarget').dispatchEvent(new Event('change'));})"
-        style="margin-left:10px;padding:4px 12px;font-size:11px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;font-weight:700;">Assign to ${isRetailSuggestion ? 'Outlet Owner' : 'this Dealer'} ↗</button>`;
+`;
   } else {
     sug.style.display = 'none';
   }
@@ -2394,81 +2390,65 @@ let _cachedDealers     = null;
 let _cachedOutlets     = null;
 let _cachedRetailUsers = null;
 let _assignPickupOutletId = null;
+let _assignOrderState     = null;
 
 async function loadAssignOptions() {
-  const type = document.getElementById('oamType').value;
-  const sel  = document.getElementById('oamTarget');
-  const lbl  = document.getElementById('oamTargetLabel');
-  const info = document.getElementById('oamAssigneeInfo');
+  const sel     = document.getElementById('oamTarget');
+  const info    = document.getElementById('oamAssigneeInfo');
+  const noEl    = document.getElementById('oamNoOutlets');
   info.style.display = 'none';
+  noEl.style.display = 'none';
   sel.innerHTML = '<option value="">Loading…</option>';
 
-  if (type === 'retail') {
-    lbl.textContent = 'Select Retail User';
-    if (!_cachedRetailUsers) {
-      const data = await apiFetch('/admin/retail-users?approvalStatus=approved&limit=200', { headers: apiHeaders() });
-      // Fallback: if endpoint not yet deployed, filter from admin/users
-      if (!data.success && data.message?.includes('not found') || !data.users) {
-        const fallback = await apiFetch('/admin/users?role=Retail&limit=200', { headers: apiHeaders() });
-        _cachedRetailUsers = (fallback.users || []).filter(u => u.isActive);
-      } else {
-        _cachedRetailUsers = data.users || [];
-      }
-    }
-    sel.innerHTML = '<option value="">— Select a retail user —</option>' +
-      _cachedRetailUsers.map(u => {
-        const storeName = u.outlet?.name || u.dealerInfo?.storeName || '—';
-        const territory = u.outlet?.territorySlug || '—';
-        const pickup    = u.outlet?.pickupEnabled ? '🟢 Pickup ON' : '🔴 Pickup OFF';
-        return `<option value="${u._id}" data-info="${encodeURIComponent(JSON.stringify({
-          name: (u.firstName||'') + ' ' + (u.lastName||''),
-          email: u.email,
-          store: storeName,
-          territory,
-          pickup,
-          linkedOutletId: u.linkedOutletId || ''
-        }))}">${storeName} — ${u.firstName||''} ${u.lastName||''} · ${territory}</option>`;
-      }).join('');
-    // Auto-select retail user whose outlet matches customer's chosen pickup
-    if (_assignPickupOutletId) {
-      const matchOpt = Array.from(sel.options).find(o => {
-        try { return JSON.parse(decodeURIComponent(o.dataset.info||'')).linkedOutletId === _assignPickupOutletId; } catch { return false; }
-      });
-      if (matchOpt) {
-        sel.value = matchOpt.value;
-        sel.dispatchEvent(new Event('change'));
-      }
-    }
+  // Always fetch ALL active pickup-enabled outlets, filtered by the order's state
+  if (!_cachedOutlets) {
+    const data = await apiFetch('/admin/retail-outlets', { headers: apiHeaders() });
+    _cachedOutlets = (data.outlets || []);
+  }
 
-  } else if (type === 'dealer') {
-    lbl.textContent = 'Select Dealer';
-    if (!_cachedDealers) {
-      const data = await apiFetch('/admin/users?role=Dealer&limit=200', { headers: apiHeaders() });
-      _cachedDealers = (data.users || []).filter(u => u.isActive);
-    }
-    sel.innerHTML = '<option value="">— Select a dealer —</option>' +
-      _cachedDealers.map(u => {
-        const terrs = (u.assignedTerritories || []).join(', ') || 'no territory';
-        return `<option value="${u._id}" data-info="${encodeURIComponent(JSON.stringify({
-          name: (u.firstName||'') + ' ' + (u.lastName||''),
-          email: u.email,
-          territories: terrs
-        }))}">${u.firstName||''} ${u.lastName||''} (${u.username}) · ${(u.assignedTerritories||[]).slice(0,2).join(', ')+(u.assignedTerritories?.length>2?' +more':'')}</option>`;
-      }).join('');
+  // Filter: isActive + pickupEnabled + (same state as order's pickup outlet if known)
+  let pickupOutlets = _cachedOutlets.filter(o => o.isActive && o.pickupEnabled && o.approvalStatus === 'approved');
 
-  } else {
-    lbl.textContent = 'Select Outlet (Admin-managed)';
-    if (!_cachedOutlets) {
-      const data = await apiFetch('/admin/retail-outlets', { headers: apiHeaders() });
-      _cachedOutlets = (data.outlets || []).filter(o => o.isActive && !o.ownerUserId);
-    }
-    sel.innerHTML = '<option value="">— Select an outlet —</option>' +
-      _cachedOutlets.map(o => `<option value="${o._id}" data-info="${encodeURIComponent(JSON.stringify({
+  // If we know the order's state, prioritise same-state outlets
+  if (_assignOrderState) {
+    const sameState = pickupOutlets.filter(o => o.state === _assignOrderState);
+    // Show same-state first; if none found fall back to all pickup outlets
+    if (sameState.length) pickupOutlets = sameState;
+  }
+
+  if (!pickupOutlets.length) {
+    sel.innerHTML = '<option value="">No pickup-enabled outlets available</option>';
+    noEl.style.display = 'block';
+    return true;
+  }
+
+  sel.innerHTML = '<option value="">— Select a pickup outlet —</option>' +
+    pickupOutlets.map(o => {
+      const owner = o.ownerUserId ? ' · Retail-owned' : ' · Admin-managed';
+      return `<option value="${o._id}" data-otype="${o.ownerUserId ? 'retail' : 'outlet'}" data-ownerid="${o.ownerUserId || ''}" data-info="${encodeURIComponent(JSON.stringify({
         name: o.name,
-        address: o.address + ', ' + o.suburb + ', ' + o.state,
-        territory: o.territorySlug,
-        hours: o.hours || '—'
-      }))}">${o.name} — ${o.suburb}, ${o.state}</option>`).join('');
+        address: (o.address||'') + ', ' + (o.suburb||'') + ', ' + (o.state||''),
+        territory: o.territorySlug || '—',
+        hours: o.hours || '—',
+        ownerUserId: o.ownerUserId || '',
+        pickupEnabled: o.pickupEnabled
+      }))}">${o.name} — ${o.suburb}, ${o.state}${owner}</option>`;
+    }).join('');
+
+  // Auto-select the outlet the customer chose
+  if (_assignPickupOutletId) {
+    const matchOpt = Array.from(sel.options).find(opt => {
+      try {
+        return JSON.parse(decodeURIComponent(opt.dataset.info || '{}')).ownerUserId === ''
+          ? opt.value === _assignPickupOutletId
+          : false;
+      } catch { return false; }
+    }) || Array.from(sel.options).find(opt => opt.value === _assignPickupOutletId);
+
+    if (matchOpt) {
+      sel.value = matchOpt.value;
+      sel.dispatchEvent(new Event('change'));
+    }
   }
 
   sel.onchange = function() {
@@ -2477,13 +2457,20 @@ async function loadAssignOptions() {
     try {
       const d = JSON.parse(decodeURIComponent(opt.dataset.info));
       info.style.display = '';
-      if (type === 'retail') {
-        info.innerHTML = `<b>🏪 ${d.store}</b> · owned by ${d.name}<br><span style="color:var(--mid);">${d.email} · Territory: ${d.territory} · ${d.pickup}</span>`;
-      } else if (type === 'dealer') {
-        info.innerHTML = `<b>👤 ${d.name}</b> · ${d.email}<br><span style="color:var(--mid);">Territories: ${d.territories}</span>`;
-      } else {
-        info.innerHTML = `<b>🏪 ${d.name}</b><br><span style="color:var(--mid);">${d.address} · Territory: ${d.territory} · Hours: ${d.hours}</span>`;
-      }
+      info.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="font-size:24px;">🏪</div>
+          <div>
+            <div style="font-weight:700;font-size:14px;">${d.name}</div>
+            <div style="font-size:12px;color:var(--mid);">${d.address}</div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <span style="font-size:11px;background:#d4edda;color:#155724;padding:2px 8px;border-radius:10px;font-weight:700;">🟢 Pickup Enabled</span>
+              <span style="font-size:11px;color:var(--mid);">Territory: ${d.territory}</span>
+              ${d.hours ? `<span style="font-size:11px;color:var(--mid);">⏰ ${d.hours}</span>` : ''}
+              ${d.ownerUserId ? '<span style="font-size:11px;background:#e8f4fd;color:#1565c0;padding:2px 8px;border-radius:10px;font-weight:700;">Retail-owned</span>' : '<span style="font-size:11px;background:#f8f9fa;color:#555;padding:2px 8px;border-radius:10px;">Admin-managed</span>'}
+            </div>
+          </div>
+        </div>`;
     } catch(e) { info.style.display = 'none'; }
   };
   return true;
@@ -2491,12 +2478,18 @@ async function loadAssignOptions() {
 window.loadAssignOptions = loadAssignOptions;
 
 async function confirmAssignOrder() {
-  const assignedToType = document.getElementById('oamType').value;
-  const assignedToId   = document.getElementById('oamTarget').value;
-  const msg = document.getElementById('oamMsg');
-  if (!assignedToId) { msg.className = 'form-msg err'; msg.textContent = 'Please select a dealer or outlet.'; return; }
+  const sel          = document.getElementById('oamTarget');
+  const assignedToId = sel.value;
+  const msg          = document.getElementById('oamMsg');
+  if (!assignedToId) { msg.className = 'form-msg err'; msg.textContent = 'Please select a pickup outlet.'; return; }
+  // Determine type from the selected option's data attributes
+  const selectedOpt  = sel.options[sel.selectedIndex];
+  const ownerUserId  = selectedOpt?.dataset?.ownerid || '';
+  const assignedToType = ownerUserId ? 'retail' : 'outlet';
+  // For retail-owned outlets, assign to the ownerUserId (the Retail user), not the outlet doc
+  const finalAssignId = ownerUserId || assignedToId;
   const data = await apiFetch(`/orders/${assigningOrderId}/assign`, {
-    method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ assignedToType, assignedToId }),
+    method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ assignedToType, assignedToId: finalAssignId }),
   });
   if (data.success) {
     showToast(data.message || 'Order assigned', 'success');
