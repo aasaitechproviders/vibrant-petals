@@ -1643,110 +1643,6 @@ function switchStorefrontTab(tab) {
 }
 window.switchStorefrontTab = switchStorefrontTab;
 
-// ── APPROVALS ─────────────────────────────────────────────────────────────────
-async function loadApprovals() {
-  const [usersData, terrData, outletsData] = await Promise.all([
-    apiFetch('/admin/users?role=Dealer&limit=100', { headers: apiHeaders() }),
-    apiFetch('/admin/territories?status=pending', { headers: apiHeaders() }),
-    apiFetch('/admin/retail-outlets', { headers: apiHeaders() }),
-  ]);
-
-  // ── Pending Dealers ──────────────────────────────────────────────────────────
-  const allDealers    = (usersData.users || []);
-  const pendingDealers = allDealers.filter(u => u.approvalStatus === 'pending');
-  document.getElementById('approvalDealerCount').textContent = pendingDealers.length
-    ? `${pendingDealers.length} pending`  : 'None pending';
-
-  const dealersWrap = document.getElementById('approvalDealersWrap');
-  if (!pendingDealers.length) {
-    dealersWrap.innerHTML = `<div style="padding:28px;text-align:center;color:var(--mid);font-size:14px;">✓ No dealer signups awaiting approval.</div>`;
-  } else {
-    dealersWrap.innerHTML = `<table class="data-table">
-      <thead><tr><th>Name</th><th>Email</th><th>Territory</th><th>State</th><th>Applied</th><th>Actions</th></tr></thead>
-      <tbody>${pendingDealers.map(u => {
-        const di = u.dealerInfo || {};
-        const uid = u._id || '';
-        return `<tr style="background:#fffdf0;">
-          <td><b>${u.firstName || ''} ${u.lastName || ''}</b><br/><span style="font-size:12px;color:var(--mid);">${u.username}</span></td>
-          <td style="font-size:13px;">${u.email}</td>
-          <td style="font-size:12px;color:var(--mid);">${di.desiredTerritory || (u.pendingTerritories?.[0]?.name) || '—'}</td>
-          <td style="font-size:12px;">${di.state || '—'}</td>
-          <td style="font-size:12px;color:var(--mid);">${u.registeredAt ? new Date(u.registeredAt).toLocaleDateString() : '—'}</td>
-          <td>
-            <div style="display:flex;gap:6px;">
-              <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="openDealerApprovalModal('${uid}')">Review</button>
-              <button class="btn-sm btn-delete" onclick="quickRejectDealer('${uid}','${u.username}')">Reject</button>
-            </div>
-          </td>
-        </tr>`;
-      }).join('')}</tbody>
-    </table>`;
-  }
-
-  // ── Pending Territories ──────────────────────────────────────────────────────
-  const pendingTerrs = terrData.territories || [];
-  document.getElementById('approvalTerrCount').textContent = pendingTerrs.length
-    ? `${pendingTerrs.length} pending` : 'None pending';
-
-  const terrWrap = document.getElementById('approvalTerritoriesWrap');
-  if (!pendingTerrs.length) {
-    terrWrap.innerHTML = `<div style="padding:28px;text-align:center;color:var(--mid);font-size:14px;">✓ No territory requests awaiting review.</div>`;
-  } else {
-    terrWrap.innerHTML = `<table class="data-table">
-      <thead><tr><th>Territory</th><th>State</th><th>Dealer</th><th>Applied</th><th>Expires</th><th>Actions</th></tr></thead>
-      <tbody>${pendingTerrs.map(t => {
-        const daysLeft = t.daysLeft ?? '—';
-        const urgentStyle = typeof t.daysLeft === 'number' && t.daysLeft <= 3 ? 'color:#c0392b;font-weight:700;' : 'color:#e67e22;';
-        return `<tr style="background:#fffdf0;">
-          <td><b>${t.name}</b></td>
-          <td>${t.state}</td>
-          <td style="font-size:12px;color:var(--mid);">${t.pendingDealerId || '—'}</td>
-          <td style="font-size:12px;color:var(--mid);">${t.pendingAppliedAt ? new Date(t.pendingAppliedAt).toLocaleDateString() : '—'}</td>
-          <td style="font-size:12px;${urgentStyle}">${daysLeft}d left</td>
-          <td>
-            <div style="display:flex;gap:6px;">
-              <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="approveTerritory('${t.slug}')">✓ Approve</button>
-              <button class="btn-sm btn-delete" onclick="rejectTerritory('${t.slug}')">✕ Reject</button>
-            </div>
-          </td>
-        </tr>`;
-      }).join('')}</tbody>
-    </table>`;
-  }
-
-  // ── Pending Outlet Activations ───────────────────────────────────────────────
-  const allOutlets     = outletsData.outlets || [];
-  const pendingOutlets = allOutlets.filter(o => !o.isActive);
-  document.getElementById('approvalOutletCount').textContent = pendingOutlets.length
-    ? `${pendingOutlets.length} pending activation` : 'None pending';
-
-  const outletsWrap = document.getElementById('approvalOutletsWrap');
-  if (!pendingOutlets.length) {
-    outletsWrap.innerHTML = `<div style="padding:28px;text-align:center;color:var(--mid);font-size:14px;">✓ No outlets awaiting activation.</div>`;
-  } else {
-    outletsWrap.innerHTML = `<table class="data-table">
-      <thead><tr><th>Outlet Name</th><th>Location</th><th>Territory</th><th>Phone</th><th>Hours</th><th>Actions</th></tr></thead>
-      <tbody>${pendingOutlets.map(o => `<tr style="background:#fffdf0;">
-        <td><b>${o.name}</b></td>
-        <td style="font-size:13px;">${o.address}<br/><span style="color:var(--mid);font-size:12px;">${o.suburb}, ${o.state}</span></td>
-        <td style="font-size:12px;color:var(--mid);">${o.territorySlug}</td>
-        <td style="font-size:13px;">${o.phone || '—'}</td>
-        <td style="font-size:12px;color:var(--mid);">${o.hours || '—'}</td>
-        <td>
-          <div style="display:flex;gap:6px;">
-            <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="activateOutlet('${o._id}','${o.name}')">✓ Activate</button>
-            <button class="btn-sm btn-delete" onclick="deleteOutlet('${o._id}')">✕ Reject</button>
-          </div>
-        </td>
-      </tr>`).join('')}</tbody>
-    </table>`;
-  }
-
-  // Update sidebar badge count
-  updateApprovalsBadge(pendingDealers.length + pendingTerrs.length + pendingOutlets.length);
-}
-window.loadApprovals = loadApprovals;
-
 function updateApprovalsBadge(count) {
   const badge = document.getElementById('approvalsBadge');
   if (!badge) return;
@@ -2350,7 +2246,7 @@ async function loadOrders() {
       <td style="font-size:12px;color:var(--mid)">${new Date(o.createdAt).toLocaleDateString()}</td>
       <td style="display:flex;gap:4px;">
         <button class="btn-sm btn-view" onclick="openOrderModal('${oid}')">View</button>
-        <button class="btn-sm btn-edit" onclick="openOrderAssignModal('${oid}','${o.orderNumber||''}',${JSON.stringify(assign)},${JSON.stringify(o.pickupOutletSnapshot||{})})">Assign</button>
+        <button class="btn-sm btn-edit" onclick="openOrderAssignModal('${oid}','${o.orderNumber||''}',${JSON.stringify(assign)},${JSON.stringify(o.pickupOutletSnapshot||{})},${JSON.stringify(o.pickupOutletId||'')})">Assign</button>
       </td>
     </tr>`;
   }).join('') : `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--mid);">No orders found</td></tr>`;
@@ -2429,8 +2325,9 @@ window.openOrderModal = openOrderModal;
 // ── ORDER ASSIGNMENT ──────────────────────────────────────────────────────────
 let assigningOrderId = null;
 
-async function openOrderAssignModal(orderId, orderNum, assignment, outletSnap) {
+async function openOrderAssignModal(orderId, orderNum, assignment, outletSnap, pickupOutletId) {
   assigningOrderId = orderId;
+  _assignPickupOutletId = pickupOutletId || null;
   _cachedDealers = null; _cachedOutlets = null; _cachedRetailUsers = null;
   document.getElementById('oamTitle').textContent = `Assign Order #${orderNum}`;
 
@@ -2480,6 +2377,7 @@ window.openOrderAssignModal = openOrderAssignModal;
 let _cachedDealers     = null;
 let _cachedOutlets     = null;
 let _cachedRetailUsers = null;
+let _assignPickupOutletId = null;
 
 async function loadAssignOptions() {
   const type = document.getElementById('oamType').value;
@@ -2505,9 +2403,20 @@ async function loadAssignOptions() {
           email: u.email,
           store: storeName,
           territory,
-          pickup
+          pickup,
+          linkedOutletId: u.linkedOutletId || ''
         }))}">${storeName} — ${u.firstName||''} ${u.lastName||''} · ${territory}</option>`;
       }).join('');
+    // Auto-select retail user whose outlet matches customer's chosen pickup
+    if (_assignPickupOutletId) {
+      const matchOpt = Array.from(sel.options).find(o => {
+        try { return JSON.parse(decodeURIComponent(o.dataset.info||'')).linkedOutletId === _assignPickupOutletId; } catch { return false; }
+      });
+      if (matchOpt) {
+        sel.value = matchOpt.value;
+        sel.dispatchEvent(new Event('change'));
+      }
+    }
 
   } else if (type === 'dealer') {
     lbl.textContent = 'Select Dealer';
