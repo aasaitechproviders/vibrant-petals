@@ -844,7 +844,7 @@ async function loadTerritories() {
   } catch (e) { /* use empty, user will see "no territories" */ }
 }
 
-function populateTerritorySelect(selectEl, state) {
+function populateTerritorySelect(selectEl, state, dealerMode = false) {
   const list = territoriesData[state] || [];
   selectEl.innerHTML = '<option value="">Select your territory…</option>';
   if (!list.length) {
@@ -855,8 +855,8 @@ function populateTerritorySelect(selectEl, state) {
   list.forEach(t => {
     const opt = document.createElement('option');
     opt.value = t.slug;
-    const taken  = t.status === 'assigned';
-    const review = t.status === 'pending';
+    const taken  = dealerMode && t.status === 'assigned';
+    const review = dealerMode && t.status === 'pending';
     opt.textContent = taken ? `${t.name} (Reserved)` : review ? `${t.name} (Under Review)` : t.name;
     opt.disabled = taken || review;
     selectEl.appendChild(opt);
@@ -868,14 +868,14 @@ function onCustomerStateChange() {
   const state    = document.getElementById('cState').value;
   const terr     = document.getElementById('cTerritory');
   if (!state) { terr.innerHTML = '<option value="">Select state first…</option>'; terr.disabled = true; return; }
-  populateTerritorySelect(terr, state);
+  populateTerritorySelect(terr, state, false);
 }
 
 function onDealerStateChange() {
   const state = document.getElementById('dState').value;
   const terr  = document.getElementById('dTerritory');
   if (!state) { terr.innerHTML = '<option value="">Select state first…</option>'; terr.disabled = true; return; }
-  populateTerritorySelect(terr, state);
+  populateTerritorySelect(terr, state, true);
 }
 
 // ── TYPE TOGGLE ────────────────────────────────────────────────────────────────
@@ -1207,7 +1207,7 @@ function onOutletStateChange() {
   const state = document.getElementById('oState').value;
   const terr  = document.getElementById('oTerritory');
   if (!state) { terr.innerHTML = '<option value="">Select state first…</option>'; terr.disabled = true; return; }
-  populateTerritorySelect(terr, state);
+  populateTerritorySelect(terr, state, false);
 }
 window.onOutletStateChange = onOutletStateChange;
 
