@@ -408,8 +408,8 @@
 
         <!-- Assigned Orders -->
         <div class="form-card">
-          <div class="form-card-title">ORDERS ASSIGNED TO ME</div>
-          <p style="font-size:13px;color:var(--mid);margin-bottom:12px;">These are customer orders assigned to you for fulfillment at your pickup outlet.</p>
+          <div class="form-card-title">ORDERS ASSIGNED TO ME &amp; MY OUTLETS</div>
+          <p style="font-size:13px;color:var(--mid);margin-bottom:12px;">Customer orders assigned directly to you or to any of your registered retail outlets.</p>
           <div id="dealerOrdersContent"><div class="skeleton" style="height:80px;border-radius:4px;"></div></div>
         </div>
 
@@ -966,7 +966,7 @@ async function loadDealerOrders() {
   const data = await apiFetch('/dealer/orders?limit=20', { headers: apiHeaders() });
   const orders = data.orders || [];
   if (!orders.length) {
-    el.innerHTML = '<p style="color:var(--mid);font-size:14px;">No orders assigned to you yet. Orders will appear here once admin assigns them to you.</p>';
+    el.innerHTML = '<p style="color:var(--mid);font-size:14px;">No orders assigned to you or your outlets yet. Orders will appear here once admin assigns them to you or one of your registered outlets.</p>';
     return;
   }
 
@@ -977,7 +977,7 @@ async function loadDealerOrders() {
   };
 
   el.innerHTML = `<table class="orders-table"><thead><tr>
-    <th>Order #</th><th>Customer</th><th>Pickup Outlet</th><th>Date</th><th>Status</th><th>Total</th><th>Action</th>
+    <th>Order #</th><th>Customer</th><th>Pickup Outlet</th><th>Assigned To</th><th>Date</th><th>Status</th><th>Total</th><th>Action</th>
   </tr></thead>
   <tbody>${orders.map(o => {
     const snap       = o.pickupOutletSnapshot || {};
@@ -992,6 +992,11 @@ async function loadDealerOrders() {
       </td>
       <td style="font-size:12px;">${o.customerEmail||'—'}</td>
       <td style="font-size:12px;">${snap.name||'—'}<br/><span style="color:var(--mid);">${snap.suburb||''}${snap.suburb&&snap.state?', ':''} ${snap.state||''}</span></td>
+      <td style="font-size:11px;">
+        ${o.assignment?.assignedToType === 'outlet'
+          ? '<span style="background:#fff3cd;color:#856404;border:1px solid #ffc10750;padding:2px 8px;border-radius:10px;font-weight:700;">📦 Outlet</span><br/><span style="color:var(--mid);">' + (o.assignment?.assignedToName||'') + '</span>'
+          : '<span style="background:#d4edda;color:#155724;border:1px solid #c3e6cb;padding:2px 8px;border-radius:10px;font-weight:700;">👤 You</span>'}
+      </td>
       <td style="font-size:12px;">${new Date(o.createdAt).toLocaleDateString()}</td>
       <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
       <td><b>$${(o.total||0).toFixed(2)}</b></td>
