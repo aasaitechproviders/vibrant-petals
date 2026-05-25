@@ -462,11 +462,21 @@ let allOutlets = [];
 async function loadOutlets() {
   const stateFilter     = document.getElementById('outletStateFilter').value;
   const territoryFilter = document.getElementById('outletTerritoryFilter').value;
-  let qs = '';
+  // Always request only pickup-enabled approved outlets
+  let qs = 'pickupEnabled=true&';
   if (stateFilter)     qs += 'state=' + encodeURIComponent(stateFilter) + '&';
   if (territoryFilter) qs += 'territory=' + encodeURIComponent(territoryFilter) + '&';
   const data = await apiFetch('/retail-outlets?' + qs).catch(() => ({ outlets: [] }));
   allOutlets = data.outlets || [];
+
+  // Smart fallback: if no outlets in specific territory, expand to full state
+  if (!allOutlets.length && territoryFilter && stateFilter) {
+    const fallbackData = await apiFetch('/retail-outlets?pickupEnabled=true&state=' + encodeURIComponent(stateFilter)).catch(() => ({ outlets: [] }));
+    allOutlets = fallbackData.outlets || [];
+    if (allOutlets.length) {
+      showToast('No outlets in your territory — showing all ' + stateFilter + ' outlets', '');
+    }
+  }
   renderOutlets(allOutlets);
   if (stateFilter) {
     const td = await apiFetch('/territories?state=' + encodeURIComponent(stateFilter)).catch(() => ({ territories: [] }));
@@ -527,18 +537,29 @@ window.selectOutlet = selectOutlet;
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init(){
   await loadCart();
-  await loadOutlets();
   if(token){
-    const me = await apiFetch(`/auth/me`,{headers:apiHeaders()}).catch(function(){return null;});
-    if(me&&me.user&&me.user.preferredState){
-      document.getElementById(`outletStateFilter`).value = me.user.preferredState;
-      await loadOutlets();
-      if(me.user.preferredTerritory){
-        document.getElementById(`outletTerritoryFilter`).value = me.user.preferredTerritory;
-        await loadOutlets();
+    // Load user preferences first, then filter outlets accordingly
+    const me = await apiFetch('/auth/me',{headers:apiHeaders()}).catch(()=>null);
+    if(me&&me.user){
+      const u = me.user;
+      if(u.preferredState){
+        document.getElementById('outletStateFilter').value = u.preferredState;
+        // Pre-load territories for state dropdown
+        const td = await apiFetch('/territories?state=' + encodeURIComponent(u.preferredState)).catch(()=>({territories:[]}));
+        const terrSel = document.getElementById('outletTerritoryFilter');
+        terrSel.innerHTML = '<option value="">All Territories</option>';
+        (td.territories||[]).forEach(t=>{
+          const opt = document.createElement('option');
+          opt.value = t.slug; opt.textContent = t.name;
+          terrSel.appendChild(opt);
+        });
+        if(u.preferredTerritory){
+          terrSel.value = u.preferredTerritory;
+        }
       }
     }
   }
+  await loadOutlets();
 }
 
 init();
