@@ -1554,6 +1554,10 @@ async function loadOutlets() {
           <td><span style="background:${o.isActive?'#27ae6015':'#fff3cd'};color:${o.isActive?'#27ae60':'#856404'};border:1px solid ${o.isActive?'#27ae6040':'#ffc10760'};padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">${o.isActive?'Active':'Pending Activation'}</span></td>
           <td style="text-align:right;">
             ${activateBtn}
+            ${o.isActive ? `<button data-outlet-id="${o._id}" data-outlet-name="${o.name.replace(/"/g,'&quot;')}" data-pickup="${o.pickupEnabled}"
+              onclick="togglePickup(this.dataset.outletId, this.dataset.pickup==='true', this.dataset.outletName)"
+              style="padding:5px 12px;font-size:12px;background:${o.pickupEnabled?'#e74c3c':'#27ae60'};color:#fff;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">
+              ${o.pickupEnabled ? '🔴 Disable Pickup' : '🟢 Enable Pickup'}</button>` : ''}
             <button onclick="editOutletById('${o._id}')" style="padding:5px 12px;font-size:12px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">Edit</button>
             <button onclick="deleteOutlet('${o._id}')" style="padding:5px 12px;font-size:12px;background:#c0392b;color:#fff;border:none;border-radius:3px;cursor:pointer;">Delete</button>
           </td>
@@ -1705,7 +1709,7 @@ async function activateOutlet(id, name) {
   if (!confirm(`Activate outlet "${name}"?`)) return;
   const data = await apiFetch(`/admin/retail-outlets/${id}`, {
     method: 'PUT', headers: apiHeaders(),
-    body: JSON.stringify({ isActive: true }),
+    body: JSON.stringify({ isActive: true, pickupEnabled: true }),
   });
   if (data.success) { showToast(`"${name}" activated`, 'success'); loadApprovals(); loadOutlets(); }
   else showToast(data.message || 'Failed', 'error');
