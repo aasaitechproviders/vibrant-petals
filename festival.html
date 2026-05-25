@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Festival Guide – VibrantPetals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --gold:#b99b51; --gold-dark:#a37a10; --gold-lt:#c9af77;
+      --cream:#FAF7F2; --cream2:#F2EDE3;
+      --dark:#1A1A1A; --mid:#555;
+      --radius:4px; --nav-h:70px; --bar-h:40px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Lato',sans-serif;background:var(--cream);color:var(--dark);overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+    img{max-width:100%;}
+
+    /* ── ANNOUNCEMENT BAR ── */
+    .bar{background:var(--gold);color:#fff;text-align:center;padding:10px 16px;font-size:13px;letter-spacing:.04em;height:var(--bar-h);display:flex;align-items:center;justify-content:center;}
+
+    /* ── HEADER ── */
+    header{position:sticky;top:0;z-index:900;background:#fff;border-bottom:1px solid rgba(155,139,90,.15);height:var(--nav-h);}
+    .nav-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:100%;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--dark);letter-spacing:.02em;}
+    .nav-logo img{height:46px;width:auto;object-fit:contain;}
+    nav ul{display:flex;gap:28px;list-style:none;}
+    nav ul li a{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dark);padding-bottom:4px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
+    nav ul li a:hover{color:var(--gold);border-bottom-color:var(--gold);}
+    .nav-icons{display:flex;align-items:center;gap:20px;}
+    .nav-icon-btn{background:none;border:none;cursor:pointer;color:var(--dark);display:flex;align-items:center;padding:6px;transition:color .2s;position:relative;}
+    .nav-icon-btn svg{width:22px;height:22px;stroke-width:1.6;}
+    .nav-icon-btn:hover{color:var(--gold);}
+    .badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+    /* Dropdown */
+    .dropdown{position:relative;}
+    .dropdown-menu{display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid rgba(155,139,90,.2);border-radius:var(--radius);padding:8px 0;min-width:200px;box-shadow:0 4px 20px rgba(0,0,0,.08);z-index:100;}
+    .dropdown:hover .dropdown-menu{display:block;}
+    .dropdown-menu a{display:block;padding:10px 18px;font-size:13px;color:var(--dark);transition:background .15s,color .15s;white-space:nowrap;}
+    .dropdown-menu a:hover{background:var(--cream2);color:var(--gold);}
+    /* Hamburger */
+    .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;}
+    .hamburger span{width:22px;height:2px;background:var(--dark);display:block;transition:.3s;}
+
+    /* ── PAGE HERO ── */
+    .page-hero{background:linear-gradient(135deg,#2c2416 0%,#4a3a1a 50%,#2c2416 100%);color:#fff;padding:72px 24px;text-align:center;position:relative;overflow:hidden;}
+    .page-hero::before{content:'';position:absolute;inset:0;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="rgba(185,155,81,0.15)"/><circle cx="80" cy="60" r="1.5" fill="rgba(185,155,81,0.1)"/><circle cx="50" cy="80" r="1" fill="rgba(185,155,81,0.12)"/></svg>');opacity:.6;}
+    .page-hero-inner{max-width:700px;margin:0 auto;position:relative;z-index:1;}
+    .page-hero-eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-lt);margin-bottom:14px;}
+    .page-hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5vw,56px);font-weight:300;line-height:1.15;color:#fff;margin-bottom:16px;}
+    .page-hero p{font-size:15px;color:rgba(255,255,255,.72);line-height:1.7;max-width:520px;margin:0 auto;}
+    .hero-divider{display:flex;align-items:center;justify-content:center;gap:12px;margin:20px 0 0;}
+    .hero-divider span{width:40px;height:1px;background:var(--gold-lt);opacity:.5;display:block;}
+    .hero-divider i{color:var(--gold-lt);font-size:16px;font-style:normal;}
+
+    /* ── CONTENT AREA ── */
+    .page-content{max-width:860px;margin:0 auto;padding:64px 24px 80px;}
+    .section-block{margin-bottom:52px;}
+    .section-block:last-child{margin-bottom:0;}
+    .section-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--dark);margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--gold);display:inline-block;}
+    .subsection-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--dark);margin:28px 0 10px;}
+    .numbered-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--dark);margin:32px 0 10px;display:flex;align-items:center;gap:10px;}
+    .numbered-title::before{content:attr(data-n);background:var(--gold);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-family:'Lato',sans-serif;font-weight:700;flex-shrink:0;}
+    p{font-size:15px;line-height:1.85;color:#444;margin-bottom:14px;}
+    ul.content-list{margin:10px 0 14px 0;padding-left:0;list-style:none;}
+    ul.content-list li{font-size:15px;line-height:1.8;color:#444;padding:5px 0 5px 22px;position:relative;}
+    ul.content-list li::before{content:'';position:absolute;left:0;top:14px;width:6px;height:6px;background:var(--gold);border-radius:50%;}
+    .highlight-box{background:linear-gradient(135deg,rgba(185,155,81,.06),rgba(185,155,81,.12));border-left:3px solid var(--gold);border-radius:0 var(--radius) var(--radius) 0;padding:18px 22px;margin:20px 0;}
+    .highlight-box p{margin:0;}
+    .contact-box{background:#fff;border:1px solid rgba(185,155,81,.25);border-radius:8px;padding:28px 32px;text-align:center;margin-top:40px;}
+    .contact-box h3{font-family:'Playfair Display',serif;font-size:20px;color:var(--dark);margin-bottom:8px;}
+    .contact-box p{margin:0;color:var(--mid);font-size:14px;}
+    .contact-box a{color:var(--gold);font-weight:700;}
+
+    /* ── CARDS (for FAQ, Festival) ── */
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;margin:24px 0;}
+    .info-card{background:#fff;border:1px solid rgba(185,155,81,.2);border-radius:8px;padding:24px;transition:box-shadow .2s;}
+    .info-card:hover{box-shadow:0 4px 20px rgba(185,155,81,.12);}
+    .info-card-icon{font-size:28px;margin-bottom:12px;}
+    .info-card h3{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--dark);margin-bottom:8px;}
+    .info-card p{font-size:14px;color:var(--mid);line-height:1.7;margin:0;}
+
+    /* ── FAQ ACCORDION ── */
+    .faq-group{margin-bottom:40px;}
+    .faq-group-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--dark);margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid rgba(185,155,81,.3);}
+    .faq-item{border-bottom:1px solid rgba(0,0,0,.07);}
+    .faq-q{width:100%;background:none;border:none;padding:18px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;text-align:left;font-family:'Lato',sans-serif;font-size:15px;font-weight:700;color:var(--dark);gap:16px;transition:color .2s;}
+    .faq-q:hover{color:var(--gold);}
+    .faq-q .faq-icon{width:20px;height:20px;flex-shrink:0;transition:transform .3s;color:var(--gold);}
+    .faq-item.open .faq-q .faq-icon{transform:rotate(45deg);}
+    .faq-a{display:none;padding:0 0 18px;font-size:14px;line-height:1.8;color:var(--mid);}
+    .faq-item.open .faq-a{display:block;}
+
+    /* ── FOOTER ── */
+    footer{background:var(--dark);color:#fff;padding:56px 24px 0;}
+    .footer-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 2fr;gap:48px;padding-bottom:48px;}
+    .footer-col-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--gold-lt);letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px;}
+    .footer-contact{display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,.6);margin-bottom:10px;}
+    .footer-links{display:flex;flex-direction:column;gap:10px;}
+    .footer-links a{font-size:14px;color:rgba(255,255,255,.6);transition:color .2s;}
+    .footer-links a:hover{color:var(--gold-lt);}
+    .newsletter-desc{font-size:14px;color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:16px;}
+    .newsletter-input{width:100%;padding:11px 14px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#fff;font-size:14px;border-radius:var(--radius);margin-bottom:10px;outline:none;}
+    .newsletter-input::placeholder{color:rgba(255,255,255,.4);}
+    .newsletter-input:focus{border-color:var(--gold);}
+    .btn-subscribe{width:100%;padding:12px;background:var(--gold);color:#fff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:none;border-radius:var(--radius);cursor:pointer;transition:background .2s;}
+    .btn-subscribe:hover{background:var(--gold-dark);}
+    .footer-bottom{max-width:1280px;margin:0 auto;border-top:1px solid rgba(255,255,255,.08);padding:20px 0;font-size:13px;color:rgba(255,255,255,.4);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+    .footer-bottom a{color:var(--gold-lt);opacity:.8;transition:opacity .2s;}
+    .footer-bottom a:hover{opacity:1;}
+
+    /* ── MOBILE ── */
+    @media(max-width:900px){
+      nav,.nav-icons .nav-icon-btn:not(#cartBtn):not(#loginBtn){display:none;}
+      .hamburger{display:flex;}
+      .footer-grid{grid-template-columns:1fr 1fr;gap:32px;}
+    }
+    @media(max-width:600px){
+      .footer-grid{grid-template-columns:1fr;}
+      .page-content{padding:40px 20px 60px;}
+    }
+  </style>
+</head>
+<body>
+<div class="bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney</div>
+<header>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="logo.png" alt="Vibrant Petals Logo"/>
+      Vibrant Petals
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="category.html?cat=strings">Strings</a></li>
+        <li class="dropdown">
+          <a href="category.html?cat=pooja-garlands">Garlands <span>▾</span></a>
+          <div class="dropdown-menu">
+            <a href="category.html?cat=pooja-garlands">Pooja Garlands</a>
+            <a href="category.html?cat=special-occasional-garlands">Special Occasional Garlands</a>
+          </div>
+        </li>
+        <li><a href="category.html?cat=loose-flowers">Loose Flowers</a></li>
+        <li><a href="category.html?cat=leaves">Leaves</a></li>
+      </ul>
+    </nav>
+    <div class="nav-icons">
+      <a href="index.html" class="nav-icon-btn" title="Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      </a>
+      <a href="account.html" class="nav-icon-btn" title="Account">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </a>
+      <a href="category.html?cat=all" class="nav-icon-btn" title="Shop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="page-hero-eyebrow">Traditions & Celebrations</div>
+    <h1>Flowers for Every Tradition &amp; Celebration</h1>
+    <p>Flowers hold deep spiritual and cultural significance in Indian traditions. We help you celebrate every sacred occasion with authentic floral selections.</p>
+    <div class="hero-divider"><span></span><i>✦</i><span></span></div>
+  </div>
+</div>
+<div class="page-content">
+
+<div class="section-block">
+  <h2 class="section-title">Popular Festivals We Support</h2>
+  <div class="card-grid">
+    <div class="info-card">
+      <div class="info-card-icon">🪔</div>
+      <h3>Diwali</h3>
+      <p>Fresh flowers for poojas, home decoration, entrances, rangoli, Lakshmi pooja, and festive celebrations. Marigolds, roses, jasmine, and decorative garlands.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">🙏</div>
+      <h3>Navaratri &amp; Durga Pooja</h3>
+      <p>Traditional flowers for golu decoration, Devi poojas, temple decoration, and cultural events.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">💛</div>
+      <h3>Varalakshmi Vratham</h3>
+      <p>Fresh flowers and garlands for Lakshmi pooja and home celebrations.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">🐘</div>
+      <h3>Ganesh Chaturthi</h3>
+      <p>Flowers for Ganesh poojas, festival decoration, and spiritual rituals.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">🌾</div>
+      <h3>Pongal &amp; Sankranti</h3>
+      <p>Traditional flowers for harvest celebrations, family gatherings, and home decorations.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">🌺</div>
+      <h3>Onam</h3>
+      <p>Fresh flowers for creating beautiful pookalam floral decorations during Onam celebrations.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">🌅</div>
+      <h3>Tamil New Year, Ugadi &amp; Vishu</h3>
+      <p>Flowers for pooja arrangements, home decoration, temple visits, and festive celebrations.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">💍</div>
+      <h3>Weddings &amp; Engagements</h3>
+      <p>Wedding garlands, mandap decoration, bridal arrangements, and reception and event decoration.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-block">
+  <h2 class="section-title">Daily Pooja Flowers</h2>
+  <p>Nivas Vibrant Petals also supplies flowers suitable for daily traditions and spiritual practices:</p>
+  <ul class="content-list">
+    <li>Daily home poojas</li>
+    <li>Temple offerings</li>
+    <li>Spiritual rituals and religious ceremonies</li>
+    <li>Meditation and devotional practices</li>
+  </ul>
+  <p>Fresh flowers help create a peaceful and devotional atmosphere for worship and prayer.</p>
+</div>
+
+<div class="section-block">
+  <h2 class="section-title">Flower Care Tips</h2>
+  <div class="highlight-box">
+    <p>To maintain freshness after delivery: store flowers in a cool environment, avoid direct sunlight and heat exposure, lightly sprinkle water where appropriate, and refrigerate flowers if suitable for the flower type. Proper handling can help extend flower freshness and fragrance.</p>
+  </div>
+</div>
+
+<div class="section-block">
+  <h2 class="section-title">Pre-Booking for Festivals</h2>
+  <p>Festival periods often experience high demand and limited availability. To avoid disappointment, customers are encouraged to place orders early, schedule festival deliveries in advance, and confirm bulk or special flower requirements ahead of time.</p>
+  <p>We also support bulk flower requirements for temples, community organisations, religious associations, event organisers, wedding planners, and cultural celebrations. Please contact our team for wholesale or customised festival flower requirements.</p>
+</div>
+<div class="contact-box">
+  <h3>Get in Touch</h3>
+  <p>For any enquiries, please reach out to our team.<br/>
+  <a href="mailto:nivafoodsintl@gmail.com">nivafoodsintl@gmail.com</a> &nbsp;·&nbsp; +61 416 424 745</p>
+</div>
+</div>
+<footer>
+  <div class="footer-grid">
+    <div>
+      <h4 class="footer-col-title">Get in Touch</h4>
+      <div class="footer-contact">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+        <a href="mailto:nivafoodsintl@gmail.com" style="color:rgba(255,255,255,.6);">nivafoodsintl@gmail.com</a>
+      </div>
+      <div class="footer-contact">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.22 2 2 0 012.22 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+        +61 416 424 745
+      </div>
+      <div class="footer-contact">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        1/20 Lonhro Blvd, Cranbourne West, Vic 3977
+      </div>
+    </div>
+    <div>
+      <h4 class="footer-col-title">Information</h4>
+      <div class="footer-links">
+        <a href="about.html">About Us</a>
+        <a href="festival.html">Festival Guide</a>
+        <a href="wholesale.html">Wholesale Orders</a>
+        <a href="faq.html">FAQs</a>
+      </div>
+    </div>
+    <div>
+      <h4 class="footer-col-title">Policies</h4>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms &amp; Conditions</a>
+        <a href="refund.html">Refund Policy</a>
+        <a href="delivery.html">Delivery Policy</a>
+      </div>
+    </div>
+    <div>
+      <h4 class="footer-col-title">Newsletter</h4>
+      <p class="newsletter-desc">Sign up to hear about our Deals of the Week, special sales and more.</p>
+      <input type="email" class="newsletter-input" placeholder="Enter your email..."/>
+      <button class="btn-subscribe">Subscribe</button>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Copyright &copy; Nivas Vibrant Petals. All Rights Reserved.</span>
+    <span>
+      <a href="privacy.html">Privacy</a> &middot;
+      <a href="terms.html">Terms</a> &middot;
+      <a href="refund.html">Refund Policy</a>
+    </span>
+  </div>
+</footer>
+<script>
+// Simple FAQ accordion
+document.querySelectorAll('.faq-q').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const item=btn.closest('.faq-item');
+    const wasOpen=item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+    if(!wasOpen) item.classList.add('open');
+  });
+});
+</script>
+</body>
+</html>
