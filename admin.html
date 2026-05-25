@@ -968,7 +968,7 @@ checkAuth();
 async function loadApprovals() {
   const [dealersData, retailData, territoriesData, outletsData] = await Promise.all([
     apiFetch('/admin/users?role=Dealer&approvalStatus=pending&limit=50', { headers: apiHeaders() }),
-    apiFetch('/admin/users?role=Retail&approvalStatus=pending&limit=50', { headers: apiHeaders() }).catch(() => ({ users: [] })),
+    apiFetch('/admin/retail-users?approvalStatus=pending&limit=50', { headers: apiHeaders() }).catch(() => ({ users: [] })),
     apiFetch('/admin/territories?status=pending', { headers: apiHeaders() }),
     apiFetch('/admin/retail-outlets', { headers: apiHeaders() }),
   ]);
