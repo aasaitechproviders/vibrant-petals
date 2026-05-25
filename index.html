@@ -1329,13 +1329,29 @@ function showToast(msg, type=''){
   // Card width in px — recalculate on resize
   function cardWidth(){ return slider.offsetWidth / VISIBLE; }
 
+  function getRole(){
+    try{
+      const raw=localStorage.getItem('vp_token');
+      if(!raw) return null;
+      return JSON.parse(atob(raw.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role||null;
+    }catch(e){return null;}
+  }
+
+  function featuredPrice(p){
+    const role = getRole();
+    if(role==='Dealer' && p.dealerPrice)
+      return `<span style="color:#F5A623;font-weight:700;font-size:13px;">⭐ $${p.dealerPrice.toFixed(2)}</span>`;
+    if(role==='Retail' && p.retailPrice)
+      return `<span style="color:#1565c0;font-weight:700;font-size:13px;">🏪 $${p.retailPrice.toFixed(2)}</span>`;
+    if(p.salePrice)
+      return `<span style="font-weight:700;">$${p.salePrice.toFixed(2)}</span>${p.regularPrice?` <span style="text-decoration:line-through;color:#aaa;font-size:11px;">$${p.regularPrice.toFixed(2)}</span>`:''}`;
+    return p.price ? `$${p.price.toFixed(2)}` : '';
+  }
+
   function renderCards(){
     const cw = cardWidth();
     track.innerHTML = products.map(p => {
-      const hasRange = p.regularPrice && p.price && p.regularPrice !== p.price;
-      const priceStr = hasRange
-        ? `$${Math.min(p.price, p.regularPrice).toFixed(2)} – $${Math.max(p.price, p.regularPrice).toFixed(2)}`
-        : p.price ? `$${p.price.toFixed(2)}` : '';
+      const priceStr = featuredPrice(p);
       const img = p.images?.[0] || '';
       const inStock = p.stockStatus !== 'outofstock';
       return `
@@ -1414,7 +1430,12 @@ searchInput.addEventListener('input', ()=>{
         <img src="${p.images?.[0]||'https://via.placeholder.com/50'}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/50'"/>
         <div>
           <div class="search-result-name">${p.name}</div>
-          <div class="search-result-price">${p.price?'$'+p.price.toFixed(2):''}</div>
+          <div class="search-result-price">${
+        getRole()==='Dealer'&&p.dealerPrice ? '⭐ $'+p.dealerPrice.toFixed(2) :
+        getRole()==='Retail'&&p.retailPrice ? '🏪 $'+p.retailPrice.toFixed(2) :
+        p.salePrice ? '$'+p.salePrice.toFixed(2) :
+        p.price ? '$'+p.price.toFixed(2) : ''
+      }</div>
         </div>
       </div>`).join('');
   }, 300);
