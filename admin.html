@@ -229,6 +229,7 @@
       <div class="nav-item" id="nav-storefront" onclick="showPanel('storefront',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Storefront</div>
       <div class="nav-section-label">Dealer Network</div>
       <div class="nav-item" id="nav-territories" onclick="showPanel('territories',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Territories</div>
+      <div class="nav-item" id="nav-dealers" onclick="showPanel('dealers',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/><path d="M16 11l2 2 4-4"/></svg>Dealers</div>
       <div class="nav-item" id="nav-outlets" onclick="showPanel('outlets',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Retail Outlets</div>
       <div class="nav-divider"></div>
     </nav>
@@ -281,40 +282,11 @@
 
       <!-- APPROVALS -->
       <div class="panel" id="panel-approvals">
-
-        <!-- ── Pending Dealer Signups ── -->
-        <div class="card" style="margin-bottom:24px;">
-          <div class="card-head">
-            <div class="card-title">⭐ Pending Dealer Signups</div>
-            <span id="approvalDealerCount" style="font-size:13px;color:var(--mid);"></span>
-          </div>
-          <div id="approvalDealersWrap">
-            <div class="skeleton" style="height:80px;margin:20px;border-radius:4px;"></div>
-          </div>
+        <div id="approvalsContent">
+          <div class="skeleton" style="height:80px;margin-bottom:20px;border-radius:4px;"></div>
+          <div class="skeleton" style="height:80px;margin-bottom:20px;border-radius:4px;"></div>
+          <div class="skeleton" style="height:80px;border-radius:4px;"></div>
         </div>
-
-        <!-- ── Pending Territory Requests ── -->
-        <div class="card" style="margin-bottom:24px;">
-          <div class="card-head">
-            <div class="card-title">📍 Pending Territory Requests</div>
-            <span id="approvalTerrCount" style="font-size:13px;color:var(--mid);"></span>
-          </div>
-          <div id="approvalTerritoriesWrap">
-            <div class="skeleton" style="height:80px;margin:20px;border-radius:4px;"></div>
-          </div>
-        </div>
-
-        <!-- ── Pending Retail Outlet Activations ── -->
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title">🏪 Pending Retail Outlet Activations</div>
-            <span id="approvalOutletCount" style="font-size:13px;color:var(--mid);"></span>
-          </div>
-          <div id="approvalOutletsWrap">
-            <div class="skeleton" style="height:80px;margin:20px;border-radius:4px;"></div>
-          </div>
-        </div>
-
       </div>
 
       <!-- CATALOGUE (Products + Categories) -->
@@ -495,15 +467,53 @@
         </div>
       </div>
 
-      <!-- ══ RETAIL OUTLETS ══ -->
-      <div class="panel" id="panel-outlets">
+      <!-- ══ DEALERS ══ -->
+      <div class="panel" id="panel-dealers">
         <div class="card">
           <div class="card-head">
-            <div class="card-title">Retail Outlets</div>
+            <div class="card-title">Dealers</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <select id="dealerStatusFilter" class="form-select" style="width:160px;padding:8px 12px;font-size:13px;" onchange="loadDealers()">
+                <option value="">All Statuses</option>
+                <option value="approved">Active</option>
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+          <div id="dealersTableWrap">
+            <div class="skeleton" style="height:200px;margin:20px;border-radius:4px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ RETAIL OUTLETS ══ -->
+      <div class="panel" id="panel-outlets">
+        <!-- Section A: Retail Users with linked outlets -->
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-head">
+            <div class="card-title">🏪 Retail Outlet Accounts</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <select id="retailUserStatusFilter" class="form-select" style="width:160px;padding:8px 12px;font-size:13px;" onchange="loadRetailUsers()">
+                <option value="">All Statuses</option>
+                <option value="approved">Active</option>
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+          <div id="retailUsersTableWrap">
+            <div class="skeleton" style="height:160px;margin:20px;border-radius:4px;"></div>
+          </div>
+        </div>
+        <!-- Section B: Admin-created / standalone outlets -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">🔧 Admin-Managed Outlets</div>
             <button class="btn-add" onclick="openOutletModal()">+ Add Outlet</button>
           </div>
           <div id="outletsTableWrap">
-            <div class="skeleton" style="height:200px;margin:20px;border-radius:4px;"></div>
+            <div class="skeleton" style="height:160px;margin:20px;border-radius:4px;"></div>
           </div>
         </div>
       </div>
@@ -950,6 +960,288 @@ checkAuth();
   }
 }
 
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  APPROVALS – 4 sections: dealer signups, retail signups, territory requests, outlet activations
+// ══════════════════════════════════════════════════════════════════════════════
+async function loadApprovals() {
+  const [dealersData, retailData, territoriesData, outletsData] = await Promise.all([
+    apiFetch('/admin/users?role=Dealer&approvalStatus=pending&limit=50', { headers: apiHeaders() }),
+    apiFetch('/admin/retail-users?approvalStatus=pending&limit=50', { headers: apiHeaders() }),
+    apiFetch('/admin/territories?status=pending', { headers: apiHeaders() }),
+    apiFetch('/admin/retail-outlets', { headers: apiHeaders() }),
+  ]);
+
+  const pendingDealers    = (dealersData.users || []);
+  const pendingRetail     = (retailData.users || []);
+  const pendingTerritories = (territoriesData.territories || []);
+  const pendingOutlets    = (outletsData.outlets || []).filter(o => !o.isActive && o.approvalStatus === 'pending' && !o.ownerUserId);
+
+  const totalBadge = pendingDealers.length + pendingRetail.length + pendingTerritories.length + pendingOutlets.length;
+  const badge = document.getElementById('approvalsBadge');
+  if (badge) { badge.textContent = totalBadge; badge.style.display = totalBadge ? 'inline' : 'none'; }
+
+  const wrap = document.getElementById('approvalsContent');
+  if (!wrap) return;
+
+  wrap.innerHTML = `
+    <!-- SECTION 1: DEALER SIGNUPS -->
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-head">
+        <div class="card-title">⭐ Pending Dealer Signups</div>
+        <span style="font-size:13px;color:var(--mid);">${pendingDealers.length} pending</span>
+      </div>
+      ${!pendingDealers.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">✓ No pending dealer signups.</p>' : `
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Email</th><th>Territory</th><th>State</th><th>Applied</th><th>Actions</th></tr></thead>
+        <tbody>${pendingDealers.map(u => `<tr>
+          <td><b>${u.firstName||''} ${u.lastName||''}</b><br/><span style="font-size:11px;color:var(--mid);">${u.username}</span></td>
+          <td style="font-size:13px;">${u.email}</td>
+          <td style="font-size:12px;">${(u.pendingTerritories||[]).map(t=>t.name).join(', ') || '—'}</td>
+          <td style="font-size:12px;">${u.dealerInfo?.state||'—'}</td>
+          <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
+          <td><div style="display:flex;gap:6px;">
+            <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="reviewDealer('${u._id}','${u.username}')">Review</button>
+            <button class="btn-sm btn-delete" onclick="quickRejectDealer('${u._id}','${u.username}')">Reject</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table>`}
+    </div>
+
+    <!-- SECTION 2: RETAIL SIGNUPS -->
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-head">
+        <div class="card-title">🏪 Pending Retail Signups</div>
+        <span style="font-size:13px;color:var(--mid);">${pendingRetail.length} pending</span>
+      </div>
+      ${!pendingRetail.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">✓ No pending retail signups.</p>' : `
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Email</th><th>Store</th><th>Territory</th><th>State</th><th>Pickup Requested</th><th>Applied</th><th>Actions</th></tr></thead>
+        <tbody>${pendingRetail.map(u => `<tr>
+          <td><b>${u.firstName||''} ${u.lastName||''}</b><br/><span style="font-size:11px;color:var(--mid);">${u.username}</span></td>
+          <td style="font-size:13px;">${u.email}</td>
+          <td style="font-size:13px;">${u.outlet?.name || u.dealerInfo?.storeName || '—'}</td>
+          <td style="font-size:12px;">${u.outlet?.territorySlug || '—'}</td>
+          <td style="font-size:12px;">${u.outlet?.state || u.dealerInfo?.state || '—'}</td>
+          <td style="text-align:center;">${u.outlet?.pickupEnabled ? '<span style="color:#27ae60;font-weight:700;">Yes</span>' : '<span style="color:var(--mid);">No</span>'}</td>
+          <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
+          <td><div style="display:flex;gap:6px;">
+            <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="approveRetail('${u._id}','${u.username}')">Approve</button>
+            <button class="btn-sm btn-delete" onclick="rejectRetail('${u._id}','${u.username}')">Reject</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table>`}
+    </div>
+
+    <!-- SECTION 3: TERRITORY REQUESTS -->
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-head">
+        <div class="card-title">📍 Pending Territory Requests</div>
+        <span style="font-size:13px;color:var(--mid);">${pendingTerritories.length} pending</span>
+      </div>
+      ${!pendingTerritories.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">✓ No pending territory requests.</p>' : `
+      <table class="data-table">
+        <thead><tr><th>Territory</th><th>State</th><th>Dealer</th><th>Applied</th><th>Expires</th><th>Actions</th></tr></thead>
+        <tbody>${pendingTerritories.map(t => {
+          const urgent = t.daysLeft <= 3;
+          return `<tr>
+            <td><b>${t.name}</b></td>
+            <td>${t.state}</td>
+            <td style="font-size:12px;">${t.pendingDealerId||'—'}</td>
+            <td style="font-size:12px;">${t.pendingAppliedAt ? new Date(t.pendingAppliedAt).toLocaleDateString() : '—'}</td>
+            <td><span style="color:${urgent?'#c0392b':'#e67e22'};font-weight:700;">${t.daysLeft}d left</span></td>
+            <td><div style="display:flex;gap:6px;">
+              <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="territoryAction('${t.slug}','approve')">✓ Approve</button>
+              <button class="btn-sm btn-delete" onclick="territoryAction('${t.slug}','reject')">✕ Reject</button>
+            </div></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`}
+    </div>
+
+    <!-- SECTION 4: OUTLET ACTIVATIONS (admin-created pending outlets) -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">🔌 Pending Outlet Activations</div>
+        <span style="font-size:13px;color:var(--mid);">${pendingOutlets.length} pending</span>
+      </div>
+      ${!pendingOutlets.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">✓ No outlets awaiting activation.</p>' : `
+      <table class="data-table">
+        <thead><tr><th>Outlet Name</th><th>Location</th><th>Territory</th><th>Phone</th><th>Hours</th><th>Actions</th></tr></thead>
+        <tbody>${pendingOutlets.map(o => `<tr style="background:#fffdf0;">
+          <td><b>${o.name}</b></td>
+          <td style="font-size:13px;">${o.address}<br/><span style="color:var(--mid);font-size:12px;">${o.suburb}, ${o.state}</span></td>
+          <td style="font-size:12px;color:var(--mid);">${o.territorySlug}</td>
+          <td style="font-size:13px;">${o.phone || '—'}</td>
+          <td style="font-size:12px;color:var(--mid);">${o.hours || '—'}</td>
+          <td><div style="display:flex;gap:6px;">
+            <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="activateOutlet('${o._id}','${o.name}')">✓ Activate</button>
+            <button class="btn-sm btn-delete" onclick="deleteOutlet('${o._id}')">✕ Reject</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table>`}
+    </div>`;
+}
+window.loadApprovals = loadApprovals;
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  RETAIL APPROVAL ACTIONS
+// ══════════════════════════════════════════════════════════════════════════════
+async function approveRetail(id, username) {
+  if (!confirm(`Approve retail account for "${username}"? Their outlet will be activated (pickup disabled by default).`)) return;
+  const data = await apiFetch(`/admin/users/${id}/approve-retail`, { method: 'PUT', headers: apiHeaders() });
+  if (data.success) { showToast(`"${username}" retail account approved`, 'success'); loadApprovals(); loadRetailUsers(); }
+  else showToast(data.message || 'Approval failed', 'error');
+}
+window.approveRetail = approveRetail;
+
+async function rejectRetail(id, username) {
+  const reason = prompt(`Reason for rejecting "${username}" (optional):`);
+  if (reason === null) return; // cancelled
+  const data = await apiFetch(`/admin/users/${id}/reject-retail`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ reason: reason || '' }) });
+  if (data.success) { showToast(`"${username}" retail account rejected`, 'success'); loadApprovals(); loadRetailUsers(); }
+  else showToast(data.message || 'Rejection failed', 'error');
+}
+window.rejectRetail = rejectRetail;
+
+async function togglePickup(outletId, currentState, outletName) {
+  const newState = !currentState;
+  const action   = newState ? 'enable' : 'disable';
+  if (!confirm(`${newState ? 'Enable' : 'Disable'} pickup for "${outletName}"?`)) return;
+  const data = await apiFetch(`/admin/retail-outlets/${outletId}/pickup`, {
+    method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ pickupEnabled: newState }),
+  });
+  if (data.success) { showToast(data.message, 'success'); loadRetailUsers(); loadOutlets(); }
+  else showToast(data.message || `Failed to ${action} pickup`, 'error');
+}
+window.togglePickup = togglePickup;
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  RETAIL USERS TABLE (Section A of Outlets panel)
+// ══════════════════════════════════════════════════════════════════════════════
+async function loadRetailUsers() {
+  const statusFilter = document.getElementById('retailUserStatusFilter')?.value || '';
+  let qs = statusFilter ? `approvalStatus=${encodeURIComponent(statusFilter)}&` : '';
+  const data = await apiFetch('/admin/retail-users?' + qs + 'limit=100', { headers: apiHeaders() });
+  const wrap = document.getElementById('retailUsersTableWrap');
+  if (!wrap) return;
+  const list = data.users || [];
+  if (!list.length) {
+    wrap.innerHTML = '<p style="padding:20px;color:var(--mid);font-size:14px;">No retail outlet accounts found.</p>';
+    return;
+  }
+  const statusBadge = (s) => {
+    const map = { approved: '#27ae60', pending: '#e67e22', rejected: '#c0392b' };
+    return `<span style="background:${map[s]||'#aaa'}20;color:${map[s]||'#aaa'};border:1px solid ${map[s]||'#aaa'}40;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">${s||'unknown'}</span>`;
+  };
+  wrap.innerHTML = `
+    <table class="data-table">
+      <thead><tr><th>Store Name</th><th>Owner</th><th>Email</th><th>State</th><th>Territory</th><th>Account</th><th>Pickup</th><th>Actions</th></tr></thead>
+      <tbody>${list.map(u => {
+        const o = u.outlet;
+        return `<tr>
+          <td><b>${o?.name || u.dealerInfo?.storeName || '—'}</b><br/><span style="font-size:11px;color:var(--mid);">${o?.address||''}</span></td>
+          <td style="font-size:13px;">${u.firstName||''} ${u.lastName||''}<br/><span style="font-size:11px;color:var(--mid);">@${u.username}</span></td>
+          <td style="font-size:13px;">${u.email}</td>
+          <td style="font-size:12px;">${o?.state||'—'}</td>
+          <td style="font-size:12px;">${o?.territorySlug||'—'}</td>
+          <td>${statusBadge(u.approvalStatus)}</td>
+          <td>${o ? (o.pickupEnabled
+            ? '<span style="background:#d4edda;color:#155724;border:1px solid #c3e6cb;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">🟢 Enabled</span>'
+            : '<span style="background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">🔴 Disabled</span>'
+          ) : '—'}</td>
+          <td><div style="display:flex;gap:5px;flex-wrap:wrap;">
+            ${o && u.approvalStatus === 'approved' ? `<button class="btn-sm" style="background:${o.pickupEnabled?'#c0392b':'#27ae60'};color:#fff;border:none;border-radius:3px;padding:5px 10px;font-size:11px;cursor:pointer;white-space:nowrap;" onclick="togglePickup('${o._id}',${o.pickupEnabled},'${o.name.replace(/'/g,"\'")}')">
+              ${o.pickupEnabled ? '🔴 Disable Pickup' : '🟢 Enable Pickup'}
+            </button>` : ''}
+            ${u.approvalStatus === 'pending' ? `
+              <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 10px;font-size:11px;cursor:pointer;" onclick="approveRetail('${u._id}','${u.username}')">Approve</button>
+              <button class="btn-sm btn-delete" onclick="rejectRetail('${u._id}','${u.username}')">Reject</button>` : ''}
+            ${u.approvalStatus === 'approved' ? `<button class="btn-sm btn-delete" onclick="deactivateRetail('${u._id}','${u.username}')">Deactivate</button>` : ''}
+          </div></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+    <div style="padding:12px 20px;font-size:12px;color:var(--mid);border-top:1px solid #f0ebe0;">${list.length} retail outlet account${list.length!==1?'s':''}</div>`;
+}
+window.loadRetailUsers = loadRetailUsers;
+
+async function deactivateRetail(id, username) {
+  if (!confirm(`Deactivate retail account for "${username}"? Their outlet will also go offline.`)) return;
+  const data = await apiFetch(`/admin/users/${id}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ isActive: false }) });
+  if (data.success) { showToast(`"${username}" deactivated`, 'success'); loadRetailUsers(); }
+  else showToast(data.message || 'Deactivation failed', 'error');
+}
+window.deactivateRetail = deactivateRetail;
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  DEALERS TABLE
+// ══════════════════════════════════════════════════════════════════════════════
+async function loadDealers() {
+  const statusFilter = document.getElementById('dealerStatusFilter')?.value || '';
+  let qs = 'role=Dealer&limit=100&';
+  if (statusFilter) qs += `approvalStatus=${encodeURIComponent(statusFilter)}&`;
+  const [data, territoriesData] = await Promise.all([
+    apiFetch('/admin/users?' + qs, { headers: apiHeaders() }),
+    apiFetch('/admin/territories', { headers: apiHeaders() }),
+  ]);
+  const wrap = document.getElementById('dealersTableWrap');
+  if (!wrap) return;
+  const list = data.users || [];
+  if (!list.length) { wrap.innerHTML = '<p style="padding:20px;color:var(--mid);font-size:14px;">No dealers found.</p>'; return; }
+
+  // Build territory lookup by dealerId
+  const terrMap = {};
+  (territoriesData.territories || []).forEach(t => {
+    if (t.dealerId) {
+      const key = t.dealerId.toString();
+      if (!terrMap[key]) terrMap[key] = [];
+      terrMap[key].push(t.name);
+    }
+  });
+
+  const statusBadge = (s) => {
+    const map = { approved: '#27ae60', pending: '#e67e22', rejected: '#c0392b' };
+    return `<span style="background:${map[s]||'#aaa'}20;color:${map[s]||'#aaa'};border:1px solid ${map[s]||'#aaa'}40;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">${s||'unknown'}</span>`;
+  };
+
+  wrap.innerHTML = `
+    <table class="data-table">
+      <thead><tr><th>Dealer</th><th>Email</th><th>Status</th><th>Assigned Territories</th><th>Pending</th><th>Joined</th><th>Actions</th></tr></thead>
+      <tbody>${list.map(u => {
+        const assigned = terrMap[u._id?.toString()] || [];
+        const pending  = (u.pendingTerritories || []).map(t => t.name);
+        return `<tr>
+          <td><b>${u.firstName||''} ${u.lastName||''}</b><br/><span style="font-size:11px;color:var(--mid);">@${u.username}</span></td>
+          <td style="font-size:13px;">${u.email}</td>
+          <td>${statusBadge(u.approvalStatus)}</td>
+          <td style="font-size:12px;">${assigned.length ? assigned.map(n=>`<span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-right:4px;">${n}</span>`).join('') : '<span style="color:var(--mid);">—</span>'}</td>
+          <td style="font-size:12px;">${pending.length ? pending.map(n=>`<span style="background:#fff3cd;color:#856404;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-right:4px;">${n}</span>`).join('') : '—'}</td>
+          <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
+          <td><div style="display:flex;gap:5px;">
+            ${u.isActive
+              ? `<button class="btn-sm btn-delete" onclick="toggleDealerStatus('${u._id}',false,'${u.username}')">Deactivate</button>`
+              : `<button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 10px;font-size:12px;cursor:pointer;" onclick="toggleDealerStatus('${u._id}',true,'${u.username}')">Activate</button>`}
+          </div></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+    <div style="padding:12px 20px;font-size:12px;color:var(--mid);border-top:1px solid #f0ebe0;">${list.length} dealer${list.length!==1?'s':''}</div>`;
+}
+window.loadDealers = loadDealers;
+
+async function toggleDealerStatus(id, activate, username) {
+  if (!confirm(`${activate ? 'Activate' : 'Deactivate'} dealer "${username}"?`)) return;
+  const data = await apiFetch(`/admin/users/${id}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ isActive: activate }) });
+  if (data.success) { showToast(`Dealer "${username}" ${activate ? 'activated' : 'deactivated'}`, 'success'); loadDealers(); }
+  else showToast(data.message || 'Failed', 'error');
+}
+window.toggleDealerStatus = toggleDealerStatus;
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  USERS (Customers only)
+// ══════════════════════════════════════════════════════════════════════════════
+
 function doAdminLogout() { token = ''; localStorage.removeItem('vp_token'); localStorage.removeItem('vp_admin_token'); 
 // ── CSV EXPORT ────────────────────────────────────────────────────────────────
 function downloadCSV(filename, rows) {
@@ -1058,7 +1350,7 @@ checkAuth(); }
 document.getElementById('adminPwd')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
 
 // ── PANEL NAVIGATION ──────────────────────────────────────────────────────────
-const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, users: loadUsers, newsletter: loadNewsletter, coupons: loadCoupons, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: loadTerritories, outlets: loadOutlets };
+const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, users: loadUsers, newsletter: loadNewsletter, coupons: loadCoupons, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: loadTerritories, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  TERRITORIES
@@ -1318,7 +1610,7 @@ async function deleteOutlet(id) {
   else showToast(data.message || 'Delete failed', 'error');
 }
 window.deleteOutlet = deleteOutlet;
-const panelTitles = { dashboard: 'Dashboard', approvals: 'Approvals', catalogue: 'Catalogue', orders: 'Orders', coupons: 'Coupons', users: 'Users', newsletter: 'Newsletter', storefront: 'Storefront', territories: 'Territory Management', outlets: 'Retail Outlets' };
+const panelTitles = { dashboard: 'Dashboard', approvals: 'Approvals', catalogue: 'Catalogue', orders: 'Orders', coupons: 'Coupons', users: 'Users (Customers)', newsletter: 'Newsletter', storefront: 'Storefront', territories: 'Territory Management', dealers: 'Dealers', outlets: 'Retail Outlets' };
 
 function showPanel(name, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
