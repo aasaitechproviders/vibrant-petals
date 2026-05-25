@@ -10,19 +10,19 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Lato',sans-serif;background:#f4f1eb;color:var(--dark);display:flex;height:100vh;overflow:hidden;}
     a{text-decoration:none;color:inherit;}ul{list-style:none;}button{cursor:pointer;border:none;background:none;font-family:inherit;}
-    .sidebar{width:var(--sidebar-w);height:100vh;background:var(--dark);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
-    .sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px;}
+    .sidebar{width:var(--sidebar-w);height:100vh;background:#1C3020;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+    .sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.12);display:flex;align-items:center;gap:10px;}
     .sidebar-brand-name{font-family:'Playfair Display',serif;font-size:18px;color:#fff;}
     .sidebar-brand-badge{font-size:10px;background:var(--gold);color:#fff;padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:.06em;}
     .sidebar-nav{padding:16px 0;flex:1;}
-    .nav-section-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35);padding:10px 20px 6px;font-weight:700;}
-    .nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;font-size:14px;color:rgba(255,255,255,.7);cursor:pointer;transition:background .15s,color .15s;border-left:3px solid transparent;}
-    .nav-item:hover{background:rgba(255,255,255,.06);color:#fff;}
-    .nav-item.active{background:rgba(155,139,90,.15);color:var(--gold-lt);border-left-color:var(--gold);}
+    .nav-section-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4);padding:10px 20px 6px;font-weight:700;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;font-size:14px;color:rgba(255,255,255,.75);cursor:pointer;transition:background .15s,color .15s;border-left:3px solid transparent;}
+    .nav-item:hover{background:rgba(255,255,255,.07);color:#fff;}
+    .nav-item.active{background:rgba(155,139,90,.2);color:var(--gold-lt);border-left-color:var(--gold);}
     .nav-item svg{width:18px;height:18px;flex-shrink:0;}
-    .nav-divider{height:1px;background:rgba(255,255,255,.08);margin:8px 0;}
-    .sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.1);}
-    .sidebar-footer a{font-size:13px;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:8px;transition:color .2s;}
+    .nav-divider{height:1px;background:rgba(255,255,255,.1);margin:8px 0;}
+    .sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.12);}
+    .sidebar-footer a{font-size:13px;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:8px;transition:color .2s;}
     .sidebar-footer a:hover{color:var(--gold-lt);}
     .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
     .topbar{height:var(--topbar-h);background:#fff;border-bottom:1px solid #e8e0d2;display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;}
@@ -1119,8 +1119,7 @@ async function loadTerritories() {
             : '—';
           const dealerId = t.status === 'assigned' ? t.dealerId : t.status === 'pending' ? t.pendingDealerId : null;
           const actions = t.status === 'pending'
-            ? `<button onclick="territoryAction('${t.slug}','approve')" style="padding:5px 12px;font-size:12px;background:#27ae60;color:#fff;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">✓ Approve</button>
-               <button onclick="territoryAction('${t.slug}','reject')"  style="padding:5px 12px;font-size:12px;background:#c0392b;color:#fff;border:none;border-radius:3px;cursor:pointer;">✕ Reject</button>`
+            ? `<span style="font-size:12px;color:var(--gold);font-style:italic;">→ Review in Approvals</span>`
             : t.status === 'assigned'
             ? `<button onclick="territoryAction('${t.slug}','unassign')" style="padding:5px 12px;font-size:12px;background:#555;color:#fff;border:none;border-radius:3px;cursor:pointer;">Unassign</button>`
             : `<button onclick="deleteTerritory('${t.slug}','${t.name}')" style="padding:5px 12px;font-size:12px;background:#c0392b;color:#fff;border:none;border-radius:3px;cursor:pointer;">Delete</button>`;
