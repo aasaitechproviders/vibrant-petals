@@ -968,7 +968,7 @@ checkAuth();
 async function loadApprovals() {
   const [dealersData, retailData, territoriesData, outletsData] = await Promise.all([
     apiFetch('/admin/users?role=Dealer&approvalStatus=pending&limit=50', { headers: apiHeaders() }),
-    apiFetch('/admin/retail-users?approvalStatus=pending&limit=50', { headers: apiHeaders() }),
+    apiFetch('/admin/users?role=Retail&approvalStatus=pending&limit=50', { headers: apiHeaders() }).catch(() => ({ users: [] })),
     apiFetch('/admin/territories?status=pending', { headers: apiHeaders() }),
     apiFetch('/admin/retail-outlets', { headers: apiHeaders() }),
   ]);
@@ -2221,6 +2221,9 @@ async function loadOrders() {
   // Client-side role filter (backend doesn't have customerRole filter param)
   if (role) orders = orders.filter(o => (o.customerRole || 'Customer') === role);
   const pag = data.pagination || { total: 0, totalPages: 1 };
+  // Store orders safely — avoids JSON.stringify in onclick attributes
+  window._ordersMap = {};
+  orders.forEach(o => { window._ordersMap[o._id || o.id] = o; });
   document.getElementById('ordersBody').innerHTML = orders.length ? orders.map(o => {
     const oid = o._id || o.id || '';
     const status2 = o.status || 'pending';
@@ -2246,7 +2249,7 @@ async function loadOrders() {
       <td style="font-size:12px;color:var(--mid)">${new Date(o.createdAt).toLocaleDateString()}</td>
       <td style="display:flex;gap:4px;">
         <button class="btn-sm btn-view" onclick="openOrderModal('${oid}')">View</button>
-        <button class="btn-sm btn-edit" onclick="openOrderAssignModal('${oid}','${o.orderNumber||''}',${JSON.stringify(assign)},${JSON.stringify(o.pickupOutletSnapshot||{})},${JSON.stringify(o.pickupOutletId||'')})">Assign</button>
+        <button class="btn-sm btn-edit" onclick="openOrderAssignModalById('${oid}')">Assign</button>
       </td>
     </tr>`;
   }).join('') : `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--mid);">No orders found</td></tr>`;
@@ -2325,6 +2328,19 @@ window.openOrderModal = openOrderModal;
 // ── ORDER ASSIGNMENT ──────────────────────────────────────────────────────────
 let assigningOrderId = null;
 
+function openOrderAssignModalById(orderId) {
+  const o = window._ordersMap && window._ordersMap[orderId];
+  if (!o) { showToast('Order data not found — please refresh', 'error'); return; }
+  openOrderAssignModal(
+    orderId,
+    o.orderNumber || '',
+    o.assignment  || {},
+    o.pickupOutletSnapshot || {},
+    o.pickupOutletId ? o.pickupOutletId.toString() : ''
+  );
+}
+window.openOrderAssignModalById = openOrderAssignModalById;
+
 async function openOrderAssignModal(orderId, orderNum, assignment, outletSnap, pickupOutletId) {
   assigningOrderId = orderId;
   _assignPickupOutletId = pickupOutletId || null;
@@ -2391,7 +2407,13 @@ async function loadAssignOptions() {
     lbl.textContent = 'Select Retail User';
     if (!_cachedRetailUsers) {
       const data = await apiFetch('/admin/retail-users?approvalStatus=approved&limit=200', { headers: apiHeaders() });
-      _cachedRetailUsers = data.users || [];
+      // Fallback: if endpoint not yet deployed, filter from admin/users
+      if (!data.success && data.message?.includes('not found') || !data.users) {
+        const fallback = await apiFetch('/admin/users?role=Retail&limit=200', { headers: apiHeaders() });
+        _cachedRetailUsers = (fallback.users || []).filter(u => u.isActive);
+      } else {
+        _cachedRetailUsers = data.users || [];
+      }
     }
     sel.innerHTML = '<option value="">— Select a retail user —</option>' +
       _cachedRetailUsers.map(u => {
