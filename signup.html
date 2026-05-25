@@ -44,16 +44,16 @@
     /* ── SIGNUP LAYOUT ── */
     .signup-wrapper {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 35% 65%;
       min-height: calc(100vh - var(--nav-h) - var(--bar-h));
     }
 
     /* Left panel — decorative */
     .signup-panel-left {
-      background: var(--dark);
+      background: #C8541A;
       display: flex;
       flex-direction: column;
-      padding: 60px 56px;
+      padding: 60px 48px;
       position: relative;
       overflow: hidden;
     }
@@ -61,8 +61,8 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse at 30% 40%, rgba(155,139,90,.18) 0%, transparent 70%),
-                  radial-gradient(ellipse at 80% 80%, rgba(155,139,90,.10) 0%, transparent 60%);
+      background: radial-gradient(ellipse at 30% 40%, rgba(255,200,80,.18) 0%, transparent 70%),
+                  radial-gradient(ellipse at 80% 80%, rgba(180,80,10,.25) 0%, transparent 60%);
       pointer-events: none;
     }
     .panel-florals {
@@ -343,7 +343,6 @@
   <div class="signup-panel-left">
     <div class="panel-florals" id="panelFloral">✿</div>
     <div class="panel-badge" id="panelBadge">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
       VibrantPetals Community
     </div>
     <h1 class="panel-heading" id="panelHeading">Join the <em>Floral</em><br/>Dealer Network</h1>
@@ -527,15 +526,9 @@
             <label class="form-label">Street Address <span class="req">*</span></label>
             <input class="form-input" id="dAddress" placeholder="e.g. 12 Floral Ave" type="text"/>
           </div>
-          <div class="form-group half-row">
-            <div>
-              <label class="form-label">Suburb <span class="req">*</span></label>
-              <input class="form-input" id="dSuburb" placeholder="e.g. Tarneit" type="text"/>
-            </div>
-            <div>
-              <label class="form-label">Postcode <span class="req">*</span></label>
-              <input class="form-input" id="dPostcode" placeholder="e.g. 3029" type="text" maxlength="4"/>
-            </div>
+          <div class="form-group">
+            <label class="form-label">Postcode <span class="req">*</span></label>
+            <input class="form-input" id="dPostcode" placeholder="e.g. 3029" type="text" maxlength="4"/>
           </div>
           <div class="form-group">
             <label class="form-label">State <span class="req">*</span></label>
@@ -546,7 +539,7 @@
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Desired Territory <span class="req">*</span></label>
+            <label class="form-label">Territory / Suburb <span class="req">*</span></label>
             <select class="form-select" id="dTerritory" disabled>
               <option value="">Select state first…</option>
             </select>
@@ -585,9 +578,10 @@
               <label class="check-option"><input type="checkbox" name="dActivity" value="Other"/> Other</label>
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">If shop-based — shop name <span style="font-weight:400;text-transform:none;font-size:11px;">(optional)</span></label>
+          <div class="form-group" id="shopNameGroup" style="display:none;">
+            <label class="form-label">Shop Name <span class="req">*</span></label>
             <input class="form-input" id="dShopName" placeholder="e.g. Lakshmi Flowers" type="text"/>
+            <div class="input-note">Required for shop-based registrations.</div>
           </div>
           <div class="msg" id="step3Msg"></div>
           <div class="form-nav">
@@ -760,10 +754,6 @@
         </div>
         <div class="form-group half-row">
           <div>
-            <label class="form-label">Suburb <span class="req">*</span></label>
-            <input class="form-input" id="oSuburb" placeholder="Tarneit" type="text"/>
-          </div>
-          <div>
             <label class="form-label">State <span class="req">*</span></label>
             <select class="form-select" id="oState" onchange="onOutletStateChange()">
               <option value="">Select state…</option>
@@ -773,7 +763,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Territory (Pickup Zone) <span class="req">*</span></label>
+          <label class="form-label">Territory / Suburb (Pickup Zone) <span class="req">*</span></label>
           <select class="form-select" id="oTerritory" disabled>
             <option value="">Select state first…</option>
           </select>
@@ -882,7 +872,7 @@ function onDealerStateChange() {
 const PANEL_CONTENT = {
   customer: {
     floral: '✿',
-    badge:  '🌸 Welcome to VibrantPetals',
+    badge:  'Welcome to VibrantPetals',
     heading: 'Fresh Flowers,<br/><em>Delivered to You</em>',
     sub: 'Create your free account and explore our handpicked collection of fresh strings, garlands, loose flowers and leaves — available for pickup at your nearest outlet.',
     perks: [
@@ -894,7 +884,7 @@ const PANEL_CONTENT = {
   },
   dealer: {
     floral: '✿',
-    badge:  '⭐ Authorized Dealer Programme',
+    badge:  'Authorized Dealer Programme',
     heading: 'Join the <em>Floral</em><br/>Dealer Network',
     sub: 'Whether you\'re a home-based entrepreneur or a florist, become part of our growing network of dealers across Melbourne &amp; Sydney.',
     perks: [
@@ -906,7 +896,7 @@ const PANEL_CONTENT = {
   },
   outlet: {
     floral: '🏪',
-    badge:  '🏪 Retail Outlet Registration',
+    badge:  'Retail Outlet Registration',
     heading: 'Register Your<br/><em>Pickup Store</em>',
     sub: 'List your store as a VibrantPetals pickup point. Customers in your territory will find and choose your outlet at checkout.',
     perks: [
@@ -1012,16 +1002,14 @@ function validateStep(step) {
   if (step === 2) {
     const mob      = document.getElementById('dMobile').value.trim();
     const address  = document.getElementById('dAddress').value.trim();
-    const suburb   = document.getElementById('dSuburb').value.trim();
     const postcode = document.getElementById('dPostcode').value.trim();
     const state    = document.getElementById('dState').value;
     const terr     = document.getElementById('dTerritory').value;
     if (!mob)      { showMsg('step2Msg', 'Please enter your mobile number.', 'err'); return false; }
     if (!address)  { showMsg('step2Msg', 'Please enter your street address.', 'err'); return false; }
-    if (!suburb)   { showMsg('step2Msg', 'Please enter your suburb.', 'err'); return false; }
     if (!postcode) { showMsg('step2Msg', 'Please enter your postcode.', 'err'); return false; }
     if (!state)    { showMsg('step2Msg', 'Please select your state (Melbourne or Sydney).', 'err'); return false; }
-    if (!terr)     { showMsg('step2Msg', 'Please select your desired territory.', 'err'); return false; }
+    if (!terr)     { showMsg('step2Msg', 'Please select your territory / suburb.', 'err'); return false; }
     return true;
   }
   if (step === 3) {
@@ -1029,6 +1017,10 @@ function validateStep(step) {
     const acts = getChecked('dActivity');
     if (!biz)         { showMsg('step3Msg', 'Please tell us about your current business status.', 'err'); return false; }
     if (!acts.length) { showMsg('step3Msg', 'Please select at least one type of activity.', 'err'); return false; }
+    if (biz === 'Yes – Shop-based') {
+      const shopName = document.getElementById('dShopName').value.trim();
+      if (!shopName) { showMsg('step3Msg', 'Please enter your shop name.', 'err'); return false; }
+    }
     return true;
   }
   if (step === 4) {
@@ -1117,11 +1109,14 @@ async function submitDealer() {
   const desiredState     = document.getElementById('dState').value;
   const desiredTerritory = document.getElementById('dTerritory').value;
 
+  const terrSelectEl = document.getElementById('dTerritory');
+  const suburb = terrSelectEl.options[terrSelectEl.selectedIndex]?.text.replace(/ \(.*\)$/, '') || desiredTerritory;
+
   const dealerInfo = {
     fullName:             document.getElementById('dFullName').value.trim(),
     mobile:               document.getElementById('dMobile').value.trim(),
     address:              document.getElementById('dAddress').value.trim(),
-    suburb:               document.getElementById('dSuburb').value.trim(),
+    suburb,
     postcode:             document.getElementById('dPostcode').value.trim(),
     state:                desiredState,
     desiredTerritory,
@@ -1212,7 +1207,8 @@ async function submitOutlet() {
   const password   = document.getElementById('oPassword').value;
   const storeName  = document.getElementById('oStoreName').value.trim();
   const address    = document.getElementById('oAddress').value.trim();
-  const suburb     = document.getElementById('oSuburb').value.trim();
+  const oTerrEl  = document.getElementById('oTerritory');
+  const suburb   = oTerrEl.options[oTerrEl.selectedIndex]?.text.replace(/ \(.*\)$/, '') || territory;
   const state      = document.getElementById('oState').value;
   const territory  = document.getElementById('oTerritory').value;
   const storePhone = document.getElementById('oStorePhone').value.trim();
@@ -1229,7 +1225,7 @@ async function submitOutlet() {
   if (password.length < 6)           { showMsg('outletMsg', 'Password must be at least 6 characters.', 'err'); return; }
   if (!mobile || !/^\+?[\d\s\-()]{7,15}$/.test(mobile)) { showMsg('outletMsg', 'Please enter a valid mobile number.', 'err'); return; }
   if (!storeName)                    { showMsg('outletMsg', 'Please enter your store name.', 'err'); return; }
-  if (!address || !suburb)           { showMsg('outletMsg', 'Please enter your store address and suburb.', 'err'); return; }
+  if (!address)                      { showMsg('outletMsg', 'Please enter your store address.', 'err'); return; }
   if (!state)                        { showMsg('outletMsg', 'Please select a state.', 'err'); return; }
   if (!territory)                    { showMsg('outletMsg', 'Please select your territory.', 'err'); return; }
   if (!decl)                         { showMsg('outletMsg', 'Please confirm the declaration to proceed.', 'err'); return; }
@@ -1270,6 +1266,19 @@ async function submitOutlet() {
   }
 }
 window.submitOutlet = submitOutlet;
+
+// Show/hide shop name field based on business type
+document.addEventListener('change', function(e) {
+  if (e.target.name === 'dBizType') {
+    const shopGroup = document.getElementById('shopNameGroup');
+    if (e.target.value === 'Yes – Shop-based') {
+      shopGroup.style.display = '';
+    } else {
+      shopGroup.style.display = 'none';
+      document.getElementById('dShopName').value = '';
+    }
+  }
+});
 
 // Auto-fill full name from first + last
 document.getElementById('dFirstName').addEventListener('input', updateFullName);
