@@ -698,7 +698,7 @@ async function loadDashboard(){
     document.getElementById('statSpent').closest('.stat-card').style.display='none';
     document.getElementById('statWish').closest('.stat-card').style.display='none';
     const ql=document.getElementById('dashQuickLinks');
-    if(ql) ql.innerHTML='<div class="form-card-title">QUICK LINKS</div><div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;"><a href="admin.html" style="display:inline-block;padding:10px 20px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);">Go to Admin Panel ↗</a></div>';
+    if(ql) ql.style.display='none';
     const od=await apiFetch('/orders?limit=3',{headers:apiHeaders()});
     const orders=od.orders||[];
     document.getElementById('statOrders').textContent=od.pagination?.total||orders.length;
