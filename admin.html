@@ -646,17 +646,46 @@
       </div>
       <div class="form-group"><label class="form-label">Short Description</label><input class="form-input" id="pShortDesc" placeholder="Brief product summary"/></div>
       <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="pDesc" placeholder="Full product description..."></textarea></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Retail Price ($) *</label><input class="form-input" id="pPrice" type="number" step="0.01" min="0" placeholder="0.00"/></div>
-        <div class="form-group"><label class="form-label">Regular Price ($) <span style="font-size:11px;font-weight:400;">(before discount)</span></label><input class="form-input" id="pRegPrice" type="number" step="0.01" min="0" placeholder="0.00"/></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Sale Price ($) <span style="font-size:11px;font-weight:400;">(leave blank if no sale)</span></label><input class="form-input" id="pSalePrice" type="number" step="0.01" min="0" placeholder=""/></div>
-        <div class="form-group"><label class="form-label">Dealer Price ($) <span style="font-size:11px;color:#F5A623;">(wholesale)</span></label><input class="form-input" id="pDealerPrice" type="number" step="0.01" min="0" placeholder="Leave blank — falls back to customer price"/></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Retail Outlet Price ($) <span style="font-size:11px;color:#1565c0;">(retail reseller)</span></label><input class="form-input" id="pRetailPrice" type="number" step="0.01" min="0" placeholder="Leave blank — falls back to customer price"/></div>
-        <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:4px;"><p style="font-size:12px;color:var(--mid);line-height:1.6;">💡 <b>Retail Outlet Price</b> is shown to logged-in Retail users instead of the customer price. Leave blank to use customer price as fallback.</p></div>
+      <!-- PRICING SECTION -->
+      <div style="background:#fafaf7;border:1px solid #e8e0d2;border-radius:6px;padding:14px 16px;margin-bottom:4px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mid);margin-bottom:12px;">Pricing</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Base Price ($) * <span style="font-size:11px;font-weight:400;color:var(--mid);">— fallback for all roles</span></label>
+            <input class="form-input" id="pPrice" type="number" step="0.01" min="0" placeholder="0.00"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Regular Price ($) <span style="font-size:11px;font-weight:400;color:var(--mid);">— original, before sale</span></label>
+            <input class="form-input" id="pRegPrice" type="number" step="0.01" min="0" placeholder="0.00"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Sale Price ($) <span style="font-size:11px;font-weight:400;color:var(--mid);">— leave blank if no sale</span></label>
+            <input class="form-input" id="pSalePrice" type="number" step="0.01" min="0" placeholder=""/>
+            <span style="font-size:11px;color:var(--mid);margin-top:4px;display:block;">Customer sees sale price with regular price crossed out</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="color:#c47f00;">⭐ Dealer Price ($) <span style="font-size:11px;font-weight:400;">(wholesale)</span></label>
+            <input class="form-input" id="pDealerPrice" type="number" step="0.01" min="0" placeholder="Leave blank — falls back to base price"/>
+            <span style="font-size:11px;color:var(--mid);margin-top:4px;display:block;">Shown only to logged-in Dealers</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" style="color:#1565c0;">🏪 Retail Price ($) <span style="font-size:11px;font-weight:400;">(retail reseller)</span></label>
+            <input class="form-input" id="pRetailPrice" type="number" step="0.01" min="0" placeholder="Leave blank — falls back to base price"/>
+            <span style="font-size:11px;color:var(--mid);margin-top:4px;display:block;">Shown only to logged-in Retail users — customer price never exposed to them</span>
+          </div>
+          <div class="form-group" style="display:flex;align-items:center;">
+            <div style="background:#e8f4fd;border:1px solid #bee3f8;border-radius:4px;padding:10px 12px;font-size:12px;color:#1565c0;line-height:1.6;">
+              <b>Price fallback chain:</b><br/>
+              Dealer → dealer price → <i>base price</i><br/>
+              Retail → retail price → <i>base price</i><br/>
+              Customer → sale price → <i>base price</i>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">SKU</label><input class="form-input" id="pSku" placeholder="VP-001"/></div>
@@ -1817,7 +1846,12 @@ async function loadProducts() {
       <td><img src="${p.images?.[0] || 'https://via.placeholder.com/40'}" onerror="this.src='https://via.placeholder.com/40'"/></td>
       <td><b>${p.name}</b>${p.isFeatured ? '<span style="margin-left:6px;font-size:10px;background:var(--gold);color:#fff;padding:2px 6px;border-radius:10px;">FEATURED</span>' : ''}</td>
       <td style="font-size:12px;color:var(--mid)">${p.sku || '—'}</td>
-      <td><b>$${displayPrice.toFixed(2)}</b>${p.dealerPrice != null ? `<br/><span style="font-size:11px;color:#F5A623;">⭐ $${p.dealerPrice.toFixed(2)}</span>` : ''}${p.retailPrice != null ? `<br/><span style="font-size:11px;color:#1565c0;">🏪 $${p.retailPrice.toFixed(2)}</span>` : ''}</td>
+      <td>
+        <b>$${displayPrice.toFixed(2)}</b>
+        <span style="font-size:10px;color:var(--mid);display:block;">base${p.salePrice!=null&&p.salePrice>0?' · sale':''}${p.regularPrice?` · reg $${p.regularPrice.toFixed(2)}`:''})</span>
+        ${p.dealerPrice != null ? `<span style="font-size:11px;color:#c47f00;display:block;">⭐ $${p.dealerPrice.toFixed(2)} dealer</span>` : ''}
+        ${p.retailPrice != null ? `<span style="font-size:11px;color:#1565c0;display:block;">🏪 $${p.retailPrice.toFixed(2)} retail</span>` : ''}
+      </td>
       <td><span class="status-pill s-${p.stockStatus || 'outofstock'}">${p.stockStatus || 'outofstock'}</span></td>
       <td><span class="status-pill s-${p.status || 'draft'}">${p.status || 'draft'}</span></td>
       <td style="white-space:nowrap;">
