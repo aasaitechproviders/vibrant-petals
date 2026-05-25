@@ -481,9 +481,12 @@ function renderProducts(products){
 
 function formatPrice(p){
   const role=getTokenRole();
-  const isDealer=role==='Dealer';
-  if(isDealer && p.dealerPrice) return `<span style="color:#F5A623;font-weight:700;">⭐ $${p.dealerPrice.toFixed(2)}</span>`;
-  if(p.salePrice && p.regularPrice) return `$${p.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${p.regularPrice.toFixed(2)}</span>`;
+  if(role==='Dealer' && p.dealerPrice)
+    return `<span style="color:#F5A623;font-weight:700;">⭐ $${p.dealerPrice.toFixed(2)}</span>`;
+  if(role==='Retail' && p.retailPrice)
+    return `<span style="color:#1565c0;font-weight:700;">🏪 $${p.retailPrice.toFixed(2)}</span>`;
+  if(p.salePrice && p.regularPrice)
+    return `$${p.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${p.regularPrice.toFixed(2)}</span>`;
   if(p.price) return `$${p.price.toFixed(2)}`;
   return '';
 }
