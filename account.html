@@ -252,6 +252,9 @@
         <div class="acct-nav-item" id="navDealer" style="display:none;" onclick="showPanel('dealer',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Dealer Portal
         </div>
+        <div class="acct-nav-item" id="navMyStore" style="display:none;" onclick="showPanel('mystore',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>My Store
+        </div>
         <div class="acct-nav-item" id="navOutlets" style="display:none;" onclick="showPanel('outlets',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>My Retail Outlets
         </div>
@@ -421,6 +424,15 @@
           </ul>
         </div>
       </div>
+      <!-- MY STORE PANEL (Retail users) -->
+      <div class="acct-panel" id="panel-mystore">
+        <div class="panel-title">My Store</div>
+        <div id="myStoreContent">
+          <div class="skeleton" style="height:120px;border-radius:4px;margin-bottom:16px;"></div>
+          <div class="skeleton" style="height:200px;border-radius:4px;"></div>
+        </div>
+      </div>
+
       <!-- DEALER RETAIL OUTLETS PANEL -->
       <div class="acct-panel" id="panel-outlets">
         <div class="panel-title">My Retail Outlets</div>
@@ -669,9 +681,17 @@ async function loadMe(){
     show('navOrders');
     show('navDealer');
     show('navOutlets');
-    // Hide location preferences (customer-only)
     const lc=document.getElementById('locationPrefCard');
     if(lc) lc.style.display='none';
+
+  } else if(role==='Retail'){
+    // Retail: Dashboard, My Orders, My Store, Profile, Password
+    show('navOrders');
+    show('navMyStore');
+    const lc=document.getElementById('locationPrefCard');
+    if(lc) lc.style.display='none';
+    // Load My Store data
+    loadMyStore();
 
   } else {
     // Customer: Dashboard, My Orders, Profile, Password, Wishlist
@@ -1368,6 +1388,89 @@ document.addEventListener('keydown',e=>{
     else if(document.getElementById('tab-register').classList.contains('active'))doRegister();
   }
 });
+
+
+// ── MY STORE (Retail users) ───────────────────────────────────────────────────
+async function loadMyStore() {
+  const el = document.getElementById('myStoreContent');
+  if (!el) return;
+  const data = await apiFetch('/retail/my-outlet', { headers: apiHeaders() });
+  if (!data.success || !data.outlet) {
+    el.innerHTML = `<div class="form-card" style="text-align:center;padding:40px;">
+      <div style="font-size:36px;margin-bottom:12px;">🏪</div>
+      <p style="color:var(--mid);font-size:14px;">${data.message || 'No outlet linked to your account. Please contact admin.'}</p>
+    </div>`;
+    return;
+  }
+  const o = data.outlet;
+  const statusColor = { approved: '#27ae60', pending: '#e67e22', rejected: '#c0392b' };
+  const col = statusColor[o.approvalStatus] || '#aaa';
+  el.innerHTML = `
+    <!-- Status banner -->
+    <div style="background:${col}15;border:1px solid ${col}40;border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;">
+      <div style="font-size:22px;">${o.approvalStatus === 'approved' ? '✅' : o.approvalStatus === 'pending' ? '⏳' : '❌'}</div>
+      <div>
+        <div style="font-weight:700;font-size:14px;color:${col};">Account ${o.approvalStatus === 'approved' ? 'Active' : o.approvalStatus === 'pending' ? 'Pending Admin Review' : 'Rejected'}</div>
+        <div style="font-size:13px;color:var(--mid);">${o.approvalStatus === 'pending' ? 'Our team will review your application within a few business days.' : o.approvalStatus === 'rejected' ? (o.rejectionReason || 'Please contact support for more information.') : 'Your outlet is live on the platform.'}</div>
+      </div>
+    </div>
+
+    <!-- Pickup status (read-only) -->
+    ${o.approvalStatus === 'approved' ? `
+    <div class="form-card" style="margin-bottom:20px;background:${o.pickupEnabled ? 'linear-gradient(135deg,#e8f5e9,#f1f8e9)' : 'linear-gradient(135deg,#fce4e4,#fff5f5)'};border-color:${o.pickupEnabled ? '#c3e6cb' : '#f5c6cb'};">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="font-size:32px;">${o.pickupEnabled ? '🟢' : '🔴'}</div>
+        <div>
+          <div style="font-weight:700;font-size:15px;color:${o.pickupEnabled ? '#155724' : '#721c24'};">Customer Pickup ${o.pickupEnabled ? 'Enabled' : 'Disabled'}</div>
+          <div style="font-size:13px;color:var(--mid);margin-top:4px;">${o.pickupEnabled ? 'Your store is visible to customers at checkout as a pickup location.' : 'Your store is not yet visible to customers at checkout. Contact admin to enable pickup.'}</div>
+        </div>
+      </div>
+    </div>` : ''}
+
+    <!-- Editable store details -->
+    <div class="form-card">
+      <div class="form-card-title">STORE DETAILS
+        <span style="font-size:12px;color:var(--mid);font-weight:400;text-transform:none;letter-spacing:0;">You can edit name, phone, hours and address. Territory and state changes require admin.</span>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Store Name</label><input type="text" class="form-input" id="myStoreName" value="${o.name||''}"/></div>
+        <div class="form-group"><label class="form-label">Phone</label><input type="text" class="form-input" id="myStorePhone" value="${o.phone||''}"/></div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group"><label class="form-label">Street Address</label><input type="text" class="form-input" id="myStoreAddress" value="${o.address||''}"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Territory / Suburb (read-only)</label><input type="text" class="form-input" value="${o.territorySlug||''}" readonly/></div>
+        <div class="form-group"><label class="form-label">State (read-only)</label><input type="text" class="form-input" value="${o.state||''}" readonly/></div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group"><label class="form-label">Trading Hours</label><input type="text" class="form-input" id="myStoreHours" value="${o.hours||''}" placeholder="e.g. Mon–Sat 9am–6pm"/></div>
+      </div>
+      <button class="btn-save" onclick="saveMyStore()">Save Changes</button>
+      <div class="form-msg" id="myStoreMsg" style="display:none;"></div>
+    </div>`;
+}
+
+async function saveMyStore() {
+  const name    = document.getElementById('myStoreName')?.value.trim();
+  const phone   = document.getElementById('myStorePhone')?.value.trim();
+  const address = document.getElementById('myStoreAddress')?.value.trim();
+  const hours   = document.getElementById('myStoreHours')?.value.trim();
+  const msg     = document.getElementById('myStoreMsg');
+  const data    = await apiFetch('/retail/my-outlet', {
+    method: 'PUT', headers: apiHeaders(),
+    body: JSON.stringify({ name, phone, address, hours }),
+  });
+  msg.style.display = 'block';
+  if (data.success) {
+    msg.className = 'form-msg ok';
+    msg.textContent = '✓ Store details updated!';
+    showToast('Store updated', 'success');
+  } else {
+    msg.className = 'form-msg err';
+    msg.textContent = data.message || 'Update failed';
+  }
+}
 
 // ── COUNTS ────────────────────────────────────────────────────────────────────
 async function loadCounts(){
