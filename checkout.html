@@ -504,7 +504,10 @@ function renderOutlets(outlets) {
     const clearBtn = terrFilter
       ? `<button onclick="document.getElementById('outletTerritoryFilter').value='';loadOutlets();" style="margin-top:12px;padding:8px 18px;background:var(--gold);color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.05em;">Show All in ${stateFilter||'Selected State'}</button>`
       : '';
-    list.innerHTML = `<div style="padding:24px;text-align:center;font-size:14px;color:var(--mid);border:1px dashed #e8e0d2;border-radius:4px;">Please choose All categories for finding nearby pickup locations.${clearBtn ? '<br>' + clearBtn : ''}</div>`;
+    const noOutletMsg = stateFilter
+      ? (terrFilter ? `No active pickup outlets in <b>${terrFilter.replace(/-/g,' ')}</b>. Try another territory or show all.` : `No active pickup outlets found in <b>${stateFilter}</b>. Please check back later.`)
+      : 'Please select a state above to see available pickup outlets near you.';
+    list.innerHTML = `<div style="padding:24px;text-align:center;font-size:14px;color:var(--mid);border:1px dashed #e8e0d2;border-radius:4px;">${noOutletMsg}${clearBtn ? '<br>' + clearBtn : ''}</div>`;
     return;
   }
   list.innerHTML = outlets.map(function(o) {
