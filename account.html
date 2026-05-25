@@ -408,8 +408,8 @@
 
         <!-- Assigned Orders -->
         <div class="form-card">
-          <div class="form-card-title">ORDERS ASSIGNED TO ME &amp; MY OUTLETS</div>
-          <p style="font-size:13px;color:var(--mid);margin-bottom:12px;">Customer orders assigned directly to you or to any of your registered retail outlets.</p>
+          <div class="form-card-title">ORDERS ASSIGNED TO ME</div>
+          <p style="font-size:13px;color:var(--mid);margin-bottom:12px;">These are customer orders assigned to you for fulfillment at your pickup outlet.</p>
           <div id="dealerOrdersContent"><div class="skeleton" style="height:80px;border-radius:4px;"></div></div>
         </div>
 
@@ -460,6 +460,10 @@
           </div>
           <div class="form-row">
             <div class="form-group">
+              <label class="form-label">Suburb *</label>
+              <input type="text" class="form-input" id="outletSuburb" placeholder="Tarneit"/>
+            </div>
+            <div class="form-group">
               <label class="form-label">State *</label>
               <select class="form-select" id="outletState" onchange="loadOutletTerritoryOptions()">
                 <option value="">Select state…</option>
@@ -467,14 +471,14 @@
                 <option value="Sydney">Sydney</option>
               </select>
             </div>
+          </div>
+          <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Territory / Suburb *</label>
+              <label class="form-label">Territory *</label>
               <select class="form-select" id="outletTerritory" disabled>
                 <option value="">Select state first…</option>
               </select>
             </div>
-          </div>
-          <div class="form-row">
             <div class="form-group">
               <label class="form-label">Trading Hours</label>
               <input type="text" class="form-input" id="outletHours" placeholder="Mon–Sat 9am–6pm"/>
@@ -686,9 +690,8 @@ async function loadMe(){
     show('navMyStore');
     const lc=document.getElementById('locationPrefCard');
     if(lc) lc.style.display='none';
-    // Load My Store data
+    // Load My Store data (orders are loaded from inside loadMyStore after template renders)
     loadMyStore();
-    loadMyStoreOrders();
 
   } else {
     // Customer: Dashboard, My Orders, Profile, Password, Wishlist
@@ -966,7 +969,7 @@ async function loadDealerOrders() {
   const data = await apiFetch('/dealer/orders?limit=20', { headers: apiHeaders() });
   const orders = data.orders || [];
   if (!orders.length) {
-    el.innerHTML = '<p style="color:var(--mid);font-size:14px;">No orders assigned to you or your outlets yet. Orders will appear here once admin assigns them to you or one of your registered outlets.</p>';
+    el.innerHTML = '<p style="color:var(--mid);font-size:14px;">No orders assigned to you yet. Orders will appear here once admin assigns them to you.</p>';
     return;
   }
 
@@ -977,7 +980,7 @@ async function loadDealerOrders() {
   };
 
   el.innerHTML = `<table class="orders-table"><thead><tr>
-    <th>Order #</th><th>Customer</th><th>Pickup Outlet</th><th>Assigned To</th><th>Date</th><th>Status</th><th>Total</th><th>Action</th>
+    <th>Order #</th><th>Customer</th><th>Pickup Outlet</th><th>Date</th><th>Status</th><th>Total</th><th>Action</th>
   </tr></thead>
   <tbody>${orders.map(o => {
     const snap       = o.pickupOutletSnapshot || {};
@@ -992,11 +995,6 @@ async function loadDealerOrders() {
       </td>
       <td style="font-size:12px;">${o.customerEmail||'—'}</td>
       <td style="font-size:12px;">${snap.name||'—'}<br/><span style="color:var(--mid);">${snap.suburb||''}${snap.suburb&&snap.state?', ':''} ${snap.state||''}</span></td>
-      <td style="font-size:11px;">
-        ${o.assignment?.assignedToType === 'outlet'
-          ? '<span style="background:#fff3cd;color:#856404;border:1px solid #ffc10750;padding:2px 8px;border-radius:10px;font-weight:700;">📦 Outlet</span><br/><span style="color:var(--mid);">' + (o.assignment?.assignedToName||'') + '</span>'
-          : '<span style="background:#d4edda;color:#155724;border:1px solid #c3e6cb;padding:2px 8px;border-radius:10px;font-weight:700;">👤 You</span>'}
-      </td>
       <td style="font-size:12px;">${new Date(o.createdAt).toLocaleDateString()}</td>
       <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
       <td><b>$${(o.total||0).toFixed(2)}</b></td>
@@ -1072,6 +1070,7 @@ function openOutletForm() {
   document.getElementById('outletName').value = '';
   document.getElementById('outletPhone').value = '';
   document.getElementById('outletAddress').value = '';
+  document.getElementById('outletSuburb').value = '';
   document.getElementById('outletState').value = '';
   document.getElementById('outletTerritory').innerHTML = '<option value="">Select state first…</option>';
   document.getElementById('outletTerritory').disabled = true;
@@ -1095,6 +1094,7 @@ function editOutletFromAccount(jsonStr) {
   document.getElementById('outletName').value = o.name || '';
   document.getElementById('outletPhone').value = o.phone || '';
   document.getElementById('outletAddress').value = o.address || '';
+  document.getElementById('outletSuburb').value = o.suburb || '';
   document.getElementById('outletState').value = o.state || '';
   loadOutletTerritoryOptions();
   setTimeout(() => { document.getElementById('outletTerritory').value = o.territorySlug || ''; }, 300);
@@ -1126,12 +1126,9 @@ async function saveOutletFromAccount() {
   const name = document.getElementById('outletName').value.trim();
   const phone = document.getElementById('outletPhone').value.trim();
   const address = document.getElementById('outletAddress').value.trim();
+  const suburb = document.getElementById('outletSuburb').value.trim();
   const state = document.getElementById('outletState').value;
   const territorySlug = document.getElementById('outletTerritory').value;
-  // Derive suburb from the selected territory name (territory IS the suburb)
-  const terrList = dealerOutletTerritoriesData[state] || [];
-  const selectedTerr = terrList.find(t => t.slug === territorySlug);
-  const suburb = selectedTerr ? selectedTerr.name : territorySlug;
   const hours = document.getElementById('outletHours').value.trim();
   const msg = document.getElementById('outletFormMsg');
   msg.style.display = 'none';
@@ -1459,6 +1456,8 @@ async function loadMyStore() {
       <p style="font-size:13px;color:var(--mid);margin-bottom:16px;">Customer orders assigned to your outlet or where customers chose your store as pickup.</p>
       <div id="myStoreOrdersContent"><div class="skeleton" style="height:80px;border-radius:4px;"></div></div>
     </div>`;
+  // Now that myStoreOrdersContent exists in the DOM, load orders
+  await loadMyStoreOrders();
 }
 
 async function saveMyStore() {
