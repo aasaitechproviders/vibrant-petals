@@ -780,6 +780,17 @@
           </div>
         </div>
 
+        <!-- PICKUP TOGGLE -->
+        <div class="form-group" style="margin-top:16px;padding:18px;background:linear-gradient(135deg,rgba(155,139,90,.06),rgba(155,139,90,.12));border:1px solid rgba(155,139,90,.3);border-radius:var(--radius);">
+          <div style="font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--dark);margin-bottom:10px;">🔌 Pickup Facility</div>
+          <p style="font-size:13px;color:var(--mid);line-height:1.6;margin-bottom:12px;">Would you like your store to be visible as a <strong>customer pickup point</strong>? Customers in your territory will see your store at checkout. You can start without this and enable it later after admin review.</p>
+          <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <input type="checkbox" id="oPickupEnabled" style="width:18px;height:18px;accent-color:var(--gold);flex-shrink:0;"/>
+            <span style="font-size:14px;font-weight:700;color:var(--dark);">Yes — I want to offer customer pickup from my store</span>
+          </label>
+          <p style="font-size:12px;color:var(--mid);margin-top:8px;padding-left:30px;">Admin will review and activate pickup once your store is verified.</p>
+        </div>
+
         <div class="form-group" style="margin-top:20px;padding:16px;background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);">
           <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;">
             <input type="checkbox" id="oDeclaration" style="width:17px;height:17px;accent-color:var(--gold);margin-top:2px;flex-shrink:0;"/>
@@ -1177,7 +1188,9 @@ function showSuccess(type, name, storeName) {
     document.getElementById('successSub').textContent = `Thank you for registering ${storeName || 'your store'} as a VibrantPetals pickup outlet.`;
     const note = document.getElementById('successDealerNote');
     note.style.display = '';
-    note.textContent = '✅ Our team will review your outlet details and activate your store within a few business days. You will be notified via WhatsApp once your outlet is live and accepting customer pickups.';
+    note.textContent = pickupEnabled
+      ? '✅ Our team will review your application. Once approved, your store will appear as a pickup location for customers in your territory.'
+      : '✅ Our team will review your application and activate your retail account within a few business days. You can request pickup activation later from your account dashboard.';
   } else {
     document.getElementById('successIcon').textContent = '⭐';
     document.getElementById('successTitle').textContent = `Application Received, ${name}!`;
@@ -1211,9 +1224,10 @@ async function submitOutlet() {
   const suburb   = oTerrEl.options[oTerrEl.selectedIndex]?.text.replace(/ \(.*\)$/, '') || territory;
   const state      = document.getElementById('oState').value;
   const territory  = document.getElementById('oTerritory').value;
-  const storePhone = document.getElementById('oStorePhone').value.trim();
-  const hours      = document.getElementById('oHours').value.trim();
-  const decl       = document.getElementById('oDeclaration').checked;
+  const storePhone    = document.getElementById('oStorePhone').value.trim();
+  const hours         = document.getElementById('oHours').value.trim();
+  const pickupEnabled = document.getElementById('oPickupEnabled')?.checked || false;
+  const decl          = document.getElementById('oDeclaration').checked;
 
   const msg = document.getElementById('outletMsg');
   msg.style.display = 'none';
@@ -1235,7 +1249,8 @@ async function submitOutlet() {
 
   const body = {
     username, email, password, firstName, lastName,
-    role: 'Dealer',
+    role: 'Retail',
+    userType: 'retail',
     dealerInfo: {
       type:          'retail_outlet',
       mobile,
@@ -1246,6 +1261,7 @@ async function submitOutlet() {
       territory,
       storePhone,
       hours,
+      pickupEnabled,
       applicationDate: new Date().toISOString(),
     },
     desiredTerritory: territory,
