@@ -976,7 +976,7 @@ async function loadApprovals() {
   const pendingDealers    = (dealersData.users || []);
   const pendingRetail     = (retailData.users || []);
   const pendingTerritories = (territoriesData.territories || []);
-  const pendingOutlets    = (outletsData.outlets || []).filter(o => !o.isActive && o.approvalStatus === 'pending' && !o.ownerUserId);
+  const pendingOutlets    = (outletsData.outlets || []).filter(o => !o.isActive && !o.ownerUserId && (!o.approvalStatus || o.approvalStatus === 'pending'));
   const pickupDisabled    = (outletsData.outlets || []).filter(o => o.isActive && o.approvalStatus === 'approved' && !o.pickupEnabled && o.ownerUserId);
 
   const totalBadge = pendingDealers.length + pendingRetail.length + pendingTerritories.length + pendingOutlets.length + pickupDisabled.length;
@@ -1537,18 +1537,28 @@ async function loadOutlets() {
         <th>Outlet Name</th><th>Location</th><th>Territory</th><th>Phone</th><th>Hours</th><th>Status</th><th style="text-align:right;">Actions</th>
       </tr></thead>
       <tbody>
-        ${list.map(o => `<tr>
-          <td><strong>${o.name}</strong></td>
+        ${list.map(o => {
+          const isDealerOutlet = o.dealerId && !o.ownerUserId;
+          const originLabel = isDealerOutlet
+            ? '<span style="font-size:10px;background:#fff3cd;color:#856404;border:1px solid #ffc10740;padding:2px 7px;border-radius:10px;font-weight:700;margin-left:6px;">Dealer-registered</span>'
+            : '<span style="font-size:10px;background:#f8f9fa;color:#555;border:1px solid #ddd;padding:2px 7px;border-radius:10px;margin-left:6px;">Admin-managed</span>';
+          const activateBtn = (!o.isActive && isDealerOutlet)
+            ? `<button onclick="activateOutlet('${o._id}','${o.name.replace(/'/g,"\\'")}'" style="padding:5px 12px;font-size:12px;background:#27ae60;color:#fff;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">✓ Activate</button>`
+            : '';
+          return `<tr style="${!o.isActive && isDealerOutlet ? 'background:#fffdf0;' : ''}">
+          <td><strong>${o.name}</strong>${originLabel}</td>
           <td>${o.suburb}, ${o.state}</td>
           <td style="font-size:12px;color:var(--mid);">${o.territorySlug}</td>
           <td style="font-size:13px;">${o.phone || '—'}</td>
           <td style="font-size:12px;color:var(--mid);">${o.hours || '—'}</td>
-          <td><span style="background:${o.isActive?'#27ae6015':'#aaa15'};color:${o.isActive?'#27ae60':'#aaa'};border:1px solid ${o.isActive?'#27ae6040':'#aaa40'};padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">${o.isActive?'Active':'Inactive'}</span></td>
+          <td><span style="background:${o.isActive?'#27ae6015':'#fff3cd'};color:${o.isActive?'#27ae60':'#856404'};border:1px solid ${o.isActive?'#27ae6040':'#ffc10760'};padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">${o.isActive?'Active':'Pending Activation'}</span></td>
           <td style="text-align:right;">
+            ${activateBtn}
             <button onclick="editOutletById('${o._id}')" style="padding:5px 12px;font-size:12px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">Edit</button>
             <button onclick="deleteOutlet('${o._id}')" style="padding:5px 12px;font-size:12px;background:#c0392b;color:#fff;border:none;border-radius:3px;cursor:pointer;">Delete</button>
           </td>
-        </tr>`).join('')}
+        </tr>`;
+        }).join('')}
       </tbody>
     </table>
     <div style="padding:12px 20px;font-size:12px;color:var(--mid);border-top:1px solid #f0ebe0;">${list.length} outlet${list.length!==1?'s':''} total</div>`;
