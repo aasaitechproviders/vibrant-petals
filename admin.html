@@ -2426,8 +2426,6 @@ async function openOrderAssignModal(orderId, orderNum, assignment, outletSnap, p
   document.getElementById('oamMsg').className = 'form-msg';
   document.getElementById('oamMsg').textContent = '';
   document.getElementById('orderAssignModal').classList.add('open');
-  // Pre-select the suggested type
-  if (assigneeType) document.getElementById('oamType').value = assigneeType;
   await loadAssignOptions();
 }
 window.openOrderAssignModal = openOrderAssignModal;
