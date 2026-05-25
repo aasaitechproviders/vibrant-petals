@@ -977,8 +977,9 @@ async function loadApprovals() {
   const pendingRetail     = (retailData.users || []);
   const pendingTerritories = (territoriesData.territories || []);
   const pendingOutlets    = (outletsData.outlets || []).filter(o => !o.isActive && o.approvalStatus === 'pending' && !o.ownerUserId);
+  const pickupDisabled    = (outletsData.outlets || []).filter(o => o.isActive && o.approvalStatus === 'approved' && !o.pickupEnabled && o.ownerUserId);
 
-  const totalBadge = pendingDealers.length + pendingRetail.length + pendingTerritories.length + pendingOutlets.length;
+  const totalBadge = pendingDealers.length + pendingRetail.length + pendingTerritories.length + pendingOutlets.length + pickupDisabled.length;
   const badge = document.getElementById('approvalsBadge');
   if (badge) { badge.textContent = totalBadge; badge.style.display = totalBadge ? 'inline' : 'none'; }
 
@@ -1081,6 +1082,30 @@ async function loadApprovals() {
           </div></td>
         </tr>`).join('')}</tbody>
       </table>`}
+
+    <!-- SECTION 5: APPROVED OUTLETS — PICKUP NOT YET ENABLED -->
+    <div class="card" style="margin-top:24px;">
+      <div class="card-head">
+        <div class="card-title">🟢 Approved Outlets &mdash; Pickup Not Enabled</div>
+        <span style="font-size:13px;color:var(--mid);">${pickupDisabled.length} awaiting</span>
+      </div>
+      ${!pickupDisabled.length
+        ? '<p style="padding:20px;color:var(--mid);font-size:14px;">✓ All approved outlets have pickup enabled.</p>'
+        : '<p style="padding:12px 20px 0;font-size:13px;color:var(--mid);">These outlets are approved but pickup is still off. Enable it when the store is ready to accept orders.</p>' +
+          '<table class="data-table"><thead><tr><th>Store</th><th>Location</th><th>Territory</th><th>Hours</th><th>Action</th></tr></thead><tbody>' +
+          pickupDisabled.map(o =>
+            '<tr style="background:#f0fff4;">' +
+            '<td><b>' + o.name + '</b><br/><span style="font-size:11px;color:var(--mid);">' + o.address + '</span></td>' +
+            '<td style="font-size:13px;">' + o.suburb + ', ' + o.state + '</td>' +
+            '<td style="font-size:12px;color:var(--mid);">' + (o.territorySlug || '—') + '</td>' +
+            '<td style="font-size:12px;color:var(--mid);">' + (o.hours || '—') + '</td>' +
+            '<td><button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 14px;font-size:12px;cursor:pointer;" ' +
+            'data-outlet-id="' + o._id + '" data-outlet-name="' + o.name.replace(/"/g, '&quot;') + '" ' +
+            'onclick="togglePickup(this.dataset.outletId, false, this.dataset.outletName)">🟢 Enable Pickup</button></td>' +
+            '</tr>'
+          ).join('') +
+          '</tbody></table>'
+      }
     </div>`;
 }
 window.loadApprovals = loadApprovals;
@@ -1112,7 +1137,7 @@ async function togglePickup(outletId, currentState, outletName) {
   const data = await apiFetch(`/admin/retail-outlets/${outletId}/pickup`, {
     method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ pickupEnabled: newState }),
   });
-  if (data.success) { showToast(data.message, 'success'); loadRetailUsers(); loadOutlets(); }
+  if (data.success) { showToast(data.message, 'success'); loadRetailUsers(); loadOutlets(); loadApprovals(); }
   else showToast(data.message || `Failed to ${action} pickup`, 'error');
 }
 window.togglePickup = togglePickup;
