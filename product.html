@@ -541,9 +541,19 @@ async function loadRelated(category){
   const data=await apiFetch(`/products?category=${encodeURIComponent(category)}&limit=5`).catch(()=>({products:[]}));
   const prods=(data.products||[]).filter(p=>p._id.toString()!==productId).slice(0,4);
   if(!prods.length)return;
+  const _relRole = getTokenRole();
+  function relatedPrice(p){
+    if(_relRole==='Dealer' && p.dealerPrice)
+      return `<span style="color:#F5A623;font-weight:700;">⭐ $${p.dealerPrice.toFixed(2)}</span>`;
+    if(_relRole==='Retail' && p.retailPrice)
+      return `<span style="color:#1565c0;font-weight:700;">🏪 $${p.retailPrice.toFixed(2)}</span>`;
+    if(p.salePrice)
+      return `$${p.salePrice.toFixed(2)}${p.regularPrice?` <span style="text-decoration:line-through;color:#aaa;font-size:11px;">$${p.regularPrice.toFixed(2)}</span>`:''}`;
+    return p.price?`$${p.price.toFixed(2)}`:'';
+  }
   document.getElementById('relatedGrid').innerHTML=prods.map(p=>{
     const img=p.images?.[0]||'https://placehold.co/300x300?text=Flower';
-    const price=p.salePrice?`$${p.salePrice.toFixed(2)}`:p.price?`$${p.price.toFixed(2)}`:'';
+    const price=relatedPrice(p);
     return `<div class="product-card" onclick="location.href='product.html?id=${p._id}'">
       <div class="product-card-inner"><div class="product-img-wrap"><img src="${img}" loading="lazy" onerror="this.src='https://placehold.co/300?text=Flower'"/>${p.stockStatus==='outofstock'?'<div class="stock-badge">Out Of Stock</div>':''}</div></div>
       <div class="product-info"><div class="product-name">${p.name}</div><div class="product-price">${price}</div></div>
