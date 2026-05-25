@@ -2383,6 +2383,7 @@ function openOrderAssignModalById(orderId) {
 window.openOrderAssignModalById = openOrderAssignModalById;
 
 async function openOrderAssignModal(orderId, orderNum, assignment, outletSnap, pickupOutletId) {
+  _cachedOutlets = null; // Always re-fetch fresh outlets when opening the modal
   assigningOrderId = orderId;
   _assignPickupOutletId = pickupOutletId || null;
   _assignOrderState     = outletSnap?.state || null;
@@ -2452,7 +2453,7 @@ async function loadAssignOptions() {
   }
 
   // Filter: isActive + pickupEnabled + (same state as order's pickup outlet if known)
-  let pickupOutlets = _cachedOutlets.filter(o => o.isActive && o.pickupEnabled && o.approvalStatus === 'approved');
+  let pickupOutlets = _cachedOutlets.filter(o => o.isActive && o.pickupEnabled);
 
   // If we know the order's state, prioritise same-state outlets
   if (_assignOrderState) {
