@@ -1002,7 +1002,7 @@ async function loadApprovals() {
           <td style="font-size:12px;">${u.dealerInfo?.state||'—'}</td>
           <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
           <td><div style="display:flex;gap:6px;">
-            <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="reviewDealer('${u._id}','${u.username}')">Review</button>
+            <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="openDealerApprovalModal('${u._id}')">Review</button>
             <button class="btn-sm btn-delete" onclick="quickRejectDealer('${u._id}','${u.username}')">Reject</button>
           </div></td>
         </tr>`).join('')}</tbody>
