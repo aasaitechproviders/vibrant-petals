@@ -185,8 +185,8 @@
     <div class="nav-icons">
       <button class="nav-icon-btn" id="searchBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></button>
       <button class="nav-icon-btn" style="color:var(--gold)"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
-      <button class="nav-icon-btn" onclick="location.href='wishlist.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount">0</span></button>
-      <button class="nav-icon-btn" onclick="location.href='checkout.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="badge" id="cartCount">0</span></button>
+      <button class="nav-icon-btn" id="navWishlistBtn" onclick="location.href='wishlist.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount">0</span></button>
+      <button class="nav-icon-btn" id="navCartBtn" onclick="location.href='checkout.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="badge" id="cartCount">0</span></button>
     </div>
   </div>
 </header>
@@ -239,7 +239,7 @@
         <div class="acct-nav-item active" onclick="showPanel('dashboard',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
         </div>
-        <div class="acct-nav-item" onclick="showPanel('orders',this)">
+        <div class="acct-nav-item" id="navOrders" style="display:none;" onclick="showPanel('orders',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>My Orders
         </div>
         <!-- Addresses removed — pickup-only model, no door delivery -->
@@ -258,7 +258,7 @@
         <div class="acct-nav-item" id="navAdmin" style="display:none;" onclick="location.href='admin.html'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Admin Panel ↗
         </div>
-        <div class="acct-nav-item" id="navWishlist" onclick="location.href='wishlist.html'">
+        <div class="acct-nav-item" id="navWishlist" style="display:none;" onclick="location.href='wishlist.html'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Wishlist
         </div>
         <div class="acct-nav-divider"></div>
@@ -624,6 +624,9 @@ async function loadMe(){
   const data=await apiFetch('/auth/me',{headers:apiHeaders()});
   if(!data||!data.success){doLogout();return;}
   userData=data.user;
+  const role=userData.role; // 'Customer' | 'Dealer' | 'Administrator'
+
+  // Fill profile fields
   document.getElementById('acctName').textContent=userData.username||userData.firstName||'Friend';
   document.getElementById('acctEmailDisp').textContent=userData.email;
   document.getElementById('acctAvatar').textContent=(userData.firstName||userData.username||'?')[0].toUpperCase();
@@ -632,47 +635,103 @@ async function loadMe(){
   document.getElementById('profDisplay').value=userData.displayName||userData.username||'';
   document.getElementById('profEmail').value=userData.email||'';
   document.getElementById('profRole').value=userData.role||'Customer';
+
   // Role badge
   const roleMap={Customer:'role-customer',Dealer:'role-dealer',Administrator:'role-administrator'};
-  const roleLabel={Customer:'Customer',Dealer:'Dealer ⭐',Administrator:'Admin'};
-  document.getElementById('acctRoleBadge').innerHTML=`<span class="role-badge ${roleMap[userData.role]||'role-customer'}">${roleLabel[userData.role]||userData.role}</span>`;
-  // Show dealer nav items
-  if(userData.role==='Dealer'||userData.role==='Administrator'){document.getElementById('navDealer').style.display='flex';document.getElementById('navOutlets').style.display='flex';}
-  if(userData.role==='Administrator'){document.getElementById('navAdmin').style.display='flex';}
-  // Addresses removed — pickup-only model
-  // Wishlist not relevant for admin
-  if(userData.role==='Administrator'){const nw=document.getElementById('navWishlist');if(nw)nw.style.display='none';}
-  // Location preferences (customers only)
-  if(userData.role==='Customer'){
+  const roleLabel={Customer:'Customer',Dealer:'Dealer ⭐',Administrator:'Admin 🔑'};
+  document.getElementById('acctRoleBadge').innerHTML=`<span class="role-badge ${roleMap[role]||'role-customer'}">${roleLabel[role]||role}</span>`;
+
+  // ── SHOW/HIDE NAV ICONS ───────────────────────────────────────────────────
+  // Admin: no wishlist, no cart
+  // Dealer: no wishlist, keep cart
+  // Customer: both
+  const wishlistBtn = document.getElementById('navWishlistBtn');
+  const cartBtn     = document.getElementById('navCartBtn');
+  if(role==='Administrator'){
+    if(wishlistBtn) wishlistBtn.style.display='none';
+    if(cartBtn)     cartBtn.style.display='none';
+  } else if(role==='Dealer'){
+    if(wishlistBtn) wishlistBtn.style.display='none';
+  }
+
+  // ── SIDEBAR NAV PER ROLE ──────────────────────────────────────────────────
+  const show = id => { const el=document.getElementById(id); if(el) el.style.display='flex'; };
+
+  if(role==='Administrator'){
+    // Admin: Dashboard, Profile, Password, Admin Panel — nothing else
+    show('navAdmin');
+    // Hide location preferences
+    const lc=document.getElementById('locationPrefCard');
+    if(lc) lc.style.display='none';
+
+  } else if(role==='Dealer'){
+    // Dealer: Dashboard, My Orders, Profile, Password, Dealer Portal, My Retail Outlets
+    show('navOrders');
+    show('navDealer');
+    show('navOutlets');
+    // Hide location preferences (customer-only)
+    const lc=document.getElementById('locationPrefCard');
+    if(lc) lc.style.display='none';
+
+  } else {
+    // Customer: Dashboard, My Orders, Profile, Password, Wishlist
+    show('navOrders');
+    show('navWishlist');
+    // Load location preferences
     await loadProfTerritories();
     if(userData.preferredState){
       document.getElementById('profState').value=userData.preferredState;
       await onProfStateChange();
-      if(userData.preferredTerritory)document.getElementById('profTerritory').value=userData.preferredTerritory;
+      if(userData.preferredTerritory) document.getElementById('profTerritory').value=userData.preferredTerritory;
     }
-  } else {
-    const lc=document.getElementById('locationPrefCard');
-    if(lc) lc.style.display='none';
   }
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
 async function loadDashboard(){
-  const isAdmin = userData?.role === 'Administrator';
-  // Hide customer-facing quick links for admin
-  const ql = document.getElementById('dashQuickLinks');
-  if(ql && isAdmin) ql.style.display = 'none';
+  const role=userData?.role;
+  const isAdmin=role==='Administrator';
+  const isDealer=role==='Dealer';
 
-  const fetchWishlist = !isAdmin ? apiFetch('/wishlist',{headers:apiHeaders()}) : Promise.resolve({wishlist:{products:[]}});
+  if(isAdmin){
+    // Admin: show total orders only, no wishlist stat, no spent, Admin Panel quick link
+    document.getElementById('statSpent').closest('.stat-card').style.display='none';
+    document.getElementById('statWish').closest('.stat-card').style.display='none';
+    const ql=document.getElementById('dashQuickLinks');
+    if(ql) ql.innerHTML='<div class="form-card-title">QUICK LINKS</div><div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;"><a href="admin.html" style="display:inline-block;padding:10px 20px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);">Go to Admin Panel ↗</a></div>';
+    const od=await apiFetch('/orders?limit=3',{headers:apiHeaders()});
+    const orders=od.orders||[];
+    document.getElementById('statOrders').textContent=od.pagination?.total||orders.length;
+    renderRecentOrders(orders);
+    return;
+  }
+
+  if(isDealer){
+    // Dealer: orders + spent, no wishlist stat
+    document.getElementById('statWish').closest('.stat-card').style.display='none';
+    const ql=document.getElementById('dashQuickLinks');
+    if(ql) ql.innerHTML='<div class="form-card-title">QUICK LINKS</div><div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;"><a href="category.html?cat=all" style="display:inline-block;padding:10px 20px;border:1px solid var(--gold);color:var(--gold);font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);">Shop Now</a></div>';
+    const od=await apiFetch('/orders?limit=3',{headers:apiHeaders()});
+    const orders=od.orders||[];
+    document.getElementById('statOrders').textContent=od.pagination?.total||orders.length;
+    document.getElementById('statSpent').textContent='$'+(orders.reduce((s,o)=>s+(o.total||0),0)).toFixed(2);
+    renderRecentOrders(orders);
+    return;
+  }
+
+  // Customer: orders + spent + wishlist
   const [od,wd]=await Promise.all([
     apiFetch('/orders?limit=3',{headers:apiHeaders()}),
-    fetchWishlist
+    apiFetch('/wishlist',{headers:apiHeaders()})
   ]);
   const orders=od.orders||[];
   document.getElementById('statOrders').textContent=od.pagination?.total||orders.length;
   document.getElementById('statSpent').textContent='$'+(orders.reduce((s,o)=>s+(o.total||0),0)).toFixed(2);
-  if(!isAdmin) document.getElementById('statWish').textContent=(wd.wishlist?.products||[]).length;
-  else document.getElementById('statWish').closest('.stat-card').style.display='none';
+  document.getElementById('statWish').textContent=(wd.wishlist?.products||[]).length;
+  renderRecentOrders(orders);
+}
+
+function renderRecentOrders(orders){
   if(!orders.length){
     document.getElementById('dashRecentOrders').innerHTML='<p style="color:var(--mid);font-size:14px;">No orders yet. <a href="category.html?cat=all" style="color:var(--gold)">Start shopping!</a></p>';
     return;
