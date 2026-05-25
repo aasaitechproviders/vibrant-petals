@@ -460,10 +460,6 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Suburb *</label>
-              <input type="text" class="form-input" id="outletSuburb" placeholder="Tarneit"/>
-            </div>
-            <div class="form-group">
               <label class="form-label">State *</label>
               <select class="form-select" id="outletState" onchange="loadOutletTerritoryOptions()">
                 <option value="">Select state…</option>
@@ -471,14 +467,14 @@
                 <option value="Sydney">Sydney</option>
               </select>
             </div>
-          </div>
-          <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Territory *</label>
+              <label class="form-label">Territory / Suburb *</label>
               <select class="form-select" id="outletTerritory" disabled>
                 <option value="">Select state first…</option>
               </select>
             </div>
+          </div>
+          <div class="form-row">
             <div class="form-group">
               <label class="form-label">Trading Hours</label>
               <input type="text" class="form-input" id="outletHours" placeholder="Mon–Sat 9am–6pm"/>
@@ -1095,7 +1091,6 @@ function editOutletFromAccount(jsonStr) {
   document.getElementById('outletName').value = o.name || '';
   document.getElementById('outletPhone').value = o.phone || '';
   document.getElementById('outletAddress').value = o.address || '';
-  document.getElementById('outletSuburb').value = o.suburb || '';
   document.getElementById('outletState').value = o.state || '';
   loadOutletTerritoryOptions();
   setTimeout(() => { document.getElementById('outletTerritory').value = o.territorySlug || ''; }, 300);
@@ -1127,9 +1122,12 @@ async function saveOutletFromAccount() {
   const name = document.getElementById('outletName').value.trim();
   const phone = document.getElementById('outletPhone').value.trim();
   const address = document.getElementById('outletAddress').value.trim();
-  const suburb = document.getElementById('outletSuburb').value.trim();
   const state = document.getElementById('outletState').value;
   const territorySlug = document.getElementById('outletTerritory').value;
+  // Derive suburb from the selected territory name (territory IS the suburb)
+  const terrList = dealerOutletTerritoriesData[state] || [];
+  const selectedTerr = terrList.find(t => t.slug === territorySlug);
+  const suburb = selectedTerr ? selectedTerr.name : territorySlug;
   const hours = document.getElementById('outletHours').value.trim();
   const msg = document.getElementById('outletFormMsg');
   msg.style.display = 'none';
