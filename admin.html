@@ -1297,7 +1297,7 @@ window.toggleDealerStatus = toggleDealerStatus;
 //  USERS (Customers only)
 // ══════════════════════════════════════════════════════════════════════════════
 
-function doAdminLogout() { token = ''; localStorage.removeItem('vp_token'); localStorage.removeItem('vp_admin_token'); 
+function doAdminLogout() { token = ''; localStorage.removeItem('vp_token'); localStorage.removeItem('vp_admin_token'); location.href='index.html'; }
 // ── CSV EXPORT ────────────────────────────────────────────────────────────────
 function downloadCSV(filename, rows) {
   if (!rows.length) { showToast('No data to export', 'error'); return; }
