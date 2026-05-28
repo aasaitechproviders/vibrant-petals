@@ -659,30 +659,6 @@
       font-size: 22px; color: rgba(255,255,255,.8); cursor: pointer;
     }
     .modal-body { padding: 36px; }
-    .modal-input {
-      width: 100%; padding: 14px 16px;
-      border: 1px solid #ddd;
-      font-family: inherit; font-size: 14px;
-      outline: none; margin-bottom: 16px;
-      transition: border-color .2s;
-      border-radius: var(--radius);
-    }
-    .modal-input:focus { border-color: var(--gold); }
-    .modal-forgot { font-size: 13px; color: var(--mid); text-decoration: underline; display: block; margin-bottom: 20px; }
-    .btn-signin, .btn-create {
-      width: 100%; padding: 15px;
-      font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
-      border-radius: var(--radius);
-      margin-bottom: 12px;
-      transition: background .2s;
-    }
-    .btn-signin { background: var(--gold); color: #fff; }
-    .btn-signin:hover { background: var(--gold-dark); }
-    .btn-create { background: var(--gold-dark); color: #fff; }
-    .btn-create:hover { background: #5a4e2a; }
-    .modal-msg { font-size: 13px; color: green; text-align: center; margin-top: 8px; display: none; }
-    .modal-err { font-size: 13px; color: #c0392b; text-align: center; margin-top: 8px; display: none; }
-
     /* ── CART SIDEBAR ───────────────────────────────────────── */
     .cart-overlay {
       position: fixed; inset: 0;
@@ -1185,34 +1161,6 @@
 </div>
 
 <!-- ── SIGN IN MODAL ──────────────────────────────────────── -->
-<div class="modal-overlay" id="loginModal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <div>
-        <div class="modal-brand">
-          <img src="logo.png" alt="Vibrant Petals Logo" style="width:20px;height:20px;object-fit:contain;opacity:.9;filter:brightness(10);" />
-          Vibrant Petals
-        </div>
-        <div class="modal-head-title">Sign In</div>
-      </div>
-      <span class="modal-close" id="modalClose">✕</span>
-    </div>
-    <div class="modal-body" id="loginForm">
-      <input type="text" class="modal-input" id="loginEmail" placeholder="Email *" />
-      <input type="password" class="modal-input" id="loginPwd" placeholder="Password *" />
-      <a href="#" class="modal-forgot">Lost your password?</a>
-      <button class="btn-signin" id="loginSubmit">Sign In</button>
-      <div class="modal-msg" id="loginMsg"></div>
-      <div class="modal-err" id="loginErr"></div>
-      <div style="margin-top:16px;border-top:1px solid #f0ebe0;padding-top:16px;">
-        <div style="font-size:12px;text-align:center;color:#888;margin-bottom:10px;letter-spacing:.04em;">NEW TO VIBRANT PETALS?</div>
-        <a href="signup.html" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border:1px solid #e8e0d2;border-radius:4px;font-size:13px;font-weight:700;color:#1A1A1A;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;background:#FAF7F2;transition:border-color .2s,background .2s;" onmouseover="this.style.borderColor='#9B8B5A';this.style.background='#F2EDE3'" onmouseout="this.style.borderColor='#e8e0d2';this.style.background='#FAF7F2'">🛒 Create Customer Account</a>
-        <a href="signup.html?type=dealer" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border:1px solid #F5A623;border-radius:4px;font-size:13px;font-weight:700;color:#7A5800;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;background:#FFF8E7;margin-top:8px;transition:background .2s;" onmouseover="this.style.background='#FFF3CC'" onmouseout="this.style.background='#FFF8E7'">⭐ Register as Dealer</a>
-      </div>
-    </div>
-    <div class="modal-body" id="registerForm" style="display:none;"></div>
-  </div>
-</div>
 
 <!-- ── CART DRAWER ────────────────────────────────────────── -->
 <div class="cart-overlay" id="cartOverlay"></div>
@@ -1470,7 +1418,6 @@ searchInput.addEventListener('input', ()=>{
 });
 
 // ── AUTH MODAL ─────────────────────────────────────────────
-const loginModal = document.getElementById('loginModal');
 // ── ACCOUNT DROPDOWN ───────────────────────────────────────────
 function getTokenRole(){
   try{
@@ -1497,9 +1444,9 @@ function buildAcctDrop(){
     document.getElementById('loginBtn').onclick = ()=>{ location.href='account.html'; };
   } else {
     drop.innerHTML = `
-      <a href="#" onclick="loginModal.classList.add('open');return false;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Sign In</a>
+      <a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Sign In</a>
       <a href="signup.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Register</a>`;
-    document.getElementById('loginBtn').onclick = ()=>loginModal.classList.add('open');
+    document.getElementById('loginBtn').onclick = ()=>{ location.href='account.html'; };
   }
 }
 function doHeaderLogout(){
@@ -1535,40 +1482,6 @@ if(token && getTokenRole() === 'Administrator'){
   if(wishBtn) wishBtn.style.display = 'none';
   if(cartBtn) cartBtn.style.display = 'none';
 }
-document.getElementById('modalClose').onclick = ()=>loginModal.classList.remove('open');
-loginModal.addEventListener('click', e=>{ if(e.target===loginModal) loginModal.classList.remove('open'); });
-
-// Register buttons now link to signup.html
-
-document.getElementById('loginSubmit').onclick = async ()=>{
-  const email = document.getElementById('loginEmail').value.trim();
-  const pwd   = document.getElementById('loginPwd').value;
-  const msg   = document.getElementById('loginMsg');
-  const err   = document.getElementById('loginErr');
-  msg.style.display=err.style.display='none';
-
-  // ── Basic validations ──────────────────────────────────────
-  if (!email) { err.textContent='Please enter your email address.'; err.style.display='block'; return; }
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) { err.textContent='Please enter a valid email address.'; err.style.display='block'; return; }
-  if (!pwd) { err.textContent='Please enter your password.'; err.style.display='block'; return; }
-  if (pwd.length < 6) { err.textContent='Password must be at least 6 characters.'; err.style.display='block'; return; }
-  // ──────────────────────────────────────────────────────────
-
-  const data = await apiFetch('/auth/login',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email,password:pwd})}).catch(()=>({success:false,message:'Network error'}));
-  if(data.success){
-    token = data.token;
-    localStorage.setItem('vp_token', token);
-    // Merge guest cart into user cart
-    try{await apiFetch('/cart/merge',{method:'POST',headers:apiHeaders(),body:JSON.stringify({sessionId})});}catch(e){}
-    msg.textContent='Welcome back, '+data.user.username+'! Redirecting…'; msg.style.display='block';
-    setTimeout(()=>{ window.location.href='account.html'; },1200);
-  } else {
-    err.textContent=data.message||'Login failed'; err.style.display='block';
-  }
-};
-
-// Registration handled on signup.html
 
 // ── CART ───────────────────────────────────────────────────
 const cartOverlay = document.getElementById('cartOverlay');
@@ -1647,7 +1560,7 @@ window.changeQty    = changeQty;
 window.removeFromCart = removeFromCart;
 
 async function addToWishlist(productId){
-  if(!token){ loginModal.classList.add('open'); return; }
+  if(!token){ location.href='account.html'; return; }
   const data = await apiFetch('/wishlist/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId})}).catch(()=>({success:false}));
   if(data.success){ showToast('Added to wishlist!','success'); loadWishCount(); }
   else showToast(data.message||'Error','error');
