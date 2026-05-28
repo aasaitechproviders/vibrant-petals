@@ -142,14 +142,7 @@
     .modal-head-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:rgba(255,255,255,.9);margin-top:10px;}
     .modal-close{position:absolute;top:14px;right:16px;font-size:22px;color:rgba(255,255,255,.8);cursor:pointer;}
     .modal-body{padding:36px;}
-    .modal-input{width:100%;padding:14px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:16px;border-radius:var(--radius);}
-    .modal-input:focus{border-color:var(--gold);}
-    .modal-forgot{font-size:13px;color:var(--mid);text-decoration:underline;display:block;margin-bottom:20px;}
-    .btn-signin,.btn-create{width:100%;padding:15px;font-size:14px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);margin-bottom:12px;}
-    .btn-signin{background:var(--gold);color:#fff;}
-    .btn-create{background:var(--gold-dark);color:#fff;}
-    .modal-msg{font-size:13px;color:green;text-align:center;margin-top:8px;display:none;}
-    .modal-err{font-size:13px;color:#c0392b;text-align:center;margin-top:8px;display:none;}
+
     .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:700;opacity:0;pointer-events:none;transition:opacity .3s;}
     .cart-overlay.open{opacity:1;pointer-events:all;}
     .cart-drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,95vw);background:#fff;z-index:710;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-4px 0 40px rgba(0,0,0,.15);}
@@ -363,29 +356,6 @@
   <div class="search-results" id="searchResults"></div>
 </div>
 
-<!-- LOGIN MODAL -->
-<div class="modal-overlay" id="loginModal">
-  <div class="modal-box">
-    <div class="modal-head"><div><div class="modal-brand">✿ Vibrant Petals</div><div class="modal-head-title">Sign In</div></div><span class="modal-close" id="modalClose">✕</span></div>
-    <div class="modal-body" id="loginForm">
-      <input type="email" class="modal-input" id="loginEmail" placeholder="Email *"/>
-      <input type="password" class="modal-input" id="loginPwd" placeholder="Password *"/>
-      <a href="#" class="modal-forgot">Lost your password?</a>
-      <button class="btn-signin" id="loginSubmit">Sign In</button>
-      <button class="btn-create" id="showRegister">Create An Account</button>
-      <div class="modal-msg" id="loginMsg"></div><div class="modal-err" id="loginErr"></div>
-    </div>
-    <div class="modal-body" id="registerForm" style="display:none;">
-      <input type="text" class="modal-input" id="regUsername" placeholder="Username *"/>
-      <input type="email" class="modal-input" id="regEmail" placeholder="Email *"/>
-      <input type="password" class="modal-input" id="regPwd" placeholder="Password *"/>
-      <button class="btn-signin" id="regSubmit">Create Account</button>
-      <button class="btn-create" id="showLogin">Back to Sign In</button>
-      <div class="modal-msg" id="regMsg"></div><div class="modal-err" id="regErr"></div>
-    </div>
-  </div>
-</div>
-
 <!-- CART DRAWER -->
 <div class="cart-overlay" id="cartOverlay"></div>
 <div class="cart-drawer" id="cartDrawer">
@@ -596,7 +566,7 @@ async function cRemove(pid){const data=await apiFetch(`/cart/items/${pid}`,{meth
 window.cQty=cQty;window.cRemove=cRemove;
 
 async function toggleWishlist(productId){
-  if(!token){document.getElementById('loginModal').classList.add('open');return;}
+  if(!token){location.href='account.html';return;}
   const btn=document.getElementById('wishBtn');
   const data=await apiFetch('/wishlist/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId})}).catch(()=>({success:false}));
   if(data.success){btn.classList.toggle('active');showToast('Added to wishlist!','success');loadWishCount();}
@@ -620,37 +590,18 @@ document.getElementById('searchInput').addEventListener('input',function(){
 });
 
 // AUTH
-const loginModal=document.getElementById('loginModal');
 function buildAcctDrop(){
   const drop=document.getElementById('acctDrop');if(!drop)return;
   if(token){
     drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Account</a><button class="drop-logout" onclick="doHeaderLogout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</button>`;
     document.getElementById('loginBtn').onclick=()=>{location.href='account.html';};
   }else{
-    drop.innerHTML=`<a href="#" onclick="loginModal.classList.add('open');return false;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Sign In</a><a href="signup.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Register</a>`;
-    document.getElementById('loginBtn').onclick=()=>loginModal.classList.add('open');
+    drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Sign In</a><a href="signup.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Register</a>`;
+    document.getElementById('loginBtn').onclick=()=>{location.href='account.html';};
   }
 }
 function doHeaderLogout(){localStorage.removeItem('vp_token');location.reload();}
 buildAcctDrop();
-document.getElementById('modalClose').onclick=()=>loginModal.classList.remove('open');
-loginModal.addEventListener('click',e=>{if(e.target===loginModal)loginModal.classList.remove('open');});
-document.getElementById('showRegister').onclick=()=>{document.getElementById('loginForm').style.display='none';document.getElementById('registerForm').style.display='block';};
-document.getElementById('showLogin').onclick=()=>{document.getElementById('registerForm').style.display='none';document.getElementById('loginForm').style.display='block';};
-document.getElementById('loginSubmit').onclick=async()=>{
-  const email=document.getElementById('loginEmail').value.trim(),pwd=document.getElementById('loginPwd').value;
-  const msg=document.getElementById('loginMsg'),err=document.getElementById('loginErr');msg.style.display=err.style.display='none';
-  const data=await apiFetch('/auth/login',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email,password:pwd})}).catch(()=>({success:false,message:'Network error'}));
-  if(data.success){token=data.token;localStorage.setItem('vp_token',token);try{await apiFetch('/cart/merge',{method:'POST',headers:apiHeaders(),body:JSON.stringify({sessionId})});}catch(e){}msg.textContent='Welcome back!';msg.style.display='block';setTimeout(()=>loginModal.classList.remove('open'),1200);loadCart();}
-  else{err.textContent=data.message||'Login failed';err.style.display='block';}
-};
-document.getElementById('regSubmit').onclick=async()=>{
-  const username=document.getElementById('regUsername').value.trim(),email=document.getElementById('regEmail').value.trim(),pwd=document.getElementById('regPwd').value;
-  const msg=document.getElementById('regMsg'),err=document.getElementById('regErr');msg.style.display=err.style.display='none';
-  const data=await apiFetch('/auth/register',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({username,email,password:pwd})}).catch(()=>({success:false}));
-  if(data.success){token=data.token;localStorage.setItem('vp_token',token);try{await apiFetch('/cart/merge',{method:'POST',headers:apiHeaders(),body:JSON.stringify({sessionId})});}catch(e){}msg.textContent='Account created!';msg.style.display='block';setTimeout(()=>loginModal.classList.remove('open'),1200);loadCart();}
-  else{err.textContent=data.message||'Failed';err.style.display='block';}
-};
 document.getElementById('nlSubmit').onclick=async()=>{
   const email=document.getElementById('nlEmail').value.trim();if(!email)return;
   const data=await apiFetch('/newsletter/subscribe',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email})}).catch(()=>({success:false}));
