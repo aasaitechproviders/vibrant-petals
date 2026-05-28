@@ -27,25 +27,7 @@
     .breadcrumb{text-align:center;font-size:13px;color:var(--mid);margin-bottom:40px;}
     .breadcrumb a{color:var(--mid);transition:color .2s;}.breadcrumb a:hover{color:var(--gold);}
     .breadcrumb span{margin:0 8px;}
-    /* LOGIN INLINE MODAL */
-    .login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:800;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
-    .login-overlay.open{opacity:1;pointer-events:all;}
-    .login-modal-box{background:#fff;width:min(440px,94vw);border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.2);padding:36px;transform:translateY(20px);transition:transform .3s;}
-    .login-overlay.open .login-modal-box{transform:translateY(0);}
-    .login-modal-title{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:6px;}
-    .login-modal-sub{font-size:13px;color:var(--mid);margin-bottom:24px;}
-    .login-modal-close{float:right;font-size:20px;color:var(--mid);cursor:pointer;margin-top:-28px;}
-    .modal-tabs{display:flex;border-bottom:2px solid #e8e0d2;margin-bottom:20px;}
-    .modal-tab-btn{flex:1;padding:10px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--mid);border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .2s,border-color .2s;}
-    .modal-tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
-    .modal-tab-panel{display:none;}.modal-tab-panel.active{display:block;}
-    .gate-input{width:100%;padding:12px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;border-radius:var(--radius);transition:border-color .2s;}
-    .gate-input:focus{border-color:var(--gold);}
-    .gate-select{width:100%;padding:12px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;border-radius:var(--radius);background:#fff;}
-    .btn-gate{width:100%;padding:13px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);}
-    .btn-gate:hover{background:var(--gold-dark);}
-    .gate-msg{font-size:13px;margin-top:8px;}
-    .gate-msg.ok{color:#2d7a2d;}.gate-msg.err{color:#c0392b;}
+
     /* SAVED ADDR STRIP */
     .saved-addr-strip{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;font-size:14px;display:none;}
     .saved-addr-strip label{font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--mid);display:block;margin-bottom:8px;}
@@ -244,41 +226,7 @@
 </div>
 
 <!-- INLINE LOGIN/REGISTER MODAL -->
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-modal-box">
-    <span class="login-modal-close" onclick="closeLoginModal()">✕</span>
-    <div class="login-modal-title">Sign In to Place Order</div>
-    <div class="login-modal-sub">Your cart is saved. Sign in or register below to continue.</div>
-    <div class="modal-tabs">
-      <button class="modal-tab-btn active" onclick="switchModalTab('login',this)">Sign In</button>
-      <button class="modal-tab-btn" onclick="switchModalTab('register',this)">Register</button>
-    </div>
-    <div class="modal-tab-panel active" id="modal-tab-login">
-      <input type="email" class="gate-input" id="mLoginEmail" placeholder="Email address *"/>
-      <input type="password" class="gate-input" id="mLoginPwd" placeholder="Password *"/>
-      <button class="btn-gate" onclick="doModalLogin()">Sign In & Continue</button>
-      <div class="gate-msg" id="mLoginMsg"></div>
-    </div>
-    <div class="modal-tab-panel" id="modal-tab-register">
-      <input type="text" class="gate-input" id="mRegUser" placeholder="Username *"/>
-      <input type="email" class="gate-input" id="mRegEmail" placeholder="Email address *"/>
-      <input type="password" class="gate-input" id="mRegPwd" placeholder="Password (min 6 chars) *"/>
-      <input type="text" class="gate-input" id="mRegFirst" placeholder="First name"/>
-      <input type="text" class="gate-input" id="mRegLast" placeholder="Last name"/>
-      <select class="gate-select" id="mRegState" onchange="onModalRegStateChange()">
-        <option value="">Select your state *</option>
-        <option value="Melbourne">Melbourne</option>
-        <option value="Sydney">Sydney</option>
-      </select>
-      <select class="gate-select" id="mRegTerritory">
-        <option value="">Select your area *</option>
-      </select>
-      <button class="btn-gate" onclick="doModalRegister()">Register & Continue</button>
-      <div class="gate-msg" id="mRegMsg"></div>
-      <p style="font-size:12px;color:var(--mid);text-align:center;margin-top:12px;">Want to join as a Dealer? <a href="signup.html?type=dealer" style="color:var(--gold);font-weight:700;">Apply here</a></p>
-    </div>
-  </div>
-</div>
+
 
 <footer>Copyright © Nivas Vibrant Petals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></footer>
 <div class="toast" id="toast"></div>
@@ -343,8 +291,7 @@ async function applyCoupon(){
 // ── PLACE ORDER ───────────────────────────────────────────────────────────────
 function handlePlaceOrder(){
   if(!token){
-    // Open inline login modal instead of navigating away
-    openLoginModal();
+    location.href='account.html';
     return;
   }
   placeOrder();
@@ -385,77 +332,10 @@ async function placeOrder(){
   }
 }
 
-// ── INLINE LOGIN MODAL ────────────────────────────────────────────────────────
-function openLoginModal(){document.getElementById('loginOverlay').classList.add('open');}
-function closeLoginModal(){document.getElementById('loginOverlay').classList.remove('open');}
-window.closeLoginModal=closeLoginModal;
-
-function switchModalTab(name,btn){
-  document.querySelectorAll('.modal-tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.modal-tab-panel').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('modal-tab-'+name).classList.add('active');
-}
-window.switchModalTab=switchModalTab;
-
 async function mergeCart(){
   if(!token||!sessionId)return;
   try{await apiFetch('/cart/merge',{method:'POST',headers:apiHeaders(),body:JSON.stringify({sessionId})});}
   catch(e){console.warn('Cart merge:',e);}
-}
-
-async function doModalLogin(){
-  const email=document.getElementById('mLoginEmail').value.trim();
-  const pwd=document.getElementById('mLoginPwd').value;
-  const msg=document.getElementById('mLoginMsg');
-  msg.textContent='';msg.className='gate-msg';
-  const data=await apiFetch('/auth/login',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email,password:pwd})});
-  if(data.success){
-    token=data.token;localStorage.setItem('vp_token',token);
-    await mergeCart();
-    closeLoginModal();
-    await loadCart();
-    await loadOutlets();
-    // Proceed straight to placing the order
-    placeOrder();
-  }else{msg.textContent=data.message||'Login failed';msg.className='gate-msg err';}
-}
-
-async function onModalRegStateChange(){
-  const state = document.getElementById('mRegState').value;
-  const terrSel = document.getElementById('mRegTerritory');
-  terrSel.innerHTML = '<option value="">Select your area *</option>';
-  if(!state) return;
-  const td = await apiFetch('/territories?state=' + encodeURIComponent(state)).catch(()=>({territories:[]}));
-  (td.territories||[]).forEach(t=>{
-    const opt = document.createElement('option');
-    opt.value = t.slug; opt.textContent = t.name;
-    terrSel.appendChild(opt);
-  });
-}
-window.onModalRegStateChange = onModalRegStateChange;
-
-async function doModalRegister(){
-  const username=document.getElementById('mRegUser').value.trim();
-  const email=document.getElementById('mRegEmail').value.trim();
-  const pwd=document.getElementById('mRegPwd').value;
-  const firstName=document.getElementById('mRegFirst').value.trim();
-  const lastName=document.getElementById('mRegLast').value.trim();
-  const preferredState=document.getElementById('mRegState').value;
-  const preferredTerritory=document.getElementById('mRegTerritory').value;
-  const msg=document.getElementById('mRegMsg');msg.textContent='';
-  if(!preferredState){msg.textContent='Please select your state.';msg.className='gate-msg err';return;}
-  if(!preferredTerritory){msg.textContent='Please select your area/territory.';msg.className='gate-msg err';return;}
-  // Checkout registration is always Customer — dealers must apply via the signup page
-  const data=await apiFetch('/auth/register',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({username,email,password:pwd,firstName,lastName,role:'Customer',preferredState,preferredTerritory})});
-  if(data.success&&data.token){
-    token=data.token;localStorage.setItem('vp_token',token);
-    await mergeCart();
-    closeLoginModal();
-    await loadCart();
-    await loadOutlets();
-    placeOrder();
-  }else{msg.textContent=data.message||'Registration failed';msg.className='gate-msg err';}
 }
 
 // ── OUTLET PICKER ─────────────────────────────────────────────────────────────
