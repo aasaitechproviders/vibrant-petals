@@ -854,8 +854,7 @@ function checkAuth() {
     document.getElementById('adminApp').style.display = 'flex';
     loadAdminUser();
   } else {
-    document.getElementById('adminLoginScreen').style.display = 'flex';
-    document.getElementById('adminApp').style.display = 'none';
+    location.href = 'index.html';
   }
 }
 
@@ -1401,7 +1400,7 @@ function today() {
   return new Date().toISOString().slice(0,10).replace(/-/g,'');
 }
 
-checkAuth(); }
+checkAuth();
 document.getElementById('adminPwd')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
 
 // ── PANEL NAVIGATION ──────────────────────────────────────────────────────────
