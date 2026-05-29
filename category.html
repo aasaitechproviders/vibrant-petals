@@ -100,7 +100,7 @@
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
     footer{background:var(--cream);border-top:1px solid #e8e0d2;padding:60px 32px 0;}
-    .footer-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:60px;padding-bottom:50px;}
+    .footer-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:60px;padding-bottom:50px;}
     .footer-col-title{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px;}
     .footer-links{display:flex;flex-direction:column;gap:10px;}
     .footer-links a{font-size:14px;color:var(--mid);transition:color .2s;}
@@ -316,14 +316,29 @@
       <div style="margin-top:4px;padding-left:26px;font-size:13px;color:var(--mid);line-height:1.7;">1/20 Lonhro Blvd,<br>Cranbourne West,<br>Vic 3977</div>
     </div>
     <div>
-      <h4 class="footer-col-title">Help</h4>
-      <div class="footer-links"><a href="#">About Us</a><a href="#">Terms of Service</a><a href="#">Privacy Policy</a><a href="#">FAQs</a></div>
+      <h4 class="footer-col-title">Information</h4>
+      <div class="footer-links">
+        <a href="about.html">About Us</a>
+        <a href="festival.html">Festival Guide</a>
+        <a href="wholesale.html">Wholesale Orders</a>
+        <a href="faq.html">FAQs</a>
+      </div>
+    </div>
+    <div>
+      <h4 class="footer-col-title">Policies</h4>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms &amp; Conditions</a>
+        <a href="refund.html">Refund Policy</a>
+        <a href="delivery.html">Delivery Policy</a>
+      </div>
     </div>
     <div>
       <h4 class="footer-col-title">Newsletter</h4>
       <p class="newsletter-desc">Sign up for our newsletter to hear about our Deals of the Week, special sales and more.</p>
       <input type="email" class="newsletter-input" id="nlEmail" placeholder="Enter here..."/>
       <button class="btn-subscribe" id="nlSubmit">Subscribe</button>
+      <div id="nlMsg" style="font-size:13px;margin-top:10px;"></div>
     </div>
   </div>
   <div class="footer-bottom">Copyright © Nivas Vibrant Petals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></div>
@@ -604,9 +619,11 @@ document.getElementById('searchInput').addEventListener('input',function(){
 // ── NEWSLETTER ────────────────────────────────────────────────────────────────
 document.getElementById('nlSubmit').onclick=async()=>{
   const email=document.getElementById('nlEmail').value.trim();
-  if(!email)return;
+  const msg=document.getElementById('nlMsg');
+  if(!email||!email.includes('@')){msg.textContent='Please enter a valid email.';msg.style.color='#c0392b';return;}
   const data=await apiFetch('/newsletter/subscribe',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email})}).catch(()=>({success:false}));
-  showToast(data.message||(data.success?'Subscribed!':'Error'),data.success?'success':'error');
+  msg.textContent=data.message||(data.success?'Subscribed! 🌸':'Error. Please try again.');
+  msg.style.color=data.success?'#27ae60':'#c0392b';
   if(data.success)document.getElementById('nlEmail').value='';
 };
 
