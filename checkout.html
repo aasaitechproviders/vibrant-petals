@@ -17,6 +17,42 @@
     nav ul{display:flex;align-items:center;gap:36px;}
     nav ul li a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--dark);transition:color .2s;}
     nav ul li a:hover{color:var(--gold);}
+    .dropdown { position: relative; }
+    .dropdown-menu {
+      position: absolute; top: 100%; left: 50%;
+      padding-top: 18px;
+      transform: translateX(-50%);
+      background: transparent; border: none;
+      min-width: 200px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s, transform .2s;
+      transform: translateX(-50%) translateY(-6px);
+    }
+    .dropdown-menu::before {
+      content: ''; display: block;
+      background: #fff; border: 1px solid #e8e0d2;
+      box-shadow: 0 8px 30px rgba(0,0,0,.08);
+      position: absolute; top: 18px; left: 0; right: 0; bottom: 0;
+      z-index: -1;
+    }
+    .dropdown:hover .dropdown-menu { opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(0); }
+    .dropdown-menu a { display: block; padding: 12px 20px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; border-bottom: 1px solid #f0ebe0; color: var(--dark); background: #fff; transition: background .15s, color .15s; }
+    .dropdown-menu a:last-child { border-bottom: none; }
+    .dropdown-menu a:hover { background: var(--cream2); color: var(--gold); }
+    .dropdown-arrow { font-size: 10px; margin-left: 4px; }
+    .nav-icons { display: flex; align-items: center; gap: 20px; }
+    .nav-icon-btn { position: relative; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--dark); transition: color .2s; }
+    .nav-icon-btn:hover { color: var(--gold); }
+    .nav-icon-btn svg { width: 22px; height: 22px; stroke-width: 1.6; }
+    .acct-icon-wrap { position: relative; }
+    .acct-icon-wrap .acct-drop { display: none; position: absolute; top: 100%; right: 0; padding-top: 10px; background: #fff; border: 1px solid #e8e0d2; box-shadow: 0 8px 30px rgba(0,0,0,.1); min-width: 160px; z-index: 9999; }
+    .acct-icon-wrap:hover .acct-drop { display: block; }
+    .acct-drop a, .acct-drop button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 16px; border: none; background: none; font-family: inherit; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; text-decoration: none; color: var(--dark); cursor: pointer; text-align: left; border-bottom: 1px solid #f0ebe0; transition: background .15s; }
+    .acct-drop a:last-child, .acct-drop button:last-child { border-bottom: none; }
+    .acct-drop a:hover, .acct-drop button:hover { background: var(--cream2); color: var(--gold); }
+    .acct-drop .drop-logout { color: #c0392b; }
+    .acct-drop .drop-logout:hover { background: #fce4e4; color: #c0392b; }
+    .badge { position: absolute; top: -4px; right: -4px; background: var(--gold); color: #fff; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
     .nav-icons{display:flex;align-items:center;gap:20px;}
     .nav-icon-btn{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--dark);transition:color .2s;}
     .nav-icon-btn:hover{color:var(--gold);}
