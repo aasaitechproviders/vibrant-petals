@@ -458,9 +458,9 @@
                 <option value="assigned">Assigned</option>
               </select>
               <button class="btn-add" onclick="openTerritoryModal()">+ Add Territory</button>
-              
             </div>
           </div>
+          <div id="terrSummary"></div>
           <div id="territoriesTableWrap">
             <div class="skeleton" style="height:200px;margin:20px;border-radius:4px;"></div>
           </div>
@@ -481,6 +481,7 @@
               </select>
             </div>
           </div>
+          <div id="dealerSummary"></div>
           <div id="dealersTableWrap">
             <div class="skeleton" style="height:200px;margin:20px;border-radius:4px;"></div>
           </div>
@@ -502,6 +503,7 @@
               </select>
             </div>
           </div>
+          <div id="retailSummary"></div>
           <div id="retailUsersTableWrap">
             <div class="skeleton" style="height:160px;margin:20px;border-radius:4px;"></div>
           </div>
@@ -1175,10 +1177,23 @@ window.togglePickup = togglePickup;
 async function loadRetailUsers() {
   const statusFilter = document.getElementById('retailUserStatusFilter')?.value || '';
   let qs = statusFilter ? `approvalStatus=${encodeURIComponent(statusFilter)}&` : '';
-  const data = await apiFetch('/admin/retail-users?' + qs + 'limit=100', { headers: apiHeaders() });
+  const [data, totalData] = await Promise.all([
+    apiFetch('/admin/retail-users?' + qs + 'limit=100', { headers: apiHeaders() }),
+    apiFetch('/admin/retail-users?limit=500', { headers: apiHeaders() }),
+  ]);
   const wrap = document.getElementById('retailUsersTableWrap');
   if (!wrap) return;
   const list = data.users || [];
+
+  // Render summary from unfiltered totals
+  const allRetail = totalData.users || [];
+  renderSummaryStats('retailSummary', [
+    { label: 'Total Retail',    value: allRetail.length,                                                           color: '#1A1A1A' },
+    { label: 'Active',          value: allRetail.filter(r => r.approvalStatus === 'approved').length,              color: '#27ae60' },
+    { label: 'Pending',         value: allRetail.filter(r => r.approvalStatus === 'pending').length,               color: '#e67e22' },
+    { label: 'Rejected',        value: allRetail.filter(r => r.approvalStatus === 'rejected').length,              color: '#c0392b' },
+    { label: 'Pickup Enabled',  value: allRetail.filter(r => r.outlet?.pickupEnabled).length,                      color: '#9B8B5A' },
+  ]);
   if (!list.length) {
     wrap.innerHTML = '<p style="padding:20px;color:var(--mid);font-size:14px;">No retail outlet accounts found.</p>';
     return;
@@ -1234,13 +1249,24 @@ async function loadDealers() {
   const statusFilter = document.getElementById('dealerStatusFilter')?.value || '';
   let qs = 'role=Dealer&limit=100&';
   if (statusFilter) qs += `approvalStatus=${encodeURIComponent(statusFilter)}&`;
-  const [data, territoriesData] = await Promise.all([
+  const [data, territoriesData, totalData] = await Promise.all([
     apiFetch('/admin/users?' + qs, { headers: apiHeaders() }),
     apiFetch('/admin/territories', { headers: apiHeaders() }),
+    apiFetch('/admin/users?role=Dealer&limit=500', { headers: apiHeaders() }),
   ]);
   const wrap = document.getElementById('dealersTableWrap');
   if (!wrap) return;
   const list = data.users || [];
+
+  // Render summary from unfiltered totals
+  const allDealers = totalData.users || [];
+  renderSummaryStats('dealerSummary', [
+    { label: 'Total Dealers', value: allDealers.length,                                                           color: '#1A1A1A' },
+    { label: 'Active',        value: allDealers.filter(d => d.approvalStatus === 'approved').length,              color: '#27ae60' },
+    { label: 'Pending',       value: allDealers.filter(d => d.approvalStatus === 'pending').length,               color: '#e67e22' },
+    { label: 'Rejected',      value: allDealers.filter(d => d.approvalStatus === 'rejected').length,              color: '#c0392b' },
+    { label: 'With Territory',value: allDealers.filter(d => (d.assignedTerritories||[]).length > 0).length,       color: '#9B8B5A' },
+  ]);
   if (!list.length) { wrap.innerHTML = '<p style="padding:20px;color:var(--mid);font-size:14px;">No dealers found.</p>'; return; }
 
   // Build territory lookup by dealerId
@@ -1409,19 +1435,45 @@ const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts
 //  TERRITORIES
 // ══════════════════════════════════════════════════════════════════════════════
 
+// ── SUMMARY STATS HELPER ─────────────────────────────────────────────────────
+function renderSummaryStats(containerId, stats) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = `
+    <div style="display:flex;gap:12px;padding:16px 20px;border-bottom:1px solid #f0ebe0;flex-wrap:wrap;background:#faf7f2;">
+      ${stats.map(s => `
+        <div style="background:#fff;border:1px solid #e8e0d2;border-radius:8px;padding:12px 22px;text-align:center;min-width:90px;">
+          <div style="font-size:22px;font-weight:700;color:${s.color||'#1A1A1A'};">${s.value}</div>
+          <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">${s.label}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
 async function loadTerritories() {
   const state  = document.getElementById('terrStateFilter')?.value  || '';
   const status = document.getElementById('terrStatusFilter')?.value || '';
   let qs = '';
   if (state)  qs += `state=${encodeURIComponent(state)}&`;
   if (status) qs += `status=${encodeURIComponent(status)}&`;
-  const [data, usersData] = await Promise.all([
+  const [data, usersData, totalData] = await Promise.all([
     apiFetch('/admin/territories?' + qs, { headers: apiHeaders() }),
     apiFetch('/admin/users?role=Dealer&limit=200', { headers: apiHeaders() }),
+    apiFetch('/admin/territories', { headers: apiHeaders() }),
   ]);
   const wrap = document.getElementById('territoriesTableWrap');
   if (!data.success || !data.territories) { wrap.innerHTML = `<p style="padding:20px;color:#c0392b;">${data.message||'Failed to load territories'}</p>`; return; }
   const list = data.territories;
+
+  // Render summary from total (unfiltered) data
+  const all = totalData.territories || [];
+  const stateFilter = state;
+  const filtered = stateFilter ? all.filter(t => t.state === stateFilter) : all;
+  renderSummaryStats('terrSummary', [
+    { label: stateFilter ? `Total (${stateFilter})` : 'Total', value: filtered.length, color: '#1A1A1A' },
+    { label: 'Open',     value: filtered.filter(t => t.status === 'open').length,     color: '#27ae60' },
+    { label: 'Pending',  value: filtered.filter(t => t.status === 'pending').length,  color: '#e67e22' },
+    { label: 'Assigned', value: filtered.filter(t => t.status === 'assigned').length, color: '#9B8B5A' },
+  ]);
   if (!list.length) { wrap.innerHTML = '<p style="padding:20px;color:var(--mid);">No territories found for these filters.</p>'; return; }
 
   // Build dealer lookup map id→name
