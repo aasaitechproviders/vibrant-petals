@@ -613,7 +613,6 @@
           <label class="form-label">Territory *</label>
           <select class="form-select" id="oTerritory" disabled><option value="">Select state first…</option></select>
         </div>
-        <div class="form-group"><label class="form-label">Suburb *</label><input class="form-input" id="oSuburb" placeholder="Tarneit"/></div>
       </div>
       <div class="form-group"><label class="form-label">Street Address *</label><input class="form-input" id="oAddress" placeholder="Shop 4, Tarneit Central, 533 Derrimut Rd"/></div>
       <div class="form-row">
@@ -1619,7 +1618,6 @@ function openOutletModal(outlet) {
   editingOutletId = outlet ? outlet._id : null;
   document.getElementById('outletModalTitle').textContent = outlet ? 'Edit Outlet' : 'Add Retail Outlet';
   document.getElementById('oName').value    = outlet?.name    || '';
-  document.getElementById('oSuburb').value  = outlet?.suburb  || '';
   document.getElementById('oAddress').value = outlet?.address || '';
   document.getElementById('oPhone').value   = outlet?.phone   || '';
   document.getElementById('oHours').value   = outlet?.hours   || '';
@@ -1655,13 +1653,14 @@ window.editOutlet = editOutlet;
 async function saveOutlet() {
   const name          = document.getElementById('oName').value.trim();
   const state         = document.getElementById('oState').value;
-  const territorySlug = document.getElementById('oTerritory').value;
-  const suburb        = document.getElementById('oSuburb').value.trim();
+  const terrSel       = document.getElementById('oTerritory');
+  const territorySlug = terrSel.value;
+  const suburb        = terrSel.options[terrSel.selectedIndex]?.text || territorySlug;
   const address       = document.getElementById('oAddress').value.trim();
   const phone         = document.getElementById('oPhone').value.trim();
   const hours         = document.getElementById('oHours').value.trim();
   const isActive      = document.getElementById('oActive').value !== 'false';
-  if (!name || !state || !territorySlug || !suburb || !address) { showToast('Name, state, territory, suburb and address are required', 'error'); return; }
+  if (!name || !state || !territorySlug || !address) { showToast('Name, state, territory and address are required', 'error'); return; }
   const body = { name, state, territorySlug, suburb, address, phone, hours, isActive };
   const url  = editingOutletId ? `/admin/retail-outlets/${editingOutletId}` : '/admin/retail-outlets';
   const meth = editingOutletId ? 'PUT' : 'POST';
