@@ -403,7 +403,7 @@
       <h2 class="success-title" id="successTitle">Account Created!</h2>
       <p class="success-sub" id="successSub"></p>
       <p class="success-sub dealer" id="successDealerNote" style="display:none;"></p>
-      <a href="index.html" class="btn-go-shop">Start Shopping</a>
+      <a id="successBtn" href="index.html" class="btn-go-shop">Start Shopping</a>
     </div>
 
     <!-- Main form (visible by default) -->
@@ -1197,22 +1197,27 @@ function showSuccess(type, name, storeName) {
     document.getElementById('successIcon').textContent = '🌸';
     document.getElementById('successTitle').textContent = `Welcome, ${name}!`;
     document.getElementById('successSub').textContent = 'Your account has been created. You can now browse our full collection and place orders for pickup from your nearest outlet.';
+    document.getElementById('successBtn').textContent = 'Start Shopping';
+    document.getElementById('successBtn').href = 'index.html';
+
   } else if (type === 'outlet') {
     document.getElementById('successIcon').textContent = '🏪';
-    document.getElementById('successTitle').textContent = `Outlet Registered, ${name}!`;
-    document.getElementById('successSub').textContent = `Thank you for registering ${storeName || 'your store'} as a VibrantPetals pickup outlet.`;
-    const note = document.getElementById('successDealerNote');
-    note.style.display = '';
-    note.textContent = pickupEnabled
-      ? '✅ Our team will review your application. Once approved, your store will appear as a pickup location for customers in your territory.'
-      : '✅ Our team will review your application and activate your retail account within a few business days. You can request pickup activation later from your account dashboard.';
+    document.getElementById('successTitle').textContent = `Outlet Requested, ${storeName || name}!`;
+    document.getElementById('successSub').textContent = 'Thank you for registering with Nivas Vibrant Petals. Your request is in progress and we will get back to you as soon as possible.';
+    document.getElementById('successDealerNote').style.display = '';
+    document.getElementById('successDealerNote').textContent = '📋 Our team will review your application and activate your retail account within a few business days. You will be notified once your outlet is live.';
+    document.getElementById('successBtn').textContent = 'Back to Home';
+    document.getElementById('successBtn').href = 'index.html';
+
   } else {
+    // dealer
     document.getElementById('successIcon').textContent = '⭐';
     document.getElementById('successTitle').textContent = `Application Received, ${name}!`;
-    document.getElementById('successSub').textContent = 'Thank you for applying to become a Vibrant Petals Dealer.';
-    const note = document.getElementById('successDealerNote');
-    note.style.display = '';
-    note.textContent = '🌺 Our team will review your application and contact you via WhatsApp within 14 days. Your requested territory has been reserved while under review. Your account will be activated after admin approval.';
+    document.getElementById('successSub').textContent = 'Thank you for registering with Nivas Vibrant Petals. Your request is in progress and we will get back to you as soon as possible.';
+    document.getElementById('successDealerNote').style.display = '';
+    document.getElementById('successDealerNote').textContent = '📋 Our team will review your application and contact you within 14 days. Your account will be activated after admin approval.';
+    document.getElementById('successBtn').textContent = 'Back to Home';
+    document.getElementById('successBtn').href = 'index.html';
   }
 }
 
