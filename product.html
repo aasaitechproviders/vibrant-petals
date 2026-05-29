@@ -117,7 +117,7 @@
 
     /* FOOTER */
     footer{background:var(--cream);border-top:1px solid #e8e0d2;padding:60px 32px 0;}
-    .footer-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:60px;padding-bottom:50px;}
+    .footer-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:60px;padding-bottom:50px;}
     .footer-col-title{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px;}
     .footer-links{display:flex;flex-direction:column;gap:10px;}
     .footer-links a{font-size:14px;color:var(--mid);transition:color .2s;}
@@ -332,18 +332,36 @@
       <h4 class="footer-col-title">Get in touch</h4>
       <div class="footer-contact"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>nivafoodsintl@gmail.com</div>
       <div class="footer-contact" style="margin-top:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.22 2 2 0 012.22 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>+61 416 424 745</div>
-      <div class="footer-contact" style="margin-top:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>1/20 Lonhro Blvd, Cranbourne West VIC 3977</div>
-      <div class="footer-contact" style="margin-top:6px;padding-left:26px;font-size:12px;">Niva Foods Aus Pty Ltd</div>
+      <div class="footer-contact" style="margin-top:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Niva Foods Aus Pty Ltd</div>
+      <div style="margin-top:4px;padding-left:26px;font-size:13px;color:var(--mid);line-height:1.7;">1/20 Lonhro Blvd,<br>Cranbourne West,<br>Vic 3977</div>
     </div>
-    <div><h4 class="footer-col-title">Help</h4><div class="footer-links"><a href="#">About Us</a><a href="#">Terms of Service</a><a href="#">Privacy Policy</a><a href="#">FAQs</a></div></div>
+    <div>
+      <h4 class="footer-col-title">Information</h4>
+      <div class="footer-links">
+        <a href="about.html">About Us</a>
+        <a href="festival.html">Festival Guide</a>
+        <a href="wholesale.html">Wholesale Orders</a>
+        <a href="faq.html">FAQs</a>
+      </div>
+    </div>
+    <div>
+      <h4 class="footer-col-title">Policies</h4>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms &amp; Conditions</a>
+        <a href="refund.html">Refund Policy</a>
+        <a href="delivery.html">Delivery Policy</a>
+      </div>
+    </div>
     <div>
       <h4 class="footer-col-title">Newsletter</h4>
       <p class="newsletter-desc">Sign up for our newsletter to hear about our Deals of the Week, special sales and more.</p>
       <input type="email" class="newsletter-input" id="nlEmail" placeholder="Enter here..."/>
       <button class="btn-subscribe" id="nlSubmit">Subscribe</button>
+      <div id="nlMsg" style="font-size:13px;margin-top:10px;"></div>
     </div>
   </div>
-  <div class="footer-bottom">Copyright © Nivas Vibrant Petals. All Rights Reserved.</div>
+  <div class="footer-bottom">Copyright © Nivas Vibrant Petals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></div>
 </footer>
 
 <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
@@ -603,9 +621,12 @@ function buildAcctDrop(){
 function doHeaderLogout(){localStorage.removeItem('vp_token');location.reload();}
 buildAcctDrop();
 document.getElementById('nlSubmit').onclick=async()=>{
-  const email=document.getElementById('nlEmail').value.trim();if(!email)return;
+  const email=document.getElementById('nlEmail').value.trim();
+  const msg=document.getElementById('nlMsg');
+  if(!email||!email.includes('@')){msg.textContent='Please enter a valid email.';msg.style.color='#c0392b';return;}
   const data=await apiFetch('/newsletter/subscribe',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email})}).catch(()=>({success:false}));
-  showToast(data.message||(data.success?'Subscribed!':'Error'),data.success?'success':'error');
+  msg.textContent=data.message||(data.success?'Subscribed! 🌸':'Error. Please try again.');
+  msg.style.color=data.success?'#27ae60':'#c0392b';
   if(data.success)document.getElementById('nlEmail').value='';
 };
 
