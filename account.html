@@ -1371,6 +1371,7 @@ async function doLogin(){
   const data=await apiFetch('/auth/login',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email,password:pwd})});
   if(data.success){
     token=data.token;localStorage.setItem('vp_token',token);
+    if(data.user?.role==='Administrator'){location.href='admin.html';return;}
     // Merge guest cart before loading dashboard
     await mergeCart();
     init();
