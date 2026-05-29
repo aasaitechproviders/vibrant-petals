@@ -222,12 +222,6 @@
       <button class="tab-btn" onclick="switchTab('register',this)">Create Account</button>
     </div>
     <div class="tab-panel active" id="tab-login">
-      <div style="display:flex;gap:8px;margin-bottom:14px;">
-        <button class="login-type-btn active" id="ltCustomer" onclick="setLoginType('customer',this)" style="flex:1;padding:10px 8px;border:2px solid var(--gold);background:#fff;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;">🛒 Customer</button>
-        <button class="login-type-btn" id="ltDealer" onclick="setLoginType('dealer',this)" style="flex:1;padding:10px 8px;border:2px solid #e8e0d2;background:#fff;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;">⭐ Dealer</button>
-        <button class="login-type-btn" id="ltAdmin" onclick="setLoginType('admin',this)" style="flex:1;padding:10px 8px;border:2px solid #e8e0d2;background:#fff;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;">🔑 Admin</button>
-      </div>
-      <div id="loginTypeHint" style="font-size:12px;color:var(--mid);margin-bottom:10px;padding:8px 12px;background:var(--cream2);border-radius:4px;">Customer account — shop and manage your orders.</div>
       <input type="email" class="gate-input" id="gLoginEmail" placeholder="Email address *"/>
       <input type="password" class="gate-input" id="gLoginPwd" placeholder="Password *"/>
       <button class="btn-gate" onclick="doLogin()">Sign In</button>
@@ -612,19 +606,6 @@ async function apiFetch(p,o={}){
 function showToast(m,t=''){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+(t||'');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
 
 // ── TAB SWITCH (login gate) ───────────────────────────────────────────────────
-function setLoginType(type, btn) {
-  document.querySelectorAll('.login-type-btn').forEach(b => { b.style.borderColor='#e8e0d2'; b.style.background='#fff'; });
-  btn.style.borderColor = 'var(--gold)';
-  btn.style.background = 'rgba(155,139,90,.06)';
-  const hints = {
-    customer: 'Customer account — shop, track orders and manage your wishlist.',
-    dealer: 'Dealer account — wholesale pricing and territory management.',
-    admin: 'Administrator account — full platform access. Contact your system admin for credentials.'
-  };
-  document.getElementById('loginTypeHint').textContent = hints[type] || '';
-}
-window.setLoginType = setLoginType;
-
 function switchTab(name,btn){
   document.querySelectorAll('.tabs .tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
