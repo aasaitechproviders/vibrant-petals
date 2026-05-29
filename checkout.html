@@ -178,33 +178,39 @@
       </div>
 
       <!-- PICKUP OUTLET SELECTOR -->
-      <div class="form-section">
-        <div class="form-section-title">🏪 Select Pickup Outlet</div>
-        <p style="font-size:14px;color:var(--mid);margin-bottom:20px;line-height:1.6;">All orders are <strong>pickup only</strong>. Choose a retail outlet convenient for you. Your preferred territory's outlets are shown first.</p>
+      <div class="form-section" id="outletPickerSection">
+        <!-- Retail users see their own store auto-selected here -->
+        <div id="retailOutletBanner" style="display:none;"></div>
 
-        <!-- State filter -->
-        <div class="form-row" style="margin-bottom:16px;">
-          <div class="form-group">
-            <label class="form-label">Filter by State</label>
-            <select class="form-select" id="outletStateFilter" onchange="loadOutlets()">
-              <option value="">All States</option>
-              <option value="Melbourne">Melbourne</option>
-              <option value="Sydney">Sydney</option>
-            </select>
+        <div id="outletPickerUI">
+          <div class="form-section-title">🏪 Select Pickup Outlet</div>
+          <p style="font-size:14px;color:var(--mid);margin-bottom:20px;line-height:1.6;">All orders are <strong>pickup only</strong>. Choose a retail outlet convenient for you. Your preferred territory's outlets are shown first.</p>
+
+          <!-- State filter -->
+          <div class="form-row" style="margin-bottom:16px;">
+            <div class="form-group">
+              <label class="form-label">Filter by State</label>
+              <select class="form-select" id="outletStateFilter" onchange="loadOutlets()">
+                <option value="">All States</option>
+                <option value="Melbourne">Melbourne</option>
+                <option value="Sydney">Sydney</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Filter by Territory</label>
+              <select class="form-select" id="outletTerritoryFilter" onchange="loadOutlets()">
+                <option value="">All Territories</option>
+              </select>
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Filter by Territory</label>
-            <select class="form-select" id="outletTerritoryFilter" onchange="loadOutlets()">
-              <option value="">All Territories</option>
-            </select>
+
+          <!-- Outlet cards -->
+          <div id="outletList" style="display:flex;flex-direction:column;gap:12px;">
+            <div class="skeleton" style="height:80px;border-radius:4px;"></div>
+            <div class="skeleton" style="height:80px;border-radius:4px;"></div>
           </div>
         </div>
 
-        <!-- Outlet cards -->
-        <div id="outletList" style="display:flex;flex-direction:column;gap:12px;">
-          <div class="skeleton" style="height:80px;border-radius:4px;"></div>
-          <div class="skeleton" style="height:80px;border-radius:4px;"></div>
-        </div>
         <input type="hidden" id="selectedOutletId"/>
         <div id="outletMsg" style="font-size:13px;margin-top:8px;color:#c0392b;display:none;"></div>
       </div>
@@ -490,36 +496,143 @@ function getCheckoutRole(){
 }
 
 async function init(){
-  // Hide coupon section for Dealer and Retail — backend blocks it but hide UI too
   const _role = getCheckoutRole();
+
+  // Hide coupon section for Dealer and Retail
   if(_role === 'Dealer' || _role === 'Retail'){
     const cs = document.getElementById('couponSection');
     if(cs) cs.style.display = 'none';
   }
+
   await loadCart();
+
   if(token){
-    // Load user preferences first, then filter outlets accordingly
     const me = await apiFetch('/auth/me',{headers:apiHeaders()}).catch(()=>null);
-    if(me&&me.user){
-      const u = me.user;
-      if(u.preferredState){
-        document.getElementById('outletStateFilter').value = u.preferredState;
-        // Pre-load territories for state dropdown
-        const td = await apiFetch('/territories?state=' + encodeURIComponent(u.preferredState)).catch(()=>({territories:[]}));
-        const terrSel = document.getElementById('outletTerritoryFilter');
-        terrSel.innerHTML = '<option value="">All Territories</option>';
-        (td.territories||[]).forEach(t=>{
-          const opt = document.createElement('option');
-          opt.value = t.slug; opt.textContent = t.name;
-          terrSel.appendChild(opt);
-        });
-        if(u.preferredTerritory){
-          terrSel.value = u.preferredTerritory;
-        }
+    if(!me?.user){ await loadOutlets(); return; }
+    const u = me.user;
+
+    // ── RETAIL: show only their own outlets, filtered by preferred location ──
+    if(_role === 'Retail'){
+      const myData = await apiFetch('/retail/outlets',{headers:apiHeaders()}).catch(()=>({outlets:[]}));
+      const myActive = (myData.outlets||[]).filter(o=>o.isActive && o.pickupEnabled);
+
+      if(myActive.length === 0){
+        // No active outlets yet — fall through to normal public picker
+        await loadOutlets();
+        return;
       }
+
+      // Filter by preferred state/territory if set
+      let preferred = myActive;
+      if(u.preferredState){
+        const byState = myActive.filter(o=>o.state === u.preferredState);
+        if(byState.length) preferred = byState;
+      }
+      if(u.preferredTerritory){
+        const byTerritory = preferred.filter(o=>o.territorySlug === u.preferredTerritory);
+        if(byTerritory.length) preferred = byTerritory;
+      }
+
+      if(preferred.length === 1){
+        // Single match — auto-select and show locked banner
+        autoSelectOutlet(preferred[0], 'Pickup at Your Store', 'As a retail outlet owner, orders are assigned to your selected store.');
+      } else {
+        // Multiple outlets — show picker limited to their own outlets
+        showMyOutletsPicker(preferred, myActive, 'Your Registered Outlets', 'Choose which of your stores to use for pickup.');
+      }
+      return;
+    }
+
+    // ── DEALER: show only their own registered outlets, filtered by preferred location ──
+    if(_role === 'Dealer'){
+      const myData = await apiFetch('/dealer/outlets',{headers:apiHeaders()}).catch(()=>({outlets:[]}));
+      const myActive = (myData.outlets||[]).filter(o=>o.isActive && o.pickupEnabled);
+
+      if(myActive.length === 0){
+        // No active outlets — fall through to normal public picker
+        await loadOutlets();
+        return;
+      }
+
+      // Filter by preferred state/territory if set
+      let preferred = myActive;
+      if(u.preferredState){
+        const byState = myActive.filter(o=>o.state === u.preferredState);
+        if(byState.length) preferred = byState;
+      }
+      if(u.preferredTerritory){
+        const byTerritory = preferred.filter(o=>o.territorySlug === u.preferredTerritory);
+        if(byTerritory.length) preferred = byTerritory;
+      }
+
+      if(preferred.length === 1){
+        autoSelectOutlet(preferred[0], 'Pickup at Your Dealer Outlet', 'Orders are assigned to your selected dealer outlet.');
+      } else {
+        showMyOutletsPicker(preferred, myActive, 'Your Dealer Outlets', 'Choose which of your registered outlets to use for pickup.');
+      }
+      return;
+    }
+
+    // ── CUSTOMER: filter public outlets by preferred state & territory ────────
+    if(u.preferredState){
+      document.getElementById('outletStateFilter').value = u.preferredState;
+      const td = await apiFetch('/territories?state=' + encodeURIComponent(u.preferredState)).catch(()=>({territories:[]}));
+      const terrSel = document.getElementById('outletTerritoryFilter');
+      terrSel.innerHTML = '<option value="">All Territories</option>';
+      (td.territories||[]).forEach(t=>{
+        const opt = document.createElement('option');
+        opt.value = t.slug; opt.textContent = t.name;
+        terrSel.appendChild(opt);
+      });
+      if(u.preferredTerritory) terrSel.value = u.preferredTerritory;
     }
   }
+
   await loadOutlets();
+}
+
+// ── AUTO-SELECT a single outlet and show locked confirmation banner ───────────
+function autoSelectOutlet(o, title, note){
+  document.getElementById('selectedOutletId').value = o._id;
+  document.getElementById('outletPickerUI').style.display = 'none';
+  const banner = document.getElementById('retailOutletBanner');
+  banner.style.display = 'block';
+  banner.innerHTML = `
+    <div style="background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border:1px solid #c3e6cb;border-radius:8px;padding:20px 24px;display:flex;align-items:center;gap:16px;">
+      <div style="font-size:36px;">🏪</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:15px;color:#155724;margin-bottom:4px;">${title}</div>
+        <div style="font-size:14px;color:#155724;">${o.name}</div>
+        <div style="font-size:13px;color:var(--mid);margin-top:4px;">${o.address}, ${o.suburb} · ${o.state}</div>
+        ${o.phone ? `<div style="font-size:12px;color:var(--mid);margin-top:2px;">📞 ${o.phone}</div>` : ''}
+        ${o.hours ? `<div style="font-size:12px;color:var(--gold);margin-top:2px;">⏰ ${o.hours}</div>` : ''}
+      </div>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style="font-size:12px;color:var(--mid);margin-top:10px;padding:0 4px;">${note}</div>`;
+}
+
+// ── SHOW PICKER limited to dealer/retail's own outlets ────────────────────────
+function showMyOutletsPicker(filtered, allMine, title, subtitle){
+  // Hide the public state/territory filters
+  document.getElementById('outletPickerUI').querySelector('.form-row').style.display = 'none';
+  // Update title and subtitle
+  document.querySelector('#outletPickerUI .form-section-title').textContent = '🏪 ' + title;
+  document.querySelector('#outletPickerUI p').textContent = subtitle;
+  // Populate with their own filtered outlets only
+  allOutlets = filtered;
+  renderOutlets(filtered);
+  // Show "show all my outlets" link if filtering reduced the list
+  if(filtered.length < allMine.length){
+    const list = document.getElementById('outletList');
+    list.insertAdjacentHTML('afterend',
+      `<button onclick="allOutlets=allMineOutlets;renderOutlets(allMineOutlets);this.remove();"
+        style="margin-top:10px;padding:8px 18px;background:var(--gold);color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;cursor:pointer;">
+        Show All My Outlets (${allMine.length})
+      </button>`
+    );
+  }
+  window.allMineOutlets = allMine;
 }
 
 init();
