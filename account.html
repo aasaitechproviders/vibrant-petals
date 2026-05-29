@@ -1673,8 +1673,23 @@ async function loadMyStore() {
         <div class="form-group"><label class="form-label">Street Address</label><input type="text" class="form-input" id="myStoreAddress" value="${o.address||''}"/></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Territory / Suburb (read-only)</label><input type="text" class="form-input" value="${o.territorySlug||''}" readonly/></div>
-        <div class="form-group"><label class="form-label">State (read-only)</label><input type="text" class="form-input" value="${o.state||''}" readonly/></div>
+        <div class="form-group">
+          <label class="form-label">State</label>
+          <select class="form-select" id="myStoreState" data-original="${o.state||''}" onchange="onMyStoreStateChange()">
+            <option value="">Select state…</option>
+            <option value="Melbourne" ${o.state==='Melbourne'?'selected':''}>Melbourne</option>
+            <option value="Sydney" ${o.state==='Sydney'?'selected':''}>Sydney</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Territory / Suburb</label>
+          <select class="form-select" id="myStoreTerritory" data-original="${o.territorySlug||''}">
+            <option value="${o.territorySlug||''}">${o.territorySlug||'Select territory…'}</option>
+          </select>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--mid);padding:10px 14px;background:var(--cream2);border-radius:4px;margin-bottom:16px;">
+        ℹ️ Changing territory or state will create a <strong>new outlet request</strong> for admin review. Your current outlet stays active while the request is processed.
       </div>
       <div class="form-row full">
         <div class="form-group"><label class="form-label">Trading Hours</label><input type="text" class="form-input" id="myStoreHours" value="${o.hours||''}" placeholder="e.g. Mon–Sat 9am–6pm"/></div>
@@ -1689,30 +1704,106 @@ async function loadMyStore() {
       <p style="font-size:13px;color:var(--mid);margin-bottom:16px;">Customer orders assigned to your outlet or where customers chose your store as pickup.</p>
       <div id="myStoreOrdersContent"><div class="skeleton" style="height:80px;border-radius:4px;"></div></div>
     </div>`;
+  // Initialize territory dropdown with current state's options
+  if (o.state) initMyStoreTerritory(o.state, o.territorySlug);
   // Now that myStoreOrdersContent exists in the DOM, load orders
   await loadMyStoreOrders();
   // Load additional outlets below primary store
   loadRetailAdditionalOutlets();
 }
 
+// ── MY STORE — TERRITORY HELPERS ─────────────────────────────────────────────
+async function initMyStoreTerritory(state, currentSlug) {
+  if (!state) return;
+  if (!retailOutletTerritoriesData[state]?.length) {
+    const td = await apiFetch('/territories?state=' + encodeURIComponent(state));
+    retailOutletTerritoriesData[state] = td.territories || [];
+  }
+  const terrSel = document.getElementById('myStoreTerritory');
+  if (!terrSel) return;
+  terrSel.innerHTML = '<option value="">Select territory…</option>' +
+    retailOutletTerritoriesData[state].map(t =>
+      `<option value="${t.slug}" ${t.slug === currentSlug ? 'selected' : ''}>${t.name}</option>`
+    ).join('');
+}
+window.initMyStoreTerritory = initMyStoreTerritory;
+
+async function onMyStoreStateChange() {
+  const state   = document.getElementById('myStoreState')?.value;
+  const terrSel = document.getElementById('myStoreTerritory');
+  if (!terrSel) return;
+  terrSel.innerHTML = '<option value="">Loading…</option>';
+  if (!state) { terrSel.innerHTML = '<option value="">Select state first…</option>'; return; }
+  if (!retailOutletTerritoriesData[state]?.length) {
+    const td = await apiFetch('/territories?state=' + encodeURIComponent(state));
+    retailOutletTerritoriesData[state] = td.territories || [];
+  }
+  terrSel.innerHTML = '<option value="">Select territory…</option>' +
+    retailOutletTerritoriesData[state].map(t =>
+      `<option value="${t.slug}">${t.name}</option>`
+    ).join('');
+}
+window.onMyStoreStateChange = onMyStoreStateChange;
+
 async function saveMyStore() {
-  const name    = document.getElementById('myStoreName')?.value.trim();
-  const phone   = document.getElementById('myStorePhone')?.value.trim();
-  const address = document.getElementById('myStoreAddress')?.value.trim();
-  const hours   = document.getElementById('myStoreHours')?.value.trim();
-  const msg     = document.getElementById('myStoreMsg');
-  const data    = await apiFetch('/retail/my-outlet', {
+  const name        = document.getElementById('myStoreName')?.value.trim();
+  const phone       = document.getElementById('myStorePhone')?.value.trim();
+  const address     = document.getElementById('myStoreAddress')?.value.trim();
+  const hours       = document.getElementById('myStoreHours')?.value.trim();
+  const stateEl     = document.getElementById('myStoreState');
+  const terrEl      = document.getElementById('myStoreTerritory');
+  const newState    = stateEl?.value || '';
+  const newTerritory= terrEl?.value || '';
+  const origState   = stateEl?.dataset.original || '';
+  const origTerritory = terrEl?.dataset.original || '';
+  const msg         = document.getElementById('myStoreMsg');
+  msg.style.display = 'none';
+
+  const territoryChanged = (newState !== origState || newTerritory !== origTerritory) && newState && newTerritory;
+
+  // Always save name/phone/address/hours to existing outlet
+  const basicUpdate = await apiFetch('/retail/my-outlet', {
     method: 'PUT', headers: apiHeaders(),
     body: JSON.stringify({ name, phone, address, hours }),
   });
-  msg.style.display = 'block';
-  if (data.success) {
+  if (!basicUpdate.success) {
+    msg.className = 'form-msg err';
+    msg.textContent = basicUpdate.message || 'Update failed.';
+    msg.style.display = 'block';
+    return;
+  }
+
+  // If territory or state changed — create a new outlet request and deactivate the old one
+  if (territoryChanged) {
+    const suburb = terrEl.options[terrEl.selectedIndex]?.text || newTerritory;
+    const reqData = await apiFetch('/retail/outlets', {
+      method: 'POST', headers: apiHeaders(),
+      body: JSON.stringify({ name, phone, address, suburb, state: newState, territorySlug: newTerritory, hours }),
+    });
+    msg.style.display = 'block';
+    if (reqData.success) {
+      // Deactivate the old outlet now that a new request is in progress
+      await apiFetch('/retail/my-outlet', {
+        method: 'PUT', headers: apiHeaders(),
+        body: JSON.stringify({ deactivate: true }),
+      });
+      msg.className = 'form-msg ok';
+      msg.textContent = '✓ Territory change requested. Your old outlet has been deactivated — admin will review and activate the new one.';
+      showToast('Territory change requested', 'success');
+      // Update data-original so next save doesn't re-submit
+      stateEl.dataset.original = newState;
+      terrEl.dataset.original  = newTerritory;
+      // Reload store to reflect deactivated status + new outlet in additional list
+      setTimeout(() => loadMyStore(), 1800);
+    } else {
+      msg.className = 'form-msg err';
+      msg.textContent = '✓ Store details saved, but territory request failed: ' + (reqData.message || 'Unknown error');
+    }
+  } else {
     msg.className = 'form-msg ok';
     msg.textContent = '✓ Store details updated!';
+    msg.style.display = 'block';
     showToast('Store updated', 'success');
-  } else {
-    msg.className = 'form-msg err';
-    msg.textContent = data.message || 'Update failed';
   }
 }
 
