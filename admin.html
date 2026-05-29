@@ -995,12 +995,23 @@ checkAuth();
 //  APPROVALS – 4 sections: dealer signups, retail signups, territory requests, outlet activations
 // ══════════════════════════════════════════════════════════════════════════════
 async function loadApprovals() {
-  const [dealersData, retailData, territoriesData, outletsData] = await Promise.all([
+  const [dealersData, retailData, territoriesData, outletsData, allDealersData] = await Promise.all([
     apiFetch('/admin/users?role=Dealer&approvalStatus=pending&limit=50', { headers: apiHeaders() }),
     apiFetch('/admin/retail-users?approvalStatus=pending&limit=50', { headers: apiHeaders() }).catch(() => ({ users: [] })),
     apiFetch('/admin/territories?status=pending', { headers: apiHeaders() }),
     apiFetch('/admin/retail-outlets', { headers: apiHeaders() }),
+    apiFetch('/admin/users?role=Dealer&limit=200', { headers: apiHeaders() }),
   ]);
+
+  // Build dealer ID → {name, email, username} lookup
+  const dealerMap = {};
+  (allDealersData.users || []).forEach(u => {
+    dealerMap[u._id.toString()] = {
+      name:     `${u.firstName||''} ${u.lastName||''}`.trim() || u.username,
+      email:    u.email,
+      username: u.username,
+    };
+  });
 
   const pendingDealers    = (dealersData.users || []);
   const pendingRetail     = (retailData.users || []);
@@ -1078,7 +1089,12 @@ async function loadApprovals() {
           return `<tr>
             <td><b>${t.name}</b></td>
             <td>${t.state}</td>
-            <td style="font-size:12px;">${t.pendingDealerId||'—'}</td>
+            <td style="font-size:12px;">${(() => {
+              const d = dealerMap[t.pendingDealerId?.toString()];
+              return d
+                ? `<div style="font-weight:700;">${d.name}</div><div style="color:var(--mid);font-size:11px;">${d.email}</div>`
+                : `<span style="color:var(--mid);">${t.pendingDealerId||'—'}</span>`;
+            })()}</td>
             <td style="font-size:12px;">${t.pendingAppliedAt ? new Date(t.pendingAppliedAt).toLocaleDateString() : '—'}</td>
             <td><span style="color:${urgent?'#c0392b':'#e67e22'};font-weight:700;">${t.daysLeft}d left</span></td>
             <td><div style="display:flex;gap:6px;">
