@@ -447,10 +447,89 @@
       </div>
       <!-- MY STORE PANEL (Retail users) -->
       <div class="acct-panel" id="panel-mystore">
-        <div class="panel-title">My Store</div>
+        <div class="panel-title">My Stores</div>
+
+        <!-- PRIMARY STORE (linked outlet) -->
         <div id="myStoreContent">
           <div class="skeleton" style="height:120px;border-radius:4px;margin-bottom:16px;"></div>
           <div class="skeleton" style="height:200px;border-radius:4px;"></div>
+        </div>
+
+        <!-- ADDITIONAL OUTLETS — Registration Form -->
+        <div class="form-card" id="retailOutletFormCard" style="display:none;margin-top:20px;">
+          <div class="form-card-title" id="retailOutletFormTitle">REQUEST ADDITIONAL OUTLET</div>
+          <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.6;">You can request additional retail outlets in any territory. Each outlet will be submitted for admin review before going live.</p>
+          <input type="hidden" id="editingRetailOutletId"/>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Outlet Name *</label>
+              <input type="text" class="form-input" id="retailOutletName" placeholder="e.g. VibrantPetals Tarneit Store"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-input" id="retailOutletPhone" placeholder="+61 3 9000 0001"/>
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label class="form-label">Street Address *</label>
+              <input type="text" class="form-input" id="retailOutletAddress" placeholder="Shop 4, Tarneit Central, 533 Derrimut Rd"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Suburb *</label>
+              <input type="text" class="form-input" id="retailOutletSuburb" placeholder="Tarneit"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">State *</label>
+              <select class="form-select" id="retailOutletState" onchange="loadRetailOutletTerritoryOptions()">
+                <option value="">Select state…</option>
+                <option value="Melbourne">Melbourne</option>
+                <option value="Sydney">Sydney</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Territory *</label>
+              <select class="form-select" id="retailOutletTerritory" disabled>
+                <option value="">Select state first…</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Trading Hours</label>
+              <input type="text" class="form-input" id="retailOutletHours" placeholder="Mon–Sat 9am–6pm"/>
+            </div>
+          </div>
+          <div class="form-msg" id="retailOutletFormMsg" style="display:none;"></div>
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button class="btn-save" id="retailOutletSaveBtn" onclick="saveRetailOutlet()">Submit Outlet</button>
+            <button class="btn-sm outline" onclick="closeRetailOutletForm()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- ADDITIONAL OUTLETS — List -->
+        <div class="form-card" style="margin-top:20px;">
+          <div class="form-card-title" style="display:flex;justify-content:space-between;align-items:center;">
+            MY ADDITIONAL OUTLETS
+            <button class="btn-sm gold" onclick="openRetailOutletForm()">+ Request New Outlet</button>
+          </div>
+          <div id="retailOutletsContent">
+            <div class="skeleton" style="height:80px;border-radius:4px;"></div>
+          </div>
+        </div>
+
+        <!-- Info box -->
+        <div class="form-card" style="margin-top:20px;background:linear-gradient(135deg,rgba(155,139,90,.05),rgba(155,139,90,.1));border-color:rgba(155,139,90,.3);">
+          <div class="form-card-title">HOW ADDITIONAL OUTLETS WORK</div>
+          <ul style="font-size:14px;color:var(--mid);line-height:2.2;padding-left:18px;list-style:disc;">
+            <li>You can request outlets in <strong>any territory</strong> — same or different to your primary store</li>
+            <li>Each outlet is linked to your retail account for order routing</li>
+            <li>Customers select your outlet as a pickup point at checkout</li>
+            <li>Admin reviews and activates each outlet registration</li>
+            <li>You can operate multiple outlets across Melbourne &amp; Sydney</li>
+          </ul>
         </div>
       </div>
 
@@ -1185,6 +1264,149 @@ async function saveOutletFromAccount() {
 }
 window.saveOutletFromAccount = saveOutletFromAccount;
 
+// ── RETAIL — ADDITIONAL OUTLETS ───────────────────────────────────────────────
+let retailOutletTerritoriesData = { Melbourne: [], Sydney: [] };
+
+async function loadRetailAdditionalOutlets() {
+  const el = document.getElementById('retailOutletsContent');
+  if (!el) return;
+  // Pre-load territories if not already loaded
+  if (!retailOutletTerritoriesData.Melbourne.length && !retailOutletTerritoriesData.Sydney.length) {
+    const td = await apiFetch('/territories');
+    retailOutletTerritoriesData = { Melbourne: [], Sydney: [] };
+    (td.territories || []).forEach(t => {
+      if (!retailOutletTerritoriesData[t.state]) retailOutletTerritoriesData[t.state] = [];
+      retailOutletTerritoriesData[t.state].push(t);
+    });
+  }
+  const data = await apiFetch('/retail/outlets', { headers: apiHeaders() });
+  const outlets = data.outlets || [];
+  if (!outlets.length) {
+    el.innerHTML = `<div style="text-align:center;padding:28px;color:var(--mid);">
+      <div style="font-size:36px;margin-bottom:10px;">🏪</div>
+      <p style="font-size:14px;margin-bottom:14px;">No additional outlets requested yet.</p>
+      <button class="btn-sm gold" onclick="openRetailOutletForm()">Request Your First Additional Outlet</button>
+    </div>`;
+    return;
+  }
+  el.innerHTML = outlets.map(o => `
+    <div style="display:flex;align-items:flex-start;gap:14px;padding:16px;border:1px solid #e8e0d2;border-radius:4px;margin-bottom:10px;background:#fff;">
+      <div style="font-size:28px;flex-shrink:0;">🏪</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:15px;margin-bottom:4px;">${o.name}</div>
+        <div style="font-size:13px;color:var(--mid);">${o.address}, ${o.suburb}, ${o.state}</div>
+        ${o.phone ? `<div style="font-size:13px;color:var(--mid);">${o.phone}</div>` : ''}
+        ${o.hours ? `<div style="font-size:12px;color:var(--light);">${o.hours}</div>` : ''}
+        <div style="font-size:11px;color:var(--light);margin-top:4px;">Territory: ${o.territorySlug}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end;">
+        <span style="padding:4px 12px;border-radius:10px;font-size:11px;font-weight:700;background:${o.approvalStatus==='approved'?'#d4edda':o.approvalStatus==='rejected'?'#f8d7da':'#fff3cd'};color:${o.approvalStatus==='approved'?'#155724':o.approvalStatus==='rejected'?'#721c24':'#856404'};">${o.approvalStatus==='approved'?'Active':o.approvalStatus==='rejected'?'Rejected':'Pending'}</span>
+        ${o.approvalStatus !== 'rejected' ? `<button class="btn-sm outline" onclick="editRetailOutlet(${JSON.stringify(JSON.stringify(o))})">Edit</button>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function openRetailOutletForm() {
+  document.getElementById('editingRetailOutletId').value = '';
+  document.getElementById('retailOutletFormTitle').textContent = 'REQUEST ADDITIONAL OUTLET';
+  document.getElementById('retailOutletName').value = '';
+  document.getElementById('retailOutletPhone').value = '';
+  document.getElementById('retailOutletAddress').value = '';
+  document.getElementById('retailOutletSuburb').value = '';
+  document.getElementById('retailOutletState').value = '';
+  document.getElementById('retailOutletTerritory').innerHTML = '<option value="">Select state first…</option>';
+  document.getElementById('retailOutletTerritory').disabled = true;
+  document.getElementById('retailOutletHours').value = '';
+  document.getElementById('retailOutletSaveBtn').textContent = 'Submit Outlet';
+  document.getElementById('retailOutletFormMsg').style.display = 'none';
+  document.getElementById('retailOutletFormCard').style.display = '';
+  document.getElementById('retailOutletFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+window.openRetailOutletForm = openRetailOutletForm;
+
+function closeRetailOutletForm() {
+  document.getElementById('retailOutletFormCard').style.display = 'none';
+  document.getElementById('retailOutletFormMsg').style.display = 'none';
+}
+window.closeRetailOutletForm = closeRetailOutletForm;
+
+function editRetailOutlet(jsonStr) {
+  const o = JSON.parse(jsonStr);
+  document.getElementById('editingRetailOutletId').value = o._id;
+  document.getElementById('retailOutletFormTitle').textContent = 'EDIT OUTLET';
+  document.getElementById('retailOutletName').value = o.name || '';
+  document.getElementById('retailOutletPhone').value = o.phone || '';
+  document.getElementById('retailOutletAddress').value = o.address || '';
+  document.getElementById('retailOutletSuburb').value = o.suburb || '';
+  document.getElementById('retailOutletState').value = o.state || '';
+  loadRetailOutletTerritoryOptions();
+  setTimeout(() => { document.getElementById('retailOutletTerritory').value = o.territorySlug || ''; }, 300);
+  document.getElementById('retailOutletHours').value = o.hours || '';
+  document.getElementById('retailOutletSaveBtn').textContent = 'Save Changes';
+  document.getElementById('retailOutletFormMsg').style.display = 'none';
+  document.getElementById('retailOutletFormCard').style.display = '';
+  document.getElementById('retailOutletFormCard').scrollIntoView({ behavior: 'smooth' });
+}
+window.editRetailOutlet = editRetailOutlet;
+
+function loadRetailOutletTerritoryOptions() {
+  const state = document.getElementById('retailOutletState').value;
+  const sel   = document.getElementById('retailOutletTerritory');
+  sel.innerHTML = '<option value="">Select territory…</option>';
+  if (!state) { sel.disabled = true; return; }
+  const list = retailOutletTerritoriesData[state] || [];
+  list.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.slug; opt.textContent = t.name;
+    sel.appendChild(opt);
+  });
+  sel.disabled = false;
+}
+window.loadRetailOutletTerritoryOptions = loadRetailOutletTerritoryOptions;
+
+async function saveRetailOutlet() {
+  const editId       = document.getElementById('editingRetailOutletId').value;
+  const name         = document.getElementById('retailOutletName').value.trim();
+  const phone        = document.getElementById('retailOutletPhone').value.trim();
+  const address      = document.getElementById('retailOutletAddress').value.trim();
+  const suburb       = document.getElementById('retailOutletSuburb').value.trim();
+  const state        = document.getElementById('retailOutletState').value;
+  const territorySlug= document.getElementById('retailOutletTerritory').value;
+  const hours        = document.getElementById('retailOutletHours').value.trim();
+  const msg          = document.getElementById('retailOutletFormMsg');
+  msg.style.display  = 'none';
+
+  if (!name || !address || !suburb || !state || !territorySlug) {
+    msg.className = 'form-msg err'; msg.textContent = 'Please fill in all required fields.'; msg.style.display = 'block'; return;
+  }
+
+  const btn = document.getElementById('retailOutletSaveBtn');
+  btn.disabled = true; btn.textContent = editId ? 'Saving…' : 'Submitting…';
+
+  const body = { name, address, suburb, state, territorySlug, phone, hours };
+  let data;
+  if (editId) {
+    data = await apiFetch(`/retail/outlets/${editId}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify(body) });
+  } else {
+    data = await apiFetch('/retail/outlets', { method: 'POST', headers: apiHeaders(), body: JSON.stringify(body) });
+  }
+
+  btn.disabled = false; btn.textContent = editId ? 'Save Changes' : 'Submit Outlet';
+
+  if (data.success) {
+    msg.className = 'form-msg ok';
+    msg.textContent = editId ? '✓ Outlet updated successfully.' : '✓ Outlet requested — pending admin activation.';
+    msg.style.display = 'block';
+    setTimeout(() => { closeRetailOutletForm(); loadRetailAdditionalOutlets(); }, 1500);
+    showToast(editId ? 'Outlet updated' : 'Outlet requested', 'success');
+  } else {
+    msg.className = 'form-msg err';
+    msg.textContent = data.message || 'Failed to save outlet.';
+    msg.style.display = 'block';
+  }
+}
+window.saveRetailOutlet = saveRetailOutlet;
+
 // ── ADDRESSES ─────────────────────────────────────────────────────────────────
 let editingAddrId=null;
 async function loadAddresses(){
@@ -1479,6 +1701,8 @@ async function loadMyStore() {
     </div>`;
   // Now that myStoreOrdersContent exists in the DOM, load orders
   await loadMyStoreOrders();
+  // Load additional outlets below primary store
+  loadRetailAdditionalOutlets();
 }
 
 async function saveMyStore() {
