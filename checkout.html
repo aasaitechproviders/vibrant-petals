@@ -214,16 +214,24 @@
 
   <div class="checkout-layout" id="checkoutLayout" style="display:none;">
     <div>
-      <!-- COUPON -->
+      <!-- PICKUP DATE -->
       <div class="form-section">
-        <div id="couponSection">
-          <div class="form-section-title">Have a Coupon?</div>
-          <div class="coupon-row">
-            <input type="text" class="coupon-input" id="couponInput" placeholder="Enter coupon code (e.g. WELCOME10)"/>
-            <button class="btn-coupon" onclick="applyCoupon()">Apply</button>
+        <div class="form-section-title">📅 Pickup Date</div>
+        <div class="date-picker-wrap">
+          <div class="date-picker-label">When would you like to collect your order?</div>
+          <div class="date-picker-sub">Choose any date from <span id="earliestDateLabel" style="font-weight:700;color:var(--gold);"></span> onwards.</div>
+          <input type="date" id="scheduledPickupDate" />
+          <div class="date-selected-display" id="dateSelectedDisplay">
+            ✅ Your order will be ready for collection on <strong id="dateSelectedText"></strong>
           </div>
-          <div class="coupon-msg" id="couponMsg"></div>
+          <div class="date-rule-row">
+            <div class="date-rule-icon">ℹ️</div>
+            <div class="date-rule-text">
+              <strong>Why 8 days?</strong> All orders require a minimum of 8 days from today for preparation and freshness. Fresh flowers are packed and dispatched close to your pickup date to ensure they arrive at their best.
+            </div>
+          </div>
         </div>
+        <div id="dateMsg" style="font-size:13px;color:#c0392b;margin-top:8px;display:none;"></div>
       </div>
 
       <!-- PICKUP OUTLET SELECTOR -->
@@ -289,24 +297,16 @@
         <div class="form-group"><textarea class="form-textarea" id="orderNotes" placeholder="Special instructions for your order or pickup..."></textarea></div>
       </div>
 
-      <!-- PICKUP DATE -->
+      <!-- COUPON -->
       <div class="form-section">
-        <div class="form-section-title">📅 Pickup Date</div>
-        <div class="date-picker-wrap">
-          <div class="date-picker-label">When would you like to collect your order?</div>
-          <div class="date-picker-sub">Choose any date from <span id="earliestDateLabel" style="font-weight:700;color:var(--gold);"></span> onwards.</div>
-          <input type="date" id="scheduledPickupDate" />
-          <div class="date-selected-display" id="dateSelectedDisplay">
-            ✅ Your order will be ready for collection on <strong id="dateSelectedText"></strong>
+        <div id="couponSection">
+          <div class="form-section-title">Have a Coupon?</div>
+          <div class="coupon-row">
+            <input type="text" class="coupon-input" id="couponInput" placeholder="Enter coupon code (e.g. WELCOME10)"/>
+            <button class="btn-coupon" onclick="applyCoupon()">Apply</button>
           </div>
-          <div class="date-rule-row">
-            <div class="date-rule-icon">ℹ️</div>
-            <div class="date-rule-text">
-              <strong>Why 8 days?</strong> All orders require a minimum of 8 days from today for preparation and freshness. Fresh flowers are packed and dispatched close to your pickup date to ensure they arrive at their best.
-            </div>
-          </div>
+          <div class="coupon-msg" id="couponMsg"></div>
         </div>
-        <div id="dateMsg" style="font-size:13px;color:#c0392b;margin-top:8px;display:none;"></div>
       </div>
     </div>
 
