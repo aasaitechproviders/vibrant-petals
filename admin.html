@@ -1016,7 +1016,7 @@ async function loadApprovals() {
   const pendingDealers    = (dealersData.users || []);
   const pendingRetail     = (retailData.users || []);
   const pendingTerritories = (territoriesData.territories || []);
-  const pendingOutlets    = (outletsData.outlets || []).filter(o => !o.isActive && (!o.approvalStatus || o.approvalStatus === 'pending'));
+  const pendingOutlets    = (outletsData.outlets || []).filter(o => !o.isActive && (!o.approvalStatus || o.approvalStatus === 'pending') && o.approvalStatus !== 'superseded');
   const pickupDisabled    = (outletsData.outlets || []).filter(o => o.isActive && o.approvalStatus === 'approved' && !o.pickupEnabled && o.ownerUserId);
 
   const totalBadge = pendingDealers.length + pendingRetail.length + pendingTerritories.length + pendingOutlets.length + pickupDisabled.length;
