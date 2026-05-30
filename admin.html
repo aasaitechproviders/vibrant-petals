@@ -1552,7 +1552,7 @@ async function territoryAction(slug, action) {
   const labels = { approve: 'Approve', reject: 'Reject', unassign: 'Unassign' };
   if (!confirm(`${labels[action]} territory "${slug}"?`)) return;
   const data = await apiFetch(`/admin/territories/${slug}/${action}`, { method: 'PUT', headers: apiHeaders() });
-  if (data.success) { showToast(data.message, 'success'); loadTerritories(); }
+  if (data.success) { showToast(data.message, 'success'); loadTerritories(); loadApprovals(); }
   else showToast(data.message || `${action} failed`, 'error');
 }
 
