@@ -345,7 +345,7 @@
             </div>
           </div>
           <table class="data-table">
-            <thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Assignment</th><th>Date</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Assignment</th><th>Ordered</th><th>Pickup Date</th><th>Actions</th></tr></thead>
             <tbody id="ordersBody"></tbody>
           </table>
           <div class="table-pagination" id="ordPag"></div>
@@ -826,6 +826,11 @@
 <div class="toast" id="toast"></div>
 
 <script>
+
+function fmtPickupDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+}
 const API = 'https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
 
 var token = localStorage.getItem('vp_token') || localStorage.getItem('vp_admin_token') || '';
@@ -1878,7 +1883,7 @@ async function loadDashboard() {
   </div>`;
   const orders = data.recentOrders || [];
   document.getElementById('dashOrders').innerHTML = orders.length
-    ? `<table class="data-table"><thead><tr><th>Order #</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody>${orders.map(o => `<tr><td><b>${o.orderNumber}</b></td><td style="font-size:13px;color:var(--mid)">${o.customerEmail || '—'}</td><td><b>$${(o.total || 0).toFixed(2)}</b></td><td><span class="status-pill s-${o.status || 'pending'}">${o.status || 'pending'}</span></td></tr>`).join('')}</tbody></table>`
+    ? `<table class="data-table"><thead><tr><th>Order #</th><th>Customer</th><th>Pickup Date</th><th>Total</th><th>Status</th></tr></thead><tbody>${orders.map(o => `<tr><td><b>${o.orderNumber}</b></td><td style="font-size:13px;color:var(--mid)">${o.customerEmail || '—'}</td><td><b>$${(o.total || 0).toFixed(2)}</b></td><td><span class="status-pill s-${o.status || 'pending'}">${o.status || 'pending'}</span></td></tr>`).join('')}</tbody></table>`
     : `<div style="padding:20px;font-size:14px;color:var(--mid)">No recent orders.</div>`;
   const ls = data.lowStockProducts || [];
   document.getElementById('dashLowStock').innerHTML = ls.length
@@ -2386,6 +2391,7 @@ async function loadOrders() {
       <td><span class="status-pill s-${status2}">${status2}</span></td>
       <td>${assignBadge}</td>
       <td style="font-size:12px;color:var(--mid)">${new Date(o.createdAt).toLocaleDateString()}</td>
+      <td style="font-size:12px;font-weight:700;color:var(--gold)">${fmtPickupDate(o.scheduledPickupDate)}</td>
       <td style="display:flex;gap:4px;">
         <button class="btn-sm btn-view" onclick="openOrderModal('${oid}')">View</button>
         <button class="btn-sm btn-edit" onclick="openOrderAssignModalById('${oid}')">Assign</button>
@@ -2416,6 +2422,10 @@ async function openOrderModal(id) {
   document.getElementById('orderModalTitle').textContent = `Order #${o.orderNumber || id}`;
   document.getElementById('omOrderNum').value = o.orderNumber || id;
   document.getElementById('omDate').value = o.createdAt ? new Date(o.createdAt).toLocaleString() : '—';
+
+  // Pickup date
+  const omPickupDate = document.getElementById('omPickupDate');
+  if (omPickupDate) omPickupDate.textContent = o.scheduledPickupDate ? fmtPickupDate(o.scheduledPickupDate) : '—';
   document.getElementById('omStatus').value = o.status || 'pending';
   document.getElementById('omPayStatus').value = o.paymentStatus || 'pending';
 
@@ -2449,6 +2459,10 @@ async function openOrderModal(id) {
         : '');
   document.getElementById('omDetailGrid').innerHTML = `
     ${assignedHtml}
+    <div class="order-detail-box" style="background:var(--cream2);">
+      <div class="order-detail-box-title">📅 Scheduled Pickup Date</div>
+      <p id="omPickupDate" style="font-size:16px;font-weight:700;color:var(--gold);">—</p>
+    </div>
     <div class="order-detail-box">
       <div class="order-detail-box-title">Customer</div>
       <p>${o.customerEmail || '—'}<br/>${o.customerName || ''}${o.customerRole ? `<br/><span style="font-size:11px;font-weight:700;background:${o.customerRole==='Dealer'?'#fff3cd':'#d4edda'};color:${o.customerRole==='Dealer'?'#856404':'#155724'};padding:2px 8px;border-radius:10px;">${o.customerRole}</span>` : ''}</p>
