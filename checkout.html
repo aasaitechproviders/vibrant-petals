@@ -143,6 +143,13 @@
     .footer-bottom{border-top:1px solid #e8e0d2;text-align:center;padding:20px;font-size:13px;color:var(--mid);}
     @media(max-width:768px){.footer-grid{grid-template-columns:1fr;gap:36px;}}
     @media(max-width:900px){.checkout-layout{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}nav ul{display:none;}}
+
+    .date-picker-wrap{background:var(--cream2);border:1px solid #e8e0d2;border-radius:var(--radius);padding:20px 24px;margin-top:16px;}
+    .date-picker-wrap label{display:block;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);margin-bottom:10px;}
+    .date-picker-wrap input[type="date"]{width:100%;padding:13px 16px;border:1px solid #ddd;border-radius:var(--radius);font-family:inherit;font-size:15px;color:var(--dark);background:#fff;outline:none;transition:border-color .2s;cursor:pointer;}
+    .date-picker-wrap input[type="date"]:focus{border-color:var(--gold);}
+    .date-hint{font-size:12px;color:var(--mid);margin-top:8px;line-height:1.5;}
+    .date-hint strong{color:var(--gold);}
   </style>
 </head>
 <body>
@@ -183,6 +190,7 @@
   <p>Thank you for your order. We'll process it right away and send you a confirmation. Your flowers are on their way!</p>
   <p id="orderNumDisplay" style="font-weight:700;font-size:16px;color:var(--gold);margin-bottom:16px;"></p>
   <p id="pickupOutletInfo" style="font-size:13px;color:var(--mid);margin-bottom:12px;"></p>
+  <p id="pickupDateInfo" style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:12px;display:none;"></p>
   <div id="orderNotesDisplay" style="display:none;margin:0 auto 20px;max-width:400px;padding:12px 16px;background:#FBF9F4;border:1px solid #e8e0d2;border-radius:4px;text-align:left;">
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mid);margin-bottom:6px;">📝 Your Notes</div>
     <p id="orderNotesText" style="font-size:13px;color:var(--dark);line-height:1.7;"></p>
@@ -226,7 +234,8 @@
           <div class="form-row" style="margin-bottom:16px;">
             <div class="form-group">
               <label class="form-label">Filter by State</label>
-              <select class="form-select" id="outletStateFilter" onchange="loadOutlets()">
+              <select class="form-select" id="outletStateFilter" onchange="loadOutlets()
+  initDatePicker();">
                 <option value="">All States</option>
                 <option value="Melbourne">Melbourne</option>
                 <option value="Sydney">Sydney</option>
@@ -274,6 +283,17 @@
       <div class="form-section">
         <div class="form-section-title">Additional Information (optional)</div>
         <div class="form-group"><textarea class="form-textarea" id="orderNotes" placeholder="Special instructions for your order or pickup..."></textarea></div>
+      </div>
+
+      <!-- PICKUP DATE -->
+      <div class="form-section">
+        <div class="form-section-title">📅 Scheduled Pickup Date</div>
+        <div class="date-picker-wrap">
+          <label for="scheduledPickupDate">Select your preferred pickup date</label>
+          <input type="date" id="scheduledPickupDate" />
+          <p class="date-hint">Orders must be scheduled at least <strong>8 days</strong> from today. Choose a date that works best for you.</p>
+        </div>
+        <div id="dateMsg" style="font-size:13px;color:#c0392b;margin-top:8px;display:none;"></div>
       </div>
     </div>
 
@@ -403,6 +423,18 @@ function handlePlaceOrder(){
   placeOrder();
 }
 
+// Set minimum pickup date (today + 8 days)
+function initDatePicker() {
+  const dateInput = document.getElementById('scheduledPickupDate');
+  if (!dateInput) return;
+  const min = new Date();
+  min.setDate(min.getDate() + 8);
+  const pad = n => String(n).padStart(2,'0');
+  const minStr = `${min.getFullYear()}-${pad(min.getMonth()+1)}-${pad(min.getDate())}`;
+  dateInput.min = minStr;
+  dateInput.value = minStr; // default to earliest allowed date
+}
+
 async function placeOrder(){
   const btn=document.getElementById('placeOrderBtn');
   const pickupOutletId=document.getElementById('selectedOutletId').value;
@@ -413,10 +445,31 @@ async function placeOrder(){
     return;
   }
   document.getElementById('outletMsg').style.display='none';
+
+  // Validate pickup date
+  const dateInput = document.getElementById('scheduledPickupDate');
+  const dateMsg = document.getElementById('dateMsg');
+  const scheduledPickupDate = dateInput?.value;
+  if (!scheduledPickupDate) {
+    dateMsg.textContent = 'Please select a pickup date.';
+    dateMsg.style.display = '';
+    dateInput?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  const chosenDate = new Date(scheduledPickupDate);
+  const minDate = new Date(); minDate.setDate(minDate.getDate() + 8); minDate.setHours(0,0,0,0);
+  if (chosenDate < minDate) {
+    dateMsg.textContent = 'Pickup date must be at least 8 days from today.';
+    dateMsg.style.display = '';
+    dateInput?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  if (dateMsg) dateMsg.style.display = 'none';
+
   const paymentMethod=document.querySelector('input[name="payment"]:checked').value;
   const notes=document.getElementById('orderNotes').value;
   btn.disabled=true;btn.textContent='Placing order...';
-  const data=await apiFetch('/orders',{method:'POST',headers:apiHeaders(),body:JSON.stringify({pickupOutletId,paymentMethod,notes})});
+  const data=await apiFetch('/orders',{method:'POST',headers:apiHeaders(),body:JSON.stringify({pickupOutletId,paymentMethod,notes,scheduledPickupDate})});
   btn.disabled=false;btn.textContent='Place Order';
   if(data.success){
     document.getElementById('checkoutMain').style.display='none';
@@ -426,6 +479,14 @@ async function placeOrder(){
     if(snap){
       const pickupInfo=document.getElementById('pickupOutletInfo');
       if(pickupInfo) pickupInfo.textContent=`Pickup from: ${snap.name}, ${snap.address}, ${snap.suburb} · ${snap.hours||''}`;
+    }
+    if(data.order.scheduledPickupDate){
+      const el=document.getElementById('pickupDateInfo');
+      if(el){
+        const d=new Date(data.order.scheduledPickupDate);
+        el.textContent='📅 Scheduled Pickup: '+d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+        el.style.display='block';
+      }
     }
     const orderNotes=data.order.notes;
     if(orderNotes){
