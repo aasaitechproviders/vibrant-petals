@@ -239,8 +239,7 @@
           <div class="form-row" style="margin-bottom:16px;">
             <div class="form-group">
               <label class="form-label">Filter by State</label>
-              <select class="form-select" id="outletStateFilter" onchange="loadOutlets()
-  initDatePicker();">
+              <select class="form-select" id="outletStateFilter" onchange="loadOutlets()">
                 <option value="">All States</option>
                 <option value="Melbourne">Melbourne</option>
                 <option value="Sydney">Sydney</option>
@@ -296,7 +295,7 @@
         <div class="date-picker-wrap">
           <div class="date-picker-label">When would you like to collect your order?</div>
           <div class="date-picker-sub">Choose any date from <span id="earliestDateLabel" style="font-weight:700;color:var(--gold);"></span> onwards.</div>
-          <input type="date" id="scheduledPickupDate" onchange="onDateChange()" />
+          <input type="date" id="scheduledPickupDate" />
           <div class="date-selected-display" id="dateSelectedDisplay">
             ✅ Your order will be ready for collection on <strong id="dateSelectedText"></strong>
           </div>
@@ -441,17 +440,37 @@ function handlePlaceOrder(){
 function initDatePicker() {
   const dateInput = document.getElementById('scheduledPickupDate');
   if (!dateInput) return;
-  const min = new Date();
-  min.setDate(min.getDate() + 8);
-  const pad = n => String(n).padStart(2,'0');
-  const minStr = `${min.getFullYear()}-${pad(min.getMonth()+1)}-${pad(min.getDate())}`;
-  dateInput.min = minStr;
-  dateInput.value = minStr; // default to earliest allowed date
-  // Show human-readable earliest date
+
+  // Calculate min date: today + 8 days (no earlier allowed)
+  const today = new Date();
+  const min = new Date(today);
+  min.setDate(today.getDate() + 8);
+
+  // Calculate max date: 1 year from today (reasonable upper bound)
+  const max = new Date(today);
+  max.setFullYear(today.getFullYear() + 1);
+
+  const pad = n => String(n).padStart(2, '0');
+  const toDateStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+
+  dateInput.min = toDateStr(min);
+  dateInput.max = toDateStr(max);
+  dateInput.value = toDateStr(min); // default to earliest allowed
+
+  // Guard: if user manually types an earlier date, reset to min
+  dateInput.addEventListener('change', () => {
+    const val = dateInput.value;
+    if (!val || val < dateInput.min) {
+      dateInput.value = dateInput.min;
+    }
+    onDateChange();
+  });
+
+  // Show human-readable earliest date label
   const label = document.getElementById('earliestDateLabel');
   if (label) label.textContent = min.toLocaleDateString('en-AU', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-  // Trigger display update for default value
-  onDateChange();
+
+  onDateChange(); // show confirmation for default value
 }
 
 function onDateChange() {
@@ -716,6 +735,7 @@ async function init(){
   }
 
   await loadOutlets();
+  initDatePicker();
 }
 
 // ── AUTO-SELECT a single outlet and show locked confirmation banner ───────────
