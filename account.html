@@ -1338,11 +1338,23 @@ function editRetailOutlet(jsonStr) {
 }
 window.editRetailOutlet = editRetailOutlet;
 
-function loadRetailOutletTerritoryOptions() {
+async function loadRetailOutletTerritoryOptions() {
   const state = document.getElementById('retailOutletState').value;
   const sel   = document.getElementById('retailOutletTerritory');
   sel.innerHTML = '<option value="">Select territory…</option>';
   if (!state) { sel.disabled = true; return; }
+  // Fetch on-demand if this state's territories aren't loaded yet
+  if (!retailOutletTerritoriesData[state] || !retailOutletTerritoriesData[state].length) {
+    sel.innerHTML = '<option value="">Loading…</option>';
+    sel.disabled = true;
+    try {
+      const td = await apiFetch('/territories?state=' + encodeURIComponent(state));
+      retailOutletTerritoriesData[state] = td.territories || [];
+    } catch(e) {
+      retailOutletTerritoriesData[state] = [];
+    }
+  }
+  sel.innerHTML = '<option value="">Select territory…</option>';
   const list = retailOutletTerritoriesData[state] || [];
   list.forEach(t => {
     const opt = document.createElement('option');
