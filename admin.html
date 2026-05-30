@@ -191,6 +191,22 @@
     .admin-err{font-size:13px;color:#c0392b;margin-top:10px;}
     @media(max-width:1024px){.stats-grid{grid-template-columns:repeat(2,1fr);}.dash-grid{grid-template-columns:1fr;}}
     @media(max-width:768px){.sidebar{display:none;}.stats-grid{grid-template-columns:1fr 1fr;}}
+
+    /* ── ACTION BUTTON GROUP ── */
+    .action-group{display:flex;align-items:center;gap:6px;justify-content:flex-end;flex-wrap:nowrap;}
+    .btn-action{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .15s,color .15s,border-color .15s;}
+    .btn-action svg{width:13px;height:13px;flex-shrink:0;}
+    .btn-action-edit{background:#fff;color:var(--mid);border-color:#ddd;}.btn-action-edit:hover{color:var(--gold);border-color:var(--gold);}
+    .btn-action-delete{background:#fff;color:#c0392b;border-color:#f5c6cb;}.btn-action-delete:hover{background:#c0392b;color:#fff;border-color:#c0392b;}
+    .btn-action-pickup-on{background:#e8f5e9;color:#2d7a2d;border-color:#c3e6cb;}.btn-action-pickup-on:hover{background:#c0392b;color:#fff;border-color:#c0392b;}
+    .btn-action-pickup-off{background:#fce8e6;color:#c0392b;border-color:#f5c6cb;}.btn-action-pickup-off:hover{background:#27ae60;color:#fff;border-color:#27ae60;}
+    .btn-action-activate{background:#e8f5e9;color:#2d7a2d;border-color:#c3e6cb;}.btn-action-activate:hover{background:#2d7a2d;color:#fff;}
+    .btn-action-approve{background:#e8f5e9;color:#2d7a2d;border-color:#c3e6cb;}.btn-action-approve:hover{background:#2d7a2d;color:#fff;}
+    .btn-action-reject{background:#fff;color:#c0392b;border-color:#f5c6cb;}.btn-action-reject:hover{background:#c0392b;color:#fff;}
+    .btn-action-deactivate{background:#fff;color:var(--mid);border-color:#ddd;}.btn-action-deactivate:hover{background:#f8d7da;color:#c0392b;border-color:#f5c6cb;}
+    .btn-action-assign{background:#fff;color:#1d4ed8;border-color:#bfdbfe;}.btn-action-assign:hover{background:#eff6ff;border-color:#1d4ed8;}
+    .btn-action-view{background:#fff;color:var(--mid);border-color:#ddd;}.btn-action-view:hover{color:var(--gold);border-color:var(--gold);}
+    .btn-action-gold{background:var(--gold);color:#fff;border-color:var(--gold);}.btn-action-gold:hover{background:var(--gold-dark);border-color:var(--gold-dark);}
   </style>
 </head>
 <body>
@@ -1053,9 +1069,9 @@ async function loadApprovals() {
           <td style="font-size:12px;">${(u.pendingTerritories||[]).map(t=>t.name).join(', ') || '—'}</td>
           <td style="font-size:12px;">${u.dealerInfo?.state||'—'}</td>
           <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
-          <td><div style="display:flex;gap:6px;">
-            <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="openDealerApprovalModal('${u._id}')">Review</button>
-            <button class="btn-sm btn-delete" onclick="quickRejectDealer('${u._id}','${u.username}')">Reject</button>
+          <td><div class="action-group">
+            <button class="btn-action btn-action-approve" onclick="openDealerApprovalModal('${u._id}')">Review</button>
+            <button class="btn-action btn-action-reject" onclick="quickRejectDealer('${u._id}','${u.username}')">Reject</button>
           </div></td>
         </tr>`).join('')}</tbody>
       </table>`}
@@ -1078,9 +1094,9 @@ async function loadApprovals() {
           <td style="font-size:12px;">${u.outlet?.state || u.dealerInfo?.state || '—'}</td>
           <td style="text-align:center;">${u.outlet?.pickupEnabled ? '<span style="color:#27ae60;font-weight:700;">Yes</span>' : '<span style="color:var(--mid);">No</span>'}</td>
           <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
-          <td><div style="display:flex;gap:6px;">
-            <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="approveRetail('${u._id}','${u.username}')">Approve</button>
-            <button class="btn-sm btn-delete" onclick="rejectRetail('${u._id}','${u.username}')">Reject</button>
+          <td><div class="action-group">
+            <button class="btn-action btn-action-approve" onclick="approveRetail('${u._id}','${u.username}')">Approve</button>
+            <button class="btn-action btn-action-reject" onclick="rejectRetail('${u._id}','${u.username}')">Reject</button>
           </div></td>
         </tr>`).join('')}</tbody>
       </table>`}
@@ -1108,9 +1124,9 @@ async function loadApprovals() {
             })()}</td>
             <td style="font-size:12px;">${t.pendingAppliedAt ? new Date(t.pendingAppliedAt).toLocaleDateString() : '—'}</td>
             <td><span style="color:${urgent?'#c0392b':'#e67e22'};font-weight:700;">${t.daysLeft}d left</span></td>
-            <td><div style="display:flex;gap:6px;">
-              <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="territoryAction('${t.slug}','approve')">✓ Approve</button>
-              <button class="btn-sm btn-delete" onclick="territoryAction('${t.slug}','reject')">✕ Reject</button>
+            <td><div class="action-group">
+              <button class="btn-action btn-action-approve" onclick="territoryAction('${t.slug}','approve')">✓ Approve</button>
+              <button class="btn-action btn-action-reject" onclick="territoryAction('${t.slug}','reject')">✕ Reject</button>
             </div></td>
           </tr>`;
         }).join('')}</tbody>
@@ -1135,9 +1151,9 @@ async function loadApprovals() {
           <td style="font-size:13px;">${o.address}<br/><span style="color:var(--mid);font-size:12px;">${o.suburb}, ${o.state}</span></td>
           <td style="font-size:12px;color:var(--mid);">${o.territorySlug}</td>
           <td style="font-size:13px;">${o.phone || '—'}</td>
-          <td><div style="display:flex;gap:6px;">
-            <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="activateOutlet('${o._id}','${o.name}')">✓ Activate</button>
-            <button class="btn-sm btn-delete" onclick="deleteOutlet('${o._id}')">✕ Reject</button>
+          <td><div class="action-group">
+            <button class="btn-action btn-action-activate" onclick="activateOutlet('${o._id}','${o.name}')">✓ Activate</button>
+            <button class="btn-action btn-action-reject" onclick="deleteOutlet('${o._id}')">✕ Reject</button>
           </div></td>
         </tr>`).join('')}</tbody>
       </table>`}
@@ -1158,9 +1174,9 @@ async function loadApprovals() {
             '<td style="font-size:13px;">' + o.suburb + ', ' + o.state + '</td>' +
             '<td style="font-size:12px;color:var(--mid);">' + (o.territorySlug || '—') + '</td>' +
             '<td style="font-size:12px;color:var(--mid);">' + (o.hours || '—') + '</td>' +
-            '<td><button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 14px;font-size:12px;cursor:pointer;" ' +
+            '<td><div class="action-group" style="justify-content:flex-start;"><button class="btn-action btn-action-pickup-off" ' +
             'data-outlet-id="' + o._id + '" data-outlet-name="' + o.name.replace(/"/g, '&quot;') + '" ' +
-            'onclick="togglePickup(this.dataset.outletId, false, this.dataset.outletName)">🟢 Enable Pickup</button></td>' +
+            'onclick="togglePickup(this.dataset.outletId, false, this.dataset.outletName)">Enable Pickup</button></div></td>' +
             '</tr>'
           ).join('') +
           '</tbody></table>'
@@ -1249,13 +1265,15 @@ async function loadRetailUsers() {
             : '<span style="background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">🔴 Disabled</span>'
           ) : '—'}</td>
           <td><div style="display:flex;gap:5px;flex-wrap:wrap;">
-            ${o && u.approvalStatus === 'approved' ? `<button class="btn-sm" style="background:${o.pickupEnabled?'#c0392b':'#27ae60'};color:#fff;border:none;border-radius:3px;padding:5px 10px;font-size:11px;cursor:pointer;white-space:nowrap;" onclick="togglePickup('${o._id}',${o.pickupEnabled},'${o.name.replace(/'/g,"\'")}')">
-              ${o.pickupEnabled ? '🔴 Disable Pickup' : '🟢 Enable Pickup'}
-            </button>` : ''}
+            <div class="action-group">
+            ${o && u.approvalStatus === 'approved' ? `<button class="btn-action ${o.pickupEnabled?'btn-action-pickup-on':'btn-action-pickup-off'}" onclick="togglePickup('${o._id}',${o.pickupEnabled},'${o.name.replace(/'/g,"\'")}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+              ${o.pickupEnabled ? 'Pickup On' : 'Pickup Off'}</button>` : ''}
             ${u.approvalStatus === 'pending' ? `
-              <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 10px;font-size:11px;cursor:pointer;" onclick="approveRetail('${u._id}','${u.username}')">Approve</button>
-              <button class="btn-sm btn-delete" onclick="rejectRetail('${u._id}','${u.username}')">Reject</button>` : ''}
-            ${u.approvalStatus === 'approved' ? `<button class="btn-sm btn-delete" onclick="deactivateRetail('${u._id}','${u.username}')">Deactivate</button>` : ''}
+              <button class="btn-action btn-action-approve" onclick="approveRetail('${u._id}','${u.username}')">Approve</button>
+              <button class="btn-action btn-action-reject" onclick="rejectRetail('${u._id}','${u.username}')">Reject</button>` : ''}
+            ${u.approvalStatus === 'approved' ? `<button class="btn-action btn-action-deactivate" onclick="deactivateRetail('${u._id}','${u.username}')">Deactivate</button>` : ''}
+            </div>
           </div></td>
         </tr>`;
       }).join('')}</tbody>
@@ -1330,7 +1348,7 @@ async function loadDealers() {
           <td><div style="display:flex;gap:5px;">
             ${u.isActive
               ? `<button class="btn-sm btn-delete" onclick="toggleDealerStatus('${u._id}',false,'${u.username}')">Deactivate</button>`
-              : `<button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 10px;font-size:12px;cursor:pointer;" onclick="toggleDealerStatus('${u._id}',true,'${u.username}')">Activate</button>`}
+              : `<button class="btn-action btn-action-activate" onclick="toggleDealerStatus('${u._id}',true,'${u.username}')">Activate</button>`}
           </div></td>
         </tr>`;
       }).join('')}</tbody>
@@ -1541,8 +1559,8 @@ async function loadTerritories() {
           const actions = t.status === 'pending'
             ? `<span style="font-size:12px;color:var(--gold);font-style:italic;">→ Review in Approvals</span>`
             : t.status === 'assigned'
-            ? `<button onclick="territoryAction('${t.slug}','unassign')" style="padding:5px 12px;font-size:12px;background:#555;color:#fff;border:none;border-radius:3px;cursor:pointer;">Unassign</button>`
-            : `<button onclick="deleteTerritory('${t.slug}','${t.name}')" style="padding:5px 12px;font-size:12px;background:#c0392b;color:#fff;border:none;border-radius:3px;cursor:pointer;">Delete</button>`;
+            ? `<button class="btn-action btn-action-deactivate" onclick="territoryAction('${t.slug}','unassign')">Unassign</button>`
+            : `<button class="btn-action btn-action-delete" onclick="deleteTerritory('${t.slug}','${t.name}')">Delete</button>`;
           return `<tr>
             <td><strong>${t.name}</strong></td>
             <td>${t.state}</td>
@@ -1641,7 +1659,9 @@ async function loadOutlets() {
             ? '<span style="font-size:10px;background:#fff3cd;color:#856404;border:1px solid #ffc10740;padding:2px 7px;border-radius:10px;font-weight:700;margin-left:6px;">Dealer outlet</span>'
             : '<span style="font-size:10px;background:#f8f9fa;color:#555;border:1px solid #ddd;padding:2px 7px;border-radius:10px;margin-left:6px;">Admin-created</span>';
           const activateBtn = (!o.isActive && isDealerOutlet)
-            ? `<button onclick="activateOutlet('${o._id}','${o.name.replace(/'/g,"\\'")}'" style="padding:5px 12px;font-size:12px;background:#27ae60;color:#fff;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">✓ Activate</button>`
+            ? `<button class="btn-action btn-action-activate" onclick="activateOutlet('${o._id}','${o.name.replace(/'/g,"\\'")}'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Activate</button>`
             : '';
           return `<tr style="${!o.isActive && isDealerOutlet ? 'background:#fffdf0;' : ''}">
           <td><strong>${o.name}</strong>${originLabel}</td>
@@ -1650,14 +1670,21 @@ async function loadOutlets() {
           <td style="font-size:13px;">${o.phone || '—'}</td>
           <td style="font-size:12px;color:var(--mid);">${o.hours || '—'}</td>
           <td><span style="background:${o.isActive?'#27ae6015':'#fff3cd'};color:${o.isActive?'#27ae60':'#856404'};border:1px solid ${o.isActive?'#27ae6040':'#ffc10760'};padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">${o.isActive?'Active':'Pending Activation'}</span></td>
-          <td style="text-align:right;">
-            ${activateBtn}
-            ${o.isActive ? `<button data-outlet-id="${o._id}" data-outlet-name="${o.name.replace(/"/g,'&quot;')}" data-pickup="${o.pickupEnabled}"
-              onclick="togglePickup(this.dataset.outletId, this.dataset.pickup==='true', this.dataset.outletName)"
-              style="padding:5px 12px;font-size:12px;background:${o.pickupEnabled?'#e74c3c':'#27ae60'};color:#fff;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">
-              ${o.pickupEnabled ? '🔴 Disable Pickup' : '🟢 Enable Pickup'}</button>` : ''}
-            <button onclick="editOutletById('${o._id}')" style="padding:5px 12px;font-size:12px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">Edit</button>
-            <button onclick="deleteOutlet('${o._id}')" style="padding:5px 12px;font-size:12px;background:#c0392b;color:#fff;border:none;border-radius:3px;cursor:pointer;">Delete</button>
+          <td>
+            <div class="action-group">
+              ${activateBtn}
+              ${o.isActive ? `<button class="btn-action ${o.pickupEnabled?'btn-action-pickup-on':'btn-action-pickup-off'}"
+                data-outlet-id="${o._id}" data-outlet-name="${o.name.replace(/"/g,'&quot;')}" data-pickup="${o.pickupEnabled}"
+                onclick="togglePickup(this.dataset.outletId,this.dataset.pickup==='true',this.dataset.outletName)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                ${o.pickupEnabled ? 'Pickup On' : 'Pickup Off'}</button>` : ''}
+              <button class="btn-action btn-action-edit" onclick="editOutletById('${o._id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit</button>
+              <button class="btn-action btn-action-delete" onclick="deleteOutlet('${o._id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                Delete</button>
+            </div>
           </td>
         </tr>`;
         }).join('')}
@@ -2393,8 +2420,10 @@ async function loadOrders() {
       <td style="font-size:12px;color:var(--mid)">${new Date(o.createdAt).toLocaleDateString()}</td>
       <td style="font-size:12px;font-weight:700;color:var(--gold)">${fmtPickupDate(o.scheduledPickupDate)}</td>
       <td style="display:flex;gap:4px;">
-        <button class="btn-sm btn-view" onclick="openOrderModal('${oid}')">View</button>
-        <button class="btn-sm btn-edit" onclick="openOrderAssignModalById('${oid}')">Assign</button>
+        <div class="action-group">
+        <button class="btn-action btn-action-view" onclick="openOrderModal('${oid}')">View</button>
+        <button class="btn-action btn-action-assign" onclick="openOrderAssignModalById('${oid}')">Assign</button>
+        </div>
       </td>
     </tr>`;
   }).join('') : `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--mid);">No orders found</td></tr>`;
