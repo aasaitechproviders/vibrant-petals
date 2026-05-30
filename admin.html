@@ -1016,7 +1016,7 @@ async function loadApprovals() {
   const pendingDealers    = (dealersData.users || []);
   const pendingRetail     = (retailData.users || []);
   const pendingTerritories = (territoriesData.territories || []);
-  const pendingOutlets    = (outletsData.outlets || []).filter(o => !o.isActive && !o.ownerUserId && (!o.approvalStatus || o.approvalStatus === 'pending'));
+  const pendingOutlets    = (outletsData.outlets || []).filter(o => !o.isActive && (!o.approvalStatus || o.approvalStatus === 'pending'));
   const pickupDisabled    = (outletsData.outlets || []).filter(o => o.isActive && o.approvalStatus === 'approved' && !o.pickupEnabled && o.ownerUserId);
 
   const totalBadge = pendingDealers.length + pendingRetail.length + pendingTerritories.length + pendingOutlets.length + pickupDisabled.length;
@@ -1114,13 +1114,16 @@ async function loadApprovals() {
       </div>
       ${!pendingOutlets.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">✓ No outlets awaiting activation.</p>' : `
       <table class="data-table">
-        <thead><tr><th>Outlet Name</th><th>Location</th><th>Territory</th><th>Phone</th><th>Hours</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Outlet Name</th><th>Type</th><th>Location</th><th>Territory</th><th>Phone</th><th>Actions</th></tr></thead>
         <tbody>${pendingOutlets.map(o => `<tr style="background:#fffdf0;">
           <td><b>${o.name}</b></td>
+          <td style="font-size:12px;">${o.ownerUserId
+            ? `<span style="background:#e8f4fd;color:#1a6fa8;padding:2px 8px;border-radius:10px;font-weight:700;">Retail-requested</span>`
+            : `<span style="background:#f0ebe0;color:var(--mid);padding:2px 8px;border-radius:10px;font-weight:700;">Admin-created</span>`
+          }</td>
           <td style="font-size:13px;">${o.address}<br/><span style="color:var(--mid);font-size:12px;">${o.suburb}, ${o.state}</span></td>
           <td style="font-size:12px;color:var(--mid);">${o.territorySlug}</td>
           <td style="font-size:13px;">${o.phone || '—'}</td>
-          <td style="font-size:12px;color:var(--mid);">${o.hours || '—'}</td>
           <td><div style="display:flex;gap:6px;">
             <button class="btn-sm" style="background:#27ae60;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;" onclick="activateOutlet('${o._id}','${o.name}')">✓ Activate</button>
             <button class="btn-sm btn-delete" onclick="deleteOutlet('${o._id}')">✕ Reject</button>
