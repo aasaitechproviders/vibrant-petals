@@ -660,6 +660,11 @@
 <div class="toast" id="toast"></div>
 
 <script>
+
+function fmtPickupDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+}
 const API='https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
 // Clear expired token immediately to prevent auth flicker
 (function(){
@@ -849,10 +854,11 @@ function renderRecentOrders(orders){
   }
   document.getElementById('dashRecentOrders').innerHTML=`
     <table class="orders-table" style="margin-top:8px;">
-      <thead><tr><th>Order #</th><th>Date</th><th>Status</th><th>Total</th><th></th></tr></thead>
+      <thead><tr><th>Order #</th><th>Ordered</th><th>Pickup Date</th><th>Status</th><th>Total</th><th></th></tr></thead>
       <tbody>${orders.map(o=>`<tr>
         <td><b>${o.orderNumber}</b></td>
         <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+        <td style="font-size:12px;color:var(--gold);font-weight:700;">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
         <td><b>$${(o.total||0).toFixed(2)}</b></td>
         <td><span class="order-detail-btn" onclick="viewOrder('${o._id}')">Details</span></td>
@@ -875,12 +881,13 @@ async function loadOrders(page=1){
     return;
   }
   el.innerHTML=`<table class="orders-table">
-    <thead><tr><th>Order #</th><th>Date</th><th>Items</th><th>Status</th><th>Total</th><th></th></tr></thead>
+    <thead><tr><th>Order #</th><th>Ordered</th><th>Pickup Date</th><th>Items</th><th>Status</th><th>Total</th><th></th></tr></thead>
     <tbody>${orders.map(o=>{
       const canCancel=['pending','processing'].includes(o.status);
       return`<tr>
         <td><b>${o.orderNumber}</b></td>
         <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+        <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td>${(o.items||[]).length} item${(o.items||[]).length!==1?'s':''}</td>
         <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
         <td><b>$${(o.total||0).toFixed(2)}</b></td>
@@ -922,6 +929,7 @@ async function viewOrder(id){
   document.getElementById('modalOrderBody').innerHTML=`
     <div class="order-info-grid">
       <div class="order-info-item"><div class="order-info-label">Order Date</div>${new Date(o.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'})}</div>
+      <div class="order-info-item"><div class="order-info-label">📅 Pickup Date</div><span style="font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</span></div>
       <div class="order-info-item"><div class="order-info-label">Status</div><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></div>
       <div class="order-info-item"><div class="order-info-label">Payment</div>${o.paymentMethod||'—'} · <em>${o.paymentStatus||'pending'}</em></div>
       <div class="order-info-item"><div class="order-info-label">🏪 Pickup At</div>${pickupHtml}</div>
@@ -1071,7 +1079,7 @@ async function loadDealerOrders() {
   };
 
   el.innerHTML = `<table class="orders-table"><thead><tr>
-    <th>Order #</th><th>Customer</th><th>Pickup Outlet</th><th>Date</th><th>Status</th><th>Total</th><th>Action</th>
+    <th>Order #</th><th>Customer</th><th>Pickup Outlet</th><th>Ordered</th><th>Pickup Date</th><th>Status</th><th>Total</th><th>Action</th>
   </tr></thead>
   <tbody>${orders.map(o => {
     const snap       = o.pickupOutletSnapshot || {};
@@ -1087,6 +1095,8 @@ async function loadDealerOrders() {
       <td style="font-size:12px;">${o.customerEmail||'—'}</td>
       <td style="font-size:12px;">${snap.name||'—'}<br/><span style="color:var(--mid);">${snap.suburb||''}${snap.suburb&&snap.state?', ':''} ${snap.state||''}</span></td>
       <td style="font-size:12px;">${new Date(o.createdAt).toLocaleDateString()}</td>
+    <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
+      <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
       <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
       <td><b>$${(o.total||0).toFixed(2)}</b></td>
       <td>${actionBtn}</td>
@@ -1840,7 +1850,7 @@ async function loadMyStoreOrders() {
     ready_for_pickup: { label: 'Mark Collected',        next: 'delivered' },
   };
   el.innerHTML = `<table class="orders-table">
-    <thead><tr><th>Order #</th><th>Customer</th><th>Date</th><th>Status</th><th>Total</th><th>Action</th></tr></thead>
+    <thead><tr><th>Order #</th><th>Customer</th><th>Ordered</th><th>Pickup Date</th><th>Status</th><th>Total</th><th>Action</th></tr></thead>
     <tbody>${orders.map(o => {
       const t   = TRANSITIONS[o.status];
       const btn = t
@@ -1850,6 +1860,7 @@ async function loadMyStoreOrders() {
         <td><b>${o.orderNumber}</b></td>
         <td style="font-size:12px;">${o.customerEmail||'—'}</td>
         <td style="font-size:12px;">${new Date(o.createdAt).toLocaleDateString()}</td>
+    <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
         <td><b>$${(o.total||0).toFixed(2)}</b></td>
         <td>${btn}</td>
