@@ -490,10 +490,13 @@
 
       <!-- ══ RETAIL OUTLETS ══ -->
       <div class="panel" id="panel-outlets">
-        <!-- Section A: Retail Users with linked outlets -->
+        <!-- Section A: Retail Store Accounts (users who signed up as retail) -->
         <div class="card" style="margin-bottom:24px;">
           <div class="card-head">
-            <div class="card-title">🏪 Retail Outlet Accounts</div>
+            <div>
+              <div class="card-title">👤 Retail Store Accounts</div>
+              <div style="font-size:12px;color:var(--mid);margin-top:3px;">People who signed up as retail store owners — each has one linked primary store</div>
+            </div>
             <div style="display:flex;gap:10px;align-items:center;">
               <select id="retailUserStatusFilter" class="form-select" style="width:160px;padding:8px 12px;font-size:13px;" onchange="loadRetailUsers()">
                 <option value="">All Statuses</option>
@@ -508,10 +511,13 @@
             <div class="skeleton" style="height:160px;margin:20px;border-radius:4px;"></div>
           </div>
         </div>
-        <!-- Section B: Admin-created / standalone outlets -->
+        <!-- Section B: All pickup outlets directory -->
         <div class="card">
           <div class="card-head">
-            <div class="card-title">🔧 Admin-Managed Outlets</div>
+            <div>
+              <div class="card-title">📍 Pickup Locations Directory</div>
+              <div style="font-size:12px;color:var(--mid);margin-top:3px;">All physical pickup points — includes admin-created stores, dealer-registered outlets, and retail-user-requested additional locations</div>
+            </div>
             <button class="btn-add" onclick="openOutletModal()">+ Add Outlet</button>
           </div>
           <div id="outletsTableWrap">
@@ -1118,8 +1124,8 @@ async function loadApprovals() {
         <tbody>${pendingOutlets.map(o => `<tr style="background:#fffdf0;">
           <td><b>${o.name}</b></td>
           <td style="font-size:12px;">${o.ownerUserId
-            ? `<span style="background:#e8f4fd;color:#1a6fa8;padding:2px 8px;border-radius:10px;font-weight:700;">Retail-requested</span>`
-            : `<span style="background:#f0ebe0;color:var(--mid);padding:2px 8px;border-radius:10px;font-weight:700;">Admin-created</span>`
+            ? `<span style="background:#e8f4fd;color:#1a6fa8;padding:2px 8px;border-radius:10px;font-weight:700;">Retail user outlet</span>`
+            : `<span style="background:#f0ebe0;color:var(--mid);padding:2px 8px;border-radius:10px;font-weight:700;">Admin outlet</span>`
           }</td>
           <td style="font-size:13px;">${o.address}<br/><span style="color:var(--mid);font-size:12px;">${o.suburb}, ${o.state}</span></td>
           <td style="font-size:12px;color:var(--mid);">${o.territorySlug}</td>
@@ -1207,14 +1213,14 @@ async function loadRetailUsers() {
   // Render summary from unfiltered totals
   const allRetail = totalData.users || [];
   renderSummaryStats('retailSummary', [
-    { label: 'Total Retail',    value: allRetail.length,                                                           color: '#1A1A1A' },
+    { label: 'Total Accounts',  value: allRetail.length,                                                           color: '#1A1A1A' },
     { label: 'Active',          value: allRetail.filter(r => r.approvalStatus === 'approved').length,              color: '#27ae60' },
     { label: 'Pending',         value: allRetail.filter(r => r.approvalStatus === 'pending').length,               color: '#e67e22' },
     { label: 'Rejected',        value: allRetail.filter(r => r.approvalStatus === 'rejected').length,              color: '#c0392b' },
     { label: 'Pickup Enabled',  value: allRetail.filter(r => r.outlet?.pickupEnabled).length,                      color: '#9B8B5A' },
   ]);
   if (!list.length) {
-    wrap.innerHTML = '<p style="padding:20px;color:var(--mid);font-size:14px;">No retail outlet accounts found.</p>';
+    wrap.innerHTML = '<p style="padding:20px;color:var(--mid);font-size:14px;">No retail store accounts found.</p>';
     return;
   }
   const statusBadge = (s) => {
@@ -1223,7 +1229,7 @@ async function loadRetailUsers() {
   };
   wrap.innerHTML = `
     <table class="data-table">
-      <thead><tr><th>Store Name</th><th>Owner</th><th>Email</th><th>State</th><th>Territory</th><th>Account</th><th>Pickup</th><th>Actions</th></tr></thead>
+      <thead><tr><th>Store Name</th><th>Owner</th><th>Email</th><th>State</th><th>Territory</th><th>Approval Status</th><th>Pickup</th><th>Actions</th></tr></thead>
       <tbody>${list.map(u => {
         const o = u.outlet;
         return `<tr>
@@ -1249,7 +1255,7 @@ async function loadRetailUsers() {
         </tr>`;
       }).join('')}</tbody>
     </table>
-    <div style="padding:12px 20px;font-size:12px;color:var(--mid);border-top:1px solid #f0ebe0;">${list.length} retail outlet account${list.length!==1?'s':''}</div>`;
+    <div style="padding:12px 20px;font-size:12px;color:var(--mid);border-top:1px solid #f0ebe0;">${list.length} retail store account${list.length!==1?'s':''}</div>`;
 }
 window.loadRetailUsers = loadRetailUsers;
 
@@ -1627,8 +1633,8 @@ async function loadOutlets() {
         ${list.map(o => {
           const isDealerOutlet = o.dealerId && !o.ownerUserId;
           const originLabel = isDealerOutlet
-            ? '<span style="font-size:10px;background:#fff3cd;color:#856404;border:1px solid #ffc10740;padding:2px 7px;border-radius:10px;font-weight:700;margin-left:6px;">Dealer-registered</span>'
-            : '<span style="font-size:10px;background:#f8f9fa;color:#555;border:1px solid #ddd;padding:2px 7px;border-radius:10px;margin-left:6px;">Admin-managed</span>';
+            ? '<span style="font-size:10px;background:#fff3cd;color:#856404;border:1px solid #ffc10740;padding:2px 7px;border-radius:10px;font-weight:700;margin-left:6px;">Dealer outlet</span>'
+            : '<span style="font-size:10px;background:#f8f9fa;color:#555;border:1px solid #ddd;padding:2px 7px;border-radius:10px;margin-left:6px;">Admin-created</span>';
           const activateBtn = (!o.isActive && isDealerOutlet)
             ? `<button onclick="activateOutlet('${o._id}','${o.name.replace(/'/g,"\\'")}'" style="padding:5px 12px;font-size:12px;background:#27ae60;color:#fff;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">✓ Activate</button>`
             : '';
@@ -1737,7 +1743,7 @@ async function deleteOutlet(id) {
   else showToast(data.message || 'Delete failed', 'error');
 }
 window.deleteOutlet = deleteOutlet;
-const panelTitles = { dashboard: 'Dashboard', approvals: 'Approvals', catalogue: 'Catalogue', orders: 'Orders', coupons: 'Coupons', users: 'Users (Customers)', newsletter: 'Newsletter', storefront: 'Storefront', territories: 'Territory Management', dealers: 'Dealers', outlets: 'Retail Outlets' };
+const panelTitles = { dashboard: 'Dashboard', approvals: 'Approvals', catalogue: 'Catalogue', orders: 'Orders', coupons: 'Coupons', users: 'Users (Customers)', newsletter: 'Newsletter', storefront: 'Storefront', territories: 'Territory Management', dealers: 'Dealers', outlets: 'Retail Outlets & Accounts' };
 
 function showPanel(name, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
