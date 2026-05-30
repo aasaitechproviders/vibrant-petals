@@ -185,6 +185,27 @@
     .wish-empty p{margin-bottom:20px;font-size:14px;}
     footer{background:var(--cream);border-top:1px solid #e8e0d2;padding:40px 32px;text-align:center;font-size:13px;color:var(--mid);}
     @media(max-width:900px){.account-layout{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}.stats-grid{grid-template-columns:1fr 1fr;}.order-info-grid{grid-template-columns:1fr;}nav ul{display:none;}}
+
+    /* ── BRANDED CONFIRM MODAL ── */
+    .vp-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+    .vp-modal-overlay.open{opacity:1;pointer-events:all;}
+    .vp-modal{background:#fff;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.18);width:min(440px,92vw);overflow:hidden;transform:translateY(12px) scale(.97);transition:transform .2s;font-family:'Nunito',sans-serif;}
+    .vp-modal-overlay.open .vp-modal{transform:translateY(0) scale(1);}
+    .vp-modal-header{background:var(--cream2);border-bottom:1px solid #e8e0d2;padding:20px 24px;display:flex;align-items:center;gap:12px;}
+    .vp-modal-logo{height:36px;width:auto;object-fit:contain;}
+    .vp-modal-brand{font-family:'Playfair Display',serif;font-size:16px;color:var(--dark);font-weight:400;letter-spacing:.02em;}
+    .vp-modal-brand span{color:var(--gold);}
+    .vp-modal-body{padding:28px 24px 20px;}
+    .vp-modal-icon{font-size:32px;text-align:center;margin-bottom:12px;}
+    .vp-modal-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--dark);margin-bottom:10px;text-align:center;}
+    .vp-modal-message{font-size:14px;color:var(--mid);line-height:1.65;text-align:center;}
+    .vp-modal-footer{display:flex;gap:10px;padding:0 24px 24px;justify-content:center;}
+    .vp-modal-btn{flex:1;max-width:160px;padding:12px 20px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:var(--radius);border:none;cursor:pointer;font-family:inherit;transition:background .15s,opacity .15s;}
+    .vp-modal-btn:hover{opacity:.88;}
+    .vp-modal-cancel{background:#f0ebe0;color:var(--mid);}
+    .vp-modal-confirm{background:var(--gold);color:#fff;}
+    .vp-modal-confirm.danger{background:#c0392b;}
+    .vp-modal-confirm.success{background:#27ae60;}
   </style>
 </head>
 <body>
@@ -661,6 +682,42 @@
 
 <script>
 
+// ── BRANDED CONFIRM MODAL ─────────────────────────────────────────────────
+function vpConfirm({ title, message, icon = '❓', confirmText = 'Confirm', cancelText = 'Cancel', danger = false, success = false }) {
+  return new Promise(resolve => {
+    const overlay  = document.getElementById('vpModalOverlay');
+    const iconEl   = document.getElementById('vpModalIcon');
+    const titleEl  = document.getElementById('vpModalTitle');
+    const msgEl    = document.getElementById('vpModalMessage');
+    const confirmBtn = document.getElementById('vpModalConfirm');
+    const cancelBtn  = document.getElementById('vpModalCancel');
+
+    iconEl.textContent   = icon;
+    titleEl.textContent  = title;
+    msgEl.innerHTML      = message;
+    confirmBtn.textContent = confirmText;
+    cancelBtn.textContent  = cancelText;
+    confirmBtn.className = 'vp-modal-btn vp-modal-confirm' + (danger ? ' danger' : success ? ' success' : '');
+
+    overlay.classList.add('open');
+    confirmBtn.focus();
+
+    const close = (result) => {
+      overlay.classList.remove('open');
+      confirmBtn.replaceWith(confirmBtn.cloneNode(true));
+      cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+      resolve(result);
+    };
+
+    document.getElementById('vpModalConfirm').onclick = () => close(true);
+    document.getElementById('vpModalCancel').onclick  = () => close(false);
+    overlay.onclick = (e) => { if (e.target === overlay) close(false); };
+    document.addEventListener('keydown', function esc(e) {
+      if (e.key === 'Escape') { document.removeEventListener('keydown', esc); close(false); }
+    }, { once: true });
+  });
+}
+
 function fmtPickupDate(d) {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
@@ -909,7 +966,7 @@ async function loadOrders(page=1){
 
 // ── CANCEL ORDER ──────────────────────────────────────────────────────────────
 async function cancelOrder(id,num){
-  if(!confirm(`Cancel order #${num}? This cannot be undone.`))return;
+  if(!await vpConfirm({ title: 'Cancel Order', message: `Cancel order <strong>#${num}</strong>? This cannot be undone.`, icon: '❌', confirmText: 'Cancel Order', danger: true }))return;
   const data=await apiFetch(`/orders/${id}/cancel`,{method:'PUT',headers:apiHeaders()});
   if(data.success){showToast('Order cancelled','success');loadOrders(orderPage);}
   else showToast(data.message||'Could not cancel order','error');
@@ -1106,7 +1163,7 @@ async function loadDealerOrders() {
 
 // FIX: dealer-scoped status update — calls PUT /dealer/orders/:id/status
 async function updateDealerOrderStatus(id, newStatus, orderNum) {
-  if (!confirm(`Update order #${orderNum} to "${newStatus.replace(/_/g,' ')}"?`)) return;
+  if (!await vpConfirm({ title: 'Update Order Status', message: `Update order <strong>#${orderNum}</strong> to <strong>${newStatus.replace(/_/g,' ')}</strong>?`, icon: '📦', confirmText: 'Update', success: true })) return;
   const data = await apiFetch(`/dealer/orders/${id}/status`, {
     method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus })
   });
@@ -1509,7 +1566,7 @@ async function saveAddress(){
 window.saveAddress=saveAddress;
 
 async function deleteAddress(addrId){
-  if(!confirm('Remove this address?'))return;
+  if(!await vpConfirm({ title: 'Remove Address', message: 'Are you sure you want to remove this address?', icon: '📍', confirmText: 'Remove', danger: true }))return;
   const data=await apiFetch(`/auth/addresses/${addrId}`,{method:'DELETE',headers:apiHeaders()});
   if(data.success){showToast('Address removed','success');loadAddresses();}
   else showToast('Failed to remove address','error');
@@ -1870,7 +1927,7 @@ async function loadMyStoreOrders() {
 }
 
 async function updateMyOutletOrderStatus(id, newStatus, orderNum) {
-  if (!confirm(`Update order #${orderNum} to "${newStatus.replace(/_/g,' ')}"?`)) return;
+  if (!await vpConfirm({ title: 'Update Order Status', message: `Update order <strong>#${orderNum}</strong> to <strong>${newStatus.replace(/_/g,' ')}</strong>?`, icon: '📦', confirmText: 'Update', success: true })) return;
   const data = await apiFetch(`/dealer/orders/${id}/status`, {
     method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus }),
   });
@@ -1955,7 +2012,7 @@ async function removeFromWishlistPanel(productId){
 }
 
 async function clearWishlistPanel(){
-  if(!confirm('Clear your entire wishlist?'))return;
+  if(!await vpConfirm({ title: 'Clear Wishlist', message: 'Remove all items from your wishlist? This cannot be undone.', icon: '🗑️', confirmText: 'Clear All', danger: true }))return;
   const data=await apiFetch('/wishlist',{method:'DELETE',headers:apiHeaders()});
   if(data.success){showToast('Wishlist cleared');loadWishlistPanel();}
   else showToast(data.message||'Error','error');
@@ -1967,5 +2024,24 @@ window.clearWishlistPanel=clearWishlistPanel;
 loadCounts();
 init();
 </script>
+
+<!-- ── BRANDED CONFIRM MODAL ── -->
+<div class="vp-modal-overlay" id="vpModalOverlay">
+  <div class="vp-modal" role="dialog" aria-modal="true">
+    <div class="vp-modal-header">
+      <img class="vp-modal-logo" src="logo.png" alt="Vibrant Petals"/>
+      <div class="vp-modal-brand">Vibrant <span>Petals</span></div>
+    </div>
+    <div class="vp-modal-body">
+      <div class="vp-modal-icon" id="vpModalIcon"></div>
+      <div class="vp-modal-title" id="vpModalTitle"></div>
+      <div class="vp-modal-message" id="vpModalMessage"></div>
+    </div>
+    <div class="vp-modal-footer">
+      <button class="vp-modal-btn vp-modal-cancel" id="vpModalCancel">Cancel</button>
+      <button class="vp-modal-btn vp-modal-confirm" id="vpModalConfirm">Confirm</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
