@@ -15,30 +15,10 @@
     img{max-width:100%;}
 
     /* ── ANNOUNCEMENT BAR ── */
-    .ann-bar{background:var(--gold);color:#fff;text-align:center;padding:10px 16px;font-size:13px;letter-spacing:.04em;height:var(--bar-h);display:flex;align-items:center;justify-content:center;}
 
     /* ── HEADER ── */
-    header{position:sticky;top:0;z-index:900;background:#fff;border-bottom:1px solid rgba(155,139,90,.15);height:var(--nav-h);}
-    .nav-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:100%;display:flex;align-items:center;justify-content:space-between;gap:24px;}
-    .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--dark);letter-spacing:.02em;}
-    .nav-logo img{height:46px;width:auto;object-fit:contain;}
-    nav ul{display:flex;gap:28px;list-style:none;}
-    nav ul li a{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dark);padding-bottom:4px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
-    nav ul li a:hover{color:var(--gold);border-bottom-color:var(--gold);}
-    .nav-icons{display:flex;align-items:center;gap:20px;}
-    .nav-icon-btn{background:none;border:none;cursor:pointer;color:var(--dark);display:flex;align-items:center;padding:6px;transition:color .2s;position:relative;}
-    .nav-icon-btn svg{width:22px;height:22px;stroke-width:1.6;}
-    .nav-icon-btn:hover{color:var(--gold);}
-    .badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
     /* Dropdown */
-    .dropdown{position:relative;}
-    .dropdown-menu{display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid rgba(155,139,90,.2);border-radius:var(--radius);padding:8px 0;min-width:200px;box-shadow:0 4px 20px rgba(0,0,0,.08);z-index:100;}
-    .dropdown:hover .dropdown-menu{display:block;}
-    .dropdown-menu a{display:block;padding:10px 18px;font-size:13px;color:var(--dark);transition:background .15s,color .15s;white-space:nowrap;}
-    .dropdown-menu a:hover{background:var(--cream2);color:var(--gold);}
     /* Hamburger */
-    .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;}
-    .hamburger span{width:22px;height:2px;background:var(--dark);display:block;transition:.3s;}
 
     /* ── PAGE HERO ── */
 
@@ -85,9 +65,7 @@
 
     /* ── MOBILE ── */
     @media(max-width:900px){
-      nav,.nav-icons .nav-icon-btn:not(#cartBtn):not(#loginBtn){display:none;}
-      .hamburger{display:flex;}
-      }
+        }
     @media(max-width:600px){
         .page-content{padding:40px 20px 60px;}
     }
@@ -114,14 +92,110 @@
         .hero-divider{display:flex;align-items:center;gap:12px;justify-content:center;margin-top:20px;}
         .hero-divider span{width:40px;height:1px;background:var(--gold);opacity:.5;display:block;}
         .hero-divider i{color:var(--gold);font-size:14px;font-style:normal;}
+    .ann-bar{background:var(--gold);color:#fff;text-align:center;font-size:13px;letter-spacing:.06em;height:var(--bar-h);display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:200;}
+    header{position:sticky;top:var(--bar-h);z-index:190;background:#fff;border-bottom:1px solid #e8e0d2;height:var(--nav-h);}
+    .nav-inner{max-width:1280px;margin:0 auto;padding:0 32px;height:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--dark);height:100%;}
+    .nav-logo img{height:100%;width:auto;object-fit:contain;display:block;}
+    nav ul{display:flex;align-items:center;gap:36px;}
+    nav ul li{position:relative;}
+    nav ul li a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--dark);padding-bottom:4px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
+    nav ul li a:hover,nav ul li a.active{color:var(--gold);border-bottom-color:var(--gold);}
+    .dropdown{position:relative;}
+    .dropdown-menu{position:absolute;top:100%;left:50%;padding-top:18px;transform:translateX(-50%) translateY(-6px);background:transparent;border:none;min-width:200px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;}
+    .dropdown-menu::before{content:'';display:block;background:#fff;border:1px solid #e8e0d2;box-shadow:0 8px 30px rgba(0,0,0,.08);position:absolute;top:18px;left:0;right:0;bottom:0;z-index:-1;}
+    .dropdown:hover .dropdown-menu{opacity:1;pointer-events:all;transform:translateX(-50%) translateY(0);}
+    .dropdown-menu a{display:block;padding:12px 20px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-bottom:1px solid #f0ebe0;color:var(--dark);background:#fff;transition:background .15s,color .15s;}
+    .dropdown-menu a:last-child{border-bottom:none;}
+    .dropdown-menu a:hover{background:var(--cream2);color:var(--gold);}
+    .nav-icons{display:flex;align-items:center;gap:20px;}
+    .nav-icon-btn{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--dark);transition:color .2s;background:none;border:none;cursor:pointer;}
+    .nav-icon-btn:hover{color:var(--gold);}
+    .nav-icon-btn svg{width:22px;height:22px;stroke-width:1.6;}
+    .acct-icon-wrap{position:relative;}
+    .acct-icon-wrap .acct-drop{display:none;position:absolute;top:100%;right:0;padding-top:10px;background:#fff;border:1px solid #e8e0d2;box-shadow:0 8px 30px rgba(0,0,0,.1);min-width:160px;z-index:9999;}
+    .acct-icon-wrap:hover .acct-drop{display:block;}
+    .acct-drop a,.acct-drop button{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;border:none;background:none;font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;color:var(--dark);cursor:pointer;text-align:left;border-bottom:1px solid #f0ebe0;transition:background .15s;}
+    .acct-drop a:last-child,.acct-drop button:last-child{border-bottom:none;}
+    .acct-drop a:hover,.acct-drop button:hover{background:var(--cream2);color:var(--gold);}
+    .acct-drop .drop-logout{color:#c0392b;}
+    .acct-drop .drop-logout:hover{background:#fce4e4;color:#c0392b;}
+    .badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+    .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:none;border:none;cursor:pointer;padding:4px;border-radius:4px;transition:background .15s;}
+    .hamburger:hover{background:var(--cream2);}
+    .hamburger span{display:block;width:22px;height:2px;background:var(--dark);border-radius:2px;transition:transform .25s,opacity .25s;}
+    .mobile-nav{display:none;position:fixed;inset:0;z-index:800;}
+    .mobile-nav.open{display:block;}
+    .mobile-nav-overlay{position:absolute;inset:0;background:rgba(0,0,0,.45);}
+    .mobile-nav-drawer{position:absolute;top:0;left:0;bottom:0;width:min(300px,85vw);background:#fff;overflow-y:auto;box-shadow:4px 0 30px rgba(0,0,0,.12);display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);}
+    .mobile-nav.open .mobile-nav-drawer{transform:translateX(0);}
+    .mobile-nav-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #e8e0d2;font-family:'Playfair Display',serif;font-size:18px;color:var(--dark);}
+    .mobile-nav-close{font-size:22px;color:var(--mid);background:none;border:none;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px;transition:background .15s;}
+    .mobile-nav-close:hover{background:var(--cream2);}
+    .mobile-nav ul{list-style:none;padding:10px 0;margin:0;flex:1;}
+    .mobile-nav ul li a,.mobile-nav ul li button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 20px;font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dark);background:none;border:none;cursor:pointer;text-align:left;border-bottom:1px solid #f5f0e8;transition:background .15s,color .15s;text-decoration:none;}
+    .mobile-nav ul li a:hover,.mobile-nav ul li button:hover{background:var(--cream2);color:var(--gold);}
+    .mobile-nav-sub{display:none;background:var(--cream2);border-bottom:1px solid #e8e0d2;}
+    .mobile-nav-sub.open{display:block;}
+    .mobile-nav-sub a{padding:11px 20px 11px 36px!important;font-size:13px!important;letter-spacing:.05em!important;color:var(--mid)!important;border-bottom:1px solid #ede8de!important;}
+    .mobile-nav-sub a:hover{color:var(--gold)!important;}
+    .search-overlay{position:fixed;inset:0;background:rgba(250,247,242,.97);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:15vh;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .search-overlay.open{opacity:1;pointer-events:all;}
+    .search-close{position:absolute;top:20px;right:24px;font-size:28px;color:var(--dark);cursor:pointer;transition:color .2s;background:none;border:none;}
+    .search-close:hover{color:var(--gold);}
+    .search-label{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:24px;color:var(--dark);}
+    .search-bar{display:flex;align-items:center;width:min(600px,90vw);border-bottom:2px solid var(--dark);padding-bottom:10px;gap:12px;}
+    .search-bar input{flex:1;border:none;background:transparent;font-size:20px;outline:none;font-family:'Cormorant Garamond',serif;}
+    .search-results{width:min(600px,90vw);margin-top:24px;display:flex;flex-direction:column;gap:12px;max-height:55vh;overflow-y:auto;}
+    .search-result-item{display:flex;align-items:center;gap:16px;padding:12px;background:#fff;border:1px solid #e8e0d2;cursor:pointer;transition:border-color .2s;}
+    .search-result-item:hover{border-color:var(--gold);}
+    .search-result-item img{width:50px;height:50px;object-fit:cover;}
+    .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:700;opacity:0;pointer-events:none;transition:opacity .3s;}
+    .cart-overlay.open{opacity:1;pointer-events:all;}
+    .cart-drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,95vw);background:#fff;z-index:710;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-4px 0 40px rgba(0,0,0,.15);}
+    .cart-drawer.open{transform:translateX(0);}
+    .cart-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #e8e0d2;}
+    .cart-head h3{font-family:'Playfair Display',serif;font-size:18px;}
+    .cart-body{flex:1;overflow-y:auto;padding:20px 24px;}
+    .cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;color:var(--mid);}
+    .cart-empty svg{width:48px;height:48px;opacity:.3;}
+    .btn-shop-all{display:inline-block;padding:12px 28px;border:1px solid var(--dark);font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;transition:background .2s,color .2s;}
+    .btn-shop-all:hover{background:var(--dark);color:#fff;}
+    .cart-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f0ebe0;}
+    .cart-item img{width:70px;height:70px;object-fit:cover;background:var(--card-bg);}
+    .cart-item-info{flex:1;}
+    .cart-item-name{font-size:13px;font-weight:600;margin-bottom:4px;}
+    .cart-item-price{font-size:13px;color:var(--mid);}
+    .cart-item-qty{display:flex;align-items:center;gap:10px;margin-top:8px;}
+    .qty-btn{width:26px;height:26px;border:1px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:background .2s;background:none;}
+    .qty-btn:hover{background:var(--cream2);}
+    .qty-val{font-size:14px;font-weight:600;min-width:20px;text-align:center;}
+    .cart-remove{font-size:18px;color:#aaa;cursor:pointer;align-self:flex-start;transition:color .2s;background:none;border:none;}
+    .cart-remove:hover{color:#c0392b;}
+    .cart-foot{padding:20px 24px;border-top:1px solid #e8e0d2;}
+    .cart-totals{margin-bottom:16px;}
+    .cart-total-row{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;color:var(--mid);}
+    .cart-total-row.grand{font-weight:700;color:var(--dark);font-size:16px;}
+    .btn-checkout{width:100%;padding:16px;background:var(--gold);color:#fff;font-size:14px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);transition:background .2s;border:none;cursor:pointer;}
+    .btn-checkout:hover{background:var(--gold-dark);}
+    .toast{position:fixed;bottom:28px;right:28px;background:var(--dark);color:#fff;padding:14px 22px;border-radius:4px;font-size:13px;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:999;}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast.success{background:#2d7a2d;}
+    .toast.error{background:#c0392b;}
+    .back-top{position:fixed;bottom:28px;right:28px;width:42px;height:42px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 16px rgba(0,0,0,.18);opacity:0;pointer-events:none;transition:opacity .3s;z-index:400;cursor:pointer;border:none;}
+    .back-top.visible{opacity:1;pointer-events:all;}
+    .skeleton{background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    @media(max-width:900px){nav ul{display:none;}.hamburger{display:flex;}}
   </style>
 </head>
 <body>
 <div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney</div>
+
 <header>
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
-      <img src="logo.png" alt="Vibrant Petals Logo"/>
+      <img src="logo.png" alt="Vibrant Petals Logo" />
       Vibrant Petals
     </a>
     <nav>
@@ -140,26 +214,19 @@
       </ul>
     </nav>
     <div class="nav-icons">
-      <a href="index.html" class="nav-icon-btn" title="Home">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-      </a>
-      <a href="account.html" class="nav-icon-btn" title="Account">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      </a>
-      <a href="category.html?cat=all" class="nav-icon-btn" title="Shop">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-      </a>
+      <button class="nav-icon-btn" id="searchBtn" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></button>
+      <div class="acct-icon-wrap">
+        <button class="nav-icon-btn" id="loginBtn" title="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+        <div class="acct-drop" id="acctDrop"></div>
+      </div>
+      <button class="nav-icon-btn" title="Wishlist" onclick="location.href='account.html?panel=wishlist'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount" style="display:none;">0</span></button>
+      <button class="nav-icon-btn" id="cartBtn" title="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="badge" id="cartCount">0</span></button>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" onclick="openMobileNav()"><span></span><span></span><span></span></button>
     </div>
   </div>
 </header>
-<div class="page-hero">
-  <div class="page-hero-inner">
-    <div class="page-hero-eyebrow">Nivas Vibrant Petals</div>
-    <h1>Bringing Indian Floral Traditions to Australia</h1>
-    <p>We believe flowers are more than beautiful decorations — they represent devotion, traditions, and cultural identity.</p>
-    <div class="hero-divider"><span></span><i>✦</i><span></span></div>
-  </div>
-</div>
+
+
 <div class="page-content">
 
 <div class="section-block">
@@ -267,7 +334,114 @@
   </div>
   <div class="footer-bottom">Copyright &copy; Nivas Vibrant Petals. All Rights Reserved. &middot; <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></div>
 </footer>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<div class="search-overlay" id="searchOverlay">
+  <button class="search-close" id="searchClose">✕</button>
+  <div class="search-label">What are you looking for?</div>
+  <div class="search-bar"><input type="text" id="searchInput" placeholder="Search products..." autocomplete="off"/><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--dark)" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<div class="cart-overlay" id="cartOverlay"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-head"><h3>Shopping Cart(<span id="cartCountHead">0</span>)</h3><button id="cartClose" style="font-size:22px;color:var(--mid);background:none;border:none;cursor:pointer;">✕</button></div>
+  <div class="cart-body" id="cartBody"><div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><p>Your cart is currently empty.</p><a href="category.html?cat=all" class="btn-shop-all">Shop All Products</a></div></div>
+  <div class="cart-foot" id="cartFoot" style="display:none;">
+    <div class="cart-totals">
+      <div class="cart-total-row"><span>Subtotal</span><span id="cartSubtotal">$0.00</span></div>
+      <div class="cart-total-row"><span>Pickup</span><span id="cartShipping">Free (In-store)</span></div>
+      <div class="cart-total-row grand"><span>Total</span><span id="cartTotal">$0.00</span></div>
+    </div>
+    <button class="btn-checkout" onclick="handleCheckout()">Proceed to Checkout</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
+const API = 'https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
+(function(){const raw=localStorage.getItem('vp_token');if(raw){try{const p=JSON.parse(atob(raw.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(p.exp&&p.exp*1000<Date.now())localStorage.removeItem('vp_token');}catch(e){localStorage.removeItem('vp_token');}}})();
+let token=localStorage.getItem('vp_token')||'';
+let sessionId=localStorage.getItem('vp_session')||'sess_'+Math.random().toString(36).slice(2);
+localStorage.setItem('vp_session',sessionId);
+function apiHeaders(auth=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(auth&&token)h['Authorization']='Bearer '+token;return h;}
+async function apiFetch(path,opts={}){try{const r=await fetch(API+path,opts);return r.json();}catch(e){return{success:false,message:e.message};}}
+function showToast(msg,type=''){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function getTokenRole(){try{if(!token)return null;const p=token.split('.')[1];const j=JSON.parse(atob(p.replace(/-/g,'+').replace(/_/g,'/')));return j.role||null;}catch{return null;}}
+
+// Mobile nav
+function openMobileNav(){document.getElementById('mobileNav').classList.add('open');document.getElementById('hamburgerBtn').classList.add('open');document.body.style.overflow='hidden';}
+function closeMobileNav(){document.getElementById('mobileNav').classList.remove('open');document.getElementById('hamburgerBtn').classList.remove('open');document.body.style.overflow='';}
+function toggleMobileSub(id,btn){const sub=document.getElementById(id);const arrow=document.getElementById('garlandsArrow');const isOpen=sub.classList.toggle('open');if(arrow)arrow.classList.toggle('open',isOpen);}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMobileNav();if(document.getElementById('searchOverlay'))document.getElementById('searchOverlay').classList.remove('open');}});
+
+// Search
+const searchOverlay=document.getElementById('searchOverlay');
+document.getElementById('searchBtn').onclick=()=>{searchOverlay.classList.add('open');document.getElementById('searchInput').focus();};
+document.getElementById('searchClose').onclick=()=>searchOverlay.classList.remove('open');
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input',function(){
+  clearTimeout(searchTimer);const q=this.value.trim();
+  if(q.length<2){document.getElementById('searchResults').innerHTML='';return;}
+  searchTimer=setTimeout(async()=>{
+    const data=await apiFetch('/products/search?q='+encodeURIComponent(q)+'&limit=10').catch(()=>({products:[]}));
+    const prods=data.products||[];
+    document.getElementById('searchResults').innerHTML=prods.length
+      ?prods.map(p=>`<div class="search-result-item" onclick="location.href='product.html?id=${p._id}'"><img src="${p.images?.[0]||''}" onerror="this.style.display='none'"/><div><div style="font-size:14px;font-weight:600;">${p.name}</div><div style="font-size:13px;color:var(--mid)">${p.price?'$'+p.price.toFixed(2):''}</div></div></div>`).join('')
+      :'<p style="color:var(--mid);font-size:14px;">No results found</p>';
+  },300);
+});
+
+// Cart
+const cartOverlay=document.getElementById('cartOverlay'),cartDrawer=document.getElementById('cartDrawer');
+function openCart(){cartOverlay.classList.add('open');cartDrawer.classList.add('open');loadCart();}
+function closeCart(){cartOverlay.classList.remove('open');cartDrawer.classList.remove('open');}
+document.getElementById('cartBtn').onclick=openCart;
+document.getElementById('cartClose').onclick=closeCart;
+cartOverlay.onclick=closeCart;
+async function loadCart(){const data=await apiFetch('/cart',{headers:apiHeaders()}).catch(()=>({cart:{items:[]}}));renderCart(data.cart||{items:[]});}
+function renderCart(cart){
+  const items=cart.items||[];const count=items.reduce((s,i)=>s+i.quantity,0);
+  document.getElementById('cartCount').textContent=count;
+  document.getElementById('cartCountHead').textContent=count;
+  const cartBody=document.getElementById('cartBody');const cartFoot=document.getElementById('cartFoot');
+  if(!items.length){cartBody.innerHTML='<div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><p>Your cart is currently empty.</p><a href="category.html?cat=all" class="btn-shop-all">Shop All Products</a></div>';cartFoot.style.display='none';return;}
+  cartBody.innerHTML=items.map(i=>`<div class="cart-item"><img src="${i.image||''}" alt="${i.name}" onerror="this.style.display='none'"/><div class="cart-item-info"><div class="cart-item-name">${i.name}</div><div class="cart-item-price">$${i.price.toFixed(2)}</div><div class="cart-item-qty"><button class="qty-btn" onclick="changeQty('${i.productId}',${i.quantity-1})">−</button><span class="qty-val">${i.quantity}</span><button class="qty-btn" onclick="changeQty('${i.productId}',${i.quantity+1})">+</button></div></div><button class="cart-remove" onclick="removeFromCart('${i.productId}')">✕</button></div>`).join('');
+  document.getElementById('cartSubtotal').textContent='$'+(cart.subtotal||0).toFixed(2);
+  document.getElementById('cartShipping').textContent=cart.shippingCost===0?'Free (In-store)':'$'+(cart.shippingCost||0).toFixed(2);
+  document.getElementById('cartTotal').textContent='$'+(cart.total||0).toFixed(2);
+  cartFoot.style.display='block';
+}
+async function changeQty(pid,qty){if(qty<1)return removeFromCart(pid);const data=await apiFetch('/cart/items/'+pid,{method:'PUT',headers:apiHeaders(),body:JSON.stringify({quantity:qty})}).catch(()=>({success:false}));if(data.success)renderCart(data.cart);}
+async function removeFromCart(pid){const data=await apiFetch('/cart/items/'+pid,{method:'DELETE',headers:apiHeaders()}).catch(()=>({success:false}));if(data.success)renderCart(data.cart);}
+function handleCheckout(){location.href='checkout.html';}
+
+// Account dropdown
+function buildAcctDrop(){
+  const drop=document.getElementById('acctDrop');if(!drop)return;
+  if(token){
+    drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Account</a><button class="drop-logout" onclick="doHeaderLogout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</button>`;
+    document.getElementById('loginBtn').onclick=()=>{location.href='account.html';};
+  }else{
+    drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Sign In</a><a href="signup.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Register</a>`;
+    document.getElementById('loginBtn').onclick=()=>{location.href='account.html';};
+  }
+}
+function doHeaderLogout(){localStorage.removeItem('vp_token');location.reload();}
+
+async function loadWishCount(){
+  if(!token)return;
+  try{const data=await apiFetch('/wishlist',{headers:apiHeaders()});const count=(data.wishlist?.products||[]).length;const el=document.getElementById('wishCount');if(el){el.textContent=count;el.style.display=count>0?'flex':'none';}}catch(e){}
+}
+
+window.addEventListener('scroll',()=>document.getElementById('backTop').classList.toggle('visible',window.scrollY>400));
+
+// Init
+loadCart();loadWishCount();buildAcctDrop();
+
+
 // Simple FAQ accordion
 document.querySelectorAll('.faq-q').forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -283,16 +457,12 @@ document.getElementById('nlSubmit')?.addEventListener('click', async () => {
   const email = document.getElementById('nlEmail')?.value.trim();
   const msgEl = document.getElementById('nlMsg');
   if (!email) { if(msgEl){msgEl.textContent='Please enter your email.';msgEl.style.color='#c0392b';} return; }
-  try {
-    const res = await fetch('https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws/newsletter/subscribe', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({email})
-    });
-    const data = await res.json();
-    if(msgEl){ msgEl.textContent = data.message||(data.success?'Subscribed!':'Error'); msgEl.style.color = data.success?'green':'#c0392b'; }
-    if(data.success && document.getElementById('nlEmail')) document.getElementById('nlEmail').value='';
-  } catch(e) { if(msgEl){msgEl.textContent='Error. Please try again.';msgEl.style.color='#c0392b';} }
+  const data = await apiFetch('/newsletter/subscribe',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email})}).catch(()=>({success:false}));
+  if(msgEl){ msgEl.textContent=data.message||(data.success?'Subscribed! 🌸':'Error.');msgEl.style.color=data.success?'#27ae60':'#c0392b'; }
+  if(data.success && document.getElementById('nlEmail')) document.getElementById('nlEmail').value='';
 });
+
 </script>
+
 </body>
 </html>
