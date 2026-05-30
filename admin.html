@@ -207,6 +207,27 @@
     .btn-action-assign{background:#fff;color:#1d4ed8;border-color:#bfdbfe;}.btn-action-assign:hover{background:#eff6ff;border-color:#1d4ed8;}
     .btn-action-view{background:#fff;color:var(--mid);border-color:#ddd;}.btn-action-view:hover{color:var(--gold);border-color:var(--gold);}
     .btn-action-gold{background:var(--gold);color:#fff;border-color:var(--gold);}.btn-action-gold:hover{background:var(--gold-dark);border-color:var(--gold-dark);}
+
+    /* ── BRANDED CONFIRM MODAL ── */
+    .vp-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+    .vp-modal-overlay.open{opacity:1;pointer-events:all;}
+    .vp-modal{background:#fff;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.18);width:min(440px,92vw);overflow:hidden;transform:translateY(12px) scale(.97);transition:transform .2s;font-family:'Nunito',sans-serif;}
+    .vp-modal-overlay.open .vp-modal{transform:translateY(0) scale(1);}
+    .vp-modal-header{background:var(--cream2);border-bottom:1px solid #e8e0d2;padding:20px 24px;display:flex;align-items:center;gap:12px;}
+    .vp-modal-logo{height:36px;width:auto;object-fit:contain;}
+    .vp-modal-brand{font-family:'Playfair Display',serif;font-size:16px;color:var(--dark);font-weight:400;letter-spacing:.02em;}
+    .vp-modal-brand span{color:var(--gold);}
+    .vp-modal-body{padding:28px 24px 20px;}
+    .vp-modal-icon{font-size:32px;text-align:center;margin-bottom:12px;}
+    .vp-modal-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--dark);margin-bottom:10px;text-align:center;}
+    .vp-modal-message{font-size:14px;color:var(--mid);line-height:1.65;text-align:center;}
+    .vp-modal-footer{display:flex;gap:10px;padding:0 24px 24px;justify-content:center;}
+    .vp-modal-btn{flex:1;max-width:160px;padding:12px 20px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:var(--radius);border:none;cursor:pointer;font-family:inherit;transition:background .15s,opacity .15s;}
+    .vp-modal-btn:hover{opacity:.88;}
+    .vp-modal-cancel{background:#f0ebe0;color:var(--mid);}
+    .vp-modal-confirm{background:var(--gold);color:#fff;}
+    .vp-modal-confirm.danger{background:#c0392b;}
+    .vp-modal-confirm.success{background:#27ae60;}
   </style>
 </head>
 <body>
@@ -843,6 +864,42 @@
 
 <script>
 
+// ── BRANDED CONFIRM MODAL ─────────────────────────────────────────────────
+function vpConfirm({ title, message, icon = '❓', confirmText = 'Confirm', cancelText = 'Cancel', danger = false, success = false }) {
+  return new Promise(resolve => {
+    const overlay  = document.getElementById('vpModalOverlay');
+    const iconEl   = document.getElementById('vpModalIcon');
+    const titleEl  = document.getElementById('vpModalTitle');
+    const msgEl    = document.getElementById('vpModalMessage');
+    const confirmBtn = document.getElementById('vpModalConfirm');
+    const cancelBtn  = document.getElementById('vpModalCancel');
+
+    iconEl.textContent   = icon;
+    titleEl.textContent  = title;
+    msgEl.innerHTML      = message;
+    confirmBtn.textContent = confirmText;
+    cancelBtn.textContent  = cancelText;
+    confirmBtn.className = 'vp-modal-btn vp-modal-confirm' + (danger ? ' danger' : success ? ' success' : '');
+
+    overlay.classList.add('open');
+    confirmBtn.focus();
+
+    const close = (result) => {
+      overlay.classList.remove('open');
+      confirmBtn.replaceWith(confirmBtn.cloneNode(true));
+      cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+      resolve(result);
+    };
+
+    document.getElementById('vpModalConfirm').onclick = () => close(true);
+    document.getElementById('vpModalCancel').onclick  = () => close(false);
+    overlay.onclick = (e) => { if (e.target === overlay) close(false); };
+    document.addEventListener('keydown', function esc(e) {
+      if (e.key === 'Escape') { document.removeEventListener('keydown', esc); close(false); }
+    }, { once: true });
+  });
+}
+
 function fmtPickupDate(d) {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
@@ -909,107 +966,19 @@ async function adminLogin() {
     localStorage.removeItem('vp_admin_token');
     
 // ── CSV EXPORT ────────────────────────────────────────────────────────────────
-function downloadCSV(filename, rows) {
-  if (!rows.length) { showToast('No data to export', 'error'); return; }
-  const escape = v => {
-    const s = v == null ? '' : String(v);
-    return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s;
-  };
-  const csv = rows.map(r => r.map(escape).join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  showToast('CSV downloaded: ' + filename, 'success');
-}
 
-async function exportProducts() {
-  showToast('Preparing products export…');
-  const data = await apiFetch('/products?page=1&limit=500&sort=dateCreated&order=desc', { headers: apiHeaders() });
-  const rows = [['Name','SKU','Price','Regular Price','Sale Price','Dealer Price','Stock Status','Stock Qty','Categories','Status','Featured']];
-  (data.products || []).forEach(p => rows.push([
-    p.name, p.sku || '', p.price || 0, p.regularPrice || 0,
-    p.salePrice != null ? p.salePrice : '', p.dealerPrice != null ? p.dealerPrice : '',
-    p.stockStatus || '', p.stockQty || 0,
-    (p.categories || []).join('; '), p.status || '', p.isFeatured ? 'Yes' : 'No'
-  ]));
-  downloadCSV('vibrantpetals_products_' + today() + '.csv', rows);
-}
 window.exportProducts = exportProducts;
 
-async function exportOrders() {
-  showToast('Preparing orders export…');
-  const data = await apiFetch('/admin/orders?page=1&limit=500', { headers: apiHeaders() });
-  const rows = [['Order #','Customer Email','Customer Role','Items','Subtotal','Discount','Shipping','Total','Status','Payment Status','Date']];
-  (data.orders || []).forEach(o => rows.push([
-    o.orderNumber || '', o.customerEmail || '', o.customerRole || '',
-    (o.items || []).length,
-    o.subtotal || 0, o.discount || 0, o.shippingCost || 0, o.total || 0,
-    o.status || '', o.paymentStatus || '',
-    o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-AU') : ''
-  ]));
-  downloadCSV('vibrantpetals_orders_' + today() + '.csv', rows);
-}
 window.exportOrders = exportOrders;
 
-async function exportUsers() {
-  showToast('Preparing users export…');
-  const data = await apiFetch('/admin/users?page=1&limit=500', { headers: apiHeaders() });
-  const rows = [['Username','First Name','Last Name','Email','Role','Status','Registered']];
-  (data.users || []).forEach(u => rows.push([
-    u.username || '', u.firstName || '', u.lastName || '',
-    u.email || '', u.role || 'Customer',
-    u.isActive ? 'Active' : 'Disabled',
-    u.registeredAt ? new Date(u.registeredAt).toLocaleDateString('en-AU') : ''
-  ]));
-  downloadCSV('vibrantpetals_users_' + today() + '.csv', rows);
-}
 window.exportUsers = exportUsers;
 
-async function exportCustomers() {
-  showToast('Preparing customers export…');
-  const data = await apiFetch('/admin/customers?page=1&limit=500', { headers: apiHeaders() });
-  const rows = [['Username','First Name','Last Name','Email','Type','Registered']];
-  (data.customers || []).forEach(c => rows.push([
-    c.username || '', c.firstName || '', c.lastName || '',
-    c.email || '', c.role || 'Customer',
-    c.registeredAt ? new Date(c.registeredAt).toLocaleDateString('en-AU') : ''
-  ]));
-  downloadCSV('vibrantpetals_customers_' + today() + '.csv', rows);
-}
 window.exportCustomers = exportCustomers;
 
-async function exportNewsletter() {
-  showToast('Preparing newsletter export…');
-  const data = await apiFetch('/newsletter/list?page=1&limit=1000', { headers: apiHeaders() });
-  const rows = [['Email','Subscribed On']];
-  (data.subscribers || []).forEach(s => rows.push([
-    s.email || '',
-    s.subscribedAt ? new Date(s.subscribedAt).toLocaleDateString('en-AU') : ''
-  ]));
-  downloadCSV('vibrantpetals_newsletter_' + today() + '.csv', rows);
-}
 window.exportNewsletter = exportNewsletter;
 
-async function exportCoupons() {
-  showToast('Preparing coupons export…');
-  const data = await apiFetch('/admin/coupons', { headers: apiHeaders() });
-  const rows = [['Code','Discount ($)','Description','Usage Count','Usage Limit','Expires','Status']];
-  (data.coupons || []).forEach(c => rows.push([
-    c.code || '', c.discount || 0, c.description || '',
-    c.usageCount || 0, c.usageLimit || 'Unlimited',
-    c.expiresAt ? new Date(c.expiresAt).toLocaleDateString('en-AU') : 'Never',
-    c.isActive ? 'Active' : 'Inactive'
-  ]));
-  downloadCSV('vibrantpetals_coupons_' + today() + '.csv', rows);
-}
 window.exportCoupons = exportCoupons;
 
-function today() {
-  return new Date().toISOString().slice(0,10).replace(/-/g,'');
-}
 
 checkAuth();
   } else {
@@ -1189,7 +1158,7 @@ window.loadApprovals = loadApprovals;
 //  RETAIL APPROVAL ACTIONS
 // ══════════════════════════════════════════════════════════════════════════════
 async function approveRetail(id, username) {
-  if (!confirm(`Approve retail account for "${username}"? Their outlet will be activated (pickup disabled by default).`)) return;
+  if (!await vpConfirm({ title: 'Approve Retail Account', message: `Approve <strong>${username}</strong>? Their outlet will be activated (pickup disabled by default).`, icon: '✅', confirmText: 'Approve', success: true })) return;
   const data = await apiFetch(`/admin/users/${id}/approve-retail`, { method: 'PUT', headers: apiHeaders() });
   if (data.success) { showToast(`"${username}" retail account approved`, 'success'); loadApprovals(); loadRetailUsers(); }
   else showToast(data.message || 'Approval failed', 'error');
@@ -1208,7 +1177,7 @@ window.rejectRetail = rejectRetail;
 async function togglePickup(outletId, currentState, outletName) {
   const newState = !currentState;
   const action   = newState ? 'enable' : 'disable';
-  if (!confirm(`${newState ? 'Enable' : 'Disable'} pickup for "${outletName}"?`)) return;
+  if (!await vpConfirm({ title: newState ? 'Enable Pickup' : 'Disable Pickup', message: `${newState ? 'Enable' : 'Disable'} pickup for <strong>${outletName}</strong>?`, icon: newState ? '🟢' : '🔴', confirmText: newState ? 'Enable' : 'Disable', danger: !newState, success: newState })) return;
   const data = await apiFetch(`/admin/retail-outlets/${outletId}/pickup`, {
     method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ pickupEnabled: newState }),
   });
@@ -1283,7 +1252,7 @@ async function loadRetailUsers() {
 window.loadRetailUsers = loadRetailUsers;
 
 async function deactivateRetail(id, username) {
-  if (!confirm(`Deactivate retail account for "${username}"? Their outlet will also go offline.`)) return;
+  if (!await vpConfirm({ title: 'Deactivate Account', message: `Deactivate <strong>${username}</strong>? Their outlet will go offline.`, icon: '⚠️', confirmText: 'Deactivate', danger: true })) return;
   const data = await apiFetch(`/admin/users/${id}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ isActive: false }) });
   if (data.success) { showToast(`"${username}" deactivated`, 'success'); loadRetailUsers(); }
   else showToast(data.message || 'Deactivation failed', 'error');
@@ -1358,7 +1327,7 @@ async function loadDealers() {
 window.loadDealers = loadDealers;
 
 async function toggleDealerStatus(id, activate, username) {
-  if (!confirm(`${activate ? 'Activate' : 'Deactivate'} dealer "${username}"?`)) return;
+  if (!await vpConfirm({ title: activate ? 'Activate Dealer' : 'Deactivate Dealer', message: `${activate ? 'Activate' : 'Deactivate'} dealer <strong>${username}</strong>?`, icon: activate ? '✅' : '⚠️', confirmText: activate ? 'Activate' : 'Deactivate', danger: !activate, success: activate })) return;
   const data = await apiFetch(`/admin/users/${id}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ isActive: activate }) });
   if (data.success) { showToast(`Dealer "${username}" ${activate ? 'activated' : 'deactivated'}`, 'success'); loadDealers(); }
   else showToast(data.message || 'Failed', 'error');
@@ -1371,107 +1340,19 @@ window.toggleDealerStatus = toggleDealerStatus;
 
 function doAdminLogout() { token = ''; localStorage.removeItem('vp_token'); localStorage.removeItem('vp_admin_token'); location.href='index.html'; }
 // ── CSV EXPORT ────────────────────────────────────────────────────────────────
-function downloadCSV(filename, rows) {
-  if (!rows.length) { showToast('No data to export', 'error'); return; }
-  const escape = v => {
-    const s = v == null ? '' : String(v);
-    return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s;
-  };
-  const csv = rows.map(r => r.map(escape).join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  showToast('CSV downloaded: ' + filename, 'success');
-}
 
-async function exportProducts() {
-  showToast('Preparing products export…');
-  const data = await apiFetch('/products?page=1&limit=500&sort=dateCreated&order=desc', { headers: apiHeaders() });
-  const rows = [['Name','SKU','Price','Regular Price','Sale Price','Dealer Price','Stock Status','Stock Qty','Categories','Status','Featured']];
-  (data.products || []).forEach(p => rows.push([
-    p.name, p.sku || '', p.price || 0, p.regularPrice || 0,
-    p.salePrice != null ? p.salePrice : '', p.dealerPrice != null ? p.dealerPrice : '',
-    p.stockStatus || '', p.stockQty || 0,
-    (p.categories || []).join('; '), p.status || '', p.isFeatured ? 'Yes' : 'No'
-  ]));
-  downloadCSV('vibrantpetals_products_' + today() + '.csv', rows);
-}
 window.exportProducts = exportProducts;
 
-async function exportOrders() {
-  showToast('Preparing orders export…');
-  const data = await apiFetch('/admin/orders?page=1&limit=500', { headers: apiHeaders() });
-  const rows = [['Order #','Customer Email','Customer Role','Items','Subtotal','Discount','Shipping','Total','Status','Payment Status','Date']];
-  (data.orders || []).forEach(o => rows.push([
-    o.orderNumber || '', o.customerEmail || '', o.customerRole || '',
-    (o.items || []).length,
-    o.subtotal || 0, o.discount || 0, o.shippingCost || 0, o.total || 0,
-    o.status || '', o.paymentStatus || '',
-    o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-AU') : ''
-  ]));
-  downloadCSV('vibrantpetals_orders_' + today() + '.csv', rows);
-}
 window.exportOrders = exportOrders;
 
-async function exportUsers() {
-  showToast('Preparing users export…');
-  const data = await apiFetch('/admin/users?page=1&limit=500', { headers: apiHeaders() });
-  const rows = [['Username','First Name','Last Name','Email','Role','Status','Registered']];
-  (data.users || []).forEach(u => rows.push([
-    u.username || '', u.firstName || '', u.lastName || '',
-    u.email || '', u.role || 'Customer',
-    u.isActive ? 'Active' : 'Disabled',
-    u.registeredAt ? new Date(u.registeredAt).toLocaleDateString('en-AU') : ''
-  ]));
-  downloadCSV('vibrantpetals_users_' + today() + '.csv', rows);
-}
 window.exportUsers = exportUsers;
 
-async function exportCustomers() {
-  showToast('Preparing customers export…');
-  const data = await apiFetch('/admin/customers?page=1&limit=500', { headers: apiHeaders() });
-  const rows = [['Username','First Name','Last Name','Email','Type','Registered']];
-  (data.customers || []).forEach(c => rows.push([
-    c.username || '', c.firstName || '', c.lastName || '',
-    c.email || '', c.role || 'Customer',
-    c.registeredAt ? new Date(c.registeredAt).toLocaleDateString('en-AU') : ''
-  ]));
-  downloadCSV('vibrantpetals_customers_' + today() + '.csv', rows);
-}
 window.exportCustomers = exportCustomers;
 
-async function exportNewsletter() {
-  showToast('Preparing newsletter export…');
-  const data = await apiFetch('/newsletter/list?page=1&limit=1000', { headers: apiHeaders() });
-  const rows = [['Email','Subscribed On']];
-  (data.subscribers || []).forEach(s => rows.push([
-    s.email || '',
-    s.subscribedAt ? new Date(s.subscribedAt).toLocaleDateString('en-AU') : ''
-  ]));
-  downloadCSV('vibrantpetals_newsletter_' + today() + '.csv', rows);
-}
 window.exportNewsletter = exportNewsletter;
 
-async function exportCoupons() {
-  showToast('Preparing coupons export…');
-  const data = await apiFetch('/admin/coupons', { headers: apiHeaders() });
-  const rows = [['Code','Discount ($)','Description','Usage Count','Usage Limit','Expires','Status']];
-  (data.coupons || []).forEach(c => rows.push([
-    c.code || '', c.discount || 0, c.description || '',
-    c.usageCount || 0, c.usageLimit || 'Unlimited',
-    c.expiresAt ? new Date(c.expiresAt).toLocaleDateString('en-AU') : 'Never',
-    c.isActive ? 'Active' : 'Inactive'
-  ]));
-  downloadCSV('vibrantpetals_coupons_' + today() + '.csv', rows);
-}
 window.exportCoupons = exportCoupons;
 
-function today() {
-  return new Date().toISOString().slice(0,10).replace(/-/g,'');
-}
 
 checkAuth();
 document.getElementById('adminPwd')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
@@ -1579,7 +1460,7 @@ async function loadTerritories() {
 
 async function territoryAction(slug, action) {
   const labels = { approve: 'Approve', reject: 'Reject', unassign: 'Unassign' };
-  if (!confirm(`${labels[action]} territory "${slug}"?`)) return;
+  if (!await vpConfirm({ title: labels[action] + ' Territory', message: `${labels[action]} territory <strong>${slug}</strong>?`, icon: action === 'approve' ? '✅' : action === 'reject' ? '❌' : '⚠️', confirmText: labels[action], danger: action !== 'approve', success: action === 'approve' })) return;
   const data = await apiFetch(`/admin/territories/${slug}/${action}`, { method: 'PUT', headers: apiHeaders() });
   if (data.success) { showToast(data.message, 'success'); loadTerritories(); loadApprovals(); }
   else showToast(data.message || `${action} failed`, 'error');
@@ -1619,7 +1500,7 @@ async function saveTerritory() {
 window.saveTerritory = saveTerritory;
 
 async function deleteTerritory(slug, name) {
-  if (!confirm(`Delete territory "${name}"? This cannot be undone.`)) return;
+  if (!await vpConfirm({ title: 'Delete Territory', message: `Delete territory <strong>${name}</strong>? This cannot be undone.`, icon: '🗑️', confirmText: 'Delete', danger: true })) return;
   const data = await apiFetch(`/admin/territories/${slug}`, { method: 'DELETE', headers: apiHeaders() });
   if (data.success) { showToast(data.message, 'success'); loadTerritories(); }
   else showToast(data.message || 'Delete failed', 'error');
@@ -1769,7 +1650,7 @@ async function saveOutlet() {
 window.saveOutlet = saveOutlet;
 
 async function deleteOutlet(id) {
-  if (!confirm('Delete this outlet? This cannot be undone.')) return;
+  if (!await vpConfirm({ title: 'Delete Outlet', message: 'Are you sure you want to delete this outlet? This cannot be undone.', icon: '🗑️', confirmText: 'Delete', danger: true })) return;
   const data = await apiFetch(`/admin/retail-outlets/${id}`, { method: 'DELETE', headers: apiHeaders() });
   if (data.success) { showToast('Outlet deleted', 'success'); loadOutlets(); }
   else showToast(data.message || 'Delete failed', 'error');
@@ -1815,7 +1696,7 @@ function updateApprovalsBadge(count) {
 }
 
 async function approveTerritory(slug) {
-  if (!confirm(`Approve territory "${slug}"?`)) return;
+  if (!await vpConfirm({ title: 'Approve Territory', message: `Approve territory <strong>${slug}</strong> for this dealer?`, icon: '✅', confirmText: 'Approve', success: true })) return;
   const data = await apiFetch(`/admin/territories/${slug}/approve`, { method: 'PUT', headers: apiHeaders() });
   if (data.success) { showToast(data.message, 'success'); loadApprovals(); loadTerritories(); }
   else showToast(data.message || 'Failed', 'error');
@@ -1823,7 +1704,7 @@ async function approveTerritory(slug) {
 window.approveTerritory = approveTerritory;
 
 async function rejectTerritory(slug) {
-  if (!confirm(`Reject territory request for "${slug}"?`)) return;
+  if (!await vpConfirm({ title: 'Reject Territory Request', message: `Reject the territory request for <strong>${slug}</strong>?`, icon: '❌', confirmText: 'Reject', danger: true })) return;
   const data = await apiFetch(`/admin/territories/${slug}/reject`, { method: 'PUT', headers: apiHeaders() });
   if (data.success) { showToast(data.message, 'success'); loadApprovals(); loadTerritories(); }
   else showToast(data.message || 'Failed', 'error');
@@ -1831,7 +1712,7 @@ async function rejectTerritory(slug) {
 window.rejectTerritory = rejectTerritory;
 
 async function activateOutlet(id, name) {
-  if (!confirm(`Activate outlet "${name}"?`)) return;
+  if (!await vpConfirm({ title: 'Activate Outlet', message: `Activate <strong>${name}</strong> and enable it for pickup?`, icon: '🏪', confirmText: 'Activate', success: true })) return;
   const data = await apiFetch(`/admin/retail-outlets/${id}`, {
     method: 'PUT', headers: apiHeaders(),
     body: JSON.stringify({ isActive: true, pickupEnabled: true }),
@@ -1842,7 +1723,7 @@ async function activateOutlet(id, name) {
 window.activateOutlet = activateOutlet;
 
 async function quickRejectDealer(id, username) {
-  if (!confirm(`Reject dealer application for "${username}"? This will disable their account.`)) return;
+  if (!await vpConfirm({ title: 'Reject Dealer Application', message: `Reject <strong>${username}</strong>'s dealer application? Their account will be disabled.`, icon: '❌', confirmText: 'Reject', danger: true })) return;
   const data = await apiFetch(`/admin/users/${id}`, {
     method: 'PUT', headers: apiHeaders(),
     body: JSON.stringify({ isActive: false }),
@@ -2238,7 +2119,7 @@ window.saveProduct = saveProduct;
 
 async function deleteProduct(id, name) {
   if (!id || id === 'undefined') return;
-  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  if (!await vpConfirm({ title: 'Delete Item', message: `Delete <strong>${name}</strong>? This cannot be undone.`, icon: '🗑️', confirmText: 'Delete', danger: true })) return;
   const data = await apiFetch('/products/' + id, { method: 'DELETE', headers: apiHeaders() });
   if (data.success) { showToast('Product deleted', 'success'); loadProducts(); }
   else showToast(data.message || 'Delete failed', 'error');
@@ -2341,7 +2222,7 @@ async function saveCategory() {
 window.saveCategory = saveCategory;
 
 async function deleteCategory(slug, name) {
-  if (!confirm(`Remove image for category "${name}"? The category will still appear as long as products use it.`)) return;
+  if (!await vpConfirm({ title: 'Remove Category Image', message: `Remove the image for <strong>${name}</strong>? The category will still appear as long as products use it.`, icon: '🖼️', confirmText: 'Remove', danger: true })) return;
   const data = await apiFetch(`/admin/category-images/${slug}`, { method: 'DELETE', headers: apiHeaders() });
   if (data.success) { showToast('Category image removed', 'success'); loadCategories(); }
   else showToast(data.message || 'Delete failed', 'error');
@@ -2782,7 +2663,7 @@ async function saveCoupon() {
 window.saveCoupon = saveCoupon;
 
 async function deleteCoupon(id, code) {
-  if (!confirm(`Delete coupon "${code}"?`)) return;
+  if (!await vpConfirm({ title: 'Delete Coupon', message: `Delete coupon <strong>${code}</strong>? This cannot be undone.`, icon: '🎟️', confirmText: 'Delete', danger: true })) return;
   const data = await apiFetch(`/admin/coupons/${id}`, { method: 'DELETE', headers: apiHeaders() });
   if (data.success) { showToast('Coupon deleted', 'success'); loadCoupons(); }
   else showToast(data.message || 'Delete failed', 'error');
@@ -3524,6 +3405,25 @@ window.handleSiteImageFile = handleSiteImageFile;
       <div class="form-msg" id="siteImageFormMsg"></div>
     </div>
     <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('siteImageModal')">Cancel</button><button class="btn-primary" onclick="saveSiteImage()">Save Image</button></div>
+  </div>
+</div>
+
+<!-- ── BRANDED CONFIRM MODAL ── -->
+<div class="vp-modal-overlay" id="vpModalOverlay">
+  <div class="vp-modal" role="dialog" aria-modal="true">
+    <div class="vp-modal-header">
+      <img class="vp-modal-logo" src="logo.png" alt="Vibrant Petals"/>
+      <div class="vp-modal-brand">Vibrant <span>Petals</span></div>
+    </div>
+    <div class="vp-modal-body">
+      <div class="vp-modal-icon" id="vpModalIcon"></div>
+      <div class="vp-modal-title" id="vpModalTitle"></div>
+      <div class="vp-modal-message" id="vpModalMessage"></div>
+    </div>
+    <div class="vp-modal-footer">
+      <button class="vp-modal-btn vp-modal-cancel" id="vpModalCancel">Cancel</button>
+      <button class="vp-modal-btn vp-modal-confirm" id="vpModalConfirm">Confirm</button>
+    </div>
   </div>
 </div>
 </body>
