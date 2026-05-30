@@ -1138,6 +1138,10 @@ async function loadDealerOutlets() {
     </div>`;
     return;
   }
+  // Store outlets in registry map to avoid inline JSON escaping issues
+  window._retailOutletsMap = {};
+  outlets.forEach(o => { window._retailOutletsMap[o._id] = o; });
+
   el.innerHTML = outlets.map(o => `
     <div style="display:flex;align-items:flex-start;gap:14px;padding:16px;border:1px solid #e8e0d2;border-radius:4px;margin-bottom:10px;background:#fff;">
       <div style="font-size:28px;flex-shrink:0;">🏪</div>
@@ -1292,7 +1296,7 @@ async function loadRetailAdditionalOutlets() {
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end;">
         <span style="padding:4px 12px;border-radius:10px;font-size:11px;font-weight:700;background:${o.approvalStatus==='approved'?'#d4edda':o.approvalStatus==='rejected'?'#f8d7da':'#fff3cd'};color:${o.approvalStatus==='approved'?'#155724':o.approvalStatus==='rejected'?'#721c24':'#856404'};">${o.approvalStatus==='approved'?'Active':o.approvalStatus==='rejected'?'Rejected':'Pending'}</span>
-        ${o.approvalStatus !== 'rejected' ? `<button class="btn-sm outline" onclick="editRetailOutlet(${JSON.stringify(JSON.stringify(o))})">Edit</button>` : ''}
+        ${o.approvalStatus !== 'rejected' ? `<button class="btn-sm outline" onclick="editRetailOutlet('${o._id}')">Edit</button>` : ''}
       </div>
     </div>`).join('');
 }
@@ -1320,8 +1324,9 @@ function closeRetailOutletForm() {
 }
 window.closeRetailOutletForm = closeRetailOutletForm;
 
-function editRetailOutlet(jsonStr) {
-  const o = JSON.parse(jsonStr);
+function editRetailOutlet(outletId) {
+  const o = window._retailOutletsMap?.[outletId];
+  if (!o) return;
   document.getElementById('editingRetailOutletId').value = o._id;
   document.getElementById('retailOutletFormTitle').textContent = 'EDIT OUTLET';
   document.getElementById('retailOutletName').value = o.name || '';
