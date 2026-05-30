@@ -492,12 +492,12 @@
       <div class="panel" id="panel-outlets">
         <!-- Section A: Retail Store Accounts (users who signed up as retail) -->
         <div class="card" style="margin-bottom:24px;">
-          <div class="card-head">
+          <div class="card-head" style="align-items:flex-start;">
             <div>
               <div class="card-title">👤 Retail Store Accounts</div>
-              <div style="font-size:12px;color:var(--mid);margin-top:3px;">People who signed up as retail store owners — each has one linked primary store</div>
+              <div style="font-size:12px;color:var(--mid);margin-top:4px;font-weight:400;letter-spacing:0;text-transform:none;">People who signed up as retail store owners — each has one linked primary store</div>
             </div>
-            <div style="display:flex;gap:10px;align-items:center;">
+            <div style="display:flex;gap:10px;align-items:center;flex-shrink:0;margin-top:2px;">
               <select id="retailUserStatusFilter" class="form-select" style="width:160px;padding:8px 12px;font-size:13px;" onchange="loadRetailUsers()">
                 <option value="">All Statuses</option>
                 <option value="approved">Active</option>
@@ -513,12 +513,12 @@
         </div>
         <!-- Section B: All pickup outlets directory -->
         <div class="card">
-          <div class="card-head">
+          <div class="card-head" style="align-items:flex-start;">
             <div>
               <div class="card-title">📍 Pickup Locations Directory</div>
-              <div style="font-size:12px;color:var(--mid);margin-top:3px;">All physical pickup points — includes admin-created stores, dealer-registered outlets, and retail-user-requested additional locations</div>
+              <div style="font-size:12px;color:var(--mid);margin-top:4px;font-weight:400;letter-spacing:0;text-transform:none;">All physical pickup points — includes admin-created stores, dealer-registered outlets, and retail-user-requested additional locations</div>
             </div>
-            <button class="btn-add" onclick="openOutletModal()">+ Add Outlet</button>
+            <button class="btn-add" onclick="openOutletModal()" style="flex-shrink:0;margin-top:2px;">+ Add Outlet</button>
           </div>
           <div id="outletsTableWrap">
             <div class="skeleton" style="height:160px;margin:20px;border-radius:4px;"></div>
