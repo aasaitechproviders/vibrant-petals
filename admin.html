@@ -1159,7 +1159,7 @@ window.loadApprovals = loadApprovals;
 //  RETAIL APPROVAL ACTIONS
 // ══════════════════════════════════════════════════════════════════════════════
 async function approveRetail(id, username) {
-  if (!await vpConfirm({ title: 'Approve Retail Account', message: `Approve <strong>${username}</strong>? Their outlet will be activated (pickup disabled by default).`, icon: '✅', confirmText: 'Approve', success: true })) return;
+  if (!await vpConfirm({ title: 'Approve Retail Account', message: `Approve <strong>${username}</strong>? Their outlet will be activated with pickup enabled immediately.`, icon: '✅', confirmText: 'Approve', success: true })) return;
   const data = await apiFetch(`/admin/users/${id}/approve-retail`, { method: 'PUT', headers: apiHeaders() });
   if (data.success) { showToast(`"${username}" retail account approved`, 'success'); loadApprovals(); loadRetailUsers(); }
   else showToast(data.message || 'Approval failed', 'error');
