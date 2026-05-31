@@ -227,7 +227,7 @@
           <div class="date-rule-row">
             <div class="date-rule-icon">ℹ️</div>
             <div class="date-rule-text">
-              <strong>Why 8 days?</strong> All orders require a minimum of 8 days from today for preparation and freshness. Fresh flowers are packed and dispatched close to your pickup date to ensure they arrive at their best.
+              <strong>Why 10 days? All orders require a minimum of 10 days from today for preparation and freshness. Fresh flowers are packed and dispatched close to your pickup date to ensure they arrive at their best.
             </div>
           </div>
         </div>
@@ -436,15 +436,15 @@ function handlePlaceOrder(){
   placeOrder();
 }
 
-// Set minimum pickup date (today + 8 days)
+// Set minimum pickup date (today + 10 days)
 function initDatePicker() {
   const dateInput = document.getElementById('scheduledPickupDate');
   if (!dateInput) return;
 
-  // Calculate min date: today + 8 days (no earlier allowed)
+  // Calculate min date: today + 10 days (no earlier allowed)
   const today = new Date();
   const min = new Date(today);
-  min.setDate(today.getDate() + 8);
+  min.setDate(today.getDate() + 10);
 
   // Calculate max date: 1 year from today (reasonable upper bound)
   const max = new Date(today);
@@ -506,9 +506,9 @@ async function placeOrder(){
     return;
   }
   const chosenDate = new Date(scheduledPickupDate);
-  const minDate = new Date(); minDate.setDate(minDate.getDate() + 8); minDate.setHours(0,0,0,0);
+  const minDate = new Date(); minDate.setDate(minDate.getDate() + 10); minDate.setHours(0,0,0,0);
   if (chosenDate < minDate) {
-    dateMsg.textContent = 'Pickup date must be at least 8 days from today.';
+    dateMsg.textContent = 'Pickup date must be at least 10 days from today.';
     dateMsg.style.display = '';
     dateInput?.scrollIntoView({behavior:'smooth',block:'center'});
     return;
