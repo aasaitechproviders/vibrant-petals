@@ -313,63 +313,93 @@
       background: #fff;
       border-radius: 8px;
       overflow: hidden;
-      border: 1px solid #e8e0d2;
+      border: 1px solid #e8e2d6;
       transition: box-shadow .25s, transform .25s;
+      display: flex; flex-direction: column;
     }
     .product-card:hover .product-card-inner {
-      box-shadow: 0 8px 28px rgba(0,0,0,.10);
-      transform: translateY(-3px);
+      box-shadow: 0 6px 24px rgba(0,0,0,.09);
+      transform: translateY(-2px);
     }
     .product-img-wrap {
       position: relative;
       aspect-ratio: 1;
       overflow: hidden;
+      background: #f5f5f5;
     }
     .product-img-wrap img {
       width: 100%; height: 100%;
       object-fit: cover;
       transition: transform .4s;
     }
-    .product-card:hover .product-img-wrap img { transform: scale(1.06); }
+    .product-card:hover .product-img-wrap img { transform: scale(1.04); }
+    .product-wish-btn {
+      position: absolute; top: 10px; right: 10px;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #fff; border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #aaa;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+      transition: color .2s, background .2s;
+      z-index: 2;
+    }
+    .product-wish-btn:hover { color: var(--gold); }
+    .product-wish-btn svg { width: 15px; height: 15px; }
     .stock-badge {
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%,-50%);
-      background: rgba(255,255,255,.88);
+      background: rgba(255,255,255,.9);
       font-size: 11px; letter-spacing: 0.08em;
       text-transform: uppercase; font-weight: 700;
       padding: 6px 14px; white-space: nowrap;
+      border-radius: 3px;
     }
-
-    .product-info { padding: 14px 16px 16px; }
+    .product-info {
+      padding: 14px 16px 18px;
+      display: flex; flex-direction: column; flex: 1;
+    }
     .product-name {
-      font-size: 14px; color: var(--dark);
-      margin-bottom: 6px; font-weight: 600; line-height: 1.4;
+      font-family: 'Playfair Display', serif;
+      font-size: 15px; color: var(--dark);
+      margin-bottom: 6px; font-weight: 400; line-height: 1.4;
+      min-height: 42px;
     }
     .product-price {
-      font-size: 14px; color: var(--gold); font-weight: 700; margin-bottom: 12px;
+      font-size: 15px; color: var(--gold); font-weight: 700; margin-bottom: 14px;
     }
-    .product-btn-row {
-      display: flex; gap: 8px;
+    .product-qty-row {
+      display: flex; align-items: center; gap: 0;
+      border: 1px solid #ddd; border-radius: 4px;
+      overflow: hidden; margin-bottom: 10px;
+      width: fit-content;
+    }
+    .qty-btn-card {
+      width: 34px; height: 34px;
+      background: #f8f8f8; border: none;
+      font-size: 18px; color: var(--dark);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+      font-family: inherit;
+    }
+    .qty-btn-card:hover { background: var(--cream2); }
+    .qty-val-card {
+      width: 40px; text-align: center;
+      font-size: 14px; font-weight: 600; color: var(--dark);
+      border-left: 1px solid #ddd; border-right: 1px solid #ddd;
+      height: 34px; line-height: 34px;
+      user-select: none;
     }
     .btn-add-cart {
-      flex: 1; padding: 9px 12px;
+      width: 100%; padding: 11px 12px;
       background: var(--gold); color: #fff;
-      font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
       border-radius: 4px; cursor: pointer; border: none; font-family: inherit;
       transition: background .2s;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: auto;
     }
     .btn-add-cart:hover { background: var(--gold-dark); }
-    .btn-add-cart svg { width: 14px; height: 14px; }
-    .btn-wishlist {
-      width: 36px; height: 36px; border-radius: 4px;
-      border: 1px solid #e8e0d2; background: #fff;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: var(--mid); transition: background .2s, color .2s, border-color .2s;
-      flex-shrink: 0;
-    }
-    .btn-wishlist:hover { background: var(--gold); color: #fff; border-color: var(--gold); }
-    .btn-wishlist svg { width: 14px; height: 14px; }
+    .btn-add-cart svg { width: 15px; height: 15px; }
 
     /* ── TRUST BAR ──────────────────────────────────────────── */
 
@@ -965,16 +995,6 @@
   </div>
 </section>
 
-<!-- ── FEATURED PRODUCTS ─────────────────────────────────── -->
-<section class="featured-section">
-  <div class="section-wrap">
-    <h2 class="section-title">Featured Florals</h2>
-    <div class="products-grid-main" id="featuredGrid">
-      <!-- JS populated -->
-    </div>
-  </div>
-</section>
-
 <!-- ── TRUST BADGES ───────────────────────────────────────── -->
 <section class="trust-bar">
   <div class="trust-bar-inner">
@@ -1016,6 +1036,18 @@
     </div>
   </div>
 </section>
+
+<!-- ── FEATURED PRODUCTS ─────────────────────────────────── -->
+<section class="featured-section">
+  <div class="section-wrap">
+    <h2 class="section-title">Featured Florals</h2>
+    <div class="products-grid-main" id="featuredGrid">
+      <!-- JS populated -->
+    </div>
+  </div>
+</section>
+
+
 
 <!-- ── FREE DELIVERY BANNER ──────────────────────────────── -->
 <!-- Background image spans full width (flowers left + texture right in one image, like FreeShipping.jpg) -->
@@ -1257,25 +1289,30 @@ function showToast(msg, type=''){
       : p.price ? `$${p.price.toFixed(2)}` : '';
     const img = p.images?.[0] || '';
     const inStock = p.stockStatus !== 'outofstock';
+    const cardId = 'qty_' + p._id;
     return `
     <div class="product-card" onclick="location.href='product.html?id=${p._id}'">
       <div class="product-card-inner">
         <div class="product-img-wrap">
           ${img ? `<img src="${img}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'"/>` : `<div style="width:100%;aspect-ratio:1;background:var(--cream2);"></div>`}
           ${!inStock ? '<div class="stock-badge">Out Of Stock</div>' : ''}
+          <button class="product-wish-btn" onclick="event.stopPropagation();addToWishlist('${p._id}')" title="Wishlist">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </button>
         </div>
         <div class="product-info">
           <div class="product-name">${p.name}</div>
           <div class="product-price">${priceStr}</div>
-          <div class="product-btn-row">
-            <button class="btn-add-cart" onclick="event.stopPropagation();addToCart('${p._id}')" title="Add to cart">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-              Add to Cart
-            </button>
-            <button class="btn-wishlist" onclick="event.stopPropagation();addToWishlist('${p._id}')" title="Wishlist">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-            </button>
-          </div>
+          ${inStock ? `
+          <div class="product-qty-row" onclick="event.stopPropagation()">
+            <button class="qty-btn-card" onclick="event.stopPropagation();changeCardQty('${cardId}',-1)">−</button>
+            <span class="qty-val-card" id="${cardId}">1</span>
+            <button class="qty-btn-card" onclick="event.stopPropagation();changeCardQty('${cardId}',1)">+</button>
+          </div>` : ''}
+          <button class="btn-add-cart" onclick="event.stopPropagation();addToCartQty('${p._id}','${cardId}')" ${!inStock?'disabled style="opacity:.5;cursor:not-allowed;"':''}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            Add to Cart
+          </button>
         </div>
       </div>
     </div>`;
@@ -1452,6 +1489,22 @@ async function removeFromCart(productId){
 window.addToCart    = addToCart;
 window.changeQty    = changeQty;
 window.removeFromCart = removeFromCart;
+
+function changeCardQty(cardId, delta){
+  const el = document.getElementById(cardId);
+  if(!el) return;
+  const cur = parseInt(el.textContent) || 1;
+  el.textContent = Math.max(1, cur + delta);
+}
+async function addToCartQty(productId, cardId){
+  const el = document.getElementById(cardId);
+  const qty = el ? (parseInt(el.textContent) || 1) : 1;
+  const data = await apiFetch('/cart/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId,quantity:qty})}).catch(()=>({success:false}));
+  if(data.success){ renderCart(data.cart); showToast('Added to cart!','success'); if(el) el.textContent='1'; }
+  else showToast(data.message||'Could not add to cart','error');
+}
+window.changeCardQty = changeCardQty;
+window.addToCartQty  = addToCartQty;
 
 async function addToWishlist(productId){
   if(!token){ location.href='account.html'; return; }
