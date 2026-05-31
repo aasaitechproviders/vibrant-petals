@@ -141,8 +141,51 @@
     .btn-subscribe{width:100%;padding:14px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border:none;cursor:pointer;}
     .btn-subscribe:hover{background:var(--gold-dark);}
     .footer-bottom{border-top:1px solid #e8e0d2;text-align:center;padding:20px;font-size:13px;color:var(--mid);}
-    @media(max-width:768px){.footer-grid{grid-template-columns:1fr;gap:36px;}}
-    @media(max-width:900px){.checkout-layout{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}nav ul{display:none;}}
+    /* ── HAMBURGER & MOBILE NAV ── */
+    .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:none;border:none;cursor:pointer;padding:4px;border-radius:4px;transition:background .15s;}
+    .hamburger:hover{background:var(--cream2);}
+    .hamburger span{display:block;width:22px;height:2px;background:var(--dark);border-radius:2px;transition:transform .25s,opacity .25s;}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .hamburger.open span:nth-child(2){opacity:0;}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+    .mobile-nav{display:none;position:fixed;inset:0;z-index:800;}
+    .mobile-nav.open{display:block;}
+    .mobile-nav-overlay{position:absolute;inset:0;background:rgba(0,0,0,.45);}
+    .mobile-nav-drawer{position:absolute;top:0;left:0;bottom:0;width:min(300px,85vw);background:#fff;overflow-y:auto;box-shadow:4px 0 30px rgba(0,0,0,.12);display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);}
+    .mobile-nav.open .mobile-nav-drawer{transform:translateX(0);}
+    .mobile-nav-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #e8e0d2;font-family:'Playfair Display',serif;font-size:18px;color:var(--dark);}
+    .mobile-nav-close{font-size:22px;color:var(--mid);background:none;border:none;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px;transition:background .15s;}
+    .mobile-nav-close:hover{background:var(--cream2);}
+    .mobile-nav ul{list-style:none;padding:10px 0;margin:0;flex:1;}
+    .mobile-nav ul li a,.mobile-nav ul li button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 20px;font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dark);background:none;border:none;cursor:pointer;text-align:left;border-bottom:1px solid #f5f0e8;transition:background .15s,color .15s;text-decoration:none;}
+    .mobile-nav ul li a:hover,.mobile-nav ul li button:hover{background:var(--cream2);color:var(--gold);}
+    .mobile-nav-sub{display:none;background:var(--cream2);border-bottom:1px solid #e8e0d2;}
+    .mobile-nav-sub.open{display:block;}
+    .mobile-nav-sub a{padding:11px 20px 11px 36px!important;font-size:13px!important;color:var(--mid)!important;border-bottom:1px solid #ede8de!important;}
+    .mobile-nav-sub a:hover{color:var(--gold)!important;}
+    .mobile-nav-arrow{font-size:11px;transition:transform .2s;}
+    .mobile-nav-arrow.open{transform:rotate(180deg);}
+    @media(max-width:900px){
+      .nav-inner { padding: 0 16px; }
+      nav ul{display:none;}.hamburger{display:flex;}
+      .checkout-layout{grid-template-columns:1fr; padding: 0 16px 60px;}
+      .form-row{grid-template-columns:1fr;}
+      .footer-grid{grid-template-columns:1fr 1fr;gap:24px;}
+      footer { padding: 40px 16px 0; }
+      .page-head { padding: 32px 16px 20px; }
+      .page-head h1 { font-size: 28px; }
+      .order-summary { position: static; }
+    }
+    @media(max-width:600px){
+      .checkout-layout{padding:0 12px 40px;}
+      .footer-grid{grid-template-columns:1fr;gap:28px;}
+      .page-head { padding: 24px 12px 16px; }
+      .coupon-row { flex-direction: column; }
+      .btn-coupon { width: 100%; text-align: center; }
+    }
+    @media(max-width:400px){
+      .payment-opt { padding: 12px; gap: 10px; }
+    }
 
     .date-picker-wrap{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:24px;margin-top:4px;}
     .date-picker-label{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:6px;}
@@ -181,9 +224,31 @@
       <button class="nav-icon-btn" onclick="location.href='account.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
       <button class="nav-icon-btn" onclick="location.href='account.html?panel=wishlist'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount">0</span></button>
       <button class="nav-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--gold)"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="badge" id="cartCount">0</span></button>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" onclick="openMobileNav()"><span></span><span></span><span></span></button>
     </div>
   </div>
 </header>
+
+<!-- MOBILE NAV DRAWER -->
+<div class="mobile-nav" id="mobileNav">
+  <div class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
+  <div class="mobile-nav-drawer">
+    <div class="mobile-nav-head"><span>🌸 Vibrant Petals</span><button class="mobile-nav-close" onclick="closeMobileNav()">✕</button></div>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="category.html?cat=strings">Strings</a></li>
+      <li>
+        <button onclick="toggleMobileSub('garlandsSub',this)">Garlands <span class="mobile-nav-arrow" id="garlandsArrow">▾</span></button>
+        <div class="mobile-nav-sub" id="garlandsSub">
+          <a href="category.html?cat=pooja-garlands">Pooja Garlands</a>
+          <a href="category.html?cat=special-occasional-garlands">Special Occasional Garlands</a>
+        </div>
+      </li>
+      <li><a href="category.html?cat=loose-flowers">Loose Flowers</a></li>
+      <li><a href="category.html?cat=leaves">Leaves</a></li>
+    </ul>
+  </div>
+</div>
 
 <div class="page-head"><h1>Checkout</h1></div>
 <div class="breadcrumb"><a href="index.html">Home</a><span>›</span><a href="category.html?cat=all">Shop</a><span>›</span>Checkout</div>
@@ -372,6 +437,10 @@
 
 <script>
 const API='https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
+function openMobileNav(){document.getElementById('mobileNav').classList.add('open');document.getElementById('hamburgerBtn').classList.add('open');document.body.style.overflow='hidden';}
+function closeMobileNav(){document.getElementById('mobileNav').classList.remove('open');document.getElementById('hamburgerBtn').classList.remove('open');document.body.style.overflow='';}
+function toggleMobileSub(id,btn){const sub=document.getElementById(id);const arrow=document.getElementById('garlandsArrow');const isOpen=sub.classList.toggle('open');if(arrow)arrow.classList.toggle('open',isOpen);}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobileNav();});
 (function(){const raw=localStorage.getItem('vp_token');if(raw){try{const p=JSON.parse(atob(raw.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(p.exp&&p.exp*1000<Date.now())localStorage.removeItem('vp_token');}catch(e){localStorage.removeItem('vp_token');}}})();
 let token=localStorage.getItem('vp_token')||'';
 let sessionId=localStorage.getItem('vp_session')||'sess_'+Math.random().toString(36).slice(2);
