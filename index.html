@@ -1160,6 +1160,7 @@ let sessionId = localStorage.getItem('vp_session') || (() => {
   localStorage.setItem('vp_session', s);
   return s;
 })();
+let wishSet = new Set(); // tracks wishlisted product IDs
 
 // ── HELPERS ────────────────────────────────────────────────
 function apiHeaders(auth=true){
@@ -1274,8 +1275,8 @@ function showToast(msg, type=''){
         <div class="product-img-wrap">
           ${img ? `<img src="${img}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'"/>` : `<div style="width:100%;height:100%;background:var(--cream2);"></div>`}
           ${!inStock ? '<div class="stock-badge">Out Of Stock</div>' : ''}
-          <button class="product-wish-btn" onclick="event.stopPropagation();addToWishlist('${p._id}')" title="Wishlist">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          <button class="product-wish-btn" data-pid="${p._id}" onclick="event.stopPropagation();addToWishlist('${p._id}')" title="${wishSet.has(p._id?.toString()) ? 'Remove from wishlist' : 'Add to wishlist'}" style="color:${wishSet.has(p._id?.toString()) ? 'var(--gold)' : '#bbb'};border-color:${wishSet.has(p._id?.toString()) ? 'var(--gold)' : '#e5ddd0'};">
+            <svg viewBox="0 0 24 24" fill="${wishSet.has(p._id?.toString()) ? 'var(--gold)' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
           </button>
         </div>
         <div class="product-info">
@@ -1487,9 +1488,18 @@ window.addToCartQty  = addToCartQty;
 
 async function addToWishlist(productId){
   if(!token){ location.href='account.html'; return; }
-  const data = await apiFetch('/wishlist/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId})}).catch(()=>({success:false}));
-  if(data.success){ showToast('Added to wishlist!','success'); loadWishCount(); }
-  else showToast(data.message||'Error','error');
+  const pid = productId.toString();
+  if(wishSet.has(pid)){
+    // Remove from wishlist
+    const data = await apiFetch(`/wishlist/items/${productId}`,{method:'DELETE',headers:apiHeaders()}).catch(()=>({success:false}));
+    if(data.success){ showToast('Removed from wishlist'); wishSet.delete(pid); loadWishCount(); }
+    else showToast(data.message||'Error','error');
+  } else {
+    // Add to wishlist
+    const data = await apiFetch('/wishlist/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId})}).catch(()=>({success:false}));
+    if(data.success){ showToast('Added to wishlist!','success'); wishSet.add(pid); loadWishCount(); }
+    else showToast(data.message||'Error','error');
+  }
 }
 window.addToWishlist = addToWishlist;
 
@@ -1624,9 +1634,20 @@ async function loadWishCount(){
   if(!token) return;
   try{
     const data = await apiFetch('/wishlist',{headers:apiHeaders()});
-    const count = (data.wishlist?.products||[]).length;
+    const products = data.wishlist?.products||[];
+    const count = products.length;
     const el = document.getElementById('wishCount');
     if(el){ el.textContent = count; el.style.display = count > 0 ? 'flex' : 'none'; }
+    // Update wishSet and refresh heart states on all visible cards
+    wishSet = new Set(products.map(p => p._id?.toString() || p.toString()));
+    document.querySelectorAll('.product-wish-btn[data-pid]').forEach(btn => {
+      const pid = btn.dataset.pid;
+      const inWish = wishSet.has(pid);
+      btn.style.color = inWish ? 'var(--gold)' : '#bbb';
+      btn.style.borderColor = inWish ? 'var(--gold)' : '#e5ddd0';
+      btn.querySelector('svg path') && (btn.querySelector('svg path').style.fill = inWish ? 'var(--gold)' : 'none');
+      btn.title = inWish ? 'Remove from wishlist' : 'Add to wishlist';
+    });
   }catch(e){}
 }
 loadWishCount();
