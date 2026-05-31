@@ -194,7 +194,24 @@
     .wish-empty svg{width:52px;height:52px;margin:0 auto 16px;opacity:.3;}
     .wish-empty p{margin-bottom:20px;font-size:14px;}
     footer{background:var(--cream);border-top:1px solid #e8e0d2;padding:40px 32px;text-align:center;font-size:13px;color:var(--mid);}
-    @media(max-width:900px){.account-layout{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}.stats-grid{grid-template-columns:1fr 1fr;}.order-info-grid{grid-template-columns:1fr;}nav ul{display:none;}}
+    @media(max-width:900px){
+      .nav-inner { padding: 0 16px; }
+      nav ul{display:none;}.hamburger{display:flex;}
+      .account-layout{grid-template-columns:1fr; padding: 24px 16px 60px; gap: 24px;}
+      .form-row{grid-template-columns:1fr;}
+      .stats-grid{grid-template-columns:1fr 1fr;}
+      .order-info-grid{grid-template-columns:1fr;}
+      footer { padding: 24px 16px; }
+    }
+    @media(max-width:600px){
+      .account-layout { padding: 16px 12px 48px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .panel-section { padding: 20px 16px; }
+    }
+    @media(max-width:400px){
+      .stats-grid { grid-template-columns: 1fr; }
+      .account-layout { padding: 12px 10px 36px; }
+    }
 
     /* ── BRANDED CONFIRM MODAL ── */
     .vp-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
