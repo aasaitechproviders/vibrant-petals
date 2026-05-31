@@ -322,6 +322,7 @@
 const API = 'https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
 (function(){const raw=localStorage.getItem('vp_token');if(raw){try{const p=JSON.parse(atob(raw.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(p.exp&&p.exp*1000<Date.now())localStorage.removeItem('vp_token');}catch(e){localStorage.removeItem('vp_token');}}})();
 let token=localStorage.getItem('vp_token')||'';
+let wishSet=new Set();
 let sessionId=localStorage.getItem('vp_session')||'sess_'+Math.random().toString(36).slice(2);
 localStorage.setItem('vp_session',sessionId);
 function apiHeaders(auth=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(auth&&token)h['Authorization']='Bearer '+token;return h;}
@@ -399,8 +400,8 @@ function renderProducts(products){
         <div class="product-img-wrap">
           ${img?`<img src="${img}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'"/>`:'<div style="width:100%;height:100%;background:var(--cream2);"></div>'}
           ${!inStock?'<div class="stock-badge">Out Of Stock</div>':''}
-          <button class="product-wish-btn" onclick="event.stopPropagation();addToWishlist('${p._id}')" title="Wishlist">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          <button class="product-wish-btn" data-pid="${p._id}" onclick="event.stopPropagation();addToWishlist('${p._id}')" title="${wishSet.has(p._id?.toString()) ? 'Remove from wishlist' : 'Add to wishlist'}" style="color:${wishSet.has(p._id?.toString())?'var(--gold)':'#bbb'};border-color:${wishSet.has(p._id?.toString())?'var(--gold)':'#e5ddd0'};">
+            <svg viewBox="0 0 24 24" fill="${wishSet.has(p._id?.toString())?'var(--gold)':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
           </button>
         </div>
         <div class="product-info">
@@ -502,9 +503,16 @@ async function addToCartQty(productId,cardId){
 }
 async function addToWishlist(productId){
   if(!token){location.href='account.html';return;}
-  const data=await apiFetch('/wishlist/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId})}).catch(()=>({success:false}));
-  if(data.success){showToast('Added to wishlist!','success');loadWishCount();}
-  else showToast(data.message||'Error','error');
+  const pid=productId.toString();
+  if(wishSet.has(pid)){
+    const data=await apiFetch(`/wishlist/items/${productId}`,{method:'DELETE',headers:apiHeaders()}).catch(()=>({success:false}));
+    if(data.success){showToast('Removed from wishlist');wishSet.delete(pid);loadWishCount();}
+    else showToast(data.message||'Error','error');
+  }else{
+    const data=await apiFetch('/wishlist/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId})}).catch(()=>({success:false}));
+    if(data.success){showToast('Added to wishlist!','success');wishSet.add(pid);loadWishCount();}
+    else showToast(data.message||'Error','error');
+  }
 }
 window.addToCart=addToCart;window.changeQty=changeQty;window.removeFromCart=removeFromCart;
 window.addToWishlist=addToWishlist;window.changeCardQty=changeCardQty;window.addToCartQty=addToCartQty;
