@@ -148,10 +148,15 @@
     }
 
     /* ── HERO SLIDER ────────────────────────────────────────── */
+    .hero-wrap {
+      padding: 24px 32px 0;
+      background: var(--cream);
+    }
     .hero {
       position: relative; overflow: hidden;
-      height: calc(100vh - var(--nav-h) - var(--bar-h));
-      min-height: 500px; max-height: 800px;
+      height: 520px;
+      min-height: 380px; max-height: 600px;
+      border-radius: 10px;
     }
     .slides { display: flex; width: 100%; height: 100%; transition: transform .7s cubic-bezier(.4,0,.2,1); }
     .slide {
@@ -257,8 +262,8 @@
     .cat-card {
       position: relative; overflow: hidden;
       display: block;
-      height: 460px; cursor: pointer;
-      border-radius: 6px;
+      height: 340px; cursor: pointer;
+      border-radius: 8px;
       box-shadow: 0 2px 12px rgba(0,0,0,.06);
       transition: box-shadow .3s, transform .3s;
     }
@@ -275,51 +280,45 @@
     .cat-card:hover img { transform: scale(1.04); }
     .cat-card-label {
       position: absolute; bottom: 0; left: 0; right: 0;
-      background: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.93);
       color: var(--dark);
       text-align: center;
-      padding: 16px 20px;
+      padding: 14px 20px;
       font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;
-      transform: translateY(100%);
-      transition: transform .3s cubic-bezier(.4,0,.2,1);
     }
-    .cat-card:hover .cat-card-label { transform: translateY(0); }
 
     /* ── FEATURED PRODUCTS ──────────────────────────────────── */
     .featured-section {
       background: var(--cream2);
-      padding: 70px 0;
+      padding: 60px 0 70px;
     }
     .section-title {
       font-family: 'Playfair Display', serif;
-      font-size: 32px; font-weight: 400;
-      padding: 0 32px 20px;
-      margin-bottom: 36px;
+      font-size: 28px; font-weight: 400;
+      padding: 0 0 18px;
+      margin-bottom: 32px;
       border-bottom: 1px solid #e8e0d2;
     }
-    .featured-wrap {
-      position: relative;
-    }
-    .products-slider {
-      overflow: hidden;
-      position: relative;
-    }
-    .products-track {
-      display: flex;
-      transition: transform .5s cubic-bezier(.4,0,.2,1);
-      will-change: transform;
+    .featured-wrap { position: relative; }
+    .products-grid-main {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
     }
     .product-card {
-      flex: 0 0 auto;
-      padding: 0 12px;
       cursor: pointer;
-      box-sizing: border-box;
     }
     .product-card-inner {
       position: relative;
-      background: var(--card-bg);
-      border-radius: var(--radius);
+      background: #fff;
+      border-radius: 8px;
       overflow: hidden;
+      border: 1px solid #e8e0d2;
+      transition: box-shadow .25s, transform .25s;
+    }
+    .product-card:hover .product-card-inner {
+      box-shadow: 0 8px 28px rgba(0,0,0,.10);
+      transform: translateY(-3px);
     }
     .product-img-wrap {
       position: relative;
@@ -334,64 +333,45 @@
     .product-card:hover .product-img-wrap img { transform: scale(1.06); }
     .stock-badge {
       position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translate(-50%,-50%);
       background: rgba(255,255,255,.88);
       font-size: 11px; letter-spacing: 0.08em;
       text-transform: uppercase; font-weight: 700;
-      padding: 6px 14px;
-      white-space: nowrap;
+      padding: 6px 14px; white-space: nowrap;
     }
-    .product-actions {
-      position: absolute; bottom: 12px; right: 12px;
-      display: flex; gap: 8px;
-      opacity: 0; transform: translateY(8px);
-      transition: opacity .25s, transform .25s;
-    }
-    .product-card:hover .product-actions { opacity: 1; transform: translateY(0); }
-    .product-action-btn {
-      width: 34px; height: 34px; border-radius: 50%;
-      background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.12);
-      display: flex; align-items: center; justify-content: center;
-      transition: background .2s, color .2s;
-      color: var(--dark);
-    }
-    .product-action-btn:hover { background: var(--gold); color: #fff; }
-    .product-action-btn svg { width: 16px; height: 16px; }
-    .arrow-btn {
-      width: 34px; height: 34px; border-radius: 50%;
-      background: var(--gold);
-      display: flex; align-items: center; justify-content: center;
-      transition: background .2s;
-      color: #fff;
-    }
-    .arrow-btn:hover { background: var(--gold-dark); }
 
-    .product-info { padding: 14px 4px 4px; }
+    .product-info { padding: 14px 16px 16px; }
     .product-name {
       font-size: 14px; color: var(--dark);
-      margin-bottom: 4px; font-weight: 400;
+      margin-bottom: 6px; font-weight: 600; line-height: 1.4;
     }
     .product-price {
-      font-size: 13px; color: var(--mid);
+      font-size: 14px; color: var(--gold); font-weight: 700; margin-bottom: 12px;
     }
-
-    .slider-arrow {
-      position: absolute; top: 42%;
-      transform: translateY(-50%);
-      background: rgba(255,255,255,.95);
-      border: 1px solid #e0d8cc;
-      width: 40px; height: 40px; border-radius: 50%;
+    .product-btn-row {
+      display: flex; gap: 8px;
+    }
+    .btn-add-cart {
+      flex: 1; padding: 9px 12px;
+      background: var(--gold); color: #fff;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      border-radius: 4px; cursor: pointer; border: none; font-family: inherit;
+      transition: background .2s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-add-cart:hover { background: var(--gold-dark); }
+    .btn-add-cart svg { width: 14px; height: 14px; }
+    .btn-wishlist {
+      width: 36px; height: 36px; border-radius: 4px;
+      border: 1px solid #e8e0d2; background: #fff;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; z-index: 10;
-      color: var(--dark);
-      font-size: 20px;
-      transition: background .2s, color .2s, opacity .2s;
-      box-shadow: 0 2px 12px rgba(0,0,0,.12);
+      cursor: pointer; color: var(--mid); transition: background .2s, color .2s, border-color .2s;
+      flex-shrink: 0;
     }
-    .slider-arrow:hover { background: var(--gold); color: #fff; border-color: var(--gold); }
-    .slider-arrow:disabled, .slider-arrow.hidden { opacity: 0.25; pointer-events: none; }
-    .slider-prev { left: 4px; }
-    .slider-next { right: 4px; }
+    .btn-wishlist:hover { background: var(--gold); color: #fff; border-color: var(--gold); }
+    .btn-wishlist svg { width: 14px; height: 14px; }
+
+    /* ── TRUST BAR ──────────────────────────────────────────── */
 
     /* ── TESTIMONIAL SLIDER ─────────────────────────────────── */
     .testi-section {
@@ -454,21 +434,40 @@
     }
 
     /* ── TRUST ──────────────────────────────────────────────── */
-    .trust-section { padding: 90px 32px; background: #fff; }
-    .trust-grid {
-      max-width: 1100px; margin: 0 auto;
-      display: grid; grid-template-columns: repeat(3,1fr); gap: 60px;
+    .trust-bar {
+      background: var(--gold);
+      padding: 0 32px;
     }
-    .trust-item {}
-    .trust-check {
-      margin-bottom: 16px;
-      line-height: 1;
+    .trust-bar-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 0;
     }
-    .trust-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 20px; margin-bottom: 14px; color: var(--dark);
+    .trust-bar-item {
+      display: flex; align-items: center; gap: 16px;
+      padding: 22px 24px;
+      border-right: 1px solid rgba(255,255,255,0.2);
     }
-    .trust-text { font-size: 14px; color: var(--mid); line-height: 1.7; }
+    .trust-bar-item:last-child { border-right: none; }
+    .trust-bar-icon { flex-shrink: 0; opacity: 0.95; }
+    .trust-bar-icon svg { width: 36px; height: 36px; stroke: #fff; fill: none; }
+    .trust-bar-text {}
+    .trust-bar-title {
+      font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: #fff; margin-bottom: 3px;
+    }
+    .trust-bar-desc { font-size: 12px; color: rgba(255,255,255,0.85); line-height: 1.4; }
+    @media(max-width:900px){
+      .trust-bar-inner { grid-template-columns: repeat(2,1fr); }
+      .trust-bar-item:nth-child(2) { border-right: none; }
+      .trust-bar-item { border-bottom: 1px solid rgba(255,255,255,0.2); }
+      .trust-bar-item:nth-child(3), .trust-bar-item:last-child { border-bottom: none; }
+    }
+    @media(max-width:500px){
+      .trust-bar-inner { grid-template-columns: 1fr; }
+      .trust-bar-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.2); }
+      .trust-bar-item:last-child { border-bottom: none; }
+    }
 
     /* ── FREE DELIVERY BANNER ───────────────────────────────── */
     /* Full-width bg image (flowers + texture in one photo, like FreeShipping.jpg) */
@@ -830,25 +829,20 @@
     @media(max-width:900px){
       .cat-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
       .cat-grid-wrap { padding: 0 16px; }
-      .cat-card { height: 300px; }
-      .trust-grid { grid-template-columns: 1fr; gap: 36px; }
-      .testi-card { padding: 40px 28px; }
-      .testi-arrow { font-size: 18px; padding: 8px 10px; }
-      .testi-section { padding: 60px 0; }
-      .testi-card { padding: 40px 56px; }
-      .testi-prev { left: 8px; }
-      .testi-next { right: 8px; }
+      .cat-card { height: 220px; }
       .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
       .delivery-banner { grid-template-columns: 1fr; }
       .delivery-img { height: 200px; }
-      .product-card { flex: 0 0 50%; }
+      .products-grid-main { grid-template-columns: repeat(2,1fr); }
       nav ul { display: none; }
       .hamburger { display: flex; }
+      .hero-wrap { padding: 16px 16px 0; }
     }
     @media(max-width:600px){
-      .cat-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-      .cat-card { height: 340px; }
-      .cat-card { height: 260px; }
+      .cat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .cat-card { height: 180px; }
+      .hero-wrap { padding: 12px 12px 0; }
+      .products-grid-main { grid-template-columns: repeat(2,1fr); gap: 12px; }
     }
   </style>
 </head>
@@ -941,6 +935,8 @@
 </div>
 
 <!-- ── HERO SLIDER ─────────────────────────────────────────── -->
+<div class="hero-wrap">
+  <div style="max-width:1280px;margin:0 auto;">
 <section class="hero" id="hero">
   <div class="slides" id="slides">
     <!-- Populated dynamically from /banners API -->
@@ -949,6 +945,8 @@
   <button class="hero-arrow hero-next" id="heroNext">›</button>
   <div class="hero-dots" id="heroDots"></div>
 </section>
+  </div>
+</div>
 
 <!-- ── CATEGORY SHOWCASE ──────────────────────────────────── -->
 <section class="cat-section">
@@ -971,62 +969,50 @@
 <section class="featured-section">
   <div class="section-wrap">
     <h2 class="section-title">Featured Florals</h2>
-    <div class="featured-wrap" style="position:relative;">
-      <button class="slider-arrow slider-prev" id="fpPrev">‹</button>
-      <div class="products-slider">
-        <div class="products-track" id="featuredTrack">
-          <!-- JS populated -->
-        </div>
-      </div>
-      <button class="slider-arrow slider-next" id="fpNext">›</button>
+    <div class="products-grid-main" id="featuredGrid">
+      <!-- JS populated -->
     </div>
   </div>
-</section>
-
-<!-- ── TESTIMONIAL SLIDER ────────────────────────────────── -->
-<section class="testi-section" id="testiSection">
-  <button class="testi-arrow testi-prev" id="testiPrev" aria-label="Previous testimonial">&#8592;</button>
-  <div class="testi-card">
-    <h2 class="testi-heading">Testimonial</h2>
-    <div class="testi-slides" id="testiSlides">
-      <div class="testi-slide active">
-        <p class="testi-quote">“I’ve been a loyal customer of VibrantPetals for years, and their loose flowers never disappoint! The quality is top-notch, and the blooms always last longer than expected. I highly recommend them to anyone looking for fresh, beautiful flowers.”</p>
-        <p class="testi-author">— Rajesh Patel —</p>
-      </div>
-      <div class="testi-slide">
-        <p class="testi-quote">“I ordered a stunning garland for my sister’s wedding from VibrantPetals, and it was absolutely perfect! The craftsmanship was exceptional, and it added such an elegant touch to the ceremony. Highly recommend!”</p>
-        <p class="testi-author">— Priya Sharma —</p>
-      </div>
-      <div class="testi-slide">
-        <p class="testi-quote">“I recently purchased a bunch of leaves from VibrantPetals to create a floral arrangement for my home, and I couldn’t be happier with the result! The leaves were fresh, vibrant, and absolutely stunning.”</p>
-        <p class="testi-author">— Ananya Kumar —</p>
-      </div>
-      <div class="testi-slide">
-        <p class="testi-quote">“VibrantPetals never fails to impress with their wide selection of products and impeccable service. I ordered a beautiful garland for a family function, and it arrived right on time, looking even more stunning in person. Thank you!”</p>
-        <p class="testi-author">— Sanjay Gupta —</p>
-      </div>
-    </div>
-  </div>
-  <button class="testi-arrow testi-next" id="testiNext" aria-label="Next testimonial">&#8594;</button>
 </section>
 
 <!-- ── TRUST BADGES ───────────────────────────────────────── -->
-<section class="trust-section">
-  <div class="trust-grid">
-    <div class="trust-item">
-      <div class="trust-check"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:36px;height:36px;fill:var(--gold);"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"/></svg></div>
-      <h3 class="trust-title">Quality You Can Trust</h3>
-      <p class="trust-text">At VibrantPetals, quality is our priority. We handpick the finest flowers and foliage to create beautiful garlands, loose flowers, and leaves that exceed expectations.</p>
+<section class="trust-bar">
+  <div class="trust-bar-inner">
+    <div class="trust-bar-item">
+      <div class="trust-bar-icon">
+        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="trust-bar-text">
+        <div class="trust-bar-title">Premium Quality</div>
+        <div class="trust-bar-desc">Handpicked fresh flowers, daily</div>
+      </div>
     </div>
-    <div class="trust-item">
-      <div class="trust-check"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:36px;height:36px;fill:var(--gold);"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"/></svg></div>
-      <h3 class="trust-title">Excellence in Every Bloom</h3>
-      <p class="trust-text">Experience excellence with VibrantPetals. Our dedication to superior service ensures that every garland, loose flower, and leaf is crafted with care and attention to detail.</p>
+    <div class="trust-bar-item">
+      <div class="trust-bar-icon">
+        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="trust-bar-text">
+        <div class="trust-bar-title">In-Store Pickup</div>
+        <div class="trust-bar-desc">Melbourne &amp; Sydney outlets</div>
+      </div>
     </div>
-    <div class="trust-item">
-      <div class="trust-check"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:36px;height:36px;fill:var(--gold);"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"/></svg></div>
-      <h3 class="trust-title">Unmatched Service</h3>
-      <p class="trust-text">VibrantPetals delivers unmatched service and unforgettable blooms. From vibrant garlands to fresh loose flowers and lush leaves, we're committed to providing the best for our customers.</p>
+    <div class="trust-bar-item">
+      <div class="trust-bar-icon">
+        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </div>
+      <div class="trust-bar-text">
+        <div class="trust-bar-title">Fast Fulfilment</div>
+        <div class="trust-bar-desc">Ready for your occasion, on time</div>
+      </div>
+    </div>
+    <div class="trust-bar-item">
+      <div class="trust-bar-icon">
+        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div class="trust-bar-text">
+        <div class="trust-bar-title">Trusted by Community</div>
+        <div class="trust-bar-desc">Serving Melbourne &amp; Sydney</div>
+      </div>
     </div>
   </div>
 </section>
@@ -1041,45 +1027,6 @@
 </section>
 
 <!-- ── FOOTER ─────────────────────────────────────────────── -->
-
-<!-- ── ABOUT SECTION ──────────────────────────────────────────────────────── -->
-<section style="background:var(--cream2);padding:80px 24px;">
-  <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;">
-    <div>
-      <div style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">About Nivas Vibrant Petals</div>
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4vw,48px);font-weight:300;line-height:1.2;color:var(--dark);margin-bottom:20px;">Bringing Indian Floral Traditions to Australia</h2>
-      <p style="font-size:15px;line-height:1.85;color:#555;margin-bottom:16px;">Welcome to Nivas Vibrant Petals — your trusted destination for fresh Indian flowers in Australia. We bring the beauty, fragrance, and traditions of Indian floral culture closer to homes and celebrations across Australia.</p>
-      <p style="font-size:15px;line-height:1.85;color:#555;margin-bottom:28px;">From poojas and festivals to weddings and special occasions, our flowers help create meaningful moments filled with tradition and joy.</p>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;">
-        <a href="about.html" style="padding:13px 28px;background:var(--gold);color:#fff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;transition:background .2s;text-decoration:none;" onmouseover="this.style.background='#7A6B3F'" onmouseout="this.style.background='var(--gold)'">Our Story</a>
-        <a href="wholesale.html" style="padding:13px 28px;background:transparent;color:var(--gold);font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;border:1px solid var(--gold);transition:all .2s;text-decoration:none;" onmouseover="this.style.background='var(--gold)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--gold)'">Wholesale Orders</a>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div style="background:#fff;border-radius:8px;padding:28px 22px;border:1px solid rgba(185,155,81,.15);">
-        <div style="font-size:28px;margin-bottom:10px;">🌸</div>
-        <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--dark);margin-bottom:8px;">Fresh &amp; Authentic</h3>
-        <p style="font-size:13px;color:#777;line-height:1.7;margin:0;">Sourced from trusted growers across India for genuine freshness.</p>
-      </div>
-      <div style="background:#fff;border-radius:8px;padding:28px 22px;border:1px solid rgba(185,155,81,.15);margin-top:24px;">
-        <div style="font-size:28px;margin-bottom:10px;">🙏</div>
-        <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--dark);margin-bottom:8px;">Festival &amp; Pooja Ready</h3>
-        <p style="font-size:13px;color:#777;line-height:1.7;margin:0;">Perfect for daily poojas, weddings, and all Indian celebrations.</p>
-      </div>
-      <div style="background:#fff;border-radius:8px;padding:28px 22px;border:1px solid rgba(185,155,81,.15);">
-        <div style="font-size:28px;margin-bottom:10px;">📦</div>
-        <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--dark);margin-bottom:8px;">Careful Handling</h3>
-        <p style="font-size:13px;color:#777;line-height:1.7;margin:0;">Quality-focused packaging to maintain freshness on arrival.</p>
-      </div>
-      <div style="background:#fff;border-radius:8px;padding:28px 22px;border:1px solid rgba(185,155,81,.15);margin-top:24px;">
-        <div style="font-size:28px;margin-bottom:10px;">🚚</div>
-        <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--dark);margin-bottom:8px;">Reliable Delivery</h3>
-        <p style="font-size:13px;color:#777;line-height:1.7;margin:0;">Same-day and scheduled delivery options across Australia.</p>
-      </div>
-    </div>
-  </div>
-  <style>@media(max-width:768px){.about-grid{grid-template-columns:1fr!important;}}</style>
-</section>
 
 <footer>
   <div class="footer-grid">
@@ -1277,101 +1224,62 @@ function showToast(msg, type=''){
 
 // ── FEATURED PRODUCTS ──────────────────────────────────────
 (async function(){
-  const track   = document.getElementById('featuredTrack');
-  const slider  = track.parentElement;
-  const prevBtn = document.getElementById('fpPrev');
-  const nextBtn = document.getElementById('fpNext');
+  const grid = document.getElementById('featuredGrid');
 
   // Skeleton placeholders
-  track.innerHTML = Array(5).fill(`
-    <div class="product-card" style="width:20%">
+  grid.innerHTML = Array(8).fill(`
+    <div class="product-card">
       <div class="product-card-inner">
         <div class="product-img-wrap skeleton" style="aspect-ratio:1;"></div>
-      </div>
-      <div style="margin-top:14px;">
-        <div class="skeleton" style="height:13px;width:70%;margin-bottom:8px;border-radius:3px;"></div>
-        <div class="skeleton" style="height:12px;width:40%;border-radius:3px;"></div>
+        <div class="product-info">
+          <div class="skeleton" style="height:13px;width:70%;margin-bottom:8px;border-radius:3px;"></div>
+          <div class="skeleton" style="height:12px;width:40%;border-radius:3px;margin-bottom:12px;"></div>
+          <div class="skeleton" style="height:34px;border-radius:4px;"></div>
+        </div>
       </div>
     </div>`).join('');
 
   const data = await apiFetch('/products/featured').catch(()=>({products:[]}));
   const products = data.products || [];
   if(!products.length){
-    const fb = await apiFetch('/products?limit=10').catch(()=>({products:[]}));
+    const fb = await apiFetch('/products?limit=20').catch(()=>({products:[]}));
     products.push(...(fb.products||[]));
   }
   if(!products.length){
-    track.innerHTML='<p style="padding:32px;color:var(--mid);">No products yet.</p>';
-    prevBtn.style.display = nextBtn.style.display = 'none';
+    grid.innerHTML='<p style="padding:32px;color:var(--mid);grid-column:1/-1;">No products yet.</p>';
     return;
   }
 
-  const VISIBLE = window.innerWidth < 768 ? 2 : 5;
-  let offset = 0;
-
-  // Card width in px — recalculate on resize
-  function cardWidth(){ return slider.offsetWidth / VISIBLE; }
-
-  function renderCards(){
-    const cw = cardWidth();
-    track.innerHTML = products.map(p => {
-      const hasRange = p.regularPrice && p.price && p.regularPrice !== p.price;
-      const priceStr = hasRange
-        ? `$${Math.min(p.price, p.regularPrice).toFixed(2)} – $${Math.max(p.price, p.regularPrice).toFixed(2)}`
-        : p.price ? `$${p.price.toFixed(2)}` : '';
-      const img = p.images?.[0] || '';
-      const inStock = p.stockStatus !== 'outofstock';
-      return `
-      <div class="product-card" style="width:${cw}px;" onclick="location.href='product.html?id=${p._id}'">
-        <div class="product-card-inner">
-          <div class="product-img-wrap">
-            ${img ? `<img src="${img}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'"/>` : `<div style="width:100%;aspect-ratio:1;background:var(--card-bg);"></div>`}
-            ${!inStock ? '<div class="stock-badge">Out Of Stock</div>' : ''}
-            <div class="product-actions">
-              <button class="arrow-btn product-action-btn" onclick="event.stopPropagation();addToCart('${p._id}')" title="Add to cart">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-              </button>
-              <button class="product-action-btn" onclick="event.stopPropagation();addToWishlist('${p._id}')" title="Wishlist">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-              </button>
-              <button class="product-action-btn" onclick="event.stopPropagation();location.href='product.html?id=${p._id}'" title="Quick view">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              </button>
-            </div>
-          </div>
+  grid.innerHTML = products.map(p => {
+    const hasRange = p.regularPrice && p.price && p.regularPrice !== p.price;
+    const priceStr = hasRange
+      ? `$${Math.min(p.price, p.regularPrice).toFixed(2)} – $${Math.max(p.price, p.regularPrice).toFixed(2)}`
+      : p.price ? `$${p.price.toFixed(2)}` : '';
+    const img = p.images?.[0] || '';
+    const inStock = p.stockStatus !== 'outofstock';
+    return `
+    <div class="product-card" onclick="location.href='product.html?id=${p._id}'">
+      <div class="product-card-inner">
+        <div class="product-img-wrap">
+          ${img ? `<img src="${img}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'"/>` : `<div style="width:100%;aspect-ratio:1;background:var(--cream2);"></div>`}
+          ${!inStock ? '<div class="stock-badge">Out Of Stock</div>' : ''}
         </div>
         <div class="product-info">
           <div class="product-name">${p.name}</div>
           <div class="product-price">${priceStr}</div>
+          <div class="product-btn-row">
+            <button class="btn-add-cart" onclick="event.stopPropagation();addToCart('${p._id}')" title="Add to cart">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+              Add to Cart
+            </button>
+            <button class="btn-wishlist" onclick="event.stopPropagation();addToWishlist('${p._id}')" title="Wishlist">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+            </button>
+          </div>
         </div>
-      </div>`;
-    }).join('');
-  }
-
-  function goTo(n){
-    const max = Math.max(0, products.length - VISIBLE);
-    offset = Math.max(0, Math.min(n, max));
-    track.style.transform = `translateX(-${offset * cardWidth()}px)`;
-    prevBtn.classList.toggle('hidden', offset === 0);
-    nextBtn.classList.toggle('hidden', offset >= max);
-  }
-
-  renderCards();
-  goTo(0);
-
-  prevBtn.onclick = () => goTo(offset - 1);
-  nextBtn.onclick = () => goTo(offset + 1);
-
-  // Touch / drag swipe support
-  let touchStartX = 0;
-  track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
-  track.addEventListener('touchend', e => {
-    const dx = touchStartX - e.changedTouches[0].clientX;
-    if(Math.abs(dx) > 40) goTo(offset + (dx > 0 ? 1 : -1));
-  });
-
-  // Recalculate on resize
-  window.addEventListener('resize', () => { renderCards(); goTo(offset); });
+      </div>
+    </div>`;
+  }).join('');
 })();
 
 // ── SEARCH ─────────────────────────────────────────────────
@@ -1623,10 +1531,6 @@ async function loadSiteImages(){
     const data = await apiFetch('/site-images');
     if(!data.siteImages) return;
     const si = data.siteImages;
-    // Testimonial background
-    const tsBg = si['testimonial_bg']?.image || FALLBACK_SITE_IMAGES['testimonial_bg'];
-    const tsEl = document.getElementById('testiSection');
-    if(tsEl && tsBg) tsEl.style.backgroundImage = `url('${tsBg}')`;
     // Delivery banner — sets background on section (full-width composite image)
     const dbImg = si['delivery_banner_img']?.image || FALLBACK_SITE_IMAGES['delivery_banner_img'];
     const dbEl  = document.getElementById('deliveryBannerSection');
