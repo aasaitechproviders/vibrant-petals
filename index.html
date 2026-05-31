@@ -1246,7 +1246,6 @@ function showToast(msg, type=''){
   apiFetch('/banners').then(data => {
     buildHero(data.banners && data.banners.length ? data.banners : null);
   }).catch(() => buildHero(null));
-  setInterval(()=>go(cur+1), 5000);
 })();
 
 // ── FEATURED PRODUCTS ──────────────────────────────────────
