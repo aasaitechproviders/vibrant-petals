@@ -314,6 +314,7 @@
     .login-strip a { color: var(--gold); font-weight: 700; }
 
     @media (max-width: 900px) {
+      .nav-logo-text{display:none;}.nav-icons{gap:12px;}.nav-icon-btn{width:30px;height:30px;}.nav-icon-btn svg{width:19px;height:19px;}
       .signup-wrapper { grid-template-columns: 1fr; }
       .signup-panel-left { display: none; }
       .signup-panel-right { padding: 28px 20px 48px; }
@@ -353,8 +354,7 @@
 <header>
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
-      <img src="logo.png" alt="Vibrant Petals Logo" />
-      Vibrant Petals
+      <img src="logo.png" alt="Vibrant Petals Logo" /><span class="nav-logo-text"> Vibrant Petals</span>
     </a>
     <div class="nav-links">
       <a href="index.html">← Back to store</a>
