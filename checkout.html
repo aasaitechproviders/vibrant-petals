@@ -714,6 +714,9 @@ function getCheckoutRole(){
 async function init(){
   const _role = getCheckoutRole();
 
+  // Initialise date picker immediately — must run for all roles
+  initDatePicker();
+
   // Hide coupon section for Dealer and Retail
   if(_role === 'Dealer' || _role === 'Retail'){
     const cs = document.getElementById('couponSection');
@@ -805,7 +808,6 @@ async function init(){
   }
 
   await loadOutlets();
-  initDatePicker();
 }
 
 // ── AUTO-SELECT a single outlet and show locked confirmation banner ───────────
