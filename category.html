@@ -356,6 +356,15 @@ async function loadCategories(){
   const data=await apiFetch('/products/categories').catch(()=>({categories:[]}));
   let cats=(data.categories||[]).filter(c=>c.slug!=='all'&&c.name!=='All');
   cats.forEach(c=>{catNameMap[c.slug]=c.name;});
+  // Custom display order
+  const CAT_ORDER=['loose-flowers','strings','leaves','pooja-garlands','special-occasional-garlands'];
+  cats.sort((a,b)=>{
+    const ai=CAT_ORDER.indexOf(a.slug);
+    const bi=CAT_ORDER.indexOf(b.slug);
+    const an=ai===-1?CAT_ORDER.length:ai;
+    const bn=bi===-1?CAT_ORDER.length:bi;
+    return an-bn;
+  });
   document.getElementById('catList').innerHTML=cats.map(c=>`<li><a href="category.html?cat=${c.slug}" ${c.slug===currentCat?'class="active"':''}>${c.name} <span>${c.count}</span></a></li>`).join('');
 }
 
