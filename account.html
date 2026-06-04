@@ -1751,15 +1751,15 @@ async function loadMyStore() {
     return;
   }
   const o = data.outlet;
-  const statusColor = { approved: '#27ae60', pending: '#e67e22', rejected: '#c0392b' };
+  const statusColor = { approved: '#27ae60', pending: '#e67e22', rejected: '#c0392b', superseded: '#7f8c8d' };
   const col = statusColor[o.approvalStatus] || '#aaa';
   el.innerHTML = `
     <!-- Status banner -->
     <div style="background:${col}15;border:1px solid ${col}40;border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;">
-      <div style="font-size:22px;">${o.approvalStatus === 'approved' ? '✅' : o.approvalStatus === 'pending' ? '⏳' : '❌'}</div>
+      <div style="font-size:22px;">${o.approvalStatus === 'approved' ? '✅' : o.approvalStatus === 'pending' ? '⏳' : o.approvalStatus === 'superseded' ? '🔄' : '❌'}</div>
       <div>
-        <div style="font-weight:700;font-size:14px;color:${col};">Account ${o.approvalStatus === 'approved' ? 'Active' : o.approvalStatus === 'pending' ? 'Pending Admin Review' : 'Rejected'}</div>
-        <div style="font-size:13px;color:var(--mid);">${o.approvalStatus === 'pending' ? 'Our team will review your application within a few business days.' : o.approvalStatus === 'rejected' ? (o.rejectionReason || 'Please contact support for more information.') : 'Your outlet is live on the platform.'}</div>
+        <div style="font-weight:700;font-size:14px;color:${col};">Account ${o.approvalStatus === 'approved' ? 'Active' : o.approvalStatus === 'pending' ? 'Pending Admin Review' : o.approvalStatus === 'superseded' ? 'Territory Change Pending' : 'Rejected'}</div>
+        <div style="font-size:13px;color:var(--mid);">${o.approvalStatus === 'approved' ? 'Your outlet is live on the platform.' : o.approvalStatus === 'pending' ? 'Our team will review your application within a few business days.' : o.approvalStatus === 'superseded' ? 'Your territory change request is under admin review. Your previous outlet has been deactivated.' : (o.rejectionReason || 'Please contact support for more information.')}</div>
       </div>
     </div>
 
