@@ -1371,6 +1371,9 @@ async function loadRetailAdditionalOutlets() {
   }
   const data = await apiFetch('/retail/outlets', { headers: apiHeaders() });
   const outlets = (data.outlets || []).filter(o => o.approvalStatus !== 'superseded');
+  // Populate map so editRetailOutlet() can look up outlet objects by ID
+  window._retailOutletsMap = {};
+  outlets.forEach(o => { window._retailOutletsMap[o._id] = o; });
   if (!outlets.length) {
     el.innerHTML = `<div style="text-align:center;padding:28px;color:var(--mid);">
       <div style="font-size:36px;margin-bottom:10px;">🏪</div>
