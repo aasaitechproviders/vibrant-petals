@@ -472,65 +472,6 @@
           <div class="skeleton" style="height:200px;border-radius:4px;"></div>
         </div>
 
-        <!-- ADDITIONAL OUTLETS — Registration Form -->
-        <div class="form-card" id="retailOutletFormCard" style="display:none;margin-top:20px;">
-          <div class="form-card-title" id="retailOutletFormTitle">REQUEST ADDITIONAL OUTLET</div>
-          <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.6;">You can request additional retail outlets in any territory. Each outlet will be submitted for admin review before going live.</p>
-          <input type="hidden" id="editingRetailOutletId"/>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Outlet Name *</label>
-              <input type="text" class="form-input" id="retailOutletName" placeholder="e.g. VibrantPetals Tarneit Store"/>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Phone</label>
-              <input type="text" class="form-input" id="retailOutletPhone" placeholder="+61 3 9000 0001"/>
-            </div>
-          </div>
-          <div class="form-row full">
-            <div class="form-group">
-              <label class="form-label">Street Address *</label>
-              <input type="text" class="form-input" id="retailOutletAddress" placeholder="Shop 4, Tarneit Central, 533 Derrimut Rd"/>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">State *</label>
-              <select class="form-select" id="retailOutletState" onchange="loadRetailOutletTerritoryOptions()">
-                <option value="">Select state…</option>
-                <option value="Melbourne">Melbourne</option>
-                <option value="Sydney">Sydney</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Trading Hours</label>
-              <input type="text" class="form-input" id="retailOutletHours" placeholder="Mon–Sat 9am–6pm"/>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Territory / Suburb *</label>
-              <select class="form-select" id="retailOutletTerritory" disabled>
-                <option value="">Select state first…</option>
-              </select>
-            </div>
-          </div>
-          <div style="margin-top:14px;padding:14px 16px;background:#faf8f4;border:1px solid #e8e0d2;border-radius:4px;">
-            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
-              <input type="checkbox" id="retailOutletPickupEnabled" style="margin-top:3px;width:16px;height:16px;accent-color:#9B8B5A;flex-shrink:0;">
-              <div>
-                <div style="font-size:14px;font-weight:700;color:var(--dark);">Request customer pickup from this store</div>
-                <div style="font-size:12px;color:var(--mid);margin-top:3px;line-height:1.5;">Customers in this territory will see your store as a pickup option at checkout. Admin will review and activate pickup once your store is verified.</div>
-              </div>
-            </label>
-          </div>
-          <div class="form-msg" id="retailOutletFormMsg" style="display:none;"></div>
-          <div style="display:flex;gap:10px;margin-top:16px;">
-            <button class="btn-save" id="retailOutletSaveBtn" onclick="saveRetailOutlet()">Submit Outlet</button>
-            <button class="btn-sm outline" onclick="closeRetailOutletForm()">Cancel</button>
-          </div>
-        </div>
-
         <!-- ADDITIONAL OUTLETS — List -->
         <div class="form-card" style="margin-top:20px;">
           <div class="form-card-title" style="display:flex;justify-content:space-between;align-items:center;">
@@ -1551,46 +1492,17 @@ async function loadRetailAdditionalOutlets() {
 
 
 function openRetailOutletForm() {
-  document.getElementById('editingRetailOutletId').value = '';
-  document.getElementById('retailOutletFormTitle').textContent = 'REQUEST ADDITIONAL OUTLET';
-  document.getElementById('retailOutletName').value = '';
-  document.getElementById('retailOutletPhone').value = '';
-  document.getElementById('retailOutletAddress').value = '';
-  document.getElementById('retailOutletState').value = '';
-  document.getElementById('retailOutletTerritory').innerHTML = '<option value="">Select state first…</option>';
-  document.getElementById('retailOutletTerritory').disabled = true;
-  document.getElementById('retailOutletHours').value = '';
-  document.getElementById('retailOutletPickupEnabled').checked = false;
-  document.getElementById('retailOutletSaveBtn').textContent = 'Submit Outlet';
-  document.getElementById('retailOutletFormMsg').style.display = 'none';
-  document.getElementById('retailOutletFormCard').style.display = '';
-  document.getElementById('retailOutletFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  openRetailOutletModal(null);
 }
 window.openRetailOutletForm = openRetailOutletForm;
 
 function closeRetailOutletForm() {
-  document.getElementById('retailOutletFormCard').style.display = 'none';
-  document.getElementById('retailOutletFormMsg').style.display = 'none';
+  closeRetailOutletModal();
 }
 window.closeRetailOutletForm = closeRetailOutletForm;
 
 function editRetailOutlet(outletId) {
-  const o = window._retailOutletsMap?.[outletId];
-  if (!o) return;
-  document.getElementById('editingRetailOutletId').value = o._id;
-  document.getElementById('retailOutletFormTitle').textContent = 'EDIT OUTLET';
-  document.getElementById('retailOutletName').value = o.name || '';
-  document.getElementById('retailOutletPhone').value = o.phone || '';
-  document.getElementById('retailOutletAddress').value = o.address || '';
-  document.getElementById('retailOutletState').value = o.state || '';
-  loadRetailOutletTerritoryOptions();
-  setTimeout(() => { document.getElementById('retailOutletTerritory').value = o.territorySlug || ''; }, 300);
-  document.getElementById('retailOutletHours').value = o.hours || '';
-  document.getElementById('retailOutletPickupEnabled').checked = !!o.pickupEnabled;
-  document.getElementById('retailOutletSaveBtn').textContent = 'Save Changes';
-  document.getElementById('retailOutletFormMsg').style.display = 'none';
-  document.getElementById('retailOutletFormCard').style.display = '';
-  document.getElementById('retailOutletFormCard').scrollIntoView({ behavior: 'smooth' });
+  openRetailOutletModal(outletId);
 }
 window.editRetailOutlet = editRetailOutlet;
 
@@ -1674,22 +1586,22 @@ async function deleteRetailOutlet(id, name) {
 }
 window.deleteRetailOutlet = deleteRetailOutlet;
 
-function openRetailOutletModal(outletId) {
-  const o = window._retailOutletsMap?.[outletId];
-  if (!o) return;
-  document.getElementById('modalOutletId').value       = o._id;
-  document.getElementById('outletModalTitle').textContent = o.isPrimaryOutlet ? 'EDIT PRIMARY STORE' : 'EDIT OUTLET';
-  document.getElementById('modalOutletName').value     = o.name    || '';
-  document.getElementById('modalOutletPhone').value    = o.phone   || '';
-  document.getElementById('modalOutletAddress').value  = o.address || '';
-  document.getElementById('modalOutletHours').value    = o.hours   || '';
-  document.getElementById('modalOutletPickup').checked = !!o.pickupEnabled;
-  document.getElementById('modalOutletState').value    = o.state   || '';
+async function openRetailOutletModal(outletId) {
+  const isNew = !outletId;
+  const o = isNew ? null : window._retailOutletsMap?.[outletId];
+  document.getElementById('modalOutletId').value       = o?._id || '';
+  document.getElementById('outletModalTitle').textContent = isNew ? 'REQUEST NEW OUTLET' : (o?.isPrimaryOutlet ? 'EDIT PRIMARY STORE' : 'EDIT OUTLET');
+  document.getElementById('modalOutletName').value     = o?.name    || '';
+  document.getElementById('modalOutletPhone').value    = o?.phone   || '';
+  document.getElementById('modalOutletAddress').value  = o?.address || '';
+  document.getElementById('modalOutletHours').value    = o?.hours   || '';
+  document.getElementById('modalOutletPickup').checked = !!o?.pickupEnabled;
+  document.getElementById('modalOutletState').value    = o?.state   || '';
   document.getElementById('modalOutletMsg').style.display = 'none';
   document.getElementById('modalOutletSaveBtn').disabled = false;
-  document.getElementById('modalOutletSaveBtn').textContent = 'Submit Edit';
-  loadModalTerritoryOptions();
-  setTimeout(() => { document.getElementById('modalOutletTerritory').value = o.territorySlug || ''; }, 320);
+  document.getElementById('modalOutletSaveBtn').textContent = isNew ? 'Submit Request' : 'Submit Edit';
+  await loadModalTerritoryOptions();
+  if (o?.territorySlug) document.getElementById('modalOutletTerritory').value = o.territorySlug;
   const modal = document.getElementById('outletEditModal');
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -1731,19 +1643,28 @@ async function saveRetailOutletModal() {
   const suburb       = terrSel.options[terrSel.selectedIndex]?.text || territorySlug;
   const msg          = document.getElementById('modalOutletMsg');
   msg.style.display  = 'none';
+  const isNew = !id;
   if (!name || !address) {
     msg.className = 'form-msg err'; msg.textContent = 'Name and address are required.'; msg.style.display = 'block'; return;
   }
+  if (isNew && (!territorySlug || !state)) {
+    msg.className = 'form-msg err'; msg.textContent = 'Please select a state and territory.'; msg.style.display = 'block'; return;
+  }
   const btn = document.getElementById('modalOutletSaveBtn');
   btn.disabled = true; btn.textContent = 'Submitting…';
-  const data = await apiFetch(`/retail/outlets/${id}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ name, phone, address, hours, pickupEnabled, state, territorySlug, suburb }) });
-  btn.disabled = false; btn.textContent = 'Submit Edit';
+  let data;
+  if (isNew) {
+    data = await apiFetch('/retail/outlets', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ name, phone, address, hours, pickupEnabled, state, territorySlug, suburb }) });
+  } else {
+    data = await apiFetch(`/retail/outlets/${id}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ name, phone, address, hours, pickupEnabled, state, territorySlug, suburb }) });
+  }
+  btn.disabled = false; btn.textContent = isNew ? 'Submit Request' : 'Submit Edit';
   if (data.success) {
     closeRetailOutletModal();
-    showToast('Edit submitted — pending admin approval', 'success');
+    showToast(isNew ? 'Outlet submitted — pending admin approval' : 'Edit submitted — pending admin approval', 'success');
     loadRetailAdditionalOutlets();
   } else {
-    msg.className = 'form-msg err'; msg.textContent = data.message || 'Failed to submit edit.'; msg.style.display = 'block';
+    msg.className = 'form-msg err'; msg.textContent = data.message || 'Failed to submit.'; msg.style.display = 'block';
   }
 }
 window.saveRetailOutletModal = saveRetailOutletModal;
