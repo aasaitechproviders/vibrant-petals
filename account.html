@@ -970,12 +970,12 @@ async function loadOrders(page=1){
   const el=document.getElementById('ordersContent');
   el.innerHTML='<div class="skeleton" style="height:300px;border-radius:4px;"></div>';
 
-  // Show tabs for Retail role
+  // Show tabs for Retail and Dealer roles
   try {
     const tok = localStorage.getItem('vp_token');
     const role = tok ? JSON.parse(atob(tok.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role : null;
     const tabBar = document.getElementById('orderTabsBar');
-    if (role === 'Retail' && tabBar) {
+    if ((role === 'Retail' || role === 'Dealer') && tabBar) {
       tabBar.style.display = 'block';
       // Set active tab style on first load
       document.getElementById('tabMyOrders').style.color = currentOrderTab === 'placed' ? 'var(--gold)' : 'var(--mid)';
