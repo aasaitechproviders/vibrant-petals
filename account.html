@@ -442,63 +442,33 @@
       <div class="acct-panel" id="panel-dealer">
         <div class="panel-title">Dealer Portal</div>
 
-        <!-- Territories -->
+        <!-- Primary Outlet -->
         <div class="form-card">
-          <div class="form-card-title">MY TERRITORIES</div>
-          <div id="dealerTerritoriesContent">
-            <div class="skeleton" style="height:60px;border-radius:4px;"></div>
+          <div class="form-card-title">MY PRIMARY OUTLET</div>
+          <div id="dealerPortalPrimary"><div class="skeleton" style="height:80px;border-radius:4px;"></div></div>
+        </div>
+
+        <!-- All Territories -->
+        <div class="form-card">
+          <div class="form-card-title" style="display:flex;justify-content:space-between;align-items:center;">
+            MY TERRITORIES
+            <button class="btn-sm gold" onclick="openDealerTerritoryModal()">+ Request Territory</button>
           </div>
-        </div>
-
-        <!-- Request Another Territory -->
-        <div class="form-card">
-          <div class="form-card-title">REQUEST A NEW TERRITORY</div>
-          <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.6;">You can request additional territories. Each request is reviewed by admin within 14 days. One territory is locked per request — open territories only.</p>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">State</label>
-              <select class="form-select" id="reqTerritoryState" onchange="onDealerReqStateChange()">
-                <option value="">Select state…</option>
-                <option value="Melbourne">Melbourne</option>
-                <option value="Sydney">Sydney</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Territory / Suburb</label>
-              <select class="form-select" id="reqTerritorySlug" disabled>
-                <option value="">Select state first…</option>
-              </select>
-            </div>
-          </div>
-          <button class="btn-save" onclick="requestTerritory()">Submit Request</button>
-          <div class="form-msg" id="terrReqMsg" style="display:none;"></div>
-        </div>
-
-        <!-- Territory Request History -->
-        <div class="form-card">
-          <div class="form-card-title">TERRITORY HISTORY</div>
-          <div id="dealerTerritoryHistory" style="font-size:13px;color:var(--mid);">Loading…</div>
-        </div>
-
-        <!-- Assigned Orders -->
-        <div class="form-card">
-          <div class="form-card-title">ORDERS ASSIGNED TO ME</div>
-          <p style="font-size:13px;color:var(--mid);margin-bottom:12px;">These are customer orders assigned to you for fulfillment at your pickup outlet.</p>
-          <div id="dealerOrdersContent"><div class="skeleton" style="height:80px;border-radius:4px;"></div></div>
+          <div id="dealerTerritoriesContent"><div class="skeleton" style="height:60px;border-radius:4px;"></div></div>
         </div>
 
         <!-- Benefits -->
-        <div class="form-card">
+        <div class="form-card" style="background:linear-gradient(135deg,rgba(155,139,90,.05),rgba(155,139,90,.1));border-color:rgba(155,139,90,.3);">
           <div class="form-card-title">DEALER BENEFITS</div>
           <ul style="font-size:14px;color:var(--mid);line-height:2;margin-top:4px;padding-left:16px;list-style:disc;">
             <li>Exclusive wholesale pricing on all products</li>
             <li>Priority order processing</li>
             <li>Dedicated dealer coupon codes</li>
-            <li>Bulk order support — contact us for custom quotes</li>
+            <li>Bulk order support &mdash; contact us for custom quotes</li>
           </ul>
         </div>
       </div>
-      <!-- MY STORE PANEL (Retail users) -->
+            <!-- MY STORE PANEL (Retail users) -->
       <div class="acct-panel" id="panel-mystore">
         <div class="panel-title">My Stores</div>
 
@@ -882,11 +852,11 @@ async function loadMe(){
     if(lc) lc.style.display='none';
 
   } else if(role==='Dealer'){
-    // Dealer: Dashboard, My Orders, Profile, Password, Dealer Portal, My Retail Outlets
-    show('navOrders');
+  } else if(role==='Dealer'){
+    // Dealer: Dashboard, My Orders, Profile, Password, Dealer Portal
     show('navDealer');
-    show('navOutlets');
-    const lc=document.getElementById('locationPrefCard');
+    show('navDealer');
+    // navOutlets removed — outlet management is now inside Dealer Portal
     if(lc) lc.style.display='none';
 
   } else if(role==='Retail'){
@@ -1156,166 +1126,165 @@ window.viewOrder=viewOrder;window.closeOrderModal=closeOrderModal;
 let dealerReqTerritoriesData = { Melbourne: [], Sydney: [] };
 
 async function loadDealerPanel() {
-  await Promise.all([ loadDealerTerritories(), loadDealerOrders() ]);
+  await loadDealerPortalPrimary();
+  await loadDealerTerritories();
+}
+
+async function loadDealerPortalPrimary() {
+  const el = document.getElementById('dealerPortalPrimary');
+  if (!el) return;
+  const data = await apiFetch('/dealer/outlets', { headers: apiHeaders() });
+  const outlets = data.outlets || [];
+  window._dealerOutletsMap = window._dealerOutletsMap || {};
+  outlets.forEach(o => { window._dealerOutletsMap[o._id] = o; });
+  const primary = outlets.find(o => o.isPrimaryOutlet);
+  if (!primary) { el.innerHTML = '<p style="color:var(--mid);font-size:14px;">No primary outlet found. Contact admin.</p>'; return; }
+  el.innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:14px;padding:16px;border:1px solid #e8e0d2;border-radius:4px;background:#fff;">
+      <div style="font-size:26px;flex-shrink:0;">&#127978;</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:15px;margin-bottom:2px;">${primary.name} <span style="font-size:11px;color:var(--gold);font-weight:600;">(Primary)</span></div>
+        <div style="font-size:13px;color:var(--mid);">${primary.address}, ${primary.suburb}, ${primary.state}</div>
+        ${primary.phone ? `<div style="font-size:13px;color:var(--mid);">${primary.phone}</div>` : ''}
+        ${primary.hours ? `<div style="font-size:12px;color:var(--light);">${primary.hours}</div>` : ''}
+        <div style="font-size:11px;color:var(--light);margin-top:4px;">Territory: ${primary.territorySlug} &middot; ${primary.pickupEnabled ? '<span style="color:#27ae60;font-weight:600;">Pickup: Enabled</span>' : '<span style="color:var(--mid);">Pickup: Disabled</span>'}</div>
+        ${primary.requestType === 'edit' ? '<div style="font-size:12px;color:#004085;margin-top:6px;">Edit pending admin approval.</div>' : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end;">
+        ${outletStatusBadge(primary)}
+        ${!primary.requestType ? `<button class="btn-sm outline" onclick="editDealerOutlet('${primary._id}')">Edit</button>` : ''}
+      </div>
+    </div>`;
 }
 
 async function loadDealerTerritories() {
   const el = document.getElementById('dealerTerritoriesContent');
-  const hist = document.getElementById('dealerTerritoryHistory');
-  const data = await apiFetch('/dealer/territories', { headers: apiHeaders() });
-  if (!data.assigned && !data.pending) {
-    el.innerHTML = '<p style="color:var(--mid);font-size:14px;">No territories yet.</p>';
-    if (hist) hist.textContent = 'No territory requests on record.';
+  if (!el) return;
+  const data = await apiFetch('/dealer/outlets', { headers: apiHeaders() });
+  const outlets = data.outlets || [];
+  window._dealerOutletsMap = window._dealerOutletsMap || {};
+  outlets.forEach(o => { window._dealerOutletsMap[o._id] = o; });
+  const additional = outlets.filter(o => !o.isPrimaryOutlet);
+  if (!additional.length) {
+    el.innerHTML = `<div style="text-align:center;padding:28px;color:var(--mid);">
+      <div style="font-size:36px;margin-bottom:10px;">&#128205;</div>
+      <p style="font-size:14px;margin-bottom:14px;">No additional territories yet.</p>
+      <button class="btn-sm gold" onclick="openDealerTerritoryModal()">Request Your First Territory</button>
+    </div>`;
     return;
   }
-  const assigned = data.assigned || [];
-  const pending  = data.pending  || [];
-
-  // Current territories block
-  if (!assigned.length && !pending.length) {
-    el.innerHTML = '<p style="color:var(--mid);font-size:14px;">No territories assigned or pending yet.</p>';
-  } else {
-    el.innerHTML = [
-      ...assigned.map(t => `
-        <div style="display:flex;align-items:center;gap:14px;padding:14px;border:1px solid #e8e0d2;border-radius:4px;margin-bottom:10px;background:#fff;">
-          <div style="font-size:22px;">📍</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;font-size:14px;">${t.name}</div>
-            <div style="font-size:12px;color:var(--mid);">${t.state}</div>
-          </div>
-          <span style="background:#d4edda;color:#155724;border:1px solid #c3e6cb;padding:4px 12px;border-radius:10px;font-size:11px;font-weight:700;">✓ Assigned</span>
-        </div>`),
-      ...pending.map(t => {
-        const urgent = t.daysLeft <= 3;
-        return `<div style="display:flex;align-items:center;gap:14px;padding:14px;border:1px solid ${urgent?'#f5c6cb':'#ffeeba'};border-radius:4px;margin-bottom:10px;background:${urgent?'#fff5f5':'#fffdf0'};">
-          <div style="font-size:22px;">⏳</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;font-size:14px;">${t.name}</div>
-            <div style="font-size:12px;color:var(--mid);">${t.state} · Pending admin review</div>
-          </div>
-          <span style="background:${urgent?'#f8d7da':'#fff3cd'};color:${urgent?'#721c24':'#856404'};padding:4px 12px;border-radius:10px;font-size:11px;font-weight:700;">${t.daysLeft}d left</span>
-        </div>`;
-      }),
-    ].join('');
-  }
-
-  // History
-  if (hist) {
-    const histRows = [
-      ...assigned.map(t => `<tr><td><b>${t.name}</b></td><td>${t.state}</td><td><span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">Assigned</span></td><td>—</td></tr>`),
-      ...pending.map(t  => `<tr><td><b>${t.name}</b></td><td>${t.state}</td><td><span style="background:#fff3cd;color:#856404;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">Pending</span></td><td>${t.daysLeft}d remaining</td></tr>`),
-    ];
-    hist.innerHTML = histRows.length
-      ? `<table class="orders-table"><thead><tr><th>Territory</th><th>State</th><th>Status</th><th>Deadline</th></tr></thead><tbody>${histRows.join('')}</tbody></table>`
-      : '<p style="color:var(--mid);">No territory requests on record.</p>';
-  }
-
-  // Populate request dropdown with territories not already held
-  dealerReqTerritoriesData = { Melbourne: [], Sydney: [] };
-  const heldSlugs = [...assigned.map(t=>t.slug), ...pending.map(t=>t.slug)];
-  const allData = await apiFetch('/territories').catch(() => ({ territories: [] }));
-  (allData.territories || []).forEach(t => {
-    if (!dealerReqTerritoriesData[t.state]) dealerReqTerritoriesData[t.state] = [];
-    dealerReqTerritoriesData[t.state].push({ ...t, alreadyHeld: heldSlugs.includes(t.slug) });
-  });
+  el.innerHTML = additional.map(o => `
+    <div style="display:flex;align-items:flex-start;gap:14px;padding:16px;border:1px solid #e8e0d2;border-radius:4px;margin-bottom:10px;background:#fff;">
+      <div style="font-size:24px;flex-shrink:0;">&#128205;</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:14px;margin-bottom:2px;">${o.name}</div>
+        <div style="font-size:13px;color:var(--mid);">${o.address}, ${o.suburb}, ${o.state}</div>
+        ${o.phone ? `<div style="font-size:13px;color:var(--mid);">${o.phone}</div>` : ''}
+        ${o.hours ? `<div style="font-size:12px;color:var(--light);">${o.hours}</div>` : ''}
+        <div style="font-size:11px;color:var(--light);margin-top:4px;">Territory: ${o.territorySlug} &middot; Pickup: Enabled</div>
+        ${o.requestType === 'edit'   ? '<div style="font-size:12px;color:#004085;margin-top:6px;">Edit pending admin approval.</div>' : ''}
+        ${o.requestType === 'delete' ? '<div style="font-size:12px;color:#856404;margin-top:6px;">Deletion pending admin approval.</div>' : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end;">
+        ${outletStatusBadge(o)}
+        ${!o.requestType && o.approvalStatus !== 'rejected' ? `<button class="btn-sm outline" onclick="editDealerOutlet('${o._id}')">Edit</button>` : ''}
+        ${!o.requestType && o.approvalStatus !== 'rejected' ? `<button class="btn-sm" style="background:#fff0f0;color:#c0392b;border:1px solid #f5c6cb;" onclick="deleteDealerOutlet('${o._id}','${o.name.replace(/'/g,"\'")}')">Delete</button>` : ''}
+      </div>
+    </div>`).join('');
 }
 
-async function onDealerReqStateChange() {
-  const state = document.getElementById('reqTerritoryState').value;
-  const sel   = document.getElementById('reqTerritorySlug');
-  sel.innerHTML = '<option value="">Select territory…</option>';
+// Dealer territory request modal
+function openDealerTerritoryModal(outletId) {
+  const isEdit = !!outletId;
+  const o = isEdit ? window._dealerOutletsMap?.[outletId] : null;
+  document.getElementById('dealerTerrModalId').value   = isEdit ? outletId : '';
+  document.getElementById('dealerTerrModalTitle').textContent = isEdit ? 'EDIT TERRITORY OUTLET' : 'REQUEST ADDITIONAL TERRITORY';
+  document.getElementById('dealerTerrName').value      = o?.name    || '';
+  document.getElementById('dealerTerrPhone').value     = o?.phone   || '';
+  document.getElementById('dealerTerrAddress').value   = o?.address || '';
+  document.getElementById('dealerTerrSuburb').value    = o?.suburb  || '';
+  document.getElementById('dealerTerrHours').value     = o?.hours   || '';
+  document.getElementById('dealerTerrState').value     = o?.state   || '';
+  document.getElementById('dealerTerrMsg').style.display = 'none';
+  document.getElementById('dealerTerrSaveBtn').disabled   = false;
+  document.getElementById('dealerTerrSaveBtn').textContent = isEdit ? 'Submit Edit' : 'Submit Request';
+  loadDealerTerrTerritoryOptions();
+  if (o?.territorySlug) setTimeout(() => { document.getElementById('dealerTerrTerritory').value = o.territorySlug; }, 320);
+  const modal = document.getElementById('dealerTerritoryModal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+window.openDealerTerritoryModal = openDealerTerritoryModal;
+
+function closeDealerTerritoryModal() {
+  document.getElementById('dealerTerritoryModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+window.closeDealerTerritoryModal = closeDealerTerritoryModal;
+
+async function loadDealerTerrTerritoryOptions() {
+  const state = document.getElementById('dealerTerrState').value;
+  const sel   = document.getElementById('dealerTerrTerritory');
+  sel.innerHTML = '<option value="">Select territory...</option>';
   if (!state) { sel.disabled = true; return; }
-  const list = dealerReqTerritoriesData[state] || [];
-  list.forEach(t => {
-    const opt = document.createElement('option');
-    opt.value = t.slug;
-    const taken  = t.status === 'assigned';
-    const review = t.status === 'pending';
-    const held   = t.alreadyHeld;
-    opt.textContent = held ? `${t.name} (Already requested)` : taken ? `${t.name} (Taken)` : review ? `${t.name} (Under Review)` : t.name;
-    opt.disabled = taken || review || held;
-    sel.appendChild(opt);
-  });
+  if (!dealerOutletTerritoriesData[state]?.length) {
+    sel.innerHTML = '<option value="">Loading...</option>'; sel.disabled = true;
+    const td = await apiFetch('/territories?state=' + encodeURIComponent(state));
+    dealerOutletTerritoriesData[state] = td.territories || [];
+  }
+  sel.innerHTML = '<option value="">Select territory...</option>' +
+    dealerOutletTerritoriesData[state].map(t => `<option value="${t.slug}">${t.name}</option>`).join('');
   sel.disabled = false;
 }
-window.onDealerReqStateChange = onDealerReqStateChange;
+window.loadDealerTerrTerritoryOptions = loadDealerTerrTerritoryOptions;
 
-async function requestTerritory() {
-  const slug = document.getElementById('reqTerritorySlug').value;
-  const msg  = document.getElementById('terrReqMsg');
-  msg.style.display = 'none';
-  if (!slug) { msg.style.display = 'block'; msg.className = 'form-msg err'; msg.textContent = 'Please select a territory.'; return; }
-  const data = await apiFetch('/dealer/territories/request', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ slug }) });
-  msg.style.display = 'block';
-  if (data.success) {
-    msg.className = 'form-msg ok';
-    msg.textContent = '✓ Request submitted — pending admin review within 14 days.';
-    document.getElementById('reqTerritoryState').value = '';
-    document.getElementById('reqTerritorySlug').innerHTML = '<option value="">Select state first…</option>';
-    document.getElementById('reqTerritorySlug').disabled = true;
-    await loadDealerTerritories();
+async function saveDealerTerritoryModal() {
+  const editId       = document.getElementById('dealerTerrModalId').value;
+  const name         = document.getElementById('dealerTerrName').value.trim();
+  const phone        = document.getElementById('dealerTerrPhone').value.trim();
+  const address      = document.getElementById('dealerTerrAddress').value.trim();
+  const suburb       = document.getElementById('dealerTerrSuburb').value.trim();
+  const hours        = document.getElementById('dealerTerrHours').value.trim();
+  const state        = document.getElementById('dealerTerrState').value;
+  const terrSel      = document.getElementById('dealerTerrTerritory');
+  const territorySlug= terrSel.value;
+  const msg          = document.getElementById('dealerTerrMsg');
+  msg.style.display  = 'none';
+  if (!name || !address || !state) {
+    msg.className = 'form-msg err'; msg.textContent = 'Name, address and state are required.'; msg.style.display = 'block'; return;
+  }
+  if (!editId && !territorySlug) {
+    msg.className = 'form-msg err'; msg.textContent = 'Please select a territory.'; msg.style.display = 'block'; return;
+  }
+  const btn = document.getElementById('dealerTerrSaveBtn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  let data;
+  if (editId) {
+    data = await apiFetch(`/dealer/outlets/${editId}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ name, phone, address, suburb, state, territorySlug, hours }) });
   } else {
-    msg.className = 'form-msg err';
-    msg.textContent = data.message || 'Request failed.';
+    data = await apiFetch('/dealer/territories', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ name, phone, address, suburb, state, territorySlug, hours }) });
+  }
+  btn.disabled = false; btn.textContent = editId ? 'Submit Edit' : 'Submit Request';
+  if (data.success) {
+    closeDealerTerritoryModal();
+    showToast(editId ? 'Edit submitted for approval' : 'Territory request submitted', 'success');
+    loadDealerTerritories();
+    loadDealerPortalPrimary();
+  } else {
+    msg.className = 'form-msg err'; msg.textContent = data.message || 'Failed to submit.'; msg.style.display = 'block';
   }
 }
-window.requestTerritory = requestTerritory;
+window.saveDealerTerritoryModal = saveDealerTerritoryModal;
 
-async function loadDealerOrders() {
-  const el = document.getElementById('dealerOrdersContent');
-  const data = await apiFetch('/dealer/orders?limit=20', { headers: apiHeaders() });
-  const orders = data.orders || [];
-  if (!orders.length) {
-    el.innerHTML = '<p style="color:var(--mid);font-size:14px;">No orders assigned to you yet. Orders will appear here once admin assigns them to you.</p>';
-    return;
-  }
-
-  // Allowed dealer transitions (mirrors backend DEALER_TRANSITIONS)
-  const DEALER_TRANSITIONS = {
-    processing:       { label: 'Mark Ready for Pickup', next: 'ready_for_pickup', btnClass: 'gold' },
-    ready_for_pickup: { label: 'Mark as Collected',     next: 'delivered',        btnClass: 'outline' },
-  };
-
-  el.innerHTML = `<table class="orders-table"><thead><tr>
-    <th>Order #</th><th>Customer</th><th>Pickup Outlet</th><th>Ordered</th><th>Pickup Date</th><th>Status</th><th>Total</th><th>Action</th>
-  </tr></thead>
-  <tbody>${orders.map(o => {
-    const snap       = o.pickupOutletSnapshot || {};
-    const transition = DEALER_TRANSITIONS[o.status];
-    const actionBtn  = transition
-      ? `<button class="btn-sm ${transition.btnClass}" onclick="updateDealerOrderStatus('${o._id}','${transition.next}','${o.orderNumber}')" style="white-space:nowrap;">${transition.label}</button>`
-      : `<span style="font-size:12px;color:var(--mid);">—</span>`;
-    return `<tr>
-      <td>
-        <b>${o.orderNumber}</b>
-        ${o.notes ? `<div style="margin-top:4px;font-size:11px;color:var(--mid);line-height:1.5;max-width:180px;"><span style="font-weight:700;text-transform:uppercase;letter-spacing:.05em;">📝 Notes:</span> ${o.notes}</div>` : ''}
-      </td>
-      <td style="font-size:12px;">${o.customerEmail||'—'}</td>
-      <td style="font-size:12px;">${snap.name||'—'}<br/><span style="color:var(--mid);">${snap.suburb||''}${snap.suburb&&snap.state?', ':''} ${snap.state||''}</span></td>
-      <td style="font-size:12px;">${new Date(o.createdAt).toLocaleDateString()}</td>
-    <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
-      <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
-      <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
-      <td><b>$${(o.total||0).toFixed(2)}</b></td>
-      <td>${actionBtn}</td>
-    </tr>`;
-  }).join('')}</tbody></table>`;
-}
-
-// FIX: dealer-scoped status update — calls PUT /dealer/orders/:id/status
+// updateDealerOrderStatus still used by loadPickupOrders (dealer)
 async function updateDealerOrderStatus(id, newStatus, orderNum) {
   if (!await vpConfirm({ title: 'Update Order Status', message: `Update order <strong>#${orderNum}</strong> to <strong>${newStatus.replace(/_/g,' ')}</strong>?`, icon: '📦', confirmText: 'Update', success: true })) return;
-  const data = await apiFetch(`/dealer/orders/${id}/status`, {
-    method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus })
-  });
-  if (data.success) {
-    showToast(`Order #${orderNum} → ${newStatus.replace(/_/g,' ')}`, 'success');
-    loadDealerOrders();
-  } else {
-    showToast(data.message || 'Status update failed', 'error');
-  }
+  const data = await apiFetch(`/dealer/orders/${id}/status`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus }) });
+  if (data.success) { showToast(`Order updated`, 'success'); loadPickupOrders(pickupOrderPage); }
+  else showToast(data.message || 'Status update failed', 'error');
 }
 window.updateDealerOrderStatus = updateDealerOrderStatus;
+
 
 
 // ── DEALER RETAIL OUTLETS ─────────────────────────────────────────────────────
@@ -1333,6 +1302,7 @@ function outletStatusBadge(o) {
 }
 
 async function loadOutletsPanel() {
+  loadDealerPortalPrimary();
   const td = await apiFetch('/territories');
   dealerOutletTerritoriesData = { Melbourne: [], Sydney: [] };
   (td.territories || []).forEach(t => {
@@ -1409,6 +1379,12 @@ async function loadDealerOutlets() {
 }
 
 function openOutletForm() {
+  // Dealers use the territory modal — not this form
+  try {
+    const tok = localStorage.getItem('vp_token');
+    const role = tok ? JSON.parse(atob(tok.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role : null;
+    if (role === 'Dealer') { openDealerTerritoryModal(); return; }
+  } catch(e) {}
   document.getElementById('editingOutletId').value = '';
   document.getElementById('outletFormTitle').textContent = 'REQUEST ADDITIONAL TERRITORY';
   document.getElementById('outletName').value = '';
@@ -1435,8 +1411,9 @@ window.closeOutletForm = closeOutletForm;
 function editDealerOutlet(outletId) {
   const o = window._dealerOutletsMap?.[outletId];
   if (!o) return;
+  if (!o.isPrimaryOutlet) { openDealerTerritoryModal(outletId); return; }
   document.getElementById('editingOutletId').value = o._id;
-  document.getElementById('outletFormTitle').textContent = o.isPrimaryOutlet ? 'EDIT PRIMARY OUTLET' : 'EDIT TERRITORY OUTLET';
+  document.getElementById('outletFormTitle').textContent = 'EDIT PRIMARY OUTLET';
   document.getElementById('outletName').value = o.name || '';
   document.getElementById('outletPhone').value = o.phone || '';
   document.getElementById('outletAddress').value = o.address || '';
@@ -2294,6 +2271,45 @@ init();
     </div>
   </div>
 </div>
+<!-- ── DEALER TERRITORY REQUEST MODAL ─────────────────────────────────────── -->
+<div id="dealerTerritoryModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:6px;padding:32px;width:100%;max-width:540px;margin:16px;max-height:90vh;overflow-y:auto;position:relative;">
+    <button onclick="closeDealerTerritoryModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--mid);">&#10005;</button>
+    <div id="dealerTerrModalTitle" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--dark);margin-bottom:20px;">REQUEST ADDITIONAL TERRITORY</div>
+    <input type="hidden" id="dealerTerrModalId"/>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Store / Pickup Name *</label><input type="text" class="form-input" id="dealerTerrName" placeholder="e.g. VibrantPetals Tarneit Store"/></div>
+      <div class="form-group"><label class="form-label">Phone</label><input type="text" class="form-input" id="dealerTerrPhone" placeholder="+61 3 9000 0001"/></div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group"><label class="form-label">Pickup Address *</label><input type="text" class="form-input" id="dealerTerrAddress" placeholder="Shop 4, Tarneit Central, 533 Derrimut Rd"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Suburb *</label><input type="text" class="form-input" id="dealerTerrSuburb" placeholder="e.g. Tarneit"/></div>
+      <div class="form-group"><label class="form-label">Trading Hours</label><input type="text" class="form-input" id="dealerTerrHours" placeholder="Mon&ndash;Sat 9am&ndash;6pm"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">State *</label>
+        <select class="form-select" id="dealerTerrState" onchange="loadDealerTerrTerritoryOptions()">
+          <option value="">Select state&hellip;</option>
+          <option value="Melbourne">Melbourne</option>
+          <option value="Sydney">Sydney</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Territory *</label>
+        <select class="form-select" id="dealerTerrTerritory" disabled><option value="">Select state first&hellip;</option></select>
+      </div>
+    </div>
+    <div class="form-msg" id="dealerTerrMsg" style="display:none;margin-top:12px;"></div>
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button class="btn-save" id="dealerTerrSaveBtn" onclick="saveDealerTerritoryModal()">Submit Request</button>
+      <button class="btn-sm outline" onclick="closeDealerTerritoryModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── OUTLET EDIT MODAL ──────────────────────────────────────────────────── -->
 <div id="outletEditModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
   <div style="background:#fff;border-radius:6px;padding:32px;width:100%;max-width:540px;margin:16px;max-height:90vh;overflow-y:auto;position:relative;">
