@@ -1258,11 +1258,11 @@ async function saveDealerTerritoryModal() {
   const name         = document.getElementById('dealerTerrName').value.trim();
   const phone        = document.getElementById('dealerTerrPhone').value.trim();
   const address      = document.getElementById('dealerTerrAddress').value.trim();
-  const suburb       = terrSel.options[terrSel.selectedIndex]?.text || territorySlug;
   const hours        = document.getElementById('dealerTerrHours').value.trim();
   const state        = document.getElementById('dealerTerrState').value;
   const terrSel      = document.getElementById('dealerTerrTerritory');
   const territorySlug= terrSel.value;
+  const suburb       = terrSel.options[terrSel.selectedIndex]?.text || territorySlug;
   const msg          = document.getElementById('dealerTerrMsg');
   msg.style.display  = 'none';
   if (!name || !address || !state) {
