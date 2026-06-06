@@ -1033,10 +1033,10 @@ async function loadApprovals() {
     <!-- SECTION 1: DEALER SIGNUPS -->
     <div class="card" style="margin-bottom:24px;">
       <div class="card-head">
-        <div class="card-title">⭐ Pending Dealer Signups</div>
+        <div class="card-title">⭐ Dealer Account Activations</div>
         <span style="font-size:13px;color:var(--mid);">${pendingDealers.length} pending</span>
       </div>
-      ${!pendingDealers.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">✓ No pending dealer signups.</p>' : `
+      ${!pendingDealers.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">✓ No pending dealer activations.</p>' : `
       <table class="data-table">
         <thead><tr><th>Name</th><th>Email</th><th>Territory</th><th>State</th><th>Applied</th><th>Actions</th></tr></thead>
         <tbody>${pendingDealers.map(u => `<tr>
@@ -1081,7 +1081,7 @@ async function loadApprovals() {
     <!-- SECTION 3: TERRITORY REQUESTS -->
     <div class="card" style="margin-bottom:24px;">
       <div class="card-head">
-        <div class="card-title">&#128205; Pending Territory Requests</div>
+        <div class="card-title">&#128205;  Territory Activation</div>
         <span style="font-size:13px;color:var(--mid);">${pendingTerritories.length + dealerTerritoryRequests.length} pending</span>
       </div>
       ${!pendingTerritories.length && !dealerTerritoryRequests.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">&#10003; No pending territory requests.</p>' : `
@@ -1125,7 +1125,7 @@ async function loadApprovals() {
     <!-- SECTION 4: OUTLET CHANGE REQUESTS -->
     <div class="card">
       <div class="card-head">
-        <div class="card-title">&#127978; Outlet Change Requests</div>
+        <div class="card-title">&#127978; Outlet Activations - Retail Accounts</div>
         <span style="font-size:13px;color:var(--mid);">${outletRequests.length} pending</span>
       </div>
       ${!outletRequests.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">&#10003; No outlet change requests pending.</p>' : `
