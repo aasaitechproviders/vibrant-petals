@@ -1188,7 +1188,7 @@ async function loadDealerTerritories() {
 
 
 // Dealer territory request modal
-function openDealerTerritoryModal(outletId) {
+async function openDealerTerritoryModal(outletId) {
   const isEdit = !!outletId;
   const o = isEdit ? window._dealerOutletsMap?.[outletId] : null;
   document.getElementById('dealerTerrModalId').value   = isEdit ? outletId : '';
@@ -1205,8 +1205,8 @@ function openDealerTerritoryModal(outletId) {
   document.getElementById('dealerTerrSaveBtn').textContent = isEdit ? 'Submit Edit' : 'Submit Request';
   // Force fresh territory data so statuses are current
   dealerOutletTerritoriesData = { Melbourne: [], Sydney: [] };
-  loadDealerTerrTerritoryOptions();
-  if (o?.territorySlug) setTimeout(() => { document.getElementById('dealerTerrTerritory').value = o.territorySlug; }, 320);
+  await loadDealerTerrTerritoryOptions();
+  if (o?.territorySlug) document.getElementById('dealerTerrTerritory').value = o.territorySlug;
   const modal = document.getElementById('dealerTerritoryModal');
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
