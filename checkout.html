@@ -630,6 +630,32 @@ let allOutlets = [];
 async function loadOutlets() {
   const stateFilter     = document.getElementById('outletStateFilter').value;
   const territoryFilter = document.getElementById('outletTerritoryFilter').value;
+  const _role = getCheckoutRole();
+
+  // Retail/Dealer: merge own outlets with public ones
+  if(_role === 'Retail' || _role === 'Dealer'){
+    const token = localStorage.getItem('vp_token');
+    const endpoint = _role === 'Retail' ? '/retail/outlets' : '/dealer/outlets';
+    const myData = await apiFetch(endpoint, { headers: { Authorization: 'Bearer ' + token } }).catch(()=>({outlets:[]}));
+    const ownActive = (myData.outlets||[]).filter(o=>o.isActive);
+    let qs = 'pickupEnabled=true';
+    if(stateFilter)     qs += '&state='     + encodeURIComponent(stateFilter);
+    if(territoryFilter) qs += '&territory=' + encodeURIComponent(territoryFilter);
+    const pubData = await apiFetch('/retail-outlets?' + qs).catch(()=>({outlets:[]}));
+    const ownIds  = new Set(ownActive.map(o=>o._id.toString()));
+    allOutlets = [...ownActive, ...(pubData.outlets||[]).filter(o=>!ownIds.has(o._id.toString()))];
+    renderOutlets(allOutlets);
+    if(stateFilter){
+      const td = await apiFetch('/territories?state=' + encodeURIComponent(stateFilter)).catch(()=>({territories:[]}));
+      const terrSel = document.getElementById('outletTerritoryFilter');
+      const prevVal = territoryFilter;
+      terrSel.innerHTML = '<option value="">All Territories</option>';
+      (td.territories||[]).forEach(t=>{ const o=document.createElement('option'); o.value=t.slug; o.textContent=t.name; terrSel.appendChild(o); });
+      if(prevVal) terrSel.value = prevVal;
+    }
+    return;
+  }
+
   // Always request only pickup-enabled approved outlets
   let qs = 'pickupEnabled=true&';
   if (stateFilter)     qs += 'state=' + encodeURIComponent(stateFilter) + '&';
@@ -649,14 +675,14 @@ async function loadOutlets() {
   if (stateFilter) {
     const td = await apiFetch('/territories?state=' + encodeURIComponent(stateFilter)).catch(() => ({ territories: [] }));
     const terrSel = document.getElementById('outletTerritoryFilter');
-    const prevVal = territoryFilter; // save before rebuild
+    const prevVal = territoryFilter;
     terrSel.innerHTML = '<option value="">All Territories</option>';
     (td.territories || []).forEach(t => {
       const opt = document.createElement('option');
       opt.value = t.slug; opt.textContent = t.name;
       terrSel.appendChild(opt);
     });
-    if (prevVal) terrSel.value = prevVal; // restore selection
+    if (prevVal) terrSel.value = prevVal;
   } else {
     document.getElementById('outletTerritoryFilter').innerHTML = '<option value="">All Territories</option>';
   }
@@ -730,64 +756,65 @@ async function init(){
     if(!me?.user){ await loadOutlets(); return; }
     const u = me.user;
 
-    // ── RETAIL: show all their own active outlets (regardless of pickupEnabled) + public pickup-enabled ──
+    // ── RETAIL: show all their own active outlets + public pickup-enabled ──
     if(_role === 'Retail'){
       const myData    = await apiFetch('/retail/outlets',{headers:apiHeaders()}).catch(()=>({outlets:[]}));
       const ownActive = (myData.outlets||[]).filter(o=>o.isActive);
 
-      // Fetch public pickup-enabled outlets in the same state/territory
-      let publicOpts = [];
-      const state = u.preferredState || '';
-      if(state){
-        let qs = `pickupEnabled=true&state=${encodeURIComponent(state)}`;
-        const terr = u.preferredTerritory || '';
-        if(terr) qs += `&territory=${encodeURIComponent(terr)}`;
-        const pubData = await apiFetch('/retail-outlets?'+qs).catch(()=>({outlets:[]}));
-        const ownIds = new Set(ownActive.map(o=>o._id.toString()));
-        publicOpts = (pubData.outlets||[]).filter(o=>!ownIds.has(o._id.toString()));
+      // Pre-select state from preferred or first own outlet
+      const preState = u.preferredState || (ownActive[0]?.state) || '';
+      if(preState){
+        document.getElementById('outletStateFilter').value = preState;
+        const td = await apiFetch('/territories?state=' + encodeURIComponent(preState)).catch(()=>({territories:[]}));
+        const terrSel = document.getElementById('outletTerritoryFilter');
+        terrSel.innerHTML = '<option value="">All Territories</option>';
+        (td.territories||[]).forEach(t=>{ const o=document.createElement('option'); o.value=t.slug; o.textContent=t.name; terrSel.appendChild(o); });
+        if(u.preferredTerritory) terrSel.value = u.preferredTerritory;
       }
 
-      const combined = [...ownActive, ...publicOpts];
-      if(!combined.length){ await loadOutlets(); return; }
-
-      allOutlets = combined;
-      // Hide state/territory filters — show combined list directly
-      document.getElementById('outletPickerUI').querySelector('.form-row').style.display = 'none';
-      document.querySelector('#outletPickerUI .form-section-title').textContent = '🏪 Pickup Locations';
-      document.querySelector('#outletPickerUI p').textContent = 'Your stores are shown first, followed by other available pickup locations.';
-      renderOutlets(combined);
+      // Fetch public pickup-enabled outlets and merge with own (own shown first, deduplicated)
+      const stateFilter = document.getElementById('outletStateFilter').value;
+      const terrFilter  = document.getElementById('outletTerritoryFilter').value;
+      let qs = 'pickupEnabled=true';
+      if(stateFilter) qs += '&state=' + encodeURIComponent(stateFilter);
+      if(terrFilter)  qs += '&territory=' + encodeURIComponent(terrFilter);
+      const pubData = await apiFetch('/retail-outlets?' + qs).catch(()=>({outlets:[]}));
+      const ownIds  = new Set(ownActive.map(o=>o._id.toString()));
+      const publicOpts = (pubData.outlets||[]).filter(o=>!ownIds.has(o._id.toString()));
+      allOutlets = [...ownActive, ...publicOpts];
+      renderOutlets(allOutlets);
       return;
     }
 
-    // ── DEALER: show all own active outlets (regardless of pickupEnabled) + public pickup-enabled ──
+    // ── DEALER: show all own active outlets + public pickup-enabled ──
     if(_role === 'Dealer'){
       const myData    = await apiFetch('/dealer/outlets',{headers:apiHeaders()}).catch(()=>({outlets:[]}));
       const ownActive = (myData.outlets||[]).filter(o=>o.isActive);
 
-      // Fetch public pickup-enabled outlets in the same state/territory
-      let publicOpts = [];
-      const state = u.preferredState || (ownActive[0]?.state) || '';
-      if(state){
-        let qs = `pickupEnabled=true&state=${encodeURIComponent(state)}`;
-        const terr = u.preferredTerritory || '';
-        if(terr) qs += `&territory=${encodeURIComponent(terr)}`;
-        const pubData = await apiFetch('/retail-outlets?'+qs).catch(()=>({outlets:[]}));
-        const ownIds = new Set(ownActive.map(o=>o._id.toString()));
-        publicOpts = (pubData.outlets||[]).filter(o=>!ownIds.has(o._id.toString()));
+      const preState = u.preferredState || (ownActive[0]?.state) || '';
+      if(preState){
+        document.getElementById('outletStateFilter').value = preState;
+        const td = await apiFetch('/territories?state=' + encodeURIComponent(preState)).catch(()=>({territories:[]}));
+        const terrSel = document.getElementById('outletTerritoryFilter');
+        terrSel.innerHTML = '<option value="">All Territories</option>';
+        (td.territories||[]).forEach(t=>{ const o=document.createElement('option'); o.value=t.slug; o.textContent=t.name; terrSel.appendChild(o); });
+        if(u.preferredTerritory) terrSel.value = u.preferredTerritory;
       }
 
-      const combined = [...ownActive, ...publicOpts];
-      if(!combined.length){ await loadOutlets(); return; }
-
-      allOutlets = combined;
-      document.getElementById('outletPickerUI').querySelector('.form-row').style.display = 'none';
-      document.querySelector('#outletPickerUI .form-section-title').textContent = '🏪 Pickup Locations';
-      document.querySelector('#outletPickerUI p').textContent = 'Your dealer outlets are shown first, followed by other available pickup locations.';
-      renderOutlets(combined);
+      const stateFilter = document.getElementById('outletStateFilter').value;
+      const terrFilter  = document.getElementById('outletTerritoryFilter').value;
+      let qs = 'pickupEnabled=true';
+      if(stateFilter) qs += '&state=' + encodeURIComponent(stateFilter);
+      if(terrFilter)  qs += '&territory=' + encodeURIComponent(terrFilter);
+      const pubData = await apiFetch('/retail-outlets?' + qs).catch(()=>({outlets:[]}));
+      const ownIds  = new Set(ownActive.map(o=>o._id.toString()));
+      const publicOpts = (pubData.outlets||[]).filter(o=>!ownIds.has(o._id.toString()));
+      allOutlets = [...ownActive, ...publicOpts];
+      renderOutlets(allOutlets);
       return;
     }
 
-    // ── CUSTOMER: filter public outlets by preferred state & territory ────────
+    // ── CUSTOMER / ADMIN: filter public outlets by preferred state & territory ──
     if(u.preferredState){
       document.getElementById('outletStateFilter').value = u.preferredState;
       const td = await apiFetch('/territories?state=' + encodeURIComponent(u.preferredState)).catch(()=>({territories:[]}));
