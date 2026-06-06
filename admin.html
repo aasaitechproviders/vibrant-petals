@@ -1015,9 +1015,14 @@ async function loadApprovals() {
   const pendingDealers     = (dealersData.users || []);
   const pendingRetail      = (retailData.users || []);
   const pendingTerritories = (territoriesData.territories || []);
-  const outletRequests     = (outletRequestsData.requests || []);
+  const allOutletRequests  = (outletRequestsData.requests || []);
 
-  const totalBadge = pendingDealers.length + pendingRetail.length + pendingTerritories.length + outletRequests.length;
+  // Dealer new territory requests → show under Territory Requests section
+  const dealerTerritoryRequests = allOutletRequests.filter(o => o.dealerId && !o.isPrimaryOutlet && o.requestType === 'create');
+  // Everything else → Outlet Change Requests section
+  const outletRequests = allOutletRequests.filter(o => !(o.dealerId && !o.isPrimaryOutlet && o.requestType === 'create'));
+
+  const totalBadge = pendingDealers.length + pendingRetail.length + pendingTerritories.length + dealerTerritoryRequests.length + outletRequests.length;
   const badge = document.getElementById('approvalsBadge');
   if (badge) { badge.textContent = totalBadge; badge.style.display = totalBadge ? 'inline' : 'none'; }
 
@@ -1077,30 +1082,43 @@ async function loadApprovals() {
     <div class="card" style="margin-bottom:24px;">
       <div class="card-head">
         <div class="card-title">&#128205; Pending Territory Requests</div>
-        <span style="font-size:13px;color:var(--mid);">${pendingTerritories.length} pending</span>
+        <span style="font-size:13px;color:var(--mid);">${pendingTerritories.length + dealerTerritoryRequests.length} pending</span>
       </div>
-      ${!pendingTerritories.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">&#10003; No pending territory requests.</p>' : `
+      ${!pendingTerritories.length && !dealerTerritoryRequests.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">&#10003; No pending territory requests.</p>' : `
       <table class="data-table">
-        <thead><tr><th>Territory</th><th>State</th><th>Dealer</th><th>Applied</th><th>Expires</th><th>Actions</th></tr></thead>
-        <tbody>${pendingTerritories.map(t => {
+        <thead><tr><th>Territory / Store</th><th>State</th><th>Dealer</th><th>Address</th><th>Pickup</th><th>Actions</th></tr></thead>
+        <tbody>
+        ${pendingTerritories.map(t => {
           const urgent = t.daysLeft <= 3;
+          const d = dealerMap[t.pendingDealerId?.toString()];
           return `<tr>
-            <td><b>${t.name}</b></td>
+            <td><b>${t.name}</b><br/><span style="font-size:11px;color:var(--mid);">Territory (slug-only)</span></td>
             <td>${t.state}</td>
-            <td style="font-size:12px;">${(() => {
-              const d = dealerMap[t.pendingDealerId?.toString()];
-              return d
-                ? `<div style="font-weight:700;">${d.name}</div><div style="color:var(--mid);font-size:11px;">${d.email}</div>`
-                : `<span style="color:var(--mid);">${t.pendingDealerId||'&mdash;'}</span>`;
-            })()}</td>
-            <td style="font-size:12px;">${t.pendingAppliedAt ? new Date(t.pendingAppliedAt).toLocaleDateString() : '&mdash;'}</td>
-            <td><span style="color:${urgent?'#c0392b':'#e67e22'};font-weight:700;">${t.daysLeft}d left</span></td>
+            <td style="font-size:12px;">${d ? `<div style="font-weight:700;">${d.name}</div><div style="color:var(--mid);font-size:11px;">${d.email}</div>` : `<span style="color:var(--mid);">${t.pendingDealerId||'&mdash;'}</span>`}</td>
+            <td style="font-size:12px;">&mdash;</td>
+            <td>&mdash;</td>
             <td><div class="action-group">
               <button class="btn-action btn-action-approve" onclick="territoryAction('${t.slug}','approve')">&#10003; Approve</button>
               <button class="btn-action btn-action-reject" onclick="territoryAction('${t.slug}','reject')">&#10005; Reject</button>
             </div></td>
           </tr>`;
-        }).join('')}</tbody>
+        }).join('')}
+        ${dealerTerritoryRequests.map(o => {
+          const ownerId = o.dealerId?.toString();
+          const d = dealerMap[ownerId] || { name: '(Dealer)', email: '' };
+          return `<tr style="background:#fffdf0;">
+            <td><b>${o.name}</b><br/><span style="font-size:11px;color:var(--mid);">Territory: ${o.territorySlug}</span></td>
+            <td style="font-size:12px;">${o.state}</td>
+            <td style="font-size:12px;"><div style="font-weight:700;">${d.name}</div><div style="color:var(--mid);font-size:11px;">${d.email}</div></td>
+            <td style="font-size:12px;">${o.address||'&mdash;'}<br/><span style="color:var(--mid);">${o.suburb||''}, ${o.state||''}</span></td>
+            <td style="text-align:center;"><span style="color:#27ae60;font-weight:700;">&#10003; Yes</span></td>
+            <td><div class="action-group">
+              <button class="btn-action btn-action-approve" onclick="approveOutletRequest('${o._id}','${o.name.replace(/'/g,"\\'")}','create')">&#10003; Approve</button>
+              <button class="btn-action btn-action-reject" onclick="rejectOutletRequest('${o._id}','${o.name.replace(/'/g,"\\'")}','create')">&#10005; Reject</button>
+            </div></td>
+          </tr>`;
+        }).join('')}
+        </tbody>
       </table>`}
     </div>
 
