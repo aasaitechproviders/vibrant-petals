@@ -1056,10 +1056,10 @@ async function loadApprovals() {
     <!-- SECTION 2: RETAIL SIGNUPS -->
     <div class="card" style="margin-bottom:24px;">
       <div class="card-head">
-        <div class="card-title">🏪 Pending Retail Signups</div>
+        <div class="card-title">🏪 Retail Account Activation </div>
         <span style="font-size:13px;color:var(--mid);">${pendingRetail.length} pending</span>
       </div>
-      ${!pendingRetail.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">✓ No pending retail signups.</p>' : `
+      ${!pendingRetail.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">✓ No pending retail accounts request.</p>' : `
       <table class="data-table">
         <thead><tr><th>Name</th><th>Email</th><th>Store</th><th>Territory</th><th>State</th><th>Pickup Requested</th><th>Applied</th><th>Actions</th></tr></thead>
         <tbody>${pendingRetail.map(u => `<tr>
