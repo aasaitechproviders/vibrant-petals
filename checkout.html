@@ -631,6 +631,8 @@ async function loadOutlets() {
   const stateFilter     = document.getElementById('outletStateFilter').value;
   const territoryFilter = document.getElementById('outletTerritoryFilter').value;
   const _role = getCheckoutRole();
+  // Clear any previous inline notice
+  const prev = document.getElementById('outletNotice'); if(prev) prev.remove();
 
   // Retail/Dealer: merge own outlets with public ones
   if(_role === 'Retail' || _role === 'Dealer'){
@@ -663,12 +665,20 @@ async function loadOutlets() {
   const data = await apiFetch('/retail-outlets?' + qs).catch(() => ({ outlets: [] }));
   allOutlets = data.outlets || [];
 
-  // Smart fallback: if no outlets in specific territory, expand to full state
+  // Smart fallback: if no outlets in specific territory, auto-reset to all territories
   if (!allOutlets.length && territoryFilter && stateFilter) {
     const fallbackData = await apiFetch('/retail-outlets?pickupEnabled=true&state=' + encodeURIComponent(stateFilter)).catch(() => ({ outlets: [] }));
     allOutlets = fallbackData.outlets || [];
     if (allOutlets.length) {
-      showToast('No outlets in your territory — showing all ' + stateFilter + ' outlets', '');
+      // Auto-clear the territory filter and show inline notice
+      document.getElementById('outletTerritoryFilter').value = '';
+      const list = document.getElementById('outletList');
+      list.insertAdjacentHTML('beforebegin',
+        `<div id="outletNotice" style="background:#fff8e1;border:1px solid #ffe082;border-radius:4px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:#7a5c00;">
+          No pickup locations found in that territory — showing all available in <strong>${stateFilter}</strong>.
+        </div>`
+      );
+      setTimeout(() => { const n = document.getElementById('outletNotice'); if(n) n.remove(); }, 5000);
     }
   }
   renderOutlets(allOutlets);
