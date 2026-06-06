@@ -1065,7 +1065,7 @@ async function loadApprovals() {
           <td style="text-align:center;">${u.outlet?.pickupEnabled ? '<span style="color:#27ae60;font-weight:700;">Yes</span>' : '<span style="color:var(--mid);">No</span>'}</td>
           <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
           <td><div class="action-group">
-            <button class="btn-action btn-action-approve" onclick="approveRetail('${u._id}','${u.username}')">Approve</button>
+            <button class="btn-action btn-action-approve" onclick="approveRetail('${u._id}','${u.username}','${u.outlet?.pickupEnabled}')">Approve</button>
             <button class="btn-action btn-action-reject" onclick="rejectRetail('${u._id}','${u.username}')">Reject</button>
           </div></td>
         </tr>`).join('')}</tbody>
@@ -1158,8 +1158,9 @@ window.loadApprovals = loadApprovals;
 // ══════════════════════════════════════════════════════════════════════════════
 //  RETAIL APPROVAL ACTIONS
 // ══════════════════════════════════════════════════════════════════════════════
-async function approveRetail(id, username) {
-  if (!await vpConfirm({ title: 'Approve Retail Account', message: `Approve <strong>${username}</strong>? Their outlet will be activated with pickup enabled immediately.`, icon: '✅', confirmText: 'Approve', success: true })) return;
+async function approveRetail(id, username, pickupRequested) {
+  const pickupNote = pickupRequested === 'true' ? '<br><span style="color:#27ae60;font-size:13px;">✓ This store requested pickup — it will be enabled on approval.</span>' : '<br><span style="color:var(--mid);font-size:13px;">This store did not request pickup — it can be enabled later.</span>';
+  if (!await vpConfirm({ title: 'Approve Retail Account', message: `Approve <strong>${username}</strong>? Their outlet will be activated.${pickupNote}`, icon: '✅', confirmText: 'Approve', success: true })) return;
   const data = await apiFetch(`/admin/users/${id}/approve-retail`, { method: 'PUT', headers: apiHeaders() });
   if (data.success) { showToast(`"${username}" retail account approved`, 'success'); loadApprovals(); loadRetailUsers(); }
   else showToast(data.message || 'Approval failed', 'error');
@@ -1240,7 +1241,7 @@ async function loadRetailUsers() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
               ${o.pickupEnabled ? 'Pickup On' : 'Pickup Off'}</button>` : ''}
             ${u.approvalStatus === 'pending' ? `
-              <button class="btn-action btn-action-approve" onclick="approveRetail('${u._id}','${u.username}')">Approve</button>
+              <button class="btn-action btn-action-approve" onclick="approveRetail('${u._id}','${u.username}','${o?.pickupEnabled}')">Approve</button>
               <button class="btn-action btn-action-reject" onclick="rejectRetail('${u._id}','${u.username}')">Reject</button>` : ''}
             ${u.approvalStatus === 'approved' ? `<button class="btn-action btn-action-deactivate" onclick="deactivateRetail('${u._id}','${u.username}')">Deactivate</button>` : ''}
             </div>
