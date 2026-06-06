@@ -852,11 +852,10 @@ async function loadMe(){
     if(lc) lc.style.display='none';
 
   } else if(role==='Dealer'){
-  } else if(role==='Dealer'){
     // Dealer: Dashboard, My Orders, Profile, Password, Dealer Portal
+    show('navOrders');
     show('navDealer');
-    show('navDealer');
-    // navOutlets removed — outlet management is now inside Dealer Portal
+    const lc=document.getElementById('locationPrefCard');
     if(lc) lc.style.display='none';
 
   } else if(role==='Retail'){
