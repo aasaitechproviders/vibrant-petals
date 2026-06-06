@@ -1192,7 +1192,9 @@ function openDealerTerritoryModal(outletId) {
   const isEdit = !!outletId;
   const o = isEdit ? window._dealerOutletsMap?.[outletId] : null;
   document.getElementById('dealerTerrModalId').value   = isEdit ? outletId : '';
-  document.getElementById('dealerTerrModalTitle').textContent = isEdit ? 'EDIT TERRITORY OUTLET' : 'REQUEST ADDITIONAL TERRITORY';
+  document.getElementById('dealerTerrModalTitle').textContent = isEdit
+    ? (o?.isPrimaryOutlet ? 'EDIT PRIMARY OUTLET' : 'EDIT TERRITORY OUTLET')
+    : 'REQUEST ADDITIONAL TERRITORY';
   document.getElementById('dealerTerrName').value      = o?.name    || '';
   document.getElementById('dealerTerrPhone').value     = o?.phone   || '';
   document.getElementById('dealerTerrAddress').value   = o?.address || '';
@@ -1419,21 +1421,8 @@ window.closeOutletForm = closeOutletForm;
 function editDealerOutlet(outletId) {
   const o = window._dealerOutletsMap?.[outletId];
   if (!o) return;
-  if (!o.isPrimaryOutlet) { openDealerTerritoryModal(outletId); return; }
-  document.getElementById('editingOutletId').value = o._id;
-  document.getElementById('outletFormTitle').textContent = 'EDIT PRIMARY OUTLET';
-  document.getElementById('outletName').value = o.name || '';
-  document.getElementById('outletPhone').value = o.phone || '';
-  document.getElementById('outletAddress').value = o.address || '';
-  const subEl = document.getElementById('outletSuburb'); if(subEl) subEl.value = o.suburb || '';
-  document.getElementById('outletState').value = o.state || '';
-  loadOutletTerritoryOptions();
-  setTimeout(() => { document.getElementById('outletTerritory').value = o.territorySlug || ''; }, 300);
-  document.getElementById('outletHours').value = o.hours || '';
-  document.getElementById('outletSaveBtn').textContent = 'Submit Edit';
-  document.getElementById('outletFormMsg').style.display = 'none';
-  document.getElementById('outletFormCard').style.display = '';
-  document.getElementById('outletFormCard').scrollIntoView({ behavior: 'smooth' });
+  // All dealer outlets (primary or additional) use the territory modal
+  openDealerTerritoryModal(outletId);
 }
 window.editDealerOutlet = editDealerOutlet;
 
