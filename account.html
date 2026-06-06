@@ -1275,7 +1275,7 @@ async function loadDealerOutlets() {
             <div style="font-size:13px;color:var(--mid);">${o.address}, ${o.suburb}, ${o.state}</div>
             ${o.phone ? `<div style="font-size:13px;color:var(--mid);">${o.phone}</div>` : ''}
             ${o.hours ? `<div style="font-size:12px;color:var(--light);">${o.hours}</div>` : ''}
-            <div style="font-size:11px;color:var(--light);margin-top:4px;">Territory: ${o.territorySlug} &middot; Pickup: ${o.pickupEnabled ? '&#10003; Enabled' : 'Disabled'}</div>
+            <div style="font-size:11px;color:var(--light);margin-top:4px;">Territory: ${o.territorySlug} &middot; ${o.pickupEnabled ? '<span style="color:#27ae60;font-weight:600;">Pickup: Enabled</span>' : '<span style="color:var(--mid);">Pickup: Disabled</span>'}</div>
             ${o.requestType === 'edit' ? `<div style="font-size:12px;color:#004085;margin-top:6px;">&#10000; Edit pending admin approval &mdash; outlet inactive until approved.</div>` : ''}
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end;">
@@ -1464,7 +1464,7 @@ async function loadRetailAdditionalOutlets() {
         <div style="font-size:13px;color:var(--mid);">${o.address}, ${o.suburb}, ${o.state}</div>
         ${o.phone ? `<div style="font-size:13px;color:var(--mid);">${o.phone}</div>` : ''}
         ${o.hours ? `<div style="font-size:12px;color:var(--light);">${o.hours}</div>` : ''}
-        <div style="font-size:11px;color:var(--light);margin-top:4px;">Territory: ${o.territorySlug} &middot; Pickup: ${o.pickupEnabled ? '&#10003; Enabled' : 'Disabled'}</div>
+        <div style="font-size:11px;color:var(--light);margin-top:4px;">Territory: ${o.territorySlug} &middot; ${o.pickupEnabled ? '<span style="color:#27ae60;font-weight:600;">Pickup: Enabled</span>' : '<span style="color:var(--mid);">Pickup: Disabled</span>'}</div>
         ${o.requestType === 'edit' ? `<div style="font-size:12px;color:#004085;margin-top:6px;">&#10000; Edit pending admin approval &mdash; outlet inactive until approved.</div>` : ''}
         ${o.requestType === 'delete' ? `<div style="font-size:12px;color:#856404;margin-top:6px;">&#128465; Deletion pending admin approval &mdash; outlet stays active until then.</div>` : ''}
       </div>
