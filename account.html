@@ -1209,6 +1209,8 @@ function openDealerTerritoryModal(outletId) {
   document.getElementById('dealerTerrMsg').style.display = 'none';
   document.getElementById('dealerTerrSaveBtn').disabled   = false;
   document.getElementById('dealerTerrSaveBtn').textContent = isEdit ? 'Submit Edit' : 'Submit Request';
+  // Force fresh territory data so statuses are current
+  dealerOutletTerritoriesData = { Melbourne: [], Sydney: [] };
   loadDealerTerrTerritoryOptions();
   if (o?.territorySlug) setTimeout(() => { document.getElementById('dealerTerrTerritory').value = o.territorySlug; }, 320);
   const modal = document.getElementById('dealerTerritoryModal');
@@ -1233,8 +1235,21 @@ async function loadDealerTerrTerritoryOptions() {
     const td = await apiFetch('/territories?state=' + encodeURIComponent(state));
     dealerOutletTerritoriesData[state] = td.territories || [];
   }
+  // Get dealer's already-held territory slugs to also disable those
+  const heldSlugs = new Set(
+    (window._dealerOutletsMap ? Object.values(window._dealerOutletsMap) : []).map(o => o.territorySlug)
+  );
   sel.innerHTML = '<option value="">Select territory...</option>' +
-    dealerOutletTerritoriesData[state].map(t => `<option value="${t.slug}">${t.name}</option>`).join('');
+    dealerOutletTerritoriesData[state].map(t => {
+      const taken   = t.status === 'assigned';
+      const pending = t.status === 'pending';
+      const held    = heldSlugs.has(t.slug);
+      const label   = taken   ? `${t.name} (Taken)`
+                    : pending ? `${t.name} (Under Review)`
+                    : held    ? `${t.name} (Already yours)`
+                    : t.name;
+      return `<option value="${t.slug}" ${taken || pending || held ? 'disabled' : ''}>${label}</option>`;
+    }).join('');
   sel.disabled = false;
 }
 window.loadDealerTerrTerritoryOptions = loadDealerTerrTerritoryOptions;
