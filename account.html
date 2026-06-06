@@ -359,6 +359,10 @@
       <!-- ORDERS -->
       <div class="acct-panel" id="panel-orders">
         <div class="panel-title">My Orders</div>
+        <div id="orderTabsBar" style="display:none;margin-bottom:20px;border-bottom:2px solid #e8e0d2;">
+          <button id="tabMyOrders"     onclick="switchOrderTab('placed')"  style="padding:10px 20px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--mid);">My Orders</button>
+          <button id="tabPickupOrders" onclick="switchOrderTab('pickup')"  style="padding:10px 20px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--mid);">My Pickup Orders</button>
+        </div>
         <div id="ordersContent"><div class="skeleton" style="height:300px;border-radius:4px;"></div></div>
         <div class="orders-pagination" id="ordersPagination"></div>
       </div>
@@ -975,10 +979,44 @@ function renderRecentOrders(orders){
 
 // ── ORDERS PAGE ───────────────────────────────────────────────────────────────
 let orderPage=1, orderTotalPages=1;
+let currentOrderTab = 'placed';
+
+function switchOrderTab(tab) {
+  currentOrderTab = tab;
+  const gold = 'var(--gold)';
+  const grey = 'var(--mid)';
+  const none = '2px solid transparent';
+  const active = `2px solid ${gold}`;
+  document.getElementById('tabMyOrders').style.borderBottomColor     = tab === 'placed' ? gold : 'transparent';
+  document.getElementById('tabMyOrders').style.color                  = tab === 'placed' ? gold : grey;
+  document.getElementById('tabPickupOrders').style.borderBottomColor  = tab === 'pickup' ? gold : 'transparent';
+  document.getElementById('tabPickupOrders').style.color              = tab === 'pickup' ? gold : grey;
+  if (tab === 'placed') loadOrders(1);
+  else loadPickupOrders(1);
+}
+window.switchOrderTab = switchOrderTab;
+
 async function loadOrders(page=1){
   orderPage=page;
   const el=document.getElementById('ordersContent');
   el.innerHTML='<div class="skeleton" style="height:300px;border-radius:4px;"></div>';
+
+  // Show tabs for Retail role
+  try {
+    const tok = localStorage.getItem('vp_token');
+    const role = tok ? JSON.parse(atob(tok.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role : null;
+    const tabBar = document.getElementById('orderTabsBar');
+    if (role === 'Retail' && tabBar) {
+      tabBar.style.display = 'block';
+      // Set active tab style on first load
+      document.getElementById('tabMyOrders').style.color = currentOrderTab === 'placed' ? 'var(--gold)' : 'var(--mid)';
+      document.getElementById('tabMyOrders').style.borderBottomColor = currentOrderTab === 'placed' ? 'var(--gold)' : 'transparent';
+      document.getElementById('tabPickupOrders').style.color = currentOrderTab === 'pickup' ? 'var(--gold)' : 'var(--mid)';
+      document.getElementById('tabPickupOrders').style.borderBottomColor = currentOrderTab === 'pickup' ? 'var(--gold)' : 'transparent';
+      if (currentOrderTab === 'pickup') { loadPickupOrders(1); return; }
+    }
+  } catch(e){}
+
   const data=await apiFetch(`/orders?page=${page}&limit=10`,{headers:apiHeaders()});
   const orders=data.orders||[];
   orderTotalPages=data.pagination?.totalPages||1;
@@ -1005,7 +1043,6 @@ async function loadOrders(page=1){
       </tr>`;
     }).join('')}</tbody>
   </table>`;
-  // Pagination
   const pag=document.getElementById('ordersPagination');
   if(orderTotalPages<=1){pag.innerHTML='';return;}
   pag.innerHTML=`
@@ -1013,6 +1050,60 @@ async function loadOrders(page=1){
     <span class="pag-info">Page ${orderPage} of ${orderTotalPages}</span>
     <button class="pag-btn" onclick="loadOrders(${orderPage+1})" ${orderPage>=orderTotalPages?'disabled':''}>Next →</button>`;
 }
+
+let pickupOrderPage = 1;
+let pickupOrderTotalPages = 1;
+
+async function loadPickupOrders(page=1) {
+  pickupOrderPage = page;
+  const el = document.getElementById('ordersContent');
+  el.innerHTML = '<div class="skeleton" style="height:300px;border-radius:4px;"></div>';
+  const data = await apiFetch(`/dealer/orders?limit=10&page=${page}`, { headers: apiHeaders() });
+  const orders = data.orders || [];
+  pickupOrderTotalPages = data.pagination?.totalPages || 1;
+  if (!orders.length) {
+    el.innerHTML = '<div class="orders-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><p>No pickup orders for your outlet yet.</p></div>';
+    document.getElementById('ordersPagination').innerHTML = '';
+    return;
+  }
+  const TRANSITIONS = {
+    processing:       { label: 'Mark Ready for Pickup', next: 'ready_for_pickup' },
+    ready_for_pickup: { label: 'Mark Collected',        next: 'delivered' },
+  };
+  el.innerHTML = `<table class="orders-table">
+    <thead><tr><th>Order #</th><th>Customer</th><th>Ordered</th><th>Pickup Date</th><th>Status</th><th>Total</th><th>Action</th></tr></thead>
+    <tbody>${orders.map(o => {
+      const t = TRANSITIONS[o.status];
+      const btn = t
+        ? `<button onclick="updatePickupOrderStatus('${o._id}','${t.next}','${o.orderNumber}')" style="padding:7px 14px;font-size:12px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;white-space:nowrap;">${t.label}</button>`
+        : `<span style="font-size:12px;color:var(--mid);">—</span>`;
+      return `<tr>
+        <td><b>${o.orderNumber}</b></td>
+        <td style="font-size:12px;">${o.customerEmail||'—'}</td>
+        <td style="font-size:12px;">${new Date(o.createdAt).toLocaleDateString()}</td>
+        <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
+        <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
+        <td><b>$${(o.total||0).toFixed(2)}</b></td>
+        <td>${btn}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+  const pag = document.getElementById('ordersPagination');
+  if (pickupOrderTotalPages <= 1) { pag.innerHTML = ''; return; }
+  pag.innerHTML = `
+    <button class="pag-btn" onclick="loadPickupOrders(${pickupOrderPage-1})" ${pickupOrderPage<=1?'disabled':''}>← Prev</button>
+    <span class="pag-info">Page ${pickupOrderPage} of ${pickupOrderTotalPages}</span>
+    <button class="pag-btn" onclick="loadPickupOrders(${pickupOrderPage+1})" ${pickupOrderPage>=pickupOrderTotalPages?'disabled':''}>Next →</button>`;
+}
+window.loadPickupOrders = loadPickupOrders;
+
+async function updatePickupOrderStatus(id, newStatus, orderNum) {
+  if (!await vpConfirm({ title: 'Update Order Status', message: `Update order <strong>#${orderNum}</strong> to <strong>${newStatus.replace(/_/g,' ')}</strong>?`, icon: '📦', confirmText: 'Update', success: true })) return;
+  const data = await apiFetch(`/dealer/orders/${id}/status`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus }) });
+  if (data.success) { showToast('Order updated', 'success'); loadPickupOrders(pickupOrderPage); }
+  else showToast(data.message || 'Failed', 'error');
+}
+window.updatePickupOrderStatus = updatePickupOrderStatus;
 
 // ── CANCEL ORDER ──────────────────────────────────────────────────────────────
 async function cancelOrder(id,num){
@@ -1935,10 +2026,8 @@ async function loadMyStore() {
 
     <div class="form-card" style="margin-top:0;">
       <div class="form-card-title">ORDERS FOR MY OUTLET</div>
-      <p style="font-size:13px;color:var(--mid);margin-bottom:16px;">Customer orders assigned to your outlet or where customers chose your store as pickup.</p>
-      <div id="myStoreOrdersContent"><div class="skeleton" style="height:80px;border-radius:4px;"></div></div>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:8px;">Outlet orders are now shown under <strong>My Orders → My Pickup Orders</strong>.</p>
     </div>`;
-  await loadMyStoreOrders();
   loadRetailAdditionalOutlets();
 }
 
