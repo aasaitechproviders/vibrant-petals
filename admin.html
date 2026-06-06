@@ -992,31 +992,32 @@ checkAuth();
 //  APPROVALS – 4 sections: dealer signups, retail signups, territory requests, outlet activations
 // ══════════════════════════════════════════════════════════════════════════════
 async function loadApprovals() {
-  const [dealersData, retailData, territoriesData, outletsData, allDealersData] = await Promise.all([
+  const [dealersData, retailData, territoriesData, outletRequestsData, allDealersData, allRetailData] = await Promise.all([
     apiFetch('/admin/users?role=Dealer&approvalStatus=pending&limit=50', { headers: apiHeaders() }),
     apiFetch('/admin/retail-users?approvalStatus=pending&limit=50', { headers: apiHeaders() }).catch(() => ({ users: [] })),
     apiFetch('/admin/territories?status=pending', { headers: apiHeaders() }),
-    apiFetch('/admin/retail-outlets', { headers: apiHeaders() }),
+    apiFetch('/admin/outlet-requests', { headers: apiHeaders() }).catch(() => ({ requests: [] })),
     apiFetch('/admin/users?role=Dealer&limit=200', { headers: apiHeaders() }),
+    apiFetch('/admin/retail-users?limit=200', { headers: apiHeaders() }).catch(() => ({ users: [] })),
   ]);
 
-  // Build dealer ID → {name, email, username} lookup
+  // Build dealer ID lookup
   const dealerMap = {};
   (allDealersData.users || []).forEach(u => {
-    dealerMap[u._id.toString()] = {
-      name:     `${u.firstName||''} ${u.lastName||''}`.trim() || u.username,
-      email:    u.email,
-      username: u.username,
-    };
+    dealerMap[u._id.toString()] = { name: `${u.firstName||''} ${u.lastName||''}`.trim() || u.username, email: u.email, username: u.username };
+  });
+  // Build retail user ID lookup
+  const retailMap = {};
+  (allRetailData.users || []).forEach(u => {
+    retailMap[u._id.toString()] = { name: `${u.firstName||''} ${u.lastName||''}`.trim() || u.username, email: u.email };
   });
 
-  const pendingDealers    = (dealersData.users || []);
-  const pendingRetail     = (retailData.users || []);
+  const pendingDealers     = (dealersData.users || []);
+  const pendingRetail      = (retailData.users || []);
   const pendingTerritories = (territoriesData.territories || []);
-  const pendingOutlets    = (outletsData.outlets || []).filter(o => !o.isActive && (!o.approvalStatus || o.approvalStatus === 'pending') && o.approvalStatus !== 'superseded');
-  const pickupDisabled    = (outletsData.outlets || []).filter(o => o.isActive && o.approvalStatus === 'approved' && !o.pickupEnabled && o.ownerUserId);
+  const outletRequests     = (outletRequestsData.requests || []);
 
-  const totalBadge = pendingDealers.length + pendingRetail.length + pendingTerritories.length + pendingOutlets.length + pickupDisabled.length;
+  const totalBadge = pendingDealers.length + pendingRetail.length + pendingTerritories.length + outletRequests.length;
   const badge = document.getElementById('approvalsBadge');
   if (badge) { badge.textContent = totalBadge; badge.style.display = totalBadge ? 'inline' : 'none'; }
 
@@ -1075,10 +1076,10 @@ async function loadApprovals() {
     <!-- SECTION 3: TERRITORY REQUESTS -->
     <div class="card" style="margin-bottom:24px;">
       <div class="card-head">
-        <div class="card-title">📍 Pending Territory Requests</div>
+        <div class="card-title">&#128205; Pending Territory Requests</div>
         <span style="font-size:13px;color:var(--mid);">${pendingTerritories.length} pending</span>
       </div>
-      ${!pendingTerritories.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">✓ No pending territory requests.</p>' : `
+      ${!pendingTerritories.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">&#10003; No pending territory requests.</p>' : `
       <table class="data-table">
         <thead><tr><th>Territory</th><th>State</th><th>Dealer</th><th>Applied</th><th>Expires</th><th>Actions</th></tr></thead>
         <tbody>${pendingTerritories.map(t => {
@@ -1090,67 +1091,64 @@ async function loadApprovals() {
               const d = dealerMap[t.pendingDealerId?.toString()];
               return d
                 ? `<div style="font-weight:700;">${d.name}</div><div style="color:var(--mid);font-size:11px;">${d.email}</div>`
-                : `<span style="color:var(--mid);">${t.pendingDealerId||'—'}</span>`;
+                : `<span style="color:var(--mid);">${t.pendingDealerId||'&mdash;'}</span>`;
             })()}</td>
-            <td style="font-size:12px;">${t.pendingAppliedAt ? new Date(t.pendingAppliedAt).toLocaleDateString() : '—'}</td>
+            <td style="font-size:12px;">${t.pendingAppliedAt ? new Date(t.pendingAppliedAt).toLocaleDateString() : '&mdash;'}</td>
             <td><span style="color:${urgent?'#c0392b':'#e67e22'};font-weight:700;">${t.daysLeft}d left</span></td>
             <td><div class="action-group">
-              <button class="btn-action btn-action-approve" onclick="territoryAction('${t.slug}','approve')">✓ Approve</button>
-              <button class="btn-action btn-action-reject" onclick="territoryAction('${t.slug}','reject')">✕ Reject</button>
+              <button class="btn-action btn-action-approve" onclick="territoryAction('${t.slug}','approve')">&#10003; Approve</button>
+              <button class="btn-action btn-action-reject" onclick="territoryAction('${t.slug}','reject')">&#10005; Reject</button>
             </div></td>
           </tr>`;
         }).join('')}</tbody>
       </table>`}
     </div>
 
-    <!-- SECTION 4: OUTLET ACTIVATIONS (admin-created pending outlets) -->
+    <!-- SECTION 4: OUTLET CHANGE REQUESTS -->
     <div class="card">
       <div class="card-head">
-        <div class="card-title">🔌 Pending Outlet Activations</div>
-        <span style="font-size:13px;color:var(--mid);">${pendingOutlets.length} pending</span>
+        <div class="card-title">&#127978; Outlet Change Requests</div>
+        <span style="font-size:13px;color:var(--mid);">${outletRequests.length} pending</span>
       </div>
-      ${!pendingOutlets.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">✓ No outlets awaiting activation.</p>' : `
+      ${!outletRequests.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">&#10003; No outlet change requests pending.</p>' : `
       <table class="data-table">
-        <thead><tr><th>Outlet Name</th><th>Type</th><th>Location</th><th>Territory</th><th>Phone</th><th>Actions</th></tr></thead>
-        <tbody>${pendingOutlets.map(o => `<tr style="background:#fffdf0;">
-          <td><b>${o.name}</b></td>
-          <td style="font-size:12px;">${o.ownerUserId
-            ? `<span style="background:#e8f4fd;color:#1a6fa8;padding:2px 8px;border-radius:10px;font-weight:700;">Retail user outlet</span>`
-            : `<span style="background:#f0ebe0;color:var(--mid);padding:2px 8px;border-radius:10px;font-weight:700;">Admin outlet</span>`
-          }</td>
-          <td style="font-size:13px;">${o.address}<br/><span style="color:var(--mid);font-size:12px;">${o.suburb}, ${o.state}</span></td>
-          <td style="font-size:12px;color:var(--mid);">${o.territorySlug}</td>
-          <td style="font-size:13px;">${o.phone || '—'}</td>
-          <td><div class="action-group">
-            <button class="btn-action btn-action-activate" onclick="activateOutlet('${o._id}','${o.name}')">✓ Activate</button>
-            <button class="btn-action btn-action-reject" onclick="deleteOutlet('${o._id}')">✕ Reject</button>
-          </div></td>
-        </tr>`).join('')}</tbody>
+        <thead><tr><th>Outlet</th><th>Request</th><th>Owner</th><th>Location</th><th>Pickup</th><th>Proposed Changes</th><th>Actions</th></tr></thead>
+        <tbody>${outletRequests.map(o => {
+          const isDealer = !!o.dealerId;
+          const ownerId  = isDealer ? o.dealerId?.toString() : o.ownerUserId?.toString();
+          const ownerInfo = isDealer
+            ? (dealerMap[ownerId] || { name: '(Dealer)', email: '' })
+            : (retailMap[ownerId] || { name: '(Retail)', email: '' });
+          const reqLabel = o.requestType === 'create'
+            ? '<span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">New</span>'
+            : o.requestType === 'edit'
+            ? '<span style="background:#cce5ff;color:#004085;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">Edit</span>'
+            : '<span style="background:#f8d7da;color:#721c24;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">Delete</span>';
+          const roleLabel = isDealer
+            ? '<span style="background:#f0ebe0;color:#6b5c3a;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">Dealer</span>'
+            : '<span style="background:#e8f4fd;color:#1a6fa8;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">Retail</span>';
+          const editDetails = o.requestType === 'edit' && o.pendingChanges
+            ? Object.entries(o.pendingChanges).map(([k,v]) => `<span style="font-size:11px;color:#004085;"><b>${k}:</b> ${v}</span>`).join('<br/>')
+            : '&mdash;';
+          const approveLabel = o.requestType === 'delete' ? 'Confirm Delete' : o.requestType === 'edit' ? 'Apply Edit' : 'Activate';
+          const rejectLabel  = o.requestType === 'delete' ? 'Keep Active'   : o.requestType === 'edit' ? 'Discard Edit' : 'Reject';
+          return `<tr style="background:${o.requestType==='delete'?'#fff5f5':o.requestType==='edit'?'#f0f7ff':'#fffdf0'};">
+            <td>
+              <b>${o.name}</b>
+              ${o.isPrimaryOutlet ? '<br/><span style="font-size:10px;color:var(--gold);font-weight:700;">PRIMARY</span>' : ''}
+            </td>
+            <td>${reqLabel}<br/>${roleLabel}</td>
+            <td style="font-size:12px;"><b>${ownerInfo.name}</b><br/><span style="color:var(--mid);font-size:11px;">${ownerInfo.email}</span></td>
+            <td style="font-size:12px;">${o.address||'&mdash;'}<br/><span style="color:var(--mid);">${o.suburb||''}, ${o.state||''}</span></td>
+            <td style="text-align:center;">${o.pickupEnabled ? '<span style="color:#27ae60;font-weight:700;">Yes</span>' : '<span style="color:var(--mid);">No</span>'}</td>
+            <td style="font-size:12px;">${editDetails}</td>
+            <td><div class="action-group">
+              <button class="btn-action btn-action-approve" onclick="approveOutletRequest('${o._id}','${o.name.replace(/'/g,"\'")}','${o.requestType}')">&#10003; ${approveLabel}</button>
+              <button class="btn-action btn-action-reject" onclick="rejectOutletRequest('${o._id}','${o.name.replace(/'/g,"\'")}','${o.requestType}')">&#10005; ${rejectLabel}</button>
+            </div></td>
+          </tr>`;
+        }).join('')}</tbody>
       </table>`}
-
-    <!-- SECTION 5: APPROVED OUTLETS — PICKUP NOT YET ENABLED -->
-    <div class="card" style="margin-top:24px;">
-      <div class="card-head">
-        <div class="card-title">🟢 Approved Outlets &mdash; Pickup Not Enabled</div>
-        <span style="font-size:13px;color:var(--mid);">${pickupDisabled.length} awaiting</span>
-      </div>
-      ${!pickupDisabled.length
-        ? '<p style="padding:20px;color:var(--mid);font-size:14px;">✓ All approved outlets have pickup enabled.</p>'
-        : '<p style="padding:12px 20px 0;font-size:13px;color:var(--mid);">These outlets are approved but pickup is still off. Enable it when the store is ready to accept orders.</p>' +
-          '<table class="data-table"><thead><tr><th>Store</th><th>Location</th><th>Territory</th><th>Hours</th><th>Action</th></tr></thead><tbody>' +
-          pickupDisabled.map(o =>
-            '<tr style="background:#f0fff4;">' +
-            '<td><b>' + o.name + '</b><br/><span style="font-size:11px;color:var(--mid);">' + o.address + '</span></td>' +
-            '<td style="font-size:13px;">' + o.suburb + ', ' + o.state + '</td>' +
-            '<td style="font-size:12px;color:var(--mid);">' + (o.territorySlug || '—') + '</td>' +
-            '<td style="font-size:12px;color:var(--mid);">' + (o.hours || '—') + '</td>' +
-            '<td><div class="action-group" style="justify-content:flex-start;"><button class="btn-action btn-action-pickup-off" ' +
-            'data-outlet-id="' + o._id + '" data-outlet-name="' + o.name.replace(/"/g, '&quot;') + '" ' +
-            'onclick="togglePickup(this.dataset.outletId, false, this.dataset.outletName)">Enable Pickup</button></div></td>' +
-            '</tr>'
-          ).join('') +
-          '</tbody></table>'
-      }
     </div>`;
 }
 window.loadApprovals = loadApprovals;
@@ -1175,6 +1173,24 @@ async function rejectRetail(id, username) {
   else showToast(data.message || 'Rejection failed', 'error');
 }
 window.rejectRetail = rejectRetail;
+
+async function approveOutletRequest(id, name, requestType) {
+  const actionLabel = requestType === 'delete' ? 'confirm deletion of' : requestType === 'edit' ? 'apply edit to' : 'activate';
+  if (!await vpConfirm({ title: 'Approve Request', message: `${actionLabel.charAt(0).toUpperCase()+actionLabel.slice(1)} <strong>${name}</strong>?`, icon: '✅', confirmText: 'Approve', success: true })) return;
+  const data = await apiFetch(`/admin/outlet-requests/${id}/approve`, { method: 'PUT', headers: apiHeaders() });
+  if (data.success) { showToast(data.message || 'Request approved', 'success'); loadApprovals(); loadOutlets(); }
+  else showToast(data.message || 'Approval failed', 'error');
+}
+window.approveOutletRequest = approveOutletRequest;
+
+async function rejectOutletRequest(id, name, requestType) {
+  const actionLabel = requestType === 'delete' ? 'Cancel deletion of' : requestType === 'edit' ? 'Discard edit for' : 'Reject';
+  if (!await vpConfirm({ title: 'Reject Request', message: `${actionLabel} <strong>${name}</strong>?`, icon: '❌', confirmText: 'Reject', success: false })) return;
+  const data = await apiFetch(`/admin/outlet-requests/${id}/reject`, { method: 'PUT', headers: apiHeaders() });
+  if (data.success) { showToast(data.message || 'Request rejected', 'success'); loadApprovals(); loadOutlets(); }
+  else showToast(data.message || 'Rejection failed', 'error');
+}
+window.rejectOutletRequest = rejectOutletRequest;
 
 async function togglePickup(outletId, currentState, outletName) {
   const newState = !currentState;
