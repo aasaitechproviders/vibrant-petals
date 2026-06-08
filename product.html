@@ -76,7 +76,7 @@
     .product-desc{font-size:14px;color:var(--mid);line-height:1.8;margin-bottom:28px;font-family:'Cormorant Garamond',serif;font-size:17px;}
 
     /* QTY + ADD */
-    .add-section{display:flex;align-items:center;gap:14px;margin-bottom:24px;margin-top:24px;}
+    .add-section{display:flex;align-items:center;gap:14px;margin-bottom:24px;}
     .qty-control{display:flex;align-items:center;border:1px solid #ddd;border-radius:var(--radius);overflow:hidden;}
     .qty-btn{width:38px;height:48px;font-size:20px;color:var(--dark);transition:background .2s;}
     .qty-btn:hover{background:var(--cream2);}
@@ -89,7 +89,7 @@
     .btn-wishlist svg{width:20px;height:20px;}
 
     /* META */
-    .product-meta{font-size:13px;color:var(--mid);display:flex;flex-direction:column;gap:8px;padding-top:20px;padding-bottom:20px;}
+    .product-meta{font-size:13px;color:var(--mid);display:flex;flex-direction:column;gap:8px;border-top:1px solid #e8e0d2;padding-top:20px;}
     .product-meta span b{color:var(--dark);}
 
     /* TABS */
@@ -489,14 +489,9 @@ function renderProduct(p){
       <div class="stock-pill ${inStock?'instock':'outofstock'}">
         ${inStock?'● In Stock':'● Out of Stock'}
       </div>
-      <div class="product-meta">
-        ${p.sku?`<span><b>SKU:</b> ${p.sku}</span>`:''}
-        ${p.tags?.length?`<span><b>Tags:</b> ${p.tags.join(', ')}</span>`:''}
-      </div>
       ${p.shortDescription?`<p class="product-desc">${p.shortDescription}</p>`:''}
 
       <div><strong>ORDERS SUBJECT TO PRE-BOOKING ONLY</strong></div>
-      <div></div>
       <div class="add-section">
         <div style="display:flex;flex-direction:column;gap:4px;">
           <label style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);">Quantity</label>
@@ -513,11 +508,25 @@ function renderProduct(p){
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
         </button>
       </div>
-      
+      <div class="product-meta">
+        ${p.sku?`<span><b>SKU:</b> ${p.sku}</span>`:''}
+        ${p.tags?.length?`<span><b>Tags:</b> ${p.tags.join(', ')}</span>`:''}
+      </div>
     </div>`;
 
-  // TABS — description tab uses full description only (not shortDescription which is shown above)
-  document.getElementById('tab-desc').innerHTML=p.description||'<p>No description available.</p>';
+  // TABS — description tab: render as bullet list if JSON array, else plain HTML
+  (function(){
+    const raw = p.description || '';
+    let html;
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length) {
+        html = '<ul style="padding-left:20px;line-height:2;">' + parsed.map(pt => `<li>${pt}</li>`).join('') + '</ul>';
+      }
+    } catch(e) {}
+    if (!html) html = raw || '<p>No description available.</p>';
+    document.getElementById('tab-desc').innerHTML = html;
+  })();
   document.getElementById('tab-details').innerHTML=`
     <table style="width:100%;border-collapse:collapse;">
       ${p.sku?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;width:140px;">SKU</td><td style="padding:10px 0;color:var(--mid)">${p.sku}</td></tr>`:''}
