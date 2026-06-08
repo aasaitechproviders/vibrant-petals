@@ -690,7 +690,11 @@
         <div class="form-group"><label class="form-label">Slug *</label><input class="form-input" id="pSlug" placeholder="jasmine-string"/></div>
       </div>
       <div class="form-group"><label class="form-label">Short Description</label><input class="form-input" id="pShortDesc" placeholder="Brief product summary"/></div>
-      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="pDesc" placeholder="Full product description..."></textarea></div>
+      <div class="form-group">
+        <label class="form-label">Description <span style="font-size:11px;font-weight:400;color:var(--mid);">— each line is a bullet point on the product page</span></label>
+        <div id="pDescBullets" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px;"></div>
+        <button type="button" onclick="addDescBullet()" style="background:none;border:1px dashed #bbb;border-radius:4px;padding:6px 14px;font-size:13px;color:var(--mid);cursor:pointer;width:100%;text-align:left;">+ Add bullet point</button>
+      </div>
       <!-- PRICING SECTION -->
       <div style="background:#fafaf7;border:1px solid #e8e0d2;border-radius:6px;padding:14px 16px;margin-bottom:4px;">
         <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mid);margin-bottom:12px;">Pricing</div>
@@ -2060,14 +2064,47 @@ document.getElementById('imgFileInput').addEventListener('change', function() {
 
 // ── PRODUCT MODAL ─────────────────────────────────────────────────────────────
 
+
+// ── DESCRIPTION BULLET BUILDER ────────────────────────────────────────────────
+function addDescBullet(value = '') {
+  const container = document.getElementById('pDescBullets');
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:6px;align-items:center;';
+  row.innerHTML = `
+    <span style="color:var(--mid);font-size:16px;flex-shrink:0;">•</span>
+    <input class="form-input" style="flex:1;" placeholder="Enter bullet point..." value="${value.replace(/"/g,'&quot;')}"/>
+    <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:18px;padding:0 4px;flex-shrink:0;" title="Remove">×</button>
+  `;
+  container.appendChild(row);
+  row.querySelector('input').focus();
+}
+window.addDescBullet = addDescBullet;
+
+function getDescBullets() {
+  return Array.from(document.querySelectorAll('#pDescBullets input'))
+    .map(i => i.value.trim()).filter(Boolean);
+}
+
+function setDescBullets(value) {
+  document.getElementById('pDescBullets').innerHTML = '';
+  if (!value) return;
+  let points = [];
+  try { const p = JSON.parse(value); if (Array.isArray(p)) points = p; } catch(e) {
+    // legacy plain text — split by newline
+    points = value.split('\n').map(s => s.trim()).filter(Boolean);
+  }
+  points.forEach(pt => addDescBullet(pt));
+}
+// ─────────────────────────────────────────────────────────────────────────────
 function openProductModal() {
   editingProductId = null;
   document.getElementById('prodModalTitle').textContent = 'Add Product';
   document.getElementById('prodSaveBtn').textContent = 'Save Product';
   document.getElementById('prodSaveBtn').disabled = false;
-  ['pName','pSlug','pShortDesc','pDesc','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku','pCategories'].forEach(id => {
+  ['pName','pSlug','pShortDesc','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku','pCategories'].forEach(id => {
     document.getElementById(id).value = '';
   });
+  document.getElementById('pDescBullets').innerHTML = '';
   document.getElementById('pStockStatus').value = 'instock';
   document.getElementById('pStockQty').value = '0';
   document.getElementById('pStatus').value = 'publish';
@@ -2087,9 +2124,10 @@ async function editProduct(id) {
   document.getElementById('prodModalTitle').textContent = 'Edit Product';
   document.getElementById('prodSaveBtn').textContent = 'Loading…';
   document.getElementById('prodSaveBtn').disabled = true;
-  ['pName','pSlug','pShortDesc','pDesc','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku','pCategories'].forEach(i => {
+  ['pName','pSlug','pShortDesc','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku','pCategories'].forEach(i => {
     document.getElementById(i).value = '';
   });
+  document.getElementById('pDescBullets').innerHTML = '';
   document.getElementById('prodFormMsg').className = 'form-msg';
   resetImageUI();
   document.getElementById('productModal').classList.add('open');
@@ -2108,7 +2146,7 @@ async function editProduct(id) {
   document.getElementById('pName').value = p.name || '';
   document.getElementById('pSlug').value = p.slug || '';
   document.getElementById('pShortDesc').value = p.shortDescription || p.short_description || '';
-  document.getElementById('pDesc').value = p.description || '';
+  setDescBullets(p.description || '');
   document.getElementById('pPrice').value = p.price != null ? p.price : '';
   document.getElementById('pRegPrice').value = p.regularPrice != null ? p.regularPrice : (p.regular_price != null ? p.regular_price : '');
   document.getElementById('pSalePrice').value = p.salePrice != null ? p.salePrice : (p.sale_price != null ? p.sale_price : '');
@@ -2151,7 +2189,7 @@ async function saveProduct() {
   const body = {
     name, slug,
     shortDescription: document.getElementById('pShortDesc').value,
-    description: document.getElementById('pDesc').value,
+    description: JSON.stringify(getDescBullets()),
     price: parseFloat(document.getElementById('pPrice').value) || 0,
     regularPrice: parseFloat(document.getElementById('pRegPrice').value) || 0,
     salePrice: document.getElementById('pSalePrice').value !== '' ? parseFloat(document.getElementById('pSalePrice').value) : null,
