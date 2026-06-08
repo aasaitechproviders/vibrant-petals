@@ -473,6 +473,24 @@ function renderProduct(p){
     discount   = regPrice ? Math.round((1 - price / regPrice) * 100) : null;
   }
 
+  // Build variant dropdown HTML before the main template (avoids nested backtick issue)
+  const variantDropdownHTML = (function(){
+    if (!p.variants || !p.variants.length) return '';
+    const opts = p.variants.map((v, i) => {
+      let vPrice;
+      if (isDealer && v.dealerPrice)       vPrice = v.dealerPrice;
+      else if (isRetail && v.retailPrice)  vPrice = v.retailPrice;
+      else                                  vPrice = v.price;
+      return '<option value="' + i + '">' + v.label + ' — $' + vPrice.toFixed(2) + '</option>';
+    }).join('');
+    return '<div style="margin-bottom:16px;margin-top:16px;">'
+      + '<label style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:6px;">Select Option</label>'
+      + '<select id="variantSelect" onchange="onVariantChange()" style="width:100%;max-width:320px;padding:11px 14px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;border-radius:4px;background:#fff;cursor:pointer;">'
+      + '<option value="">— Choose an option —</option>'
+      + opts
+      + '</select></div>';
+  })();
+
   document.getElementById('productLayout').innerHTML=`
     <div class="gallery">
       <div class="gallery-main"><img id="mainImg" src="${imgs[0]}" alt="${p.name}" onerror="this.src='https://placehold.co/600x600?text=Flower'"/></div>
@@ -499,6 +517,7 @@ function renderProduct(p){
       ${p.shortDescription?`<p class="product-desc">${p.shortDescription}</p>`:''}
 
       <div><strong>ORDERS SUBJECT TO PRE-BOOKING ONLY</strong></div>
+      ${variantDropdownHTML}
       <div class="add-section">
         <div style="display:flex;flex-direction:column;gap:4px;">
           <label style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);">Quantity</label>
@@ -508,7 +527,7 @@ function renderProduct(p){
             <button class="qty-btn" onclick="changeQtyLocal(1)">+</button>
           </div>
         </div>
-        <button class="btn-add" id="addCartBtn" ${!inStock?'disabled':''} onclick="addToCart('${p._id}')">
+        <button class="btn-add" id="addCartBtn" ${(!inStock||(p.variants&&p.variants.length))?'disabled':''} onclick="addToCart('${p._id}')">
           ${inStock?'Add to Cart':'Out of Stock'}
         </button>
         <button class="btn-wishlist" id="wishBtn" onclick="toggleWishlist('${p._id}')" title="Add to Wishlist">
@@ -551,6 +570,32 @@ window.setImg=function(src,thumb){
 window.changeQtyLocal=function(delta){
   qty=Math.max(1,qty+delta);
   document.getElementById('qtyInput').value=qty;
+};
+
+// Variant selection
+let selectedVariantIndex = null;
+window.onVariantChange = function() {
+  const sel = document.getElementById('variantSelect');
+  const btn = document.getElementById('addCartBtn');
+  if (!sel) return;
+  const val = sel.value;
+  if (val === '') {
+    selectedVariantIndex = null;
+    if (btn) { btn.disabled = true; }
+    return;
+  }
+  selectedVariantIndex = Number(val);
+  const v = productData.variants[selectedVariantIndex];
+  // Update displayed price
+  function getTokenRole(){try{if(!token)return null;const pt=token.split('.')[1];const j=JSON.parse(atob(pt.replace(/-/g,'+').replace(/_/g,'/')));return j.role||null;}catch{return null;}}
+  const role = getTokenRole();
+  let vPrice;
+  if (role === 'Dealer' && v.dealerPrice)       vPrice = v.dealerPrice;
+  else if (role === 'Retail' && v.retailPrice)  vPrice = v.retailPrice;
+  else                                           vPrice = v.price;
+  const priceEl = document.querySelector('.price-main');
+  if (priceEl) priceEl.textContent = '$' + vPrice.toFixed(2);
+  if (btn && productData.stockStatus !== 'outofstock') btn.disabled = false;
 };
 
 // TABS
@@ -609,19 +654,25 @@ function renderCart(cart){
   document.getElementById('cartCountHead').textContent=count;
   const cb=document.getElementById('cartBody'),cf=document.getElementById('cartFoot');
   if(!items.length){cb.innerHTML=`<div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><p>Your cart is currently empty.</p><a href="category.html?cat=all" class="btn-shop-all">Shop All Products</a></div>`;cf.style.display='none';return;}
-  cb.innerHTML=items.map(i=>`<div class="cart-item"><img src="${i.image||'https://placehold.co/70'}" onerror="this.src='https://placehold.co/70'"/><div class="cart-item-info"><div class="cart-item-name">${i.name}</div><div class="cart-item-price">$${i.price.toFixed(2)}</div><div class="cart-item-qty"><button class="ci-qty-btn" onclick="cQty('${i.productId}',${i.quantity-1})">−</button><span class="ci-qty-val">${i.quantity}</span><button class="ci-qty-btn" onclick="cQty('${i.productId}',${i.quantity+1})">+</button></div></div><span class="cart-remove" onclick="cRemove('${i.productId}')">✕</span></div>`).join('');
+  cb.innerHTML=items.map(i=>{
+    const vIdx = i.variantIndex != null ? i.variantIndex : '';
+    const vLabel = i.variantLabel ? `<div style="font-size:11px;color:var(--mid);">${i.variantLabel}</div>` : '';
+    return `<div class="cart-item"><img src="${i.image||'https://placehold.co/70'}" onerror="this.src='https://placehold.co/70'"/><div class="cart-item-info"><div class="cart-item-name">${i.name}</div>${vLabel}<div class="cart-item-price">$${i.price.toFixed(2)}</div><div class="cart-item-qty"><button class="ci-qty-btn" onclick="cQty('${i.productId}',${i.quantity-1},'${vIdx}')">−</button><span class="ci-qty-val">${i.quantity}</span><button class="ci-qty-btn" onclick="cQty('${i.productId}',${i.quantity+1},'${vIdx}')">+</button></div></div><span class="cart-remove" onclick="cRemove('${i.productId}','${vIdx}')">✕</span></div>`;
+  }).join('');
   document.getElementById('cartSubtotal').textContent='$'+(cart.subtotal||0).toFixed(2);
   document.getElementById('cartShipping').textContent=cart.shippingCost===0?'Free':'$'+(cart.shippingCost||9.99).toFixed(2);
   document.getElementById('cartTotal').textContent='$'+(cart.total||0).toFixed(2);
   cf.style.display='block';
 }
 async function addToCart(productId){
-  const data=await apiFetch('/cart/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId,quantity:qty})}).catch(()=>({success:false}));
+  const body = { productId, quantity: qty };
+  if (selectedVariantIndex !== null) body.variantIndex = selectedVariantIndex;
+  const data=await apiFetch('/cart/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify(body)}).catch(()=>({success:false}));
   if(data.success){renderCart(data.cart);openCart();showToast('Added to cart!','success');}
   else showToast(data.message||'Error','error');
 }
-async function cQty(pid,q){if(q<1)return cRemove(pid);const data=await apiFetch(`/cart/items/${pid}`,{method:'PUT',headers:apiHeaders(),body:JSON.stringify({quantity:q})}).catch(()=>({success:false}));if(data.success)renderCart(data.cart);}
-async function cRemove(pid){const data=await apiFetch(`/cart/items/${pid}`,{method:'DELETE',headers:apiHeaders()}).catch(()=>({success:false}));if(data.success)renderCart(data.cart);}
+async function cQty(pid,q,vIdx=''){if(q<1)return cRemove(pid,vIdx);const body={quantity:q};if(vIdx!=='')body.variantIndex=Number(vIdx);const data=await apiFetch(`/cart/items/${pid}`,{method:'PUT',headers:apiHeaders(),body:JSON.stringify(body)}).catch(()=>({success:false}));if(data.success)renderCart(data.cart);}
+async function cRemove(pid,vIdx=''){const qs=vIdx!==''?`?variantIndex=${vIdx}`:'';const data=await apiFetch(`/cart/items/${pid}${qs}`,{method:'DELETE',headers:apiHeaders()}).catch(()=>({success:false}));if(data.success)renderCart(data.cart);}
 window.cQty=cQty;window.cRemove=cRemove;
 
 async function toggleWishlist(productId){
