@@ -3007,7 +3007,7 @@ async function toggleUserStatus(id, isActive) {
     const msg = u?.role === 'Dealer'
       ? (isActive ? 'Dealer approved & activated' : 'Dealer rejected & disabled')
       : (isActive ? 'User enabled' : 'User disabled');
-    showToast(msg, 'success'); loadUsers();
+    showToast(msg, 'success'); loadUsers(); loadApprovals(); loadDealers();
   }
   else showToast(data.message || 'Error', 'error');
 }
