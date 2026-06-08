@@ -99,6 +99,9 @@
     .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
     .tab-panel{display:none;font-size:15px;color:var(--mid);line-height:1.8;font-family:'Cormorant Garamond',serif;}
     .tab-panel.active{display:block;}
+    .desc-bullets{list-style:none;padding:0;margin:0;}
+    .desc-bullets li{position:relative;padding:10px 12px 10px 42px;margin-bottom:6px;background:#faf8f4;border-left:3px solid #9B8B5A;border-radius:4px;font-size:16px;line-height:1.6;}
+    .desc-bullets li::before{content:"•";position:absolute;left:14px;top:10px;color:#9B8B5A;font-size:20px;line-height:1;}
 
     /* RELATED */
     .related-section{background:var(--cream2);padding:60px 0;}
@@ -521,7 +524,7 @@ function renderProduct(p){
     try {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length) {
-        html = '<ul style="padding-left:20px;line-height:2;">' + parsed.map(pt => `<li>${pt}</li>`).join('') + '</ul>';
+        html = '<ul class="desc-bullets">' + parsed.map(pt => `<li>${pt}</li>`).join('') + '</ul>';
       }
     } catch(e) {}
     if (!html) html = raw || '<p>No description available.</p>';
