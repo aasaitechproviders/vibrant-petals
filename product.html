@@ -475,13 +475,15 @@ function renderProduct(p){
 
   // Build variant dropdown HTML before the main template (avoids nested backtick issue)
   const variantDropdownHTML = (function(){
-    if (!p.variants || !p.variants.length) return '';
-    const opts = p.variants.map((v, i) => {
+    const variants = Array.isArray(p.variants) ? p.variants.filter(v => v && v.label) : [];
+    if (!variants.length) return '';
+    const opts = variants.map((v, i) => {
       let vPrice;
-      if (isDealer && v.dealerPrice)       vPrice = v.dealerPrice;
-      else if (isRetail && v.retailPrice)  vPrice = v.retailPrice;
-      else                                  vPrice = v.price;
-      return '<option value="' + i + '">' + v.label + ' — $' + vPrice.toFixed(2) + '</option>';
+      if (isDealer && v.dealerPrice != null)       vPrice = v.dealerPrice;
+      else if (isRetail && v.retailPrice != null)  vPrice = v.retailPrice;
+      else                                          vPrice = v.price || 0;
+      const priceStr = (typeof vPrice === 'number') ? ' — $' + vPrice.toFixed(2) : '';
+      return '<option value="' + i + '">' + v.label + priceStr + '</option>';
     }).join('');
     return '<div style="margin-bottom:16px;margin-top:16px;">'
       + '<label style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:6px;">Select Option</label>'
@@ -490,6 +492,8 @@ function renderProduct(p){
       + opts
       + '</select></div>';
   })();
+  // Also update productData.variants to filtered list for onVariantChange
+  p.variants = Array.isArray(p.variants) ? p.variants.filter(v => v && v.label) : [];
 
   document.getElementById('productLayout').innerHTML=`
     <div class="gallery">
@@ -527,7 +531,7 @@ function renderProduct(p){
             <button class="qty-btn" onclick="changeQtyLocal(1)">+</button>
           </div>
         </div>
-        <button class="btn-add" id="addCartBtn" ${(!inStock||(p.variants&&p.variants.length))?'disabled':''} onclick="addToCart('${p._id}')">
+        <button class="btn-add" id="addCartBtn" ${(!inStock||(p.variants&&p.variants.filter(v=>v&&v.label).length))?'disabled':''} onclick="addToCart('${p._id}')">
           ${inStock?'Add to Cart':'Out of Stock'}
         </button>
         <button class="btn-wishlist" id="wishBtn" onclick="toggleWishlist('${p._id}')" title="Add to Wishlist">
