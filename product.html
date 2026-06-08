@@ -89,7 +89,7 @@
     .btn-wishlist svg{width:20px;height:20px;}
 
     /* META */
-    .product-meta{font-size:13px;color:var(--mid);display:flex;flex-direction:column;gap:8px;border-top:1px solid #e8e0d2;padding-top:20px;}
+    .product-meta{font-size:13px;color:var(--mid);display:flex;flex-direction:column;gap:8px;padding-top:20px;padding-bottom:20px;}
     .product-meta span b{color:var(--dark);}
 
     /* TABS */
@@ -489,6 +489,10 @@ function renderProduct(p){
         ${discount?`<span class="price-sale">${discount}% OFF</span>`:''}
         ${priceBadge}
       </div>
+      <div class="product-meta">
+        ${p.sku?`<span><b>SKU:</b> ${p.sku}</span>`:''}
+        ${p.tags?.length?`<span><b>Tags:</b> ${p.tags.join(', ')}</span>`:''}
+      </div>
       <div class="stock-pill ${inStock?'instock':'outofstock'}">
         ${inStock?'● In Stock':'● Out of Stock'}
       </div>
@@ -511,10 +515,7 @@ function renderProduct(p){
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
         </button>
       </div>
-      <div class="product-meta">
-        ${p.sku?`<span><b>SKU:</b> ${p.sku}</span>`:''}
-        ${p.tags?.length?`<span><b>Tags:</b> ${p.tags.join(', ')}</span>`:''}
-      </div>
+      
     </div>`;
 
   // TABS — description tab: render as bullet list if JSON array, else plain HTML
