@@ -490,7 +490,7 @@ function renderProduct(p){
         ${inStock?'● In Stock':'● Out of Stock'}
       </div>
       ${p.shortDescription?`<p class="product-desc">${p.shortDescription}</p>`:''}
-      ${p.stockQty>0?`<div style="font-size:13px;color:var(--mid);margin-bottom:8px;">Available quantity: <strong style="color:var(--dark);">${p.stockQty}</strong></div>`:''}
+
       <div><strong>ORDERS SUBJECT TO PRE-BOOKING ONLY</strong></div>
       <div class="add-section">
         <div style="display:flex;flex-direction:column;gap:4px;">
@@ -520,7 +520,7 @@ function renderProduct(p){
     <table style="width:100%;border-collapse:collapse;">
       ${p.sku?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;width:140px;">SKU</td><td style="padding:10px 0;color:var(--mid)">${p.sku}</td></tr>`:''}
       ${p.stockStatus?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;">Availability</td><td style="padding:10px 0;color:var(--mid)">${p.stockStatus==='instock'?'In Stock':'Out of Stock'}</td></tr>`:''}
-      ${p.stockQty!=null?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;">Quantity Available</td><td style="padding:10px 0;color:var(--mid)">${p.stockQty}</td></tr>`:''}
+
       ${p.categories?.length?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;">Categories</td><td style="padding:10px 0;color:var(--mid)">${p.categories.join(', ')}</td></tr>`:''}
       ${p.tags?.length?`<tr><td style="padding:10px 0;font-weight:700;">Tags</td><td style="padding:10px 0;color:var(--mid)">${p.tags.join(', ')}</td></tr>`:''}
     </table>`;
