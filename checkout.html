@@ -5,6 +5,7 @@
   <title>Checkout – VibrantPetals</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <script src="https://js.stripe.com/v3/"></script>
   <style>
     :root{--gold:#9B8B5A;--gold-dark:#7A6B3F;--cream:#FAF7F2;--cream2:#F2EDE3;--dark:#1A1A1A;--mid:#555;--card-bg:#E8F0F5;--radius:4px;--nav-h:70px;--bar-h:40px;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -165,6 +166,17 @@
     .mobile-nav-sub a:hover{color:var(--gold)!important;}
     .mobile-nav-arrow{font-size:11px;transition:transform .2s;}
     .mobile-nav-arrow.open{transform:rotate(180deg);}
+
+    /* ── STRIPE PAYMENT SECTION ── */
+    #stripeSection{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:24px;margin-top:4px;}
+    #stripeSection .form-section-title{border-bottom:1px solid #e8e0d2;padding-bottom:10px;margin-bottom:20px;}
+    #stripeError{background:#fce4e4;border:1px solid #f5c6cb;border-radius:var(--radius);padding:12px 16px;font-size:13px;color:#c0392b;margin-top:12px;display:none;}
+    .btn-confirm-pay{width:100%;margin-top:20px;padding:16px;background:#27ae60;color:#fff;font-size:14px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);border:none;cursor:pointer;transition:background .2s;}
+    .btn-confirm-pay:hover{background:#1e8449;}
+    .btn-confirm-pay:disabled{background:#ccc;cursor:not-allowed;}
+    .btn-change-method{width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #ddd;border-radius:var(--radius);font-size:13px;color:var(--mid);cursor:pointer;transition:border-color .2s,color .2s;font-family:inherit;}
+    .btn-change-method:hover{border-color:var(--gold);color:var(--gold);}
+    .stripe-secure-note{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mid);margin-top:14px;justify-content:center;}
     @media(max-width:900px){
       .nav-logo-text{display:none;}.nav-icons{gap:12px;}.nav-icon-btn{width:30px;height:30px;}.nav-icon-btn svg{width:19px;height:19px;}
       .nav-inner { padding: 0 16px; }
@@ -387,6 +399,20 @@
         </div>
       </div>
 
+
+      <!-- STRIPE PAYMENT ELEMENT (shown after Phase 1) -->
+      <div class="form-section" id="stripeSection" style="display:none;">
+        <div class="form-section-title">🔒 Secure Card Payment</div>
+        <div id="stripePaymentElement"></div>
+        <div id="stripeError"></div>
+        <button class="btn-confirm-pay" id="confirmPayBtn" onclick="confirmStripePayment()">Confirm & Pay</button>
+        <button class="btn-change-method" onclick="cancelStripePhase()">← Change Payment Method</button>
+        <div class="stripe-secure-note">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Secured by Stripe
+        </div>
+      </div>
+
       <!-- NOTES -->
       <div class="form-section">
         <div class="form-section-title">Additional Information (optional)</div>
@@ -491,6 +517,8 @@
 
 <script>
 const API='https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
+const STRIPE_PK='pk_live_51Td8vPPAWWOlHSsMuHxQvJm0n4suzc4ie2jTrs8Rrx0EwdU2DVpobwaVCESi9bnRL8pKnuiYPeGECoymr54usGkL00L5U4B5ln';
+
 function openMobileNav(){document.getElementById('mobileNav').classList.add('open');document.getElementById('hamburgerBtn').classList.add('open');document.body.style.overflow='hidden';}
 function closeMobileNav(){document.getElementById('mobileNav').classList.remove('open');document.getElementById('hamburgerBtn').classList.remove('open');document.body.style.overflow='';}
 function toggleMobileSub(id,btn){const sub=document.getElementById(id);const arrow=document.getElementById('garlandsArrow');const isOpen=sub.classList.toggle('open');if(arrow)arrow.classList.toggle('open',isOpen);}
@@ -505,6 +533,12 @@ function showToast(msg,type=''){const t=document.getElementById('toast');t.textC
 
 let cartData=null;
 let savedAddresses=[];
+
+// ── STRIPE STATE ──────────────────────────────────────────────────────────────
+let stripeInstance = null;
+let stripeElements = null;
+let stripePhase    = 0;   // 0 = initial, 1 = element mounted
+let pendingOrder   = null; // { orderId, orderNumber, clientSecret, order }
 
 // ── PAYMENT OPTION HIGHLIGHT ──────────────────────────────────────────────────
 document.querySelectorAll('.payment-opt').forEach(opt=>{
@@ -550,52 +584,202 @@ async function applyCoupon(){
   else{msg.textContent=data.message||'Invalid coupon';msg.className='coupon-msg err';}
 }
 
-// ── PLACE ORDER ───────────────────────────────────────────────────────────────
-function handlePlaceOrder(){
-  if(!token){
-    location.href='account.html';
-    return;
+// ── VALIDATE FORM FIELDS (shared) ─────────────────────────────────────────────
+function validateCheckoutFields(){
+  const pickupOutletId=document.getElementById('selectedOutletId').value;
+  if(!pickupOutletId){
+    document.getElementById('outletMsg').textContent='Please select a pickup outlet.';
+    document.getElementById('outletMsg').style.display='';
+    document.getElementById('outletList').scrollIntoView({behavior:'smooth',block:'center'});
+    return false;
   }
-  placeOrder();
+  document.getElementById('outletMsg').style.display='none';
+
+  const dateInput=document.getElementById('scheduledPickupDate');
+  const dateMsg=document.getElementById('dateMsg');
+  const scheduledPickupDate=dateInput?.value;
+  if(!scheduledPickupDate){
+    dateMsg.textContent='Please select a pickup date.';
+    dateMsg.style.display='';
+    dateInput?.scrollIntoView({behavior:'smooth',block:'center'});
+    return false;
+  }
+  const chosenDate=new Date(scheduledPickupDate);
+  const minDate=new Date(); minDate.setDate(minDate.getDate()+10); minDate.setHours(0,0,0,0);
+  if(chosenDate<minDate){
+    dateMsg.textContent='Pickup date must be at least 10 days from today.';
+    dateMsg.style.display='';
+    dateInput?.scrollIntoView({behavior:'smooth',block:'center'});
+    return false;
+  }
+  if(dateMsg) dateMsg.style.display='none';
+  return true;
 }
 
-// Set minimum pickup date (today + 10 days)
+// ── MAIN PLACE ORDER HANDLER ──────────────────────────────────────────────────
+function handlePlaceOrder(){
+  if(!token){ location.href='account.html'; return; }
+  const paymentMethod=document.querySelector('input[name="payment"]:checked').value;
+  if(paymentMethod==='card'){
+    if(stripePhase===0) startCardPayment();
+    else                confirmStripePayment();
+  } else {
+    placeOrder();
+  }
+}
+
+// ── PHASE 1: Create order + PaymentIntent, mount Stripe Element ───────────────
+async function startCardPayment(){
+  if(!validateCheckoutFields()) return;
+  const btn=document.getElementById('placeOrderBtn');
+  btn.disabled=true; btn.textContent='Setting up payment...';
+
+  const pickupOutletId=document.getElementById('selectedOutletId').value;
+  const scheduledPickupDate=document.getElementById('scheduledPickupDate').value;
+  const notes=document.getElementById('orderNotes').value;
+
+  const data=await apiFetch('/orders/create-payment-intent',{
+    method:'POST',
+    headers:apiHeaders(),
+    body:JSON.stringify({pickupOutletId,scheduledPickupDate,notes})
+  });
+
+  if(!data.success){
+    btn.disabled=false; btn.textContent='Place Order';
+    showToast(data.message||'Failed to initiate payment','error');
+    return;
+  }
+
+  pendingOrder=data;
+  stripePhase=1;
+
+  // Mount Stripe Payment Element
+  stripeInstance=Stripe(STRIPE_PK);
+  const appearance={ theme:'stripe', variables:{ colorPrimary:'#9B8B5A', colorBackground:'#ffffff', colorText:'#1A1A1A', colorDanger:'#c0392b', fontFamily:'"Lato", sans-serif', borderRadius:'4px' }};
+  stripeElements=stripeInstance.elements({ clientSecret:data.clientSecret, appearance });
+  const paymentElement=stripeElements.create('payment');
+  paymentElement.mount('#stripePaymentElement');
+
+  // Update UI
+  document.getElementById('stripeSection').style.display='block';
+  document.getElementById('stripeSection').scrollIntoView({behavior:'smooth',block:'start'});
+
+  // Change place-order button in sidebar
+  btn.disabled=false;
+  btn.textContent='Confirm & Pay AUD $'+(data.order.total||0).toFixed(2);
+  btn.onclick=confirmStripePayment;
+}
+
+// ── PHASE 2: Confirm payment with Stripe ─────────────────────────────────────
+async function confirmStripePayment(){
+  if(!stripeElements || !pendingOrder) return;
+  const btn=document.getElementById('placeOrderBtn');
+  const confirmBtn=document.getElementById('confirmPayBtn');
+  btn.disabled=true; btn.textContent='Processing...';
+  if(confirmBtn){ confirmBtn.disabled=true; confirmBtn.textContent='Processing...'; }
+
+  const errEl=document.getElementById('stripeError');
+  errEl.style.display='none'; errEl.textContent='';
+
+  const returnUrl=window.location.origin+window.location.pathname
+    +'?orderId='+encodeURIComponent(pendingOrder.orderId)
+    +'&orderNumber='+encodeURIComponent(pendingOrder.orderNumber);
+
+  const { error }=await stripeInstance.confirmPayment({
+    elements: stripeElements,
+    confirmParams:{ return_url: returnUrl }
+  });
+
+  // confirmPayment only returns here if there's an immediate error (no redirect)
+  if(error){
+    errEl.textContent=error.message||'Payment failed. Please try again.';
+    errEl.style.display='block';
+    btn.disabled=false;
+    btn.textContent='Confirm & Pay AUD $'+(pendingOrder.order?.total||0).toFixed(2);
+    if(confirmBtn){ confirmBtn.disabled=false; confirmBtn.textContent='Confirm & Pay'; }
+  }
+}
+
+// ── Cancel Stripe phase and go back to payment method selection ───────────────
+function cancelStripePhase(){
+  stripePhase=0;
+  stripeElements=null;
+  stripeInstance=null;
+  pendingOrder=null;
+  document.getElementById('stripeSection').style.display='none';
+  document.getElementById('stripePaymentElement').innerHTML='';
+  const btn=document.getElementById('placeOrderBtn');
+  btn.disabled=false; btn.textContent='Place Order';
+  btn.onclick=handlePlaceOrder;
+  // Reload cart to reflect current state
+  loadCart();
+}
+
+// ── BANK TRANSFER / COD — existing flow ──────────────────────────────────────
+async function placeOrder(){
+  const btn=document.getElementById('placeOrderBtn');
+  if(!validateCheckoutFields()) return;
+  const pickupOutletId=document.getElementById('selectedOutletId').value;
+  const dateInput=document.getElementById('scheduledPickupDate');
+  const scheduledPickupDate=dateInput?.value;
+  const paymentMethod=document.querySelector('input[name="payment"]:checked').value;
+  const notes=document.getElementById('orderNotes').value;
+  btn.disabled=true; btn.textContent='Placing order...';
+  const data=await apiFetch('/orders',{method:'POST',headers:apiHeaders(),body:JSON.stringify({pickupOutletId,paymentMethod,notes,scheduledPickupDate})});
+  btn.disabled=false; btn.textContent='Place Order';
+  if(data.success){
+    showOrderSuccess(data.order);
+  }else{
+    showToast(data.message||'Failed to place order','error');
+  }
+}
+
+// ── SHOW SUCCESS SCREEN ───────────────────────────────────────────────────────
+function showOrderSuccess(order){
+  document.getElementById('checkoutMain').style.display='none';
+  const succ=document.getElementById('orderSuccess');
+  succ.classList.add('show');
+  document.getElementById('orderNumDisplay').textContent='Order #'+order.orderNumber;
+  const snap=order.pickupOutletSnapshot;
+  if(snap){
+    const pickupInfo=document.getElementById('pickupOutletInfo');
+    if(pickupInfo) pickupInfo.textContent=`Pickup from: ${snap.name}, ${snap.address}, ${snap.suburb} · ${snap.hours||''}`;
+  }
+  if(order.scheduledPickupDate){
+    const el=document.getElementById('pickupDateInfo');
+    if(el){
+      const d=new Date(order.scheduledPickupDate);
+      el.textContent='📅 Scheduled Pickup: '+d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      el.style.display='block';
+    }
+  }
+  if(order.notes){
+    document.getElementById('orderNotesText').textContent=order.notes;
+    document.getElementById('orderNotesDisplay').style.display='block';
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── DATE PICKER ───────────────────────────────────────────────────────────────
 function initDatePicker() {
   const dateInput = document.getElementById('scheduledPickupDate');
   if (!dateInput) return;
-
-  // Calculate min date: today + 10 days (no earlier allowed)
   const today = new Date();
-  const min = new Date(today);
-  min.setDate(today.getDate() + 10);
-
-  // Calculate max date: 1 year from today (reasonable upper bound)
-  const max = new Date(today);
-  max.setFullYear(today.getFullYear() + 1);
-
+  const min = new Date(today); min.setDate(today.getDate() + 10);
+  const max = new Date(today); max.setFullYear(today.getFullYear() + 1);
   const pad = n => String(n).padStart(2, '0');
   const toDateStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-
   dateInput.min = toDateStr(min);
   dateInput.max = toDateStr(max);
-  dateInput.value = toDateStr(min); // default to earliest allowed
-
-  // Guard: if user manually types an earlier date, reset to min
+  dateInput.value = toDateStr(min);
   dateInput.addEventListener('change', () => {
-    const val = dateInput.value;
-    if (!val || val < dateInput.min) {
-      dateInput.value = dateInput.min;
-    }
+    if (!dateInput.value || dateInput.value < dateInput.min) dateInput.value = dateInput.min;
     onDateChange();
   });
-
-  // Show human-readable earliest date label
   const label = document.getElementById('earliestDateLabel');
   if (label) label.textContent = min.toLocaleDateString('en-AU', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-
-  onDateChange(); // show confirmation for default value
+  onDateChange();
 }
-
 function onDateChange() {
   const dateInput = document.getElementById('scheduledPickupDate');
   const display = document.getElementById('dateSelectedDisplay');
@@ -605,70 +789,6 @@ function onDateChange() {
   const formatted = d.toLocaleDateString('en-AU', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
   if (displayText) displayText.textContent = formatted;
   if (display) display.style.display = 'block';
-}
-
-async function placeOrder(){
-  const btn=document.getElementById('placeOrderBtn');
-  const pickupOutletId=document.getElementById('selectedOutletId').value;
-  if(!pickupOutletId){
-    document.getElementById('outletMsg').textContent='Please select a pickup outlet.';
-    document.getElementById('outletMsg').style.display='';
-    document.getElementById('outletList').scrollIntoView({behavior:'smooth',block:'center'});
-    return;
-  }
-  document.getElementById('outletMsg').style.display='none';
-
-  // Validate pickup date
-  const dateInput = document.getElementById('scheduledPickupDate');
-  const dateMsg = document.getElementById('dateMsg');
-  const scheduledPickupDate = dateInput?.value;
-  if (!scheduledPickupDate) {
-    dateMsg.textContent = 'Please select a pickup date.';
-    dateMsg.style.display = '';
-    dateInput?.scrollIntoView({behavior:'smooth',block:'center'});
-    return;
-  }
-  const chosenDate = new Date(scheduledPickupDate);
-  const minDate = new Date(); minDate.setDate(minDate.getDate() + 10); minDate.setHours(0,0,0,0);
-  if (chosenDate < minDate) {
-    dateMsg.textContent = 'Pickup date must be at least 10 days from today.';
-    dateMsg.style.display = '';
-    dateInput?.scrollIntoView({behavior:'smooth',block:'center'});
-    return;
-  }
-  if (dateMsg) dateMsg.style.display = 'none';
-
-  const paymentMethod=document.querySelector('input[name="payment"]:checked').value;
-  const notes=document.getElementById('orderNotes').value;
-  btn.disabled=true;btn.textContent='Placing order...';
-  const data=await apiFetch('/orders',{method:'POST',headers:apiHeaders(),body:JSON.stringify({pickupOutletId,paymentMethod,notes,scheduledPickupDate})});
-  btn.disabled=false;btn.textContent='Place Order';
-  if(data.success){
-    document.getElementById('checkoutMain').style.display='none';
-    const succ=document.getElementById('orderSuccess');succ.classList.add('show');
-    document.getElementById('orderNumDisplay').textContent='Order #'+data.order.orderNumber;
-    const snap=data.order.pickupOutletSnapshot;
-    if(snap){
-      const pickupInfo=document.getElementById('pickupOutletInfo');
-      if(pickupInfo) pickupInfo.textContent=`Pickup from: ${snap.name}, ${snap.address}, ${snap.suburb} · ${snap.hours||''}`;
-    }
-    if(data.order.scheduledPickupDate){
-      const el=document.getElementById('pickupDateInfo');
-      if(el){
-        const d=new Date(data.order.scheduledPickupDate);
-        el.textContent='📅 Scheduled Pickup: '+d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-        el.style.display='block';
-      }
-    }
-    const orderNotes=data.order.notes;
-    if(orderNotes){
-      document.getElementById('orderNotesText').textContent=orderNotes;
-      document.getElementById('orderNotesDisplay').style.display='block';
-    }
-    window.scrollTo({top:0,behavior:'smooth'});
-  }else{
-    showToast(data.message||'Failed to place order','error');
-  }
 }
 
 async function mergeCart(){
@@ -684,14 +804,12 @@ async function loadOutlets() {
   const stateFilter     = document.getElementById('outletStateFilter').value;
   const territoryFilter = document.getElementById('outletTerritoryFilter').value;
   const _role = getCheckoutRole();
-  // Clear any previous inline notice
   const prev = document.getElementById('outletNotice'); if(prev) prev.remove();
 
-  // Retail/Dealer: merge own outlets with public ones
   if(_role === 'Retail' || _role === 'Dealer'){
-    const token = localStorage.getItem('vp_token');
+    const tok = localStorage.getItem('vp_token');
     const endpoint = _role === 'Retail' ? '/retail/outlets' : '/dealer/outlets';
-    const myData = await apiFetch(endpoint, { headers: { Authorization: 'Bearer ' + token } }).catch(()=>({outlets:[]}));
+    const myData = await apiFetch(endpoint, { headers: { Authorization: 'Bearer ' + tok } }).catch(()=>({outlets:[]}));
     const ownActive = (myData.outlets||[]).filter(o=>o.isActive);
     let qs = 'pickupEnabled=true';
     if(stateFilter)     qs += '&state='     + encodeURIComponent(stateFilter);
@@ -711,19 +829,16 @@ async function loadOutlets() {
     return;
   }
 
-  // Always request only pickup-enabled approved outlets
   let qs = 'pickupEnabled=true&';
   if (stateFilter)     qs += 'state=' + encodeURIComponent(stateFilter) + '&';
   if (territoryFilter) qs += 'territory=' + encodeURIComponent(territoryFilter) + '&';
   const data = await apiFetch('/retail-outlets?' + qs).catch(() => ({ outlets: [] }));
   allOutlets = data.outlets || [];
 
-  // Smart fallback: if no outlets in specific territory, auto-reset to all territories
   if (!allOutlets.length && territoryFilter && stateFilter) {
     const fallbackData = await apiFetch('/retail-outlets?pickupEnabled=true&state=' + encodeURIComponent(stateFilter)).catch(() => ({ outlets: [] }));
     allOutlets = fallbackData.outlets || [];
     if (allOutlets.length) {
-      // Auto-clear the territory filter and show inline notice
       document.getElementById('outletTerritoryFilter').value = '';
       const list = document.getElementById('outletList');
       list.insertAdjacentHTML('beforebegin',
@@ -801,12 +916,42 @@ function getCheckoutRole(){
 }
 
 async function init(){
-  const _role = getCheckoutRole();
+  // ── Check for Stripe redirect return (3DS / card payment completion) ──────
+  const urlParams = new URLSearchParams(window.location.search);
+  const redirectStatus = urlParams.get('redirect_status');
+  const returnOrderId  = urlParams.get('orderId');
+  const returnOrderNum = urlParams.get('orderNumber');
 
-  // Initialise date picker immediately — must run for all roles
+  if(redirectStatus){
+    document.getElementById('checkoutMain').style.display='none';
+    const succ = document.getElementById('orderSuccess');
+    if(redirectStatus === 'succeeded'){
+      succ.classList.add('show');
+      document.getElementById('orderNumDisplay').textContent = 'Order #' + (returnOrderNum || '');
+      // Fetch order details for the confirmation screen
+      if(returnOrderId && token){
+        const data = await apiFetch('/orders/' + returnOrderId, {headers:apiHeaders()}).catch(()=>null);
+        if(data?.success && data.order) showOrderSuccess(data.order);
+      }
+    } else {
+      // Payment failed or cancelled — show inline error in the success panel
+      succ.classList.add('show');
+      succ.innerHTML = `
+        <div class="success-icon">❌</div>
+        <h2 style="color:#c0392b;">Payment Not Completed</h2>
+        <p>Your payment was not processed successfully. If you were charged, please contact us and we'll resolve it promptly.</p>
+        <p style="font-weight:700;font-size:14px;color:var(--mid);margin-bottom:20px;">Order reference: ${returnOrderNum || 'N/A'}</p>
+        <p style="font-size:13px;color:var(--mid);margin-bottom:24px;">📧 nivafoodsintl@gmail.com &nbsp;|&nbsp; 📞 +61 416 424 745</p>
+        <a href="index.html" class="btn-continue">Back to Home</a>
+      `;
+    }
+    window.scrollTo({top:0,behavior:'smooth'});
+    return; // Skip normal init for Stripe returns
+  }
+
+  const _role = getCheckoutRole();
   initDatePicker();
 
-  // Hide coupon section for Dealer and Retail
   if(_role === 'Dealer' || _role === 'Retail'){
     const cs = document.getElementById('couponSection');
     if(cs) cs.style.display = 'none';
@@ -819,12 +964,9 @@ async function init(){
     if(!me?.user){ await loadOutlets(); return; }
     const u = me.user;
 
-    // ── RETAIL: show all their own active outlets + public pickup-enabled ──
     if(_role === 'Retail'){
       const myData    = await apiFetch('/retail/outlets',{headers:apiHeaders()}).catch(()=>({outlets:[]}));
       const ownActive = (myData.outlets||[]).filter(o=>o.isActive);
-
-      // Pre-select state from preferred or first own outlet
       const preState = u.preferredState || (ownActive[0]?.state) || '';
       if(preState){
         document.getElementById('outletStateFilter').value = preState;
@@ -834,8 +976,6 @@ async function init(){
         (td.territories||[]).forEach(t=>{ const o=document.createElement('option'); o.value=t.slug; o.textContent=t.name; terrSel.appendChild(o); });
         if(u.preferredTerritory) terrSel.value = u.preferredTerritory;
       }
-
-      // Fetch public pickup-enabled outlets and merge with own (own shown first, deduplicated)
       const stateFilter = document.getElementById('outletStateFilter').value;
       const terrFilter  = document.getElementById('outletTerritoryFilter').value;
       let qs = 'pickupEnabled=true';
@@ -849,11 +989,9 @@ async function init(){
       return;
     }
 
-    // ── DEALER: show all own active outlets + public pickup-enabled ──
     if(_role === 'Dealer'){
       const myData    = await apiFetch('/dealer/outlets',{headers:apiHeaders()}).catch(()=>({outlets:[]}));
       const ownActive = (myData.outlets||[]).filter(o=>o.isActive);
-
       const preState = u.preferredState || (ownActive[0]?.state) || '';
       if(preState){
         document.getElementById('outletStateFilter').value = preState;
@@ -863,7 +1001,6 @@ async function init(){
         (td.territories||[]).forEach(t=>{ const o=document.createElement('option'); o.value=t.slug; o.textContent=t.name; terrSel.appendChild(o); });
         if(u.preferredTerritory) terrSel.value = u.preferredTerritory;
       }
-
       const stateFilter = document.getElementById('outletStateFilter').value;
       const terrFilter  = document.getElementById('outletTerritoryFilter').value;
       let qs = 'pickupEnabled=true';
@@ -877,7 +1014,6 @@ async function init(){
       return;
     }
 
-    // ── CUSTOMER / ADMIN: filter public outlets by preferred state & territory ──
     if(u.preferredState){
       document.getElementById('outletStateFilter').value = u.preferredState;
       const td = await apiFetch('/territories?state=' + encodeURIComponent(u.preferredState)).catch(()=>({territories:[]}));
@@ -895,7 +1031,7 @@ async function init(){
   await loadOutlets();
 }
 
-// ── AUTO-SELECT a single outlet and show locked confirmation banner ───────────
+// ── AUTO-SELECT single outlet (retail/dealer banner) ─────────────────────────
 function autoSelectOutlet(o, title, note){
   document.getElementById('selectedOutletId').value = o._id;
   document.getElementById('outletPickerUI').style.display = 'none';
@@ -916,17 +1052,12 @@ function autoSelectOutlet(o, title, note){
     <div style="font-size:12px;color:var(--mid);margin-top:10px;padding:0 4px;">${note}</div>`;
 }
 
-// ── SHOW PICKER limited to dealer/retail's own outlets ────────────────────────
 function showMyOutletsPicker(filtered, allMine, title, subtitle){
-  // Hide the public state/territory filters
   document.getElementById('outletPickerUI').querySelector('.form-row').style.display = 'none';
-  // Update title and subtitle
   document.querySelector('#outletPickerUI .form-section-title').textContent = '🏪 ' + title;
   document.querySelector('#outletPickerUI p').textContent = subtitle;
-  // Populate with their own filtered outlets only
   allOutlets = filtered;
   renderOutlets(filtered);
-  // Show "show all my outlets" link if filtering reduced the list
   if(filtered.length < allMine.length){
     const list = document.getElementById('outletList');
     list.insertAdjacentHTML('afterend',
