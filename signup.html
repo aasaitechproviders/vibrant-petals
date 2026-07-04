@@ -416,6 +416,22 @@
       <a id="successBtn" href="index.html" class="btn-go-shop">Start Shopping</a>
     </div>
 
+    <!-- OTP verification screen (hidden by default) -->
+    <div class="success-screen" id="otpScreen">
+      <div class="success-icon">📧</div>
+      <h2 class="success-title">Verify your email</h2>
+      <p class="success-sub">We've sent a 6-digit verification code to <strong id="otpEmailDisplay"></strong>. Enter it below to complete your registration.</p>
+      <div style="max-width:280px;margin:0 auto;">
+        <input type="text" id="otpInput" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000"
+               style="width:100%;padding:14px;font-size:24px;text-align:center;letter-spacing:8px;border:1px solid var(--border,#ddd);border-radius:var(--radius);margin-bottom:14px;"/>
+        <div class="msg" id="otpMsg"></div>
+        <button class="btn-primary" id="otpSubmitBtn" onclick="submitOtp()" style="width:100%;">Verify &amp; Continue →</button>
+        <p style="font-size:13px;color:var(--mid);margin-top:16px;">
+          Didn't get the code? <a href="#" id="resendOtpLink" onclick="resendOtp(); return false;" style="color:var(--gold-dark);font-weight:700;">Resend code</a>
+        </p>
+      </div>
+    </div>
+
     <!-- Main form (visible by default) -->
     <div id="mainForm">
       <h2 class="form-heading">Create your account</h2>
@@ -1011,6 +1027,84 @@ function showMsg(id, text, type) {
 }
 function hideMsg(id) { const el = document.getElementById(id); el.style.display = 'none'; }
 
+// ── OTP VERIFICATION (shared across customer / dealer / retail signup) ─────────
+let pendingReg = { type: null, email: null, name: null, storeName: null };
+let resendCooldown = false;
+
+function showOtpScreen(email, type, name, storeName) {
+  pendingReg = { type, email, name, storeName };
+  document.getElementById('mainForm').style.display = 'none';
+  document.getElementById('successScreen').style.display = 'none';
+  const sc = document.getElementById('otpScreen');
+  sc.style.display = '';
+  setTimeout(() => sc.classList.add('visible'), 10);
+  document.getElementById('otpEmailDisplay').textContent = email;
+  document.getElementById('otpInput').value = '';
+  hideMsg('otpMsg');
+  document.getElementById('otpInput').focus();
+}
+
+async function submitOtp() {
+  const otp = document.getElementById('otpInput').value.trim();
+  if (!/^\d{6}$/.test(otp)) { showMsg('otpMsg', 'Please enter the 6-digit code.', 'err'); return; }
+
+  const btn = document.getElementById('otpSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Verifying…';
+
+  const data = await apiFetch('/auth/verify-otp', {
+    method: 'POST',
+    headers: apiHeaders(false),
+    body: JSON.stringify({ email: pendingReg.email, otp }),
+  });
+
+  btn.disabled = false; btn.textContent = 'Verify & Continue →';
+
+  if (!data.success) {
+    showMsg('otpMsg', data.message || 'Verification failed. Please try again.', 'err');
+    return;
+  }
+
+  document.getElementById('otpScreen').style.display = 'none';
+
+  if (pendingReg.type === 'customer') {
+    if (data.token) localStorage.setItem('vp_token', data.token);
+    try { await apiFetch('/cart/merge', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ sessionId }) }); } catch (e) {}
+    showSuccess('customer', data.user?.username || pendingReg.name);
+  } else if (pendingReg.type === 'dealer') {
+    showSuccess('dealer', data.user?.username || pendingReg.name);
+  } else {
+    showSuccess('outlet', data.user?.username || pendingReg.name, pendingReg.storeName);
+  }
+}
+window.submitOtp = submitOtp;
+
+async function resendOtp() {
+  if (resendCooldown) return;
+  const link = document.getElementById('resendOtpLink');
+  resendCooldown = true;
+  let secs = 30;
+  const originalText = link.textContent;
+  link.textContent = `Resend in ${secs}s`;
+  const timer = setInterval(() => {
+    secs--;
+    if (secs <= 0) {
+      clearInterval(timer);
+      link.textContent = originalText;
+      resendCooldown = false;
+    } else {
+      link.textContent = `Resend in ${secs}s`;
+    }
+  }, 1000);
+
+  const data = await apiFetch('/auth/resend-otp', {
+    method: 'POST',
+    headers: apiHeaders(false),
+    body: JSON.stringify({ email: pendingReg.email }),
+  });
+  showMsg('otpMsg', data.message || (data.success ? 'A new code has been sent.' : 'Could not resend code.'), data.success ? 'ok' : 'err');
+}
+window.resendOtp = resendOtp;
+
 // ── VALIDATION ─────────────────────────────────────────────────────────────────
 function getRadio(name) {
   const checked = document.querySelector(`input[name="${name}"]:checked`);
@@ -1125,7 +1219,10 @@ async function submitCustomer() {
 
   btn.disabled = false; btn.textContent = 'Create Account →';
 
-  if (data.success) {
+  if (data.success && data.otpRequired) {
+    showOtpScreen(data.email || email, 'customer', firstName);
+  } else if (data.success) {
+    // fallback in case backend ever returns a direct token (shouldn't happen with OTP flow)
     localStorage.setItem('vp_token', data.token);
     try { await apiFetch('/cart/merge', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ sessionId }) }); } catch (e) {}
     showSuccess('customer', data.user?.username || firstName);
@@ -1188,7 +1285,9 @@ async function submitDealer() {
 
   btn.disabled = false; btn.textContent = '✿ Submit Application';
 
-  if (data.success) {
+  if (data.success && data.otpRequired) {
+    showOtpScreen(data.email || body.email, 'dealer', body.firstName);
+  } else if (data.success) {
     showSuccess('dealer', data.user?.username || body.firstName);
   } else {
     showMsg('step6Msg', data.message || 'Registration failed. Please try again.', 'err');
@@ -1305,7 +1404,9 @@ async function submitOutlet() {
 
   btn.disabled = false; btn.textContent = '🏪 Register Outlet →';
 
-  if (data.success) {
+  if (data.success && data.otpRequired) {
+    showOtpScreen(data.email || body.email, 'outlet', firstName, storeName);
+  } else if (data.success) {
     showSuccess('outlet', data.user?.username || firstName, storeName);
   } else {
     showMsg('outletMsg', data.message || 'Registration failed. Please try again.', 'err');
