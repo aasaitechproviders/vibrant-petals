@@ -443,39 +443,76 @@
 
       <!-- CAMPAIGNS -->
       <div class="panel" id="panel-campaigns">
-        <div class="card">
-          <div class="card-title">Send Email Campaign</div>
-          <p style="font-size:13px;color:var(--mid);margin:4px 0 20px;">Compose a message and choose who receives it. Recipients are the union of every group you tick below (no duplicates).</p>
 
-          <div style="display:flex;flex-wrap:wrap;gap:20px;margin-bottom:22px;">
-            <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;">
-              <input type="checkbox" id="campTargetCustomer" style="width:16px;height:16px;"/> Customers
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;">
-              <input type="checkbox" id="campTargetDealer" style="width:16px;height:16px;"/> Dealers
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;">
-              <input type="checkbox" id="campTargetRetail" style="width:16px;height:16px;"/> Retail Partners
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;">
-              <input type="checkbox" id="campTargetNewsletter" style="width:16px;height:16px;"/> Newsletter Subscribers
-            </label>
+        <!-- Top compose card -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-head">
+            <div class="card-title">Compose Campaign</div>
           </div>
+          <div style="padding:24px;">
 
-          <div style="margin-bottom:16px;">
-            <label style="display:block;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mid);margin-bottom:6px;">Subject</label>
-            <input type="text" id="campSubject" placeholder="e.g. Diwali Special Offers 🪔" style="width:100%;max-width:520px;padding:11px 14px;border:1px solid #e0d8c8;border-radius:4px;font-size:14px;"/>
+            <!-- Subject -->
+            <div style="margin-bottom:18px;">
+              <label class="form-label">Subject Line</label>
+              <input type="text" id="campSubject" class="form-input" placeholder="e.g. Diwali Special Offers 🪔" style="max-width:520px;"/>
+            </div>
+
+            <!-- Message -->
+            <div style="margin-bottom:20px;">
+              <label class="form-label">Message</label>
+              <textarea id="campBody" class="form-textarea" rows="8" placeholder="Write your campaign message here…" style="max-width:640px;resize:vertical;line-height:1.6;"></textarea>
+              <div style="font-size:12px;color:var(--mid);margin-top:6px;">Plain text is fine — line breaks are preserved. Basic HTML tags also work.</div>
+            </div>
+
+            <div id="campMsg" style="display:none;font-size:13px;padding:12px 16px;border-radius:4px;margin-bottom:16px;"></div>
           </div>
+        </div>
 
-          <div style="margin-bottom:20px;">
-            <label style="display:block;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mid);margin-bottom:6px;">Message</label>
-            <textarea id="campBody" rows="8" placeholder="Write your campaign message here…" style="width:100%;max-width:640px;padding:14px;border:1px solid #e0d8c8;border-radius:4px;font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;"></textarea>
-            <div style="font-size:12px;color:var(--light);margin-top:6px;">Plain text is fine — line breaks are preserved automatically. Basic HTML tags also work if you want more control.</div>
+        <!-- Recipient selector card -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-head">
+            <div class="card-title">Recipients</div>
+            <div id="campSelectedCount" style="font-size:13px;color:var(--mid);">No recipients selected</div>
           </div>
+          <div style="padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;" id="campGroupCards">
+            <!-- Group cards rendered by JS -->
+          </div>
+        </div>
 
-          <div id="campMsg" style="display:none;font-size:13px;padding:12px 16px;border-radius:4px;margin-bottom:16px;"></div>
+        <!-- Send button -->
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <button class="btn-primary" id="campSendBtn" onclick="sendCampaign()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+            Send Campaign
+          </button>
+          <span id="campSendSummary" style="font-size:13px;color:var(--mid);"></span>
+        </div>
+      </div>
 
-          <button class="btn-export" id="campSendBtn" onclick="sendCampaign()" style="background:var(--gold);color:#fff;border:none;">Send Campaign</button>
+      <!-- CAMPAIGN RECIPIENT PICKER MODAL -->
+      <div class="modal" id="campPickerModal">
+        <div class="modal-box modal-wide">
+          <div class="modal-head">
+            <h3 id="campPickerTitle">Select Recipients</h3>
+            <span class="modal-close" onclick="closeCampPicker()">✕</span>
+          </div>
+          <div class="modal-body" style="padding:0;">
+            <!-- Search bar -->
+            <div style="padding:16px 20px;border-bottom:1px solid #e8e0d2;display:flex;align-items:center;gap:10px;">
+              <div class="search-box" style="flex:1;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+                <input type="text" id="campPickerSearch" placeholder="Search by name or email…" oninput="filterCampPicker()"/>
+              </div>
+              <button class="btn-sm btn-edit" onclick="selectAllCampPicker()">Select All</button>
+              <button class="btn-sm btn-edit" onclick="deselectAllCampPicker()">Deselect All</button>
+            </div>
+            <!-- User list -->
+            <div id="campPickerList" style="max-height:420px;overflow-y:auto;padding:0;"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeCampPicker()">Cancel</button>
+            <button class="btn-primary" onclick="confirmCampPicker()">Confirm Selection</button>
+          </div>
         </div>
       </div>
 
@@ -1472,7 +1509,7 @@ checkAuth();
 document.getElementById('adminPwd')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
 
 // ── PANEL NAVIGATION ──────────────────────────────────────────────────────────
-const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, users: loadUsers, newsletter: loadNewsletter, campaigns: null, coupons: loadCoupons, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: loadTerritories, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
+const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, coupons: loadCoupons, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: loadTerritories, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  TERRITORIES
@@ -3301,30 +3338,206 @@ function showCampMsg(text, type) {
   el.textContent = text;
 }
 
-async function sendCampaign() {
-  const roles = [];
-  if (document.getElementById('campTargetCustomer').checked) roles.push('Customer');
-  if (document.getElementById('campTargetDealer').checked)   roles.push('Dealer');
-  if (document.getElementById('campTargetRetail').checked)   roles.push('Retail');
-  const newsletterOnly = document.getElementById('campTargetNewsletter').checked;
+// State
+const campState = {
+  groups: [
+    { id: 'Customer',     label: 'Customers',              icon: '🛒', color: '#3498db', bg: '#ebf5fb', users: [], selected: new Set() },
+    { id: 'Dealer',       label: 'Dealers',                icon: '⭐', color: '#9b8b5a', bg: '#fdf6e3', users: [], selected: new Set() },
+    { id: 'Retail',       label: 'Retail Partners',        icon: '🏪', color: '#27ae60', bg: '#eafaf1', users: [], selected: new Set() },
+    { id: 'Newsletter',   label: 'Newsletter Subscribers', icon: '📧', color: '#8e44ad', bg: '#f5eef8', users: [], selected: new Set() },
+  ],
+  loaded: false,
+  currentGroupId: null,
+};
 
+function campTotalSelected() {
+  // Union of all selected emails across groups (no duplicates)
+  const allEmails = new Set();
+  campState.groups.forEach(g => g.selected.forEach(e => allEmails.add(e)));
+  return allEmails.size;
+}
+
+function campUpdateSummary() {
+  const total = campTotalSelected();
+  const countEl = document.getElementById('campSelectedCount');
+  const summEl  = document.getElementById('campSendSummary');
+  if (total === 0) {
+    countEl.textContent = 'No recipients selected';
+    countEl.style.color = 'var(--mid)';
+    if (summEl) summEl.textContent = '';
+  } else {
+    countEl.textContent = `${total} recipient${total === 1 ? '' : 's'} selected`;
+    countEl.style.color = 'var(--gold-dark)';
+    if (summEl) summEl.textContent = `Ready to send to ${total} address${total === 1 ? '' : 'es'}`;
+  }
+}
+
+function renderGroupCards() {
+  const container = document.getElementById('campGroupCards');
+  container.innerHTML = campState.groups.map(g => {
+    const total    = g.users.length;
+    const selected = g.selected.size;
+    const allSel   = total > 0 && selected === total;
+    const someSel  = selected > 0 && selected < total;
+    return `
+      <div style="border:1px solid ${someSel || allSel ? g.color : '#e8e0d2'};border-radius:6px;padding:16px 18px;cursor:pointer;background:${allSel ? g.bg : '#fff'};transition:border-color .15s,background .15s;position:relative;"
+           onclick="openCampPicker('${g.id}')">
+        <div style="font-size:22px;margin-bottom:8px;">${g.icon}</div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px;">${g.label}</div>
+        <div style="font-size:12px;color:var(--mid);">${total} contact${total === 1 ? '' : 's'}</div>
+        ${selected > 0 ? `<div style="margin-top:10px;font-size:12px;font-weight:700;color:${g.color};">✓ ${selected} selected</div>` : `<div style="margin-top:10px;font-size:12px;color:var(--mid);">Click to select</div>`}
+        ${allSel ? `<div style="position:absolute;top:10px;right:10px;width:20px;height:20px;background:${g.color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">✓</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+async function loadCampUsers() {
+  if (campState.loaded) return;
+
+  // Load all 3 user roles
+  const roleGroups = campState.groups.filter(g => g.id !== 'Newsletter');
+  await Promise.all(roleGroups.map(async g => {
+    try {
+      const data = await apiFetch(`/admin/users?role=${g.id}&limit=500`, { headers: apiHeaders() });
+      g.users = (data.users || []).filter(u => u.email).map(u => ({
+        email: u.email.toLowerCase(),
+        name: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.username || u.email,
+        username: u.username || '',
+      }));
+    } catch(e) { g.users = []; }
+  }));
+
+  // Load newsletter
+  const nlGroup = campState.groups.find(g => g.id === 'Newsletter');
+  try {
+    const data = await apiFetch('/newsletter/list?limit=500', { headers: apiHeaders() });
+    nlGroup.users = (data.subscribers || []).filter(s => s.email).map(s => ({
+      email: s.email.toLowerCase(),
+      name: s.email,
+      username: '',
+    }));
+  } catch(e) { nlGroup.users = []; }
+
+  campState.loaded = true;
+  renderGroupCards();
+  campUpdateSummary();
+}
+
+function openCampPicker(groupId) {
+  campState.currentGroupId = groupId;
+  const g = campState.groups.find(g => g.id === groupId);
+  document.getElementById('campPickerTitle').textContent = `Select — ${g.label} (${g.users.length})`;
+  document.getElementById('campPickerSearch').value = '';
+  renderCampPickerList(g.users);
+  document.getElementById('campPickerModal').classList.add('open');
+}
+window.openCampPicker = openCampPicker;
+
+function closeCampPicker() {
+  document.getElementById('campPickerModal').classList.remove('open');
+  campState.currentGroupId = null;
+}
+window.closeCampPicker = closeCampPicker;
+
+function renderCampPickerList(users) {
+  const g   = campState.groups.find(g => g.id === campState.currentGroupId);
+  const container = document.getElementById('campPickerList');
+
+  if (!users.length) {
+    container.innerHTML = `<div style="padding:40px;text-align:center;color:var(--mid);font-size:14px;">No contacts found</div>`;
+    return;
+  }
+
+  container.innerHTML = users.map(u => {
+    const checked = g.selected.has(u.email);
+    return `
+      <label style="display:flex;align-items:center;gap:12px;padding:11px 20px;border-bottom:1px solid #f0ebe0;cursor:pointer;transition:background .1s;" onmouseover="this.style.background='#fdf9f4'" onmouseout="this.style.background=''">
+        <input type="checkbox" ${checked ? 'checked' : ''} style="width:16px;height:16px;accent-color:var(--gold);flex-shrink:0;"
+               onchange="toggleCampRecipient('${g.id}','${u.email}',this.checked)"/>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.name}</div>
+          <div style="font-size:12px;color:var(--mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.email}</div>
+        </div>
+      </label>
+    `;
+  }).join('');
+}
+
+function filterCampPicker() {
+  const q = document.getElementById('campPickerSearch').value.toLowerCase();
+  const g = campState.groups.find(g => g.id === campState.currentGroupId);
+  const filtered = q ? g.users.filter(u => u.name.toLowerCase().includes(q) || u.email.includes(q)) : g.users;
+  renderCampPickerList(filtered);
+}
+window.filterCampPicker = filterCampPicker;
+
+function toggleCampRecipient(groupId, email, checked) {
+  const g = campState.groups.find(g => g.id === groupId);
+  if (checked) g.selected.add(email); else g.selected.delete(email);
+}
+window.toggleCampRecipient = toggleCampRecipient;
+
+function selectAllCampPicker() {
+  const q = document.getElementById('campPickerSearch').value.toLowerCase();
+  const g = campState.groups.find(g => g.id === campState.currentGroupId);
+  const visible = q ? g.users.filter(u => u.name.toLowerCase().includes(q) || u.email.includes(q)) : g.users;
+  visible.forEach(u => g.selected.add(u.email));
+  renderCampPickerList(visible);
+}
+window.selectAllCampPicker = selectAllCampPicker;
+
+function deselectAllCampPicker() {
+  const q = document.getElementById('campPickerSearch').value.toLowerCase();
+  const g = campState.groups.find(g => g.id === campState.currentGroupId);
+  const visible = q ? g.users.filter(u => u.name.toLowerCase().includes(q) || u.email.includes(q)) : g.users;
+  visible.forEach(u => g.selected.delete(u.email));
+  renderCampPickerList(visible);
+}
+window.deselectAllCampPicker = deselectAllCampPicker;
+
+function confirmCampPicker() {
+  closeCampPicker();
+  renderGroupCards();
+  campUpdateSummary();
+}
+window.confirmCampPicker = confirmCampPicker;
+
+async function loadCampaigns() {
+  await loadCampUsers();
+  renderGroupCards();
+  campUpdateSummary();
+}
+
+async function sendCampaign() {
   const subject = document.getElementById('campSubject').value.trim();
   const bodyRaw = document.getElementById('campBody').value.trim();
+  const total   = campTotalSelected();
 
-  if (!roles.length && !newsletterOnly) { showCampMsg('Select at least one recipient group.', 'err'); return; }
-  if (!subject) { showCampMsg('Please enter a subject line.', 'err'); return; }
-  if (!bodyRaw) { showCampMsg('Please write a message.', 'err'); return; }
+  if (total === 0) { showCampMsg('Please select at least one recipient first.', 'err'); return; }
+  if (!subject)    { showCampMsg('Please enter a subject line.', 'err'); return; }
+  if (!bodyRaw)    { showCampMsg('Please write a message.', 'err'); return; }
 
-  const groupLabels = [...roles, ...(newsletterOnly ? ['Newsletter Subscribers'] : [])].join(', ');
-  if (!confirm(`Send this campaign to: ${groupLabels}?\n\nThis cannot be undone.`)) return;
+  // Build per-group targets for the backend (roles + newsletter flag)
+  const roles = campState.groups
+    .filter(g => g.id !== 'Newsletter' && g.selected.size > 0)
+    .map(g => g.id);
+  const newsletterOnly = campState.groups.find(g => g.id === 'Newsletter').selected.size > 0;
 
-  // Wrap plain text into HTML paragraphs, preserving line breaks. If the body already
-  // contains HTML tags, send it through as-is.
+  // Collect the actual selected emails (for confirm dialog display)
+  const groupSummary = campState.groups
+    .filter(g => g.selected.size > 0)
+    .map(g => `${g.label} (${g.selected.size})`)
+    .join(', ');
+
+  if (!confirm(`Send "${subject}" to:\n${groupSummary}\n\nTotal: ${total} recipients.\n\nThis cannot be undone.`)) return;
+
   const looksLikeHtml = /<[a-z][\s\S]*>/i.test(bodyRaw);
   const html = looksLikeHtml ? bodyRaw : `<p>${bodyRaw.replace(/\n/g, '<br>')}</p>`;
 
   const btn = document.getElementById('campSendBtn');
-  btn.disabled = true; btn.textContent = 'Sending…';
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Sending…';
 
   const data = await apiFetch('/admin/campaigns/send', {
     method: 'POST',
@@ -3332,14 +3545,20 @@ async function sendCampaign() {
     body: JSON.stringify({ subject, html, targets: { roles, newsletterOnly } }),
   });
 
-  btn.disabled = false; btn.textContent = 'Send Campaign';
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg> Send Campaign';
 
   if (data.success) {
-    showCampMsg(data.message || 'Campaign sent.', 'ok');
+    showCampMsg(data.message || 'Campaign sent successfully.', 'ok');
     document.getElementById('campSubject').value = '';
     document.getElementById('campBody').value = '';
+    // Reset selections
+    campState.groups.forEach(g => g.selected.clear());
+    renderGroupCards();
+    campUpdateSummary();
+    showToast('Campaign sent! 🚀');
   } else {
-    showCampMsg(data.message || 'Failed to send campaign.', 'err');
+    showCampMsg(data.message || 'Failed to send campaign. Please try again.', 'err');
   }
 }
 window.sendCampaign = sendCampaign;
