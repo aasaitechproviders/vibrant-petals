@@ -264,6 +264,7 @@
       <div class="nav-item" id="nav-newsletter" onclick="showPanel('newsletter',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Newsletter</div>
       <div class="nav-item" id="nav-campaigns" onclick="showPanel('campaigns',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>Campaigns</div>
       <div class="nav-item" id="nav-emaillogs" onclick="showPanel('emaillogs',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Email Logs</div>
+      <div class="nav-item" id="nav-templates" onclick="showPanel('templates',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Email Templates</div>
       <div class="nav-section-label">Storefront</div>
       <div class="nav-item" id="nav-storefront" onclick="showPanel('storefront',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Storefront</div>
       <div class="nav-section-label">Dealer Network</div>
@@ -547,6 +548,62 @@
             <tbody id="elBody"></tbody>
           </table>
           <div class="table-pagination" id="elPag"></div>
+        </div>
+      </div>
+
+      <!-- EMAIL TEMPLATES PANEL -->
+      <div class="panel" id="panel-templates">
+        <div style="margin-bottom:16px;">
+          <p style="font-size:13px;color:var(--mid);margin:0;">Customise the email templates sent by the system. Use <code style="background:#f0ebe0;padding:1px 5px;border-radius:3px;font-size:12px;">{{variableName}}</code> for dynamic content. Resetting restores the original default.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;" id="tplGrid">
+          <!-- cards rendered by JS -->
+        </div>
+      </div>
+
+      <!-- TEMPLATE EDIT MODAL -->
+      <div class="modal" id="tplModal">
+        <div class="modal-box modal-wide" style="width:min(760px,95vw);">
+          <div class="modal-head">
+            <h3 id="tplModalTitle">Edit Template</h3>
+            <span class="modal-close" onclick="closeModal('tplModal')">✕</span>
+          </div>
+          <div class="modal-body" style="padding:24px;display:flex;flex-direction:column;gap:18px;">
+
+            <!-- Available variables -->
+            <div id="tplVarHints" style="background:#fdf6e3;border:1px solid #e8dfc8;border-radius:4px;padding:12px 16px;font-size:12px;color:#7a6230;">
+              <strong>Available variables:</strong> <span id="tplVarList"></span>
+            </div>
+
+            <!-- Subject -->
+            <div>
+              <label class="form-label">Subject Line</label>
+              <input type="text" id="tplSubject" class="form-input"/>
+            </div>
+
+            <!-- Body -->
+            <div>
+              <label class="form-label">Body HTML <span style="font-weight:400;font-size:12px;color:var(--mid);">(inner content — the VibrantPetals header &amp; footer are added automatically)</span></label>
+              <textarea id="tplBody" class="form-textarea" rows="12" style="font-family:monospace;font-size:13px;resize:vertical;"></textarea>
+            </div>
+
+            <!-- Preview -->
+            <div>
+              <button class="btn-sm btn-edit" onclick="previewTemplate()" style="margin-bottom:10px;">👁 Preview</button>
+              <div id="tplPreview" style="display:none;border:1px solid #e8e0d2;border-radius:4px;overflow:hidden;">
+                <iframe id="tplPreviewFrame" style="width:100%;height:340px;border:none;"></iframe>
+              </div>
+            </div>
+
+            <div id="tplMsg" style="display:none;font-size:13px;padding:10px 14px;border-radius:4px;"></div>
+          </div>
+          <div class="modal-footer" style="justify-content:space-between;">
+            <button class="btn-sm btn-delete" id="tplResetBtn" onclick="resetTemplate()">↺ Reset to Default</button>
+            <div style="display:flex;gap:10px;">
+              <button class="btn-cancel" onclick="closeModal('tplModal')">Cancel</button>
+              <button class="btn-save" onclick="saveTemplate()">Save Template</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1570,7 +1627,7 @@ checkAuth();
 document.getElementById('adminPwd')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
 
 // ── PANEL NAVIGATION ──────────────────────────────────────────────────────────
-const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, coupons: loadCoupons, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: loadTerritories, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
+const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, templates: loadTemplates, coupons: loadCoupons, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: loadTerritories, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  TERRITORIES
@@ -1885,7 +1942,7 @@ async function deleteOutlet(id) {
   else showToast(data.message || 'Delete failed', 'error');
 }
 window.deleteOutlet = deleteOutlet;
-const panelTitles = { dashboard: 'Dashboard', approvals: 'Approvals', catalogue: 'Catalogue', orders: 'Orders', coupons: 'Coupons', users: 'Users (Customers)', newsletter: 'Newsletter', campaigns: 'Email Campaigns', emaillogs: 'Email Logs', storefront: 'Storefront', territories: 'Territory Management', dealers: 'Dealers', outlets: 'Retail Outlets & Accounts' };
+const panelTitles = { dashboard: 'Dashboard', approvals: 'Approvals', catalogue: 'Catalogue', orders: 'Orders', coupons: 'Coupons', users: 'Users (Customers)', newsletter: 'Newsletter', campaigns: 'Email Campaigns', emaillogs: 'Email Logs', templates: 'Email Templates', storefront: 'Storefront', territories: 'Territory Management', dealers: 'Dealers', outlets: 'Retail Outlets & Accounts' };
 
 function showPanel(name, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -3733,6 +3790,125 @@ async function loadEmailLogs(page = 1) {
   `;
 }
 window.loadEmailLogs = loadEmailLogs;
+
+// ── EMAIL TEMPLATES ───────────────────────────────────────────────────────────
+let tplCurrentType = null;
+
+const TPL_TYPE_ICONS = {
+  otp: '🔐', otp_resend: '🔄', welcome: '🌸',
+  application_received: '📋', dealer_approved: '⭐', retail_approved: '🏪',
+  territory_approved: '📍', territory_rejected: '❌',
+  order_received: '🛍️', order_status: '📦',
+};
+
+async function loadTemplates() {
+  const data = await apiFetch('/admin/email-templates', { headers: apiHeaders() });
+  const grid = document.getElementById('tplGrid');
+  if (!data.success) { grid.innerHTML = `<p style="color:var(--mid);">Failed to load templates</p>`; return; }
+
+  grid.innerHTML = data.templates.map(t => {
+    const icon    = TPL_TYPE_ICONS[t.type] || '📧';
+    const updated = t.updatedAt ? `<div style="font-size:11px;color:#27ae60;margin-top:8px;font-weight:700;">✓ Customised${t.updatedAt ? ' · ' + new Date(t.updatedAt).toLocaleDateString('en-AU') : ''}</div>` : `<div style="font-size:11px;color:var(--mid);margin-top:8px;">Using default</div>`;
+    return `
+      <div onclick="openTemplateEditor('${t.type}')" style="border:1px solid ${t.isCustom ? 'var(--gold)' : '#e8e0d2'};border-radius:6px;padding:18px;cursor:pointer;background:${t.isCustom ? '#fdf6e3' : '#fff'};transition:border-color .15s,box-shadow .15s;" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow=''">
+        <div style="font-size:22px;margin-bottom:8px;">${icon}</div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px;">${t.name}</div>
+        <div style="font-size:12px;color:var(--mid);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.subject}</div>
+        ${updated}
+        <div style="margin-top:12px;font-size:12px;font-weight:700;color:var(--gold-dark);">Edit →</div>
+      </div>
+    `;
+  }).join('');
+}
+window.loadTemplates = loadTemplates;
+
+async function openTemplateEditor(type) {
+  tplCurrentType = type;
+  const data = await apiFetch(`/admin/email-templates/${type}`, { headers: apiHeaders() });
+  if (!data.success) { showToast('Failed to load template', 'err'); return; }
+  const t = data.template;
+
+  document.getElementById('tplModalTitle').textContent = `Edit — ${t.name}`;
+  document.getElementById('tplSubject').value  = t.subject;
+  document.getElementById('tplBody').value     = t.body;
+  document.getElementById('tplVarList').textContent = t.variables.map(v => `{{${v}}}`).join('  ');
+  document.getElementById('tplPreview').style.display = 'none';
+  document.getElementById('tplMsg').style.display     = 'none';
+
+  const resetBtn = document.getElementById('tplResetBtn');
+  resetBtn.style.display = t.isCustom ? '' : 'none';
+
+  document.getElementById('tplModal').classList.add('open');
+}
+window.openTemplateEditor = openTemplateEditor;
+
+function previewTemplate() {
+  const body    = document.getElementById('tplBody').value;
+  const subject = document.getElementById('tplSubject').value;
+  const fullHtml = `
+    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#fffdf7;border:1px solid #e8dfc8;">
+      <div style="background:#c9a227;padding:20px 24px;">
+        <h1 style="margin:0;font-size:20px;color:#fff;letter-spacing:.5px;">VibrantPetals</h1>
+      </div>
+      <div style="padding:24px;color:#3a3a3a;line-height:1.6;">${body}</div>
+      <div style="padding:16px 24px;background:#f5efdc;font-size:12px;color:#7a7259;">
+        Nivas Vibrant Petals · 1/20 Lonhro Blvd, Cranbourne West VIC 3977 · nivafoodsintl@gmail.com
+      </div>
+    </div>
+  `;
+  const frame = document.getElementById('tplPreviewFrame');
+  frame.srcdoc = `<!DOCTYPE html><html><body style="margin:10px;background:#f4f1eb;">${fullHtml}</body></html>`;
+  document.getElementById('tplPreview').style.display = '';
+}
+window.previewTemplate = previewTemplate;
+
+function showTplMsg(text, type) {
+  const el = document.getElementById('tplMsg');
+  el.style.display   = '';
+  el.style.background = type === 'ok' ? '#e8f5e9' : '#fce4e4';
+  el.style.color      = type === 'ok' ? '#2e7d32' : '#c62828';
+  el.style.border     = type === 'ok' ? '1px solid #c8e6c9' : '1px solid #ffcdd2';
+  el.textContent = text;
+}
+
+async function saveTemplate() {
+  const subject = document.getElementById('tplSubject').value.trim();
+  const body    = document.getElementById('tplBody').value.trim();
+  if (!subject) { showTplMsg('Subject line is required.', 'err'); return; }
+  if (!body)    { showTplMsg('Body HTML is required.', 'err'); return; }
+
+  const data = await apiFetch(`/admin/email-templates/${tplCurrentType}`, {
+    method: 'PUT',
+    headers: apiHeaders(),
+    body: JSON.stringify({ subject, body }),
+  });
+
+  if (data.success) {
+    showTplMsg('Template saved successfully!', 'ok');
+    document.getElementById('tplResetBtn').style.display = '';
+    setTimeout(() => { closeModal('tplModal'); loadTemplates(); }, 1200);
+    showToast('Template saved ✓');
+  } else {
+    showTplMsg(data.message || 'Failed to save template.', 'err');
+  }
+}
+window.saveTemplate = saveTemplate;
+
+async function resetTemplate() {
+  if (!confirm('Reset this template to the original default? Your customisation will be permanently deleted.')) return;
+  const data = await apiFetch(`/admin/email-templates/${tplCurrentType}`, {
+    method: 'DELETE',
+    headers: apiHeaders(),
+  });
+  if (data.success) {
+    showToast('Template reset to default');
+    closeModal('tplModal');
+    loadTemplates();
+  } else {
+    showTplMsg(data.message || 'Failed to reset.', 'err');
+  }
+}
+window.resetTemplate = resetTemplate;
 
 async function exportCoupons() {
   showToast('Preparing coupons export…');
