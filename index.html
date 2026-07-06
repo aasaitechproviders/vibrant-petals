@@ -962,6 +962,11 @@
         </li>
         <li><a href="category.html?cat=loose-flowers">Loose Flowers</a></li>
         <li><a href="category.html?cat=leaves">Leaves</a></li>
+        <!-- Others dropdown — hidden until extra categories exist -->
+        <li class="dropdown" id="othersNavItem" style="display:none;">
+          <a href="category.html?cat=all">Others <span class="dropdown-arrow">▾</span></a>
+          <div class="dropdown-menu" id="othersDropdownMenu"></div>
+        </li>
       </ul>
     </nav>
 
@@ -1016,6 +1021,13 @@
       </li>
       <li><a href="category.html?cat=loose-flowers">Loose Flowers</a></li>
       <li><a href="category.html?cat=leaves">Leaves</a></li>
+      <!-- Others sub-menu — hidden until extra categories exist -->
+      <li id="othersMobileItem" style="display:none;">
+        <button onclick="toggleMobileSub('othersSub',this)">
+          Others <span class="mobile-nav-arrow" id="othersArrow">▾</span>
+        </button>
+        <div class="mobile-nav-sub" id="othersSub"></div>
+      </li>
     </ul>
   </div>
 </div>
@@ -1780,7 +1792,41 @@ async function loadCategoryCards(){
   renderCatCarousel();
 }
 
+// ── OTHERS NAV DROPDOWN (dynamic extra categories) ────────
+const INDEX_KNOWN_SLUGS = new Set(['pooja-garlands','special-occasional-garlands','loose-flowers','strings','leaves']);
+
+async function loadOthersNav(){
+  try {
+    const data = await apiFetch('/products/categories');
+    const extras = (data.categories||[]).filter(c =>
+      c.slug !== 'all' && c.name !== 'All' && !INDEX_KNOWN_SLUGS.has(c.slug)
+    );
+    if(!extras.length) return; // nothing extra — keep Others hidden
+
+    // Desktop dropdown
+    const navItem = document.getElementById('othersNavItem');
+    const menu    = document.getElementById('othersDropdownMenu');
+    if(navItem && menu){
+      menu.innerHTML = extras.map(c =>
+        `<a href="category.html?cat=${c.slug}">${c.name}</a>`
+      ).join('');
+      navItem.style.display = '';
+    }
+
+    // Mobile sub-menu
+    const mobItem = document.getElementById('othersMobileItem');
+    const mobSub  = document.getElementById('othersSub');
+    if(mobItem && mobSub){
+      mobSub.innerHTML = extras.map(c =>
+        `<a href="category.html?cat=${c.slug}">${c.name}</a>`
+      ).join('');
+      mobItem.style.display = '';
+    }
+  } catch(e){}
+}
+
 loadCart();
+loadOthersNav();
 loadCategoryCards();
 loadSiteImages();
 
