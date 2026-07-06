@@ -988,7 +988,10 @@ async function loadPickupOrders(page=1) {
         <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
         <td><b>$${(o.total||0).toFixed(2)}</b></td>
-        <td>${btn}</td>
+        <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <span class="order-detail-btn" onclick="viewOrder('${o._id}')">Details</span>
+          ${btn}
+        </td>
       </tr>`;
     }).join('')}</tbody>
   </table>`;
