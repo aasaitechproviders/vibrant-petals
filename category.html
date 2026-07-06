@@ -356,8 +356,8 @@ async function loadCategories(){
   const data=await apiFetch('/products/categories').catch(()=>({categories:[]}));
   let cats=(data.categories||[]).filter(c=>c.slug!=='all'&&c.name!=='All');
   cats.forEach(c=>{catNameMap[c.slug]=c.name;});
-  // Custom display order
-  const CAT_ORDER=['loose-flowers','strings','leaves','pooja-garlands','special-occasional-garlands'];
+  // Custom display order: Garlands, Loose Flowers, Strings, Leaves, Others
+  const CAT_ORDER=['pooja-garlands','special-occasional-garlands','loose-flowers','strings','leaves'];
   cats.sort((a,b)=>{
     const ai=CAT_ORDER.indexOf(a.slug);
     const bi=CAT_ORDER.indexOf(b.slug);
