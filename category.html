@@ -208,7 +208,7 @@
       <img src="logo.png" alt="Vibrant Petals Logo" /><span class="nav-logo-text"> Vibrant Petals</span>
     </a>
     <nav>
-      <ul id="mainNavList">
+      <ul>
         <li><a href="index.html">Home</a></li>
         <li><a href="category.html?cat=strings" id="navStrings">Strings</a></li>
         <li class="dropdown">
@@ -220,7 +220,11 @@
         </li>
         <li><a href="category.html?cat=loose-flowers" id="navLoose">Loose Flowers</a></li>
         <li><a href="category.html?cat=leaves" id="navLeaves">Leaves</a></li>
-        <!-- Extra categories injected dynamically -->
+        <!-- Others dropdown — hidden until extra categories exist -->
+        <li class="dropdown" id="othersNavItem" style="display:none;">
+          <a href="category.html?cat=all">Others <span>▾</span></a>
+          <div class="dropdown-menu" id="othersDropdownMenu"></div>
+        </li>
       </ul>
     </nav>
     <div class="nav-icons">
@@ -240,7 +244,7 @@
   <div class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
   <div class="mobile-nav-drawer">
     <div class="mobile-nav-head"><span>🌸 Vibrant Petals</span><button class="mobile-nav-close" onclick="closeMobileNav()">✕</button></div>
-    <ul id="mobileNavList">
+    <ul>
       <li><a href="index.html">Home</a></li>
       <li><a href="category.html?cat=strings">Strings</a></li>
       <li>
@@ -252,7 +256,13 @@
       </li>
       <li><a href="category.html?cat=loose-flowers">Loose Flowers</a></li>
       <li><a href="category.html?cat=leaves">Leaves</a></li>
-      <!-- Extra categories injected dynamically -->
+      <!-- Others sub-menu — hidden until extra categories exist -->
+      <li id="othersMobileItem" style="display:none;">
+        <button onclick="toggleMobileSub('othersSub',this)">
+          Others <span class="mobile-nav-arrow" id="othersArrow">▾</span>
+        </button>
+        <div class="mobile-nav-sub" id="othersSub"></div>
+      </li>
     </ul>
   </div>
 </div>
@@ -374,24 +384,31 @@ async function loadCategories(){
   // Sidebar — shows all categories
   document.getElementById('catList').innerHTML=cats.map(c=>`<li><a href="category.html?cat=${c.slug}" ${c.slug===currentCat?'class="active"':''}>${c.name} <span>${c.count}</span></a></li>`).join('');
 
-  // Top nav — inject any admin-added categories not already hardcoded
+  // Top nav — populate Others dropdown with any admin-added extra categories
   const extraCats = cats.filter(c => !NAV_KNOWN_SLUGS.has(c.slug));
   if(extraCats.length){
-    const mainNav   = document.getElementById('mainNavList');
-    const mobileNav = document.getElementById('mobileNavList');
-    extraCats.forEach(c => {
-      const isActive = c.slug === currentCat;
-      if(mainNav){
-        const li = document.createElement('li');
-        li.innerHTML = `<a href="category.html?cat=${c.slug}"${isActive?' class="active"':''}>${c.name}</a>`;
-        mainNav.appendChild(li);
+    // Desktop Others dropdown
+    const navItem = document.getElementById('othersNavItem');
+    const menu    = document.getElementById('othersDropdownMenu');
+    if(navItem && menu){
+      menu.innerHTML = extraCats.map(c =>
+        `<a href="category.html?cat=${c.slug}"${c.slug===currentCat?' style="color:var(--gold);"':''}>${c.name}</a>`
+      ).join('');
+      navItem.style.display = '';
+      // If current cat is one of the extras, highlight Others in nav
+      if(extraCats.some(c => c.slug === currentCat)){
+        navItem.querySelector('a').style.color = 'var(--gold)';
       }
-      if(mobileNav){
-        const li = document.createElement('li');
-        li.innerHTML = `<a href="category.html?cat=${c.slug}">${c.name}</a>`;
-        mobileNav.appendChild(li);
-      }
-    });
+    }
+    // Mobile Others sub-menu
+    const mobItem = document.getElementById('othersMobileItem');
+    const mobSub  = document.getElementById('othersSub');
+    if(mobItem && mobSub){
+      mobSub.innerHTML = extraCats.map(c =>
+        `<a href="category.html?cat=${c.slug}">${c.name}</a>`
+      ).join('');
+      mobItem.style.display = '';
+    }
   }
 }
 
