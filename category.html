@@ -220,11 +220,6 @@
         </li>
         <li><a href="category.html?cat=loose-flowers" id="navLoose">Loose Flowers</a></li>
         <li><a href="category.html?cat=leaves" id="navLeaves">Leaves</a></li>
-        <!-- Others dropdown — hidden until extra categories exist -->
-        <li class="dropdown" id="othersNavItem" style="display:none;">
-          <a href="category.html?cat=all">Others <span>▾</span></a>
-          <div class="dropdown-menu" id="othersDropdownMenu"></div>
-        </li>
       </ul>
     </nav>
     <div class="nav-icons">
@@ -256,13 +251,6 @@
       </li>
       <li><a href="category.html?cat=loose-flowers">Loose Flowers</a></li>
       <li><a href="category.html?cat=leaves">Leaves</a></li>
-      <!-- Others sub-menu — hidden until extra categories exist -->
-      <li id="othersMobileItem" style="display:none;">
-        <button onclick="toggleMobileSub('othersSub',this)">
-          Others <span class="mobile-nav-arrow" id="othersArrow">▾</span>
-        </button>
-        <div class="mobile-nav-sub" id="othersSub"></div>
-      </li>
     </ul>
   </div>
 </div>
@@ -364,15 +352,12 @@ const LIMIT=12,catNameMap={};
 const navMap={strings:'navStrings','loose-flowers':'navLoose',leaves:'navLeaves','pooja-garlands':'navGarlands','special-occasional-garlands':'navGarlands'};
 if(navMap[currentCat]) document.getElementById(navMap[currentCat])?.classList.add('active');
 
-// Slugs hardcoded in top nav — don't duplicate dynamically
-const NAV_KNOWN_SLUGS = new Set(['pooja-garlands','special-occasional-garlands','loose-flowers','strings','leaves']);
-
 async function loadCategories(){
   const data=await apiFetch('/products/categories').catch(()=>({categories:[]}));
   let cats=(data.categories||[]).filter(c=>c.slug!=='all'&&c.name!=='All');
   cats.forEach(c=>{catNameMap[c.slug]=c.name;});
-  // Custom display order: Garlands, Loose Flowers, Strings, Leaves, Others
-  const CAT_ORDER=['pooja-garlands','special-occasional-garlands','loose-flowers','strings','leaves'];
+  // Custom display order
+  const CAT_ORDER=['loose-flowers','strings','leaves','pooja-garlands','special-occasional-garlands'];
   cats.sort((a,b)=>{
     const ai=CAT_ORDER.indexOf(a.slug);
     const bi=CAT_ORDER.indexOf(b.slug);
@@ -380,36 +365,7 @@ async function loadCategories(){
     const bn=bi===-1?CAT_ORDER.length:bi;
     return an-bn;
   });
-
-  // Sidebar — shows all categories
   document.getElementById('catList').innerHTML=cats.map(c=>`<li><a href="category.html?cat=${c.slug}" ${c.slug===currentCat?'class="active"':''}>${c.name} <span>${c.count}</span></a></li>`).join('');
-
-  // Top nav — populate Others dropdown with any admin-added extra categories
-  const extraCats = cats.filter(c => !NAV_KNOWN_SLUGS.has(c.slug));
-  if(extraCats.length){
-    // Desktop Others dropdown
-    const navItem = document.getElementById('othersNavItem');
-    const menu    = document.getElementById('othersDropdownMenu');
-    if(navItem && menu){
-      menu.innerHTML = extraCats.map(c =>
-        `<a href="category.html?cat=${c.slug}"${c.slug===currentCat?' style="color:var(--gold);"':''}>${c.name}</a>`
-      ).join('');
-      navItem.style.display = '';
-      // If current cat is one of the extras, highlight Others in nav
-      if(extraCats.some(c => c.slug === currentCat)){
-        navItem.querySelector('a').style.color = 'var(--gold)';
-      }
-    }
-    // Mobile Others sub-menu
-    const mobItem = document.getElementById('othersMobileItem');
-    const mobSub  = document.getElementById('othersSub');
-    if(mobItem && mobSub){
-      mobSub.innerHTML = extraCats.map(c =>
-        `<a href="category.html?cat=${c.slug}">${c.name}</a>`
-      ).join('');
-      mobItem.style.display = '';
-    }
-  }
 }
 
 function showSkeletons(){
@@ -626,7 +582,13 @@ async function loadWishCount(){
 function buildAcctDrop(){
   const drop=document.getElementById('acctDrop');if(!drop)return;
   if(token){
-    drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Account</a><button class="drop-logout" onclick="localStorage.removeItem('vp_token');location.reload()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</button>`;
+    const _role=(()=>{try{return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')))?.role||'';}catch(e){return '';}})();
+    const isAdmin=_role==='Administrator';
+    drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Account</a>
+      ${isAdmin
+        ?`<a href="admin.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Admin Panel</a>`
+        :`<a href="account.html?panel=wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Wishlist</a>`}
+      <button class="drop-logout" onclick="localStorage.removeItem('vp_token');location.reload()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</button>`;
     document.getElementById('loginBtn').onclick=()=>{location.href='account.html';};
   }else{
     drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Sign In</a><a href="signup.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Register</a>`;
