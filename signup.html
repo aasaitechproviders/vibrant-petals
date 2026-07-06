@@ -476,10 +476,8 @@
             <input class="form-input" id="cLastName" placeholder="Sharma" type="text" autocomplete="family-name"/>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Username <span class="req">*</span></label>
-          <input class="form-input" id="cUsername" placeholder="priya_sharma" type="text" autocomplete="username"/>
-        </div>
+        <!-- username auto-generated from email -->
+        <input type="hidden" id="cUsername"/>
         <div class="form-group">
           <label class="form-label">Email Address <span class="req">*</span></label>
           <input class="form-input" id="cEmail" placeholder="priya@email.com" type="email" autocomplete="email"/>
@@ -539,10 +537,8 @@
             <label class="form-label">Full Name (as used publicly) <span class="req">*</span></label>
             <input class="form-input" id="dFullName" placeholder="Priya Sharma" type="text" autocomplete="name"/>
           </div>
-          <div class="form-group">
-            <label class="form-label">Username <span class="req">*</span></label>
-            <input class="form-input" id="dUsername" placeholder="priya_flowers" type="text" autocomplete="username"/>
-          </div>
+          <!-- username auto-generated from email -->
+          <input type="hidden" id="dUsername"/>
           <div class="form-group">
             <label class="form-label">Email Address <span class="req">*</span></label>
             <input class="form-input" id="dEmail" placeholder="priya@email.com" type="email" autocomplete="email"/>
@@ -769,15 +765,11 @@
             <input class="form-input" id="oLastName" placeholder="Sharma" type="text" autocomplete="family-name"/>
           </div>
         </div>
-        <div class="form-group half-row">
-          <div>
-            <label class="form-label">Username <span class="req">*</span></label>
-            <input class="form-input" id="oUsername" placeholder="tarneit_flowers" type="text" autocomplete="username"/>
-          </div>
-          <div>
-            <label class="form-label">Mobile / WhatsApp <span class="req">*</span></label>
-            <input class="form-input" id="oMobile" placeholder="+61 4XX XXX XXX" type="tel"/>
-          </div>
+        <!-- username auto-generated from email -->
+        <input type="hidden" id="oUsername"/>
+        <div class="form-group">
+          <label class="form-label">Mobile / WhatsApp <span class="req">*</span></label>
+          <input class="form-input" id="oMobile" placeholder="+61 4XX XXX XXX" type="tel"/>
         </div>
         <div class="form-group">
           <label class="form-label">Email Address <span class="req">*</span></label>
@@ -1038,6 +1030,19 @@ function showMsg(id, text, type) {
 }
 function hideMsg(id) { const el = document.getElementById(id); el.style.display = 'none'; }
 
+// ── USERNAME AUTO-GENERATION ───────────────────────────────────────────────────
+// Generates a username from the email prefix + random 4-digit suffix
+// e.g. priya@email.com → priya_4821
+function generateUsername(email) {
+  const prefix = (email || '').split('@')[0].toLowerCase()
+    .replace(/[^a-z0-9]/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '')
+    .slice(0, 16);
+  const suffix = Math.floor(1000 + Math.random() * 9000);
+  return (prefix || 'user') + '_' + suffix;
+}
+
 // ── OTP VERIFICATION (shared across customer / dealer / retail signup) ─────────
 let pendingReg = { type: null, email: null, name: null, storeName: null };
 let resendCooldown = false;
@@ -1215,11 +1220,10 @@ function validateStep(step) {
   if (step === 1) {
     const fn = document.getElementById('dFirstName').value.trim();
     const ln = document.getElementById('dLastName').value.trim();
-    const un = document.getElementById('dUsername').value.trim();
     const em = document.getElementById('dEmail').value.trim();
     const pw = document.getElementById('dPassword').value;
     if (!fn || !ln) { showMsg('step1Msg', 'Please enter your first and last name.', 'err'); return false; }
-    if (!un) { showMsg('step1Msg', 'Please choose a username.', 'err'); return false; }
+    // username auto-generated — no validation needed
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!em || !emailRegex.test(em)) { showMsg('step1Msg', 'Please enter a valid email address.', 'err'); return false; }
     if (pw.length < 8) { showMsg('step1Msg', 'Password must be at least 8 characters.', 'err'); return false; }
@@ -1290,14 +1294,13 @@ window.goStep = goStep;
 async function submitCustomer() {
   const firstName        = document.getElementById('cFirstName').value.trim();
   const lastName         = document.getElementById('cLastName').value.trim();
-  const username         = document.getElementById('cUsername').value.trim();
   const email            = document.getElementById('cEmail').value.trim();
+  const username         = generateUsername(email);
   const password         = document.getElementById('cPassword').value;
   const preferredState   = document.getElementById('cState').value;
   const preferredTerritory = document.getElementById('cTerritory').value;
 
   if (!firstName || !lastName) { showMsg('custMsg', 'Please enter your first and last name.', 'err'); return; }
-  if (!username)               { showMsg('custMsg', 'Please choose a username.', 'err'); return; }
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !emailRegex.test(email)) { showMsg('custMsg', 'Please enter a valid email address.', 'err'); return; }
   if (password.length < 8)    { showMsg('custMsg', 'Password must be at least 8 characters.', 'err'); return; }
@@ -1363,7 +1366,7 @@ async function submitDealer() {
   };
 
   const body = {
-    username:  document.getElementById('dUsername').value.trim(),
+    username:  generateUsername(document.getElementById('dEmail').value.trim()),
     email:     document.getElementById('dEmail').value.trim(),
     password:  document.getElementById('dPassword').value,
     firstName: document.getElementById('dFirstName').value.trim(),
@@ -1445,7 +1448,8 @@ window.onOutletStateChange = onOutletStateChange;
 async function submitOutlet() {
   const firstName  = document.getElementById('oFirstName').value.trim();
   const lastName   = document.getElementById('oLastName').value.trim();
-  const username   = document.getElementById('oUsername').value.trim();
+  const email_raw  = document.getElementById('oEmail').value.trim();
+  const username   = generateUsername(email_raw);
   const mobile     = document.getElementById('oMobile').value.trim();
   const email      = document.getElementById('oEmail').value.trim();
   const password   = document.getElementById('oPassword').value;
@@ -1464,7 +1468,7 @@ async function submitOutlet() {
   msg.style.display = 'none';
 
   if (!firstName || !lastName)      { showMsg('outletMsg', 'Please enter your first and last name.', 'err'); return; }
-  if (!username)                     { showMsg('outletMsg', 'Please choose a username.', 'err'); return; }
+  // username auto-generated — no validation needed
   const outletEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !outletEmailRegex.test(email)){ showMsg('outletMsg', 'Please enter a valid email address.', 'err'); return; }
   if (password.length < 6)           { showMsg('outletMsg', 'Password must be at least 6 characters.', 'err'); return; }
