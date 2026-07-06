@@ -419,6 +419,7 @@
               <option value="">All Roles</option>
               <option value="Administrator">Administrator</option>
               <option value="Dealer">Dealer</option>
+              <option value="Retail">Retail</option>
               <option value="Customer">Customer</option>
             </select>
             <button class="btn-export btn-sm" onclick="exportUsers()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
@@ -3052,6 +3053,9 @@ function debounceUserSearch() { clearTimeout(userSearchTimer); userSearchTimer =
 async function loadUsers() {
   const search = document.getElementById('userSearch')?.value || '';
   const role = document.getElementById('userRoleFilter')?.value || '';
+  // Show loading state immediately
+  document.getElementById('usersBody').innerHTML =
+    '<tr><td colspan="6" style="padding:32px;text-align:center;"><div class="skeleton" style="height:18px;border-radius:4px;margin-bottom:10px;"></div><div class="skeleton" style="height:18px;border-radius:4px;width:70%;margin:0 auto;"></div></td></tr>';
   let url = `/admin/users?page=${userPage}&limit=${LIMIT}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
   if (role) url += `&role=${role}`;
@@ -3093,8 +3097,8 @@ async function loadUsers() {
 
 // ── DEALER APPROVAL MODAL ─────────────────────────────────────────────────────
 async function openDealerApprovalModal(uid) {
-  const data = await apiFetch(`/admin/users?page=1&limit=100`, { headers: apiHeaders() });
-  const user = (data.users || []).find(u => u._id === uid || u.id === uid);
+  const data = await apiFetch(`/admin/users/${uid}`, { headers: apiHeaders() });
+  const user = data.user;
   if (!user) { showToast('Failed to load dealer details', 'error'); return; }
   const di = user.dealerInfo || {};
   const pending = (user.pendingTerritories || []).map(t => t.name || t.slug).join(', ') || '—';
@@ -3200,25 +3204,29 @@ async function openUserDetailsModal(uid) {
       ].join(''))
     : '';
 
-  // Linked outlet (Retail)
+  // Linked outlet (Retail) — strip auto-appended " - VibrantPetals" from name for display
+  const cleanOutletName = (name) => (name || '').replace(/\s*[-–]\s*VibrantPetals$/i, '').trim();
+  const pickupBadge = (enabled) => enabled
+    ? '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;background:#d4edda;color:#155724;">&#10003; Pickup Enabled</span>'
+    : '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;background:#f8d7da;color:#721c24;">&#10007; Pickup Disabled</span>';
   const linkedOutletSection = linkedOutlet
     ? section('Linked Outlet', [
-        row('Name',            linkedOutlet.name || ''),
+        row('Name',            cleanOutletName(linkedOutlet.name)),
         row('Address',         linkedOutlet.address ? (linkedOutlet.address + ', ' + (linkedOutlet.suburb||'') + ', ' + (linkedOutlet.state||'')) : ''),
         row('Phone',           linkedOutlet.phone || ''),
         row('Hours',           linkedOutlet.hours || ''),
         row('Active',          linkedOutlet.isActive ? '&#10003; Yes' : '&#10007; No'),
         row('Approval Status', linkedOutlet.approvalStatus || ''),
-        row('Pickup Enabled',  linkedOutlet.pickupEnabled ? '&#10003; Yes' : '&#10007; No'),
+        row('Pickup',          pickupBadge(linkedOutlet.pickupEnabled)),
       ].join(''))
     : '';
 
-  // Dealer outlets
+  // Dealer outlets — strip auto-appended " - VibrantPetals" from names
   const dealerOutletsSection = dealerOutlets.length
     ? section('Dealer Outlets (' + dealerOutlets.length + ')',
         dealerOutlets.map(function(o) {
           return '<div style="font-size:13px;padding:8px 10px;background:#f9f6f1;border-radius:4px;margin-bottom:6px;">'
-            + '<b>' + (o.name||'') + '</b>'
+            + '<b>' + cleanOutletName(o.name) + '</b>'
             + ' <span style="font-size:11px;color:var(--mid);">(' + (o.approvalStatus||'') + ')</span><br/>'
             + (o.address||'') + ', ' + (o.suburb||'') + ' &middot; ' + (o.state||'') + '<br/>'
             + 'Territory: <span style="color:var(--gold);">' + (o.territorySlug||'—') + '</span>'
@@ -3268,7 +3276,6 @@ async function openUserDetailsModal(uid) {
     + section('Preferences', [
         row('Preferred State',      user.preferredState     || ''),
         row('Preferred Territory',  user.preferredTerritory || ''),
-        row('Linked Outlet ID',     user.linkedOutletId ? String(user.linkedOutletId) : ''),
       ].join(''))
 
     + terrSection
