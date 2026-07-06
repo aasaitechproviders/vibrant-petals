@@ -1207,8 +1207,8 @@ async function saveDealerTerritoryModal() {
   const suburb       = terrSel.options[terrSel.selectedIndex]?.text || territorySlug;
   const msg          = document.getElementById('dealerTerrMsg');
   msg.style.display  = 'none';
-  if (!name || !address || !state) {
-    msg.className = 'form-msg err'; msg.textContent = 'Name, address and state are required.'; msg.style.display = 'block'; return;
+  if (!state) {
+    msg.className = 'form-msg err'; msg.textContent = 'Please select a state.'; msg.style.display = 'block'; return;
   }
   if (!editId && !territorySlug) {
     msg.className = 'form-msg err'; msg.textContent = 'Please select a territory.'; msg.style.display = 'block'; return;
@@ -1219,7 +1219,9 @@ async function saveDealerTerritoryModal() {
   if (editId) {
     data = await apiFetch(`/dealer/outlets/${editId}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ name, phone, address, suburb, state, territorySlug, hours }) });
   } else {
-    data = await apiFetch('/dealer/territories', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ name, phone, address, suburb, state, territorySlug, hours }) });
+    // Use territory name as outlet name fallback if dealer didn't provide one
+    const outletName = name || (terrSel.options[terrSel.selectedIndex]?.text?.replace(/ \(.*\)$/, '') || territorySlug);
+    data = await apiFetch('/dealer/territories', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ name: outletName, phone, address, suburb, state, territorySlug, hours }) });
   }
   btn.disabled = false; btn.textContent = editId ? 'Submit Edit' : 'Submit Request';
   if (data.success) {
@@ -2199,18 +2201,14 @@ init();
 <div id="dealerTerritoryModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
   <div style="background:#fff;border-radius:6px;padding:32px;width:100%;max-width:540px;margin:16px;max-height:90vh;overflow-y:auto;position:relative;">
     <button onclick="closeDealerTerritoryModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--mid);">&#10005;</button>
-    <div id="dealerTerrModalTitle" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--dark);margin-bottom:20px;">REQUEST ADDITIONAL TERRITORY</div>
+    <div id="dealerTerrModalTitle" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--dark);margin-bottom:8px;">REQUEST ADDITIONAL TERRITORY</div>
+    <p style="font-size:13px;color:var(--mid);margin-bottom:20px;line-height:1.6;">Select the state and territory you wish to cover. Admin will review and activate your request.</p>
     <input type="hidden" id="dealerTerrModalId"/>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Store / Pickup Name *</label><input type="text" class="form-input" id="dealerTerrName" placeholder="e.g. VibrantPetals Tarneit Store"/></div>
-      <div class="form-group"><label class="form-label">Phone</label><input type="text" class="form-input" id="dealerTerrPhone" placeholder="+61 3 9000 0001"/></div>
-    </div>
-    <div class="form-row full">
-      <div class="form-group"><label class="form-label">Pickup Address *</label><input type="text" class="form-input" id="dealerTerrAddress" placeholder="Shop 4, Tarneit Central, 533 Derrimut Rd"/></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Trading Hours</label><input type="text" class="form-input" id="dealerTerrHours" placeholder="Mon&ndash;Sat 9am&ndash;6pm"/></div>
-    </div>
+    <!-- Hidden fields kept for API compatibility -->
+    <input type="hidden" id="dealerTerrName"/>
+    <input type="hidden" id="dealerTerrPhone"/>
+    <input type="hidden" id="dealerTerrAddress"/>
+    <input type="hidden" id="dealerTerrHours"/>
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">State *</label>
