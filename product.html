@@ -488,6 +488,7 @@ function renderProduct(p){
     return '<div style="margin-bottom:16px;margin-top:16px;">'
       + '<label style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:6px;">Select Option</label>'
       + '<select id="variantSelect" onchange="onVariantChange()" style="width:100%;max-width:320px;padding:11px 14px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;border-radius:4px;background:#fff;cursor:pointer;">'
+      + '<option value="">— Choose an option —</option>'
       + opts
       + '</select></div>';
   })();
@@ -517,13 +518,7 @@ function renderProduct(p){
       <div class="stock-pill ${inStock?'instock':'outofstock'}">
         ${inStock?'● In Stock':'● Out of Stock'}
       </div>
-      ${(()=>{
-        if (!p.shortDescription) return '';
-        const lines = p.shortDescription.split('\n').map(s => s.replace(/^[•\-\*]\s*/,'').trim()).filter(Boolean);
-        if (!lines.length) return '';
-        if (lines.length === 1) return `<p class="product-desc">${lines[0]}</p>`;
-        return `<ul class="product-desc" style="padding-left:18px;margin:10px 0;line-height:1.8;">${lines.map(l=>`<li style="list-style:disc;">${l}</li>`).join('')}</ul>`;
-      })()}
+      ${p.shortDescription?`<p class="product-desc">${p.shortDescription}</p>`:''}
 
       <div><strong>ORDERS SUBJECT TO PRE-BOOKING ONLY</strong></div>
       ${variantDropdownHTML}
@@ -561,20 +556,13 @@ function renderProduct(p){
   })();
   document.getElementById('tab-details').innerHTML=`
     <table style="width:100%;border-collapse:collapse;">
-      ${p.sku?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;width:140px;">SKU</td><td style="padding:10px 0;color:var(--mid)" id="tabSkuVal">${p.sku}</td></tr>`:''}
+      ${p.sku?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;width:140px;">SKU</td><td style="padding:10px 0;color:var(--mid)">${p.sku}</td></tr>`:''}
+      ${p.stockStatus?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;">Availability</td><td style="padding:10px 0;color:var(--mid)">${p.stockStatus==='instock'?'In Stock':'Out of Stock'}</td></tr>`:''}
+
       ${p.categories?.length?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;">Categories</td><td style="padding:10px 0;color:var(--mid)">${p.categories.join(', ')}</td></tr>`:''}
       ${p.tags?.length?`<tr><td style="padding:10px 0;font-weight:700;">Tags</td><td style="padding:10px 0;color:var(--mid)">${p.tags.join(', ')}</td></tr>`:''}
     </table>`;
   document.getElementById('productTabs').style.display='block';
-
-  // Auto-select first variant if product has variants
-  if (p.variants && p.variants.length) {
-    const sel = document.getElementById('variantSelect');
-    if (sel) {
-      sel.value = '0';
-      onVariantChange();
-    }
-  }
 }
 
 window.setImg=function(src,thumb){
@@ -611,14 +599,6 @@ window.onVariantChange = function() {
   else                                           vPrice = v.price;
   const priceEl = document.querySelector('.price-main');
   if (priceEl) priceEl.textContent = '$' + vPrice.toFixed(2);
-  // Update SKU in product meta (below title) and Additional Info tab
-  const displaySku = v.sku || productData.sku || '';
-  const skuEl = document.querySelector('.product-meta span:first-child');
-  if (skuEl && skuEl.innerHTML.includes('SKU')) {
-    skuEl.innerHTML = '<b>SKU:</b> ' + displaySku;
-  }
-  const tabSkuEl = document.getElementById('tabSkuVal');
-  if (tabSkuEl) tabSkuEl.textContent = displaySku;
   if (btn && productData.stockStatus !== 'outofstock') btn.disabled = false;
 };
 
@@ -727,7 +707,13 @@ document.getElementById('searchInput').addEventListener('input',function(){
 function buildAcctDrop(){
   const drop=document.getElementById('acctDrop');if(!drop)return;
   if(token){
-    drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Account</a><button class="drop-logout" onclick="doHeaderLogout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</button>`;
+    const _role=(()=>{try{return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')))?.role||'';}catch(e){return '';}})();
+    const isAdmin=_role==='Administrator';
+    drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Account</a>
+      ${isAdmin
+        ?`<a href="admin.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Admin Panel</a>`
+        :`<a href="account.html?panel=wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Wishlist</a>`}
+      <button class="drop-logout" onclick="localStorage.removeItem('vp_token');location.reload()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</button>`;
     document.getElementById('loginBtn').onclick=()=>{location.href='account.html';};
   }else{
     drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Sign In</a><a href="signup.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Register</a>`;
