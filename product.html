@@ -488,7 +488,6 @@ function renderProduct(p){
     return '<div style="margin-bottom:16px;margin-top:16px;">'
       + '<label style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:6px;">Select Option</label>'
       + '<select id="variantSelect" onchange="onVariantChange()" style="width:100%;max-width:320px;padding:11px 14px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;border-radius:4px;background:#fff;cursor:pointer;">'
-      + '<option value="">— Choose an option —</option>'
       + opts
       + '</select></div>';
   })();
@@ -562,11 +561,20 @@ function renderProduct(p){
   })();
   document.getElementById('tab-details').innerHTML=`
     <table style="width:100%;border-collapse:collapse;">
-      ${p.sku?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;width:140px;">SKU</td><td style="padding:10px 0;color:var(--mid)">${p.sku}</td></tr>`:''}
+      ${p.sku?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;width:140px;">SKU</td><td style="padding:10px 0;color:var(--mid)" id="tabSkuVal">${p.sku}</td></tr>`:''}
       ${p.categories?.length?`<tr style="border-bottom:1px solid #e8e0d2;"><td style="padding:10px 0;font-weight:700;">Categories</td><td style="padding:10px 0;color:var(--mid)">${p.categories.join(', ')}</td></tr>`:''}
       ${p.tags?.length?`<tr><td style="padding:10px 0;font-weight:700;">Tags</td><td style="padding:10px 0;color:var(--mid)">${p.tags.join(', ')}</td></tr>`:''}
     </table>`;
   document.getElementById('productTabs').style.display='block';
+
+  // Auto-select first variant if product has variants
+  if (p.variants && p.variants.length) {
+    const sel = document.getElementById('variantSelect');
+    if (sel) {
+      sel.value = '0';
+      onVariantChange();
+    }
+  }
 }
 
 window.setImg=function(src,thumb){
@@ -603,12 +611,14 @@ window.onVariantChange = function() {
   else                                           vPrice = v.price;
   const priceEl = document.querySelector('.price-main');
   if (priceEl) priceEl.textContent = '$' + vPrice.toFixed(2);
-  // Update SKU display to show variant SKU if it has one
+  // Update SKU in product meta (below title) and Additional Info tab
+  const displaySku = v.sku || productData.sku || '';
   const skuEl = document.querySelector('.product-meta span:first-child');
-  if (skuEl && skuEl.innerHTML.startsWith('<b>SKU:</b>')) {
-    const displaySku = v.sku || productData.sku || '';
-    skuEl.innerHTML = displaySku ? '<b>SKU:</b> ' + displaySku : '<b>SKU:</b> ' + (productData.sku || '');
+  if (skuEl && skuEl.innerHTML.includes('SKU')) {
+    skuEl.innerHTML = '<b>SKU:</b> ' + displaySku;
   }
+  const tabSkuEl = document.getElementById('tabSkuVal');
+  if (tabSkuEl) tabSkuEl.textContent = displaySku;
   if (btn && productData.stockStatus !== 'outofstock') btn.disabled = false;
 };
 
