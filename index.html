@@ -218,23 +218,46 @@
       font-size: 18px; color: var(--mid);
       line-height: 1.7;
     }
-    .cat-grid-wrap {
+    .cat-carousel-wrap {
       max-width: 1280px;
       margin: 0 auto;
       padding: 0 32px;
+      position: relative;
     }
+    .cat-arrow {
+      position: absolute;
+      top: 50%; transform: translateY(calc(-50% - 16px));
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid #e8e0d2;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: var(--dark);
+      cursor: pointer;
+      z-index: 10;
+      transition: background .2s, color .2s, box-shadow .2s, opacity .2s;
+      opacity: 0; pointer-events: none;
+    }
+    .cat-arrow.visible { opacity: 1; pointer-events: all; }
+    .cat-arrow:hover { background: var(--gold); color: #fff; border-color: var(--gold); box-shadow: 0 6px 20px rgba(155,139,90,.3); }
+    .cat-arrow-prev { left: -6px; }
+    .cat-arrow-next { right: -6px; }
+    .cat-slider-outer { overflow: hidden; }
     .cat-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      display: flex;
       gap: 14px;
+      transition: transform .4s cubic-bezier(.4,0,.2,1);
+      will-change: transform;
     }
     .cat-card {
       position: relative; overflow: hidden;
-      display: block;
+      flex: 0 0 calc((100% - 42px) / 4);
       height: 420px; cursor: pointer;
       border-radius: 10px;
       box-shadow: 0 2px 12px rgba(0,0,0,.07);
       transition: box-shadow .3s, transform .3s;
+      text-decoration: none; display: block;
     }
     .cat-card:hover {
       box-shadow: 0 10px 36px rgba(0,0,0,.14);
@@ -255,6 +278,16 @@
       padding: 15px 20px;
       font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700;
     }
+    .cat-dots {
+      display: flex; justify-content: center; gap: 8px;
+      margin-top: 22px;
+    }
+    .cat-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #d4c9a8; border: none; padding: 0; cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+    .cat-dot.active { background: var(--gold); transform: scale(1.25); }
 
     /* ── FEATURED PRODUCTS ──────────────────────────────────── */
     .featured-section {
@@ -844,9 +877,8 @@
     }
     @media(max-width:900px){
       .nav-inner { padding: 0 16px; }
-      .cat-grid { grid-template-columns: repeat(2,1fr); gap: 12px; }
-      .cat-grid-wrap { padding: 0 16px; }
-      .cat-card { height: 280px; }
+      .cat-card { flex: 0 0 calc((100% - 14px) / 2); height: 280px; }
+      .cat-carousel-wrap { padding: 0 16px; }
       .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
       footer { padding: 40px 16px 0; }
       .delivery-banner { grid-template-columns: 1fr; min-height: auto; }
@@ -869,8 +901,8 @@
       .featured-section { padding: 40px 0 50px; }
     }
     @media(max-width:600px){
-      .cat-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-      .cat-card { height: 180px; }
+      .cat-card { flex: 0 0 calc((100% - 8px) / 2); height: 180px; }
+      .cat-grid { gap: 8px; }
       .cat-card-label { font-size: 11px; padding: 10px 12px; }
       .hero-wrap { padding: 10px 10px 0; }
       .hero { height: 240px; min-height: 180px; }
@@ -1008,14 +1040,19 @@
     <h2 class="cat-heading">Exquisite Floral Creations</h2>
     <p>Explore the breathtaking beauty of nature through our handpicked selection of the world's most exquisite flowers. From the timeless allure of roses to the vibrant hues of lilies and the delicate charm of orchids, our collection showcases nature's finest creations.</p>
   </div>
-  <div class="cat-grid-wrap">
-    <div class="cat-grid">
-      <!-- Populated dynamically from /category-images API -->
-      <div class="cat-card skeleton" style="height:460px;border-radius:6px;"></div>
-      <div class="cat-card skeleton" style="height:460px;border-radius:6px;"></div>
-      <div class="cat-card skeleton" style="height:460px;border-radius:6px;"></div>
-      <div class="cat-card skeleton" style="height:460px;border-radius:6px;"></div>
+  <div class="cat-carousel-wrap">
+    <button class="cat-arrow cat-arrow-prev" id="catPrev" aria-label="Previous categories">&#8592;</button>
+    <div class="cat-slider-outer">
+      <div class="cat-grid" id="catGrid">
+        <!-- Populated dynamically -->
+        <div class="cat-card skeleton" style="height:420px;border-radius:10px;flex:0 0 calc((100% - 42px)/4);"></div>
+        <div class="cat-card skeleton" style="height:420px;border-radius:10px;flex:0 0 calc((100% - 42px)/4);"></div>
+        <div class="cat-card skeleton" style="height:420px;border-radius:10px;flex:0 0 calc((100% - 42px)/4);"></div>
+        <div class="cat-card skeleton" style="height:420px;border-radius:10px;flex:0 0 calc((100% - 42px)/4);"></div>
+      </div>
     </div>
+    <button class="cat-arrow cat-arrow-next" id="catNext" aria-label="Next categories">&#8594;</button>
+    <div class="cat-dots" id="catDots"></div>
   </div>
 </section>
 
@@ -1622,48 +1659,125 @@ async function loadSiteImages(){
 
 // ── INIT ───────────────────────────────────────────────────
 
-// Fallback category images (used if API has no data yet)
-// Exactly 4 fallbacks matching original site categories (no special-occasional here)
+// ── CATEGORY CAROUSEL ─────────────────────────────────────
+// Preferred order: known categories first, then any admin-added extras
+const CAT_PREFERRED_ORDER = ['pooja-garlands','special-occasional-garlands','loose-flowers','strings','leaves'];
+
+// Fallback images for the core known categories
 const FALLBACK_CAT_IMAGES = {
-  'pooja-garlands': { name:'Garlands',      image:'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=600&q=80' },
-  'loose-flowers':  { name:'Loose Flowers', image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=600&q=80' },
-  'strings':        { name:'Strings',       image:'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80' },
-  'leaves':         { name:'Leaves',        image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80' },
+  'pooja-garlands':           { name:'Garlands',                    image:'https://images.unsplash.com/photo-1592992753897-631e21d9f861?w=600&q=80' },
+  'special-occasional-garlands':{ name:'Special Occasional Garlands', image:'https://images.unsplash.com/photo-1607897827524-0b17bf0ca7a0?w=600&q=80' },
+  'loose-flowers':             { name:'Loose Flowers',               image:'https://images.unsplash.com/photo-1490750967868-88df5691cc4f?w=600&q=80' },
+  'strings':                   { name:'Strings',                     image:'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80' },
+  'leaves':                    { name:'Leaves',                      image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80' },
 };
-// Fixed 4-item order — never expands to show more (matches original homepage)
-const CAT_DISPLAY_ORDER = ['pooja-garlands','loose-flowers','strings','leaves'];
 
-async function loadCategoryCards(){
-  const catGrid = document.querySelector('.cat-grid');
-  if(!catGrid) return;
+let _catCarouselPage = 0;
+let _catCarouselItems = [];
+let _catCarouselPerPage = 4;
 
-  // Start with fallbacks, then overlay API images (only for the 4 known slugs)
-  const map = { ...FALLBACK_CAT_IMAGES };
-  try {
-    const data = await apiFetch('/category-images');
-    if(data.categoryImages){
-      // Only apply API images for the 4 display slugs — ignore any extras
-      CAT_DISPLAY_ORDER.forEach(slug => {
-        if(data.categoryImages[slug]) map[slug] = data.categoryImages[slug];
-      });
-    }
-  } catch(e){}
+function getCatPerPage(){
+  return window.innerWidth <= 600 ? 2 : window.innerWidth <= 900 ? 2 : 4;
+}
 
-  // Always render EXACTLY 4 cards in fixed order
-  catGrid.innerHTML = CAT_DISPLAY_ORDER.map(slug => {
-    const cat = map[slug];
-    if(!cat) return '';
+function renderCatCarousel(){
+  const grid = document.getElementById('catGrid');
+  const dotsEl = document.getElementById('catDots');
+  const prevBtn = document.getElementById('catPrev');
+  const nextBtn = document.getElementById('catNext');
+  if(!grid) return;
+
+  _catCarouselPerPage = getCatPerPage();
+  const items = _catCarouselItems;
+  const total = items.length;
+  const pages = Math.ceil(total / _catCarouselPerPage);
+  _catCarouselPage = Math.min(_catCarouselPage, pages - 1);
+
+  // Build cards
+  grid.innerHTML = items.map(({slug, cat}) => {
     const imgContent = cat.image
       ? `<img src="${cat.image}" alt="${cat.name}" loading="lazy"
-           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
          <div style="display:none;position:absolute;inset:0;background:var(--card-bg);align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--mid);">${cat.name}</div>`
       : `<div style="position:absolute;inset:0;background:var(--card-bg);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--mid);">${cat.name}</div>`;
-    return `<a href="category.html?cat=${slug}" class="cat-card">
-      ${imgContent}
-      <div class="cat-card-label">${cat.name}</div>
-    </a>`;
+    return `<a href="category.html?cat=${slug}" class="cat-card">${imgContent}<div class="cat-card-label">${cat.name}</div></a>`;
   }).join('');
+
+  // Slide to page
+  const cardW = grid.querySelector('.cat-card')?.offsetWidth || 0;
+  const gap = 14;
+  const offset = _catCarouselPage * _catCarouselPerPage * (cardW + gap);
+  grid.style.transform = `translateX(-${offset}px)`;
+
+  // Arrows
+  if(prevBtn) prevBtn.classList.toggle('visible', total > _catCarouselPerPage && _catCarouselPage > 0);
+  if(nextBtn) nextBtn.classList.toggle('visible', total > _catCarouselPerPage && _catCarouselPage < pages - 1);
+
+  // Dots
+  if(dotsEl){
+    if(pages <= 1){ dotsEl.innerHTML = ''; return; }
+    dotsEl.innerHTML = Array.from({length: pages}, (_,i) =>
+      `<button class="cat-dot${i===_catCarouselPage?' active':''}" onclick="goCatPage(${i})" aria-label="Page ${i+1}"></button>`
+    ).join('');
+  }
+}
+
+function goCatPage(page){
+  _catCarouselPage = page;
+  renderCatCarousel();
+}
+
+document.getElementById('catPrev')?.addEventListener('click', () => {
+  if(_catCarouselPage > 0){ _catCarouselPage--; renderCatCarousel(); }
+});
+document.getElementById('catNext')?.addEventListener('click', () => {
+  const pages = Math.ceil(_catCarouselItems.length / _catCarouselPerPage);
+  if(_catCarouselPage < pages - 1){ _catCarouselPage++; renderCatCarousel(); }
+});
+window.addEventListener('resize', () => {
+  _catCarouselPage = 0;
+  renderCatCarousel();
+});
+
+async function loadCategoryCards(){
+  // 1. Fetch all live product categories from API
+  let liveCategories = [];
+  try {
+    const data = await apiFetch('/products/categories');
+    liveCategories = (data.categories||[]).filter(c => c.slug!=='all' && c.name!=='All');
+  } catch(e){}
+
+  // 2. Fetch admin-uploaded category images
+  let catImagesMap = {};
+  try {
+    const data = await apiFetch('/category-images');
+    catImagesMap = data.categoryImages || {};
+  } catch(e){}
+
+  // 3. Build sorted list: preferred order first, then any extras
+  const seen = new Set();
+  const sorted = [];
+
+  CAT_PREFERRED_ORDER.forEach(slug => {
+    const live = liveCategories.find(c => c.slug === slug);
+    if(!live && !FALLBACK_CAT_IMAGES[slug]) return; // skip if no products & no fallback
+    seen.add(slug);
+    const name = live?.name || FALLBACK_CAT_IMAGES[slug]?.name || slug;
+    const image = catImagesMap[slug]?.image || FALLBACK_CAT_IMAGES[slug]?.image || '';
+    sorted.push({ slug, cat: { name, image } });
+  });
+
+  // Add any admin-created categories not in preferred list
+  liveCategories.forEach(c => {
+    if(seen.has(c.slug)) return;
+    seen.add(c.slug);
+    const image = catImagesMap[c.slug]?.image || '';
+    sorted.push({ slug: c.slug, cat: { name: c.name, image } });
+  });
+
+  _catCarouselItems = sorted;
+  _catCarouselPage = 0;
+  renderCatCarousel();
 }
 
 loadCart();
