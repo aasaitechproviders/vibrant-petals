@@ -1085,11 +1085,11 @@ async function submitOtp() {
   if (pendingReg.type === 'customer') {
     if (data.token) localStorage.setItem('vp_token', data.token);
     try { await apiFetch('/cart/merge', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ sessionId }) }); } catch (e) {}
-    showSuccess('customer', data.user?.username || pendingReg.name);
+    showSuccess('customer', pendingReg.name);
   } else if (pendingReg.type === 'dealer') {
-    showSuccess('dealer', data.user?.username || pendingReg.name);
+    showSuccess('dealer', pendingReg.name);
   } else {
-    showSuccess('outlet', data.user?.username || pendingReg.name, pendingReg.storeName);
+    showSuccess('outlet', pendingReg.name, pendingReg.storeName);
   }
 }
 window.submitOtp = submitOtp;
@@ -1324,7 +1324,7 @@ async function submitCustomer() {
     // fallback in case backend ever returns a direct token (shouldn't happen with OTP flow)
     localStorage.setItem('vp_token', data.token);
     try { await apiFetch('/cart/merge', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ sessionId }) }); } catch (e) {}
-    showSuccess('customer', data.user?.username || firstName);
+    showSuccess('customer', firstName);
   } else {
     showMsg('custMsg', data.message || 'Registration failed. Please try again.', 'err');
   }
@@ -1387,7 +1387,7 @@ async function submitDealer() {
   if (data.success && data.otpRequired) {
     showOtpScreen(data.email || body.email, 'dealer', body.firstName);
   } else if (data.success) {
-    showSuccess('dealer', data.user?.username || body.firstName);
+    showSuccess('dealer', body.firstName);
   } else {
     showMsg('step6Msg', data.message || 'Registration failed. Please try again.', 'err');
   }
@@ -1513,7 +1513,7 @@ async function submitOutlet() {
   if (data.success && data.otpRequired) {
     showOtpScreen(data.email || body.email, 'outlet', firstName, storeName);
   } else if (data.success) {
-    showSuccess('outlet', data.user?.username || firstName, storeName);
+    showSuccess('outlet', firstName, storeName);
   } else {
     showMsg('outletMsg', data.message || 'Registration failed. Please try again.', 'err');
   }
