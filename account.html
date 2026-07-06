@@ -262,23 +262,15 @@
 <div id="loginGate" style="padding:60px 32px 80px;display:none;">
   <div class="login-gate">
     <h2>Welcome Back</h2>
-    <p>Sign in to your account or create a new one to manage orders, wishlist and more.</p>
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('login',this)">Sign In</button>
-      <button class="tab-btn" onclick="switchTab('register',this)">Create Account</button>
-    </div>
+    <p>Sign in to your account to manage orders, wishlist and more.</p>
     <div class="tab-panel active" id="tab-login">
       <input type="email" class="gate-input" id="gLoginEmail" placeholder="Email address *"/>
       <input type="password" class="gate-input" id="gLoginPwd" placeholder="Password *"/>
       <button class="btn-gate" onclick="doLogin()">Sign In</button>
       <div class="gate-msg" id="gLoginMsg"></div>
-
-    </div>
-    <div class="tab-panel" id="tab-register">
-      <p style="font-size:13px;color:var(--mid);margin-bottom:14px;">To create a <b>Customer</b> or <b>Dealer</b> account, use our full signup page:</p>
-      <a href="signup.html" style="display:block;width:100%;padding:14px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-align:center;border-radius:4px;margin-bottom:10px;">Create Customer Account →</a>
-      <a href="signup.html?type=dealer" style="display:block;width:100%;padding:14px;background:var(--dark);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-align:center;border-radius:4px;">Apply as Dealer ⭐</a>
-      <p style="font-size:11px;color:var(--light);text-align:center;margin-top:14px;">Admin accounts are created by the system administrator.</p>
+      <p style="text-align:center;font-size:13px;color:var(--mid);margin-top:16px;">
+        Don't have an account? <a href="signup.html" style="color:var(--gold);font-weight:700;text-decoration:underline;">Sign up here</a>
+      </p>
     </div>
   </div>
 </div>
