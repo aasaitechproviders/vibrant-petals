@@ -18,9 +18,10 @@
     nav ul li a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--dark);padding-bottom:4px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
     nav ul li a:hover{color:var(--gold);border-bottom-color:var(--gold);}
     .dropdown{position:relative;}
-    .dropdown-menu{position:absolute;top:calc(100% + 18px);left:50%;transform:translateX(-50%) translateY(-6px);background:#fff;border:1px solid #e8e0d2;min-width:200px;box-shadow:0 8px 30px rgba(0,0,0,.08);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;}
+    .dropdown-menu{position:absolute;top:100%;left:50%;padding-top:18px;transform:translateX(-50%) translateY(-6px);background:transparent;border:none;min-width:200px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:300;}
+    .dropdown-menu::before{content:'';display:block;background:#fff;border:1px solid #e8e0d2;box-shadow:0 8px 30px rgba(0,0,0,.08);position:absolute;top:18px;left:0;right:0;bottom:0;z-index:-1;}
     .dropdown:hover .dropdown-menu{opacity:1;pointer-events:all;transform:translateX(-50%) translateY(0);}
-    .dropdown-menu a{display:block;padding:12px 20px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-bottom:1px solid #f0ebe0;}
+    .dropdown-menu a{display:block;padding:12px 20px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-bottom:1px solid #f0ebe0;position:relative;background:#fff;}
     .dropdown-menu a:last-child{border-bottom:none;}.dropdown-menu a:hover{background:var(--cream2);color:var(--gold);}
     .nav-icons{display:flex;align-items:center;gap:20px;}
     .nav-icon-btn{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--dark);transition:color .2s;}
@@ -747,7 +748,9 @@ async function loadMe(){
   const role=userData.role; // 'Customer' | 'Dealer' | 'Administrator'
 
   // Fill profile fields
-  document.getElementById('acctName').textContent=userData.username||userData.firstName||'Friend';
+  // Show firstName > displayName > username (avoids showing email as name when username=email)
+  const displayLabel = userData.firstName || userData.displayName || (userData.username && !userData.username.includes('@') ? userData.username : null) || 'Friend';
+  document.getElementById('acctName').textContent = displayLabel;
   document.getElementById('acctEmailDisp').textContent=userData.email;
   document.getElementById('acctAvatar').textContent=(userData.firstName||userData.username||'?')[0].toUpperCase();
   document.getElementById('profFirst').value=userData.firstName||'';
