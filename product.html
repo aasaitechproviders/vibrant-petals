@@ -518,7 +518,13 @@ function renderProduct(p){
       <div class="stock-pill ${inStock?'instock':'outofstock'}">
         ${inStock?'● In Stock':'● Out of Stock'}
       </div>
-      ${p.shortDescription?`<p class="product-desc">${p.shortDescription}</p>`:''}
+      ${(()=>{
+        if (!p.shortDescription) return '';
+        const lines = p.shortDescription.split('\n').map(s => s.replace(/^[•\-\*]\s*/,'').trim()).filter(Boolean);
+        if (!lines.length) return '';
+        if (lines.length === 1) return `<p class="product-desc">${lines[0]}</p>`;
+        return `<ul class="product-desc" style="padding-left:18px;margin:10px 0;line-height:1.8;">${lines.map(l=>`<li style="list-style:disc;">${l}</li>`).join('')}</ul>`;
+      })()}
 
       <div><strong>ORDERS SUBJECT TO PRE-BOOKING ONLY</strong></div>
       ${variantDropdownHTML}
@@ -597,6 +603,12 @@ window.onVariantChange = function() {
   else                                           vPrice = v.price;
   const priceEl = document.querySelector('.price-main');
   if (priceEl) priceEl.textContent = '$' + vPrice.toFixed(2);
+  // Update SKU display to show variant SKU if it has one
+  const skuEl = document.querySelector('.product-meta span:first-child');
+  if (skuEl && skuEl.innerHTML.startsWith('<b>SKU:</b>')) {
+    const displaySku = v.sku || productData.sku || '';
+    skuEl.innerHTML = displaySku ? '<b>SKU:</b> ' + displaySku : '<b>SKU:</b> ' + (productData.sku || '');
+  }
   if (btn && productData.stockStatus !== 'outofstock') btn.disabled = false;
 };
 
