@@ -294,6 +294,11 @@
     .msg { font-size: 13px; padding: 12px 16px; border-radius: var(--radius); margin-top: 14px; display: none; }
     .msg.ok { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; display: flex; align-items: center; gap: 8px; }
     .msg.err { background: #fce4e4; color: #c62828; border: 1px solid #ffcdd2; display: flex; align-items: center; gap: 8px; }
+    .otp-dot { width:10px;height:10px;border-radius:50%;background:#e0d8c8;transition:background .15s; }
+    .otp-dot.filled { background:var(--gold); }
+    .otp-dot.done { background:#27ae60; }
+    .email-ok { color:#27ae60; }
+    .email-err { color:#c62828; }
 
     /* Success screen */
     .success-screen { display: none; text-align: center; padding: 40px 0; }
@@ -423,7 +428,11 @@
       <p class="success-sub">We've sent a 6-digit verification code to <strong id="otpEmailDisplay"></strong>. Enter it below to complete your registration.</p>
       <div style="max-width:280px;margin:0 auto;">
         <input type="text" id="otpInput" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000"
-               style="width:100%;padding:14px;font-size:24px;text-align:center;letter-spacing:8px;border:1px solid var(--border,#ddd);border-radius:var(--radius);margin-bottom:14px;"/>
+               style="width:100%;padding:14px;font-size:24px;text-align:center;letter-spacing:8px;border:2px solid var(--border,#ddd);border-radius:var(--radius);margin-bottom:8px;transition:border-color .2s;outline:none;"/>
+        <div id="otpDots" style="display:flex;justify-content:center;gap:6px;margin-bottom:12px;">
+          <span class="otp-dot" id="od0"></span><span class="otp-dot" id="od1"></span><span class="otp-dot" id="od2"></span>
+          <span class="otp-dot" id="od3"></span><span class="otp-dot" id="od4"></span><span class="otp-dot" id="od5"></span>
+        </div>
         <div class="msg" id="otpMsg"></div>
         <button class="btn-primary" id="otpSubmitBtn" onclick="submitOtp()" style="width:100%;">Verify &amp; Continue →</button>
         <p style="font-size:13px;color:var(--mid);margin-top:16px;">
@@ -474,7 +483,8 @@
         </div>
         <div class="form-group">
           <label class="form-label">Email Address <span class="req">*</span></label>
-          <input class="form-input" id="cEmail" placeholder="priya@email.com" type="email"/>
+          <input class="form-input" id="cEmail" placeholder="priya@email.com" type="email" autocomplete="email"/>
+          <div id="cEmailFeedback" style="font-size:12px;margin-top:5px;display:none;"></div>
         </div>
         <div class="form-group">
           <label class="form-label">Password <span class="req">*</span></label>
@@ -536,7 +546,8 @@
           </div>
           <div class="form-group">
             <label class="form-label">Email Address <span class="req">*</span></label>
-            <input class="form-input" id="dEmail" placeholder="priya@email.com" type="email"/>
+            <input class="form-input" id="dEmail" placeholder="priya@email.com" type="email" autocomplete="email"/>
+          <div id="dEmailFeedback" style="font-size:12px;margin-top:5px;display:none;"></div>
           </div>
           <div class="form-group">
             <label class="form-label">Password <span class="req">*</span></label>
@@ -771,7 +782,8 @@
         </div>
         <div class="form-group">
           <label class="form-label">Email Address <span class="req">*</span></label>
-          <input class="form-input" id="oEmail" placeholder="store@email.com" type="email"/>
+          <input class="form-input" id="oEmail" placeholder="store@email.com" type="email" autocomplete="email"/>
+          <div id="oEmailFeedback" style="font-size:12px;margin-top:5px;display:none;"></div>
         </div>
         <div class="form-group">
           <label class="form-label">Password <span class="req">*</span></label>
@@ -1104,6 +1116,91 @@ async function resendOtp() {
   showMsg('otpMsg', data.message || (data.success ? 'A new code has been sent.' : 'Could not resend code.'), data.success ? 'ok' : 'err');
 }
 window.resendOtp = resendOtp;
+
+// ── REAL-TIME EMAIL VALIDATION ─────────────────────────────────────────────────
+let _emailCheckTimer = null;
+
+function setEmailFeedback(feedbackId, inputId, msg, isOk) {
+  const el = document.getElementById(feedbackId);
+  const inp = document.getElementById(inputId);
+  if (!el) return;
+  if (!msg) { el.style.display = 'none'; if(inp) inp.style.borderColor = ''; return; }
+  el.textContent = msg;
+  el.className = isOk ? 'email-ok' : 'email-err';
+  el.style.display = 'block';
+  if (inp) inp.style.borderColor = isOk ? '#27ae60' : '#c62828';
+}
+
+async function checkEmailAvailability(email, feedbackId, inputId) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email) { setEmailFeedback(feedbackId, inputId, '', true); return; }
+  if (!emailRegex.test(email)) {
+    setEmailFeedback(feedbackId, inputId, '✗ Please enter a valid email address.', false);
+    return;
+  }
+  setEmailFeedback(feedbackId, inputId, 'Checking…', true);
+  try {
+    const data = await apiFetch('/auth/check-email?email=' + encodeURIComponent(email));
+    if (data.available) {
+      setEmailFeedback(feedbackId, inputId, '✓ Email is available.', true);
+    } else if (data.reason === 'taken' || data.reason === 'pending') {
+      setEmailFeedback(feedbackId, inputId, '✗ This email is already registered. Please sign in or use a different email.', false);
+    } else {
+      setEmailFeedback(feedbackId, inputId, '✗ Please enter a valid email address.', false);
+    }
+  } catch(e) {
+    setEmailFeedback(feedbackId, inputId, '', true); // silently fail — still checked on submit
+  }
+}
+
+function wireEmailCheck(inputId, feedbackId) {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  // Check on blur (when user leaves the field)
+  el.addEventListener('blur', () => {
+    clearTimeout(_emailCheckTimer);
+    checkEmailAvailability(el.value.trim(), feedbackId, inputId);
+  });
+  // Also debounce on input (500ms after typing stops)
+  el.addEventListener('input', () => {
+    clearTimeout(_emailCheckTimer);
+    setEmailFeedback(feedbackId, inputId, '', true); // clear while typing
+    _emailCheckTimer = setTimeout(() => {
+      if (el.value.trim().length > 5) checkEmailAvailability(el.value.trim(), feedbackId, inputId);
+    }, 600);
+  });
+}
+
+// Wire up all email fields
+wireEmailCheck('cEmail', 'cEmailFeedback');
+wireEmailCheck('dEmail', 'dEmailFeedback');
+wireEmailCheck('oEmail', 'oEmailFeedback');
+
+// ── OTP AUTO-SUBMIT + PROGRESS DOTS ────────────────────────────────────────────
+document.getElementById('otpInput').addEventListener('input', function() {
+  // Only allow digits
+  this.value = this.value.replace(/\D/g, '');
+  const len = this.value.length;
+
+  // Update progress dots
+  for (let i = 0; i < 6; i++) {
+    const dot = document.getElementById('od' + i);
+    if (!dot) continue;
+    if (len === 6) dot.classList.add('done'), dot.classList.remove('filled');
+    else if (i < len) dot.classList.add('filled'), dot.classList.remove('done');
+    else dot.classList.remove('filled', 'done');
+  }
+
+  // Update input border colour
+  if (len === 6) {
+    this.style.borderColor = '#27ae60';
+    hideMsg('otpMsg');
+    // Auto-submit when 6th digit is entered
+    submitOtp();
+  } else {
+    this.style.borderColor = len > 0 ? 'var(--gold)' : '';
+  }
+});
 
 // ── VALIDATION ─────────────────────────────────────────────────────────────────
 function getRadio(name) {
