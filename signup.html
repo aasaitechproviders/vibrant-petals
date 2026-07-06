@@ -1139,21 +1139,21 @@ async function checkEmailAvailability(email, feedbackId, inputId) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email) { setEmailFeedback(feedbackId, inputId, '', true); return; }
   if (!emailRegex.test(email)) {
-    setEmailFeedback(feedbackId, inputId, '✗ Please enter a valid email address.', false);
+    setEmailFeedback(feedbackId, inputId, 'Please enter a valid email address.', false);
     return;
   }
-  setEmailFeedback(feedbackId, inputId, 'Checking…', true);
+  setEmailFeedback(feedbackId, inputId, '', true); // silent while checking
   try {
     const data = await apiFetch('/auth/check-email?email=' + encodeURIComponent(email));
     if (data.available) {
-      setEmailFeedback(feedbackId, inputId, '✓ Email is available.', true);
+      setEmailFeedback(feedbackId, inputId, '', true); // no message for available
     } else if (data.reason === 'taken' || data.reason === 'pending') {
-      setEmailFeedback(feedbackId, inputId, '✗ This email is already registered. Please sign in or use a different email.', false);
+      setEmailFeedback(feedbackId, inputId, 'This email is already registered with us, kindly choose a different email address.', false);
     } else {
-      setEmailFeedback(feedbackId, inputId, '✗ Please enter a valid email address.', false);
+      setEmailFeedback(feedbackId, inputId, '', true); // no message for other errors
     }
   } catch(e) {
-    setEmailFeedback(feedbackId, inputId, '', true); // silently fail — still checked on submit
+    setEmailFeedback(feedbackId, inputId, '', true); // silently fail
   }
 }
 
