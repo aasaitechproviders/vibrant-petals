@@ -386,15 +386,11 @@
         <div class="payment-options">
           <label class="payment-opt selected">
             <input type="radio" name="payment" value="card" checked/>
-            <div><div class="payment-opt-label">💳 Credit / Debit Card</div><div class="payment-opt-desc">Visa, MasterCard, AMEX — secure payment</div></div>
-          </label>
-          <label class="payment-opt">
-            <input type="radio" name="payment" value="bank_transfer"/>
-            <div><div class="payment-opt-label">🏦 Bank Transfer</div><div class="payment-opt-desc">Direct bank transfer — order held until payment confirmed</div></div>
+            <div><div class="payment-opt-label">💳 Credit / Debit Card</div><div class="payment-opt-desc">Visa, MasterCard, AMEX — secure payment via Stripe</div></div>
           </label>
           <label class="payment-opt">
             <input type="radio" name="payment" value="cod"/>
-            <div><div class="payment-opt-label">💵 Cash on Delivery</div><div class="payment-opt-desc">Pay when your order arrives</div></div>
+            <div><div class="payment-opt-label">💵 Cash on Delivery</div><div class="payment-opt-desc">Pay in cash when you collect your order</div></div>
           </label>
         </div>
       </div>
@@ -444,7 +440,7 @@
       <div class="summary-row"><span>Discount</span><span id="sumDiscount">—</span></div>
       <div class="summary-row"><span>Pickup</span><span id="sumShipping">Free (In-store) 🎉</span></div>
       <div class="summary-row grand"><span>Total</span><span id="sumTotal">—</span></div>
-      <button class="btn-place-order" id="placeOrderBtn" onclick="handlePlaceOrder()">Place Order</button>
+      <button class="btn-place-order" id="placeOrderBtn" onclick="handlePlaceOrder()" disabled title="Please select a pickup outlet, pickup date, and payment method">Place Order</button>
       <p class="order-terms">By placing your order, you agree to our <a href="#" style="color:var(--gold)">Terms of Service</a> and <a href="#" style="color:var(--gold)">Privacy Policy</a>.</p>
     </div>
   </div>
@@ -545,8 +541,29 @@ document.querySelectorAll('.payment-opt').forEach(opt=>{
   opt.addEventListener('click',function(){
     document.querySelectorAll('.payment-opt').forEach(o=>o.classList.remove('selected'));
     this.classList.add('selected');
+    checkOrderReady();
   });
 });
+
+// ── PLACE ORDER READINESS CHECK ────────────────────────────────────────────────
+// Button stays disabled until: outlet selected + date selected + payment selected
+function checkOrderReady(){
+  const outletId       = document.getElementById('selectedOutletId').value;
+  const dateVal        = document.getElementById('scheduledPickupDate')?.value;
+  const paymentPicked  = !!document.querySelector('input[name="payment"]:checked');
+  const btn            = document.getElementById('placeOrderBtn');
+  if(!btn || btn.dataset.stripePhase === '1') return; // don't interfere during stripe phase
+
+  const ready = !!outletId && !!dateVal && paymentPicked;
+  btn.disabled = !ready;
+
+  // Update tooltip to guide user on what's missing
+  if(!outletId)       btn.title = 'Please select a pickup outlet';
+  else if(!dateVal)   btn.title = 'Please select a pickup date';
+  else if(!paymentPicked) btn.title = 'Please select a payment method';
+  else                btn.title = '';
+}
+window.checkOrderReady = checkOrderReady;
 
 // ── LOAD CART ─────────────────────────────────────────────────────────────────
 async function loadCart(){
@@ -666,6 +683,7 @@ async function startCardPayment(){
 
   // Change place-order button in sidebar
   btn.disabled=false;
+  btn.dataset.stripePhase='1';
   btn.textContent='Confirm & Pay AUD $'+(data.order.total||0).toFixed(2);
   btn.onclick=confirmStripePayment;
 }
@@ -709,10 +727,12 @@ function cancelStripePhase(){
   document.getElementById('stripeSection').style.display='none';
   document.getElementById('stripePaymentElement').innerHTML='';
   const btn=document.getElementById('placeOrderBtn');
-  btn.disabled=false; btn.textContent='Place Order';
+  delete btn.dataset.stripePhase;
+  btn.textContent='Place Order';
   btn.onclick=handlePlaceOrder;
   // Reload cart to reflect current state
   loadCart();
+  checkOrderReady();
 }
 
 // ── BANK TRANSFER / COD — existing flow ──────────────────────────────────────
@@ -779,16 +799,18 @@ function initDatePicker() {
   const label = document.getElementById('earliestDateLabel');
   if (label) label.textContent = min.toLocaleDateString('en-AU', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
   onDateChange();
+  checkOrderReady();
 }
 function onDateChange() {
   const dateInput = document.getElementById('scheduledPickupDate');
   const display = document.getElementById('dateSelectedDisplay');
   const displayText = document.getElementById('dateSelectedText');
-  if (!dateInput || !dateInput.value) { if(display) display.style.display='none'; return; }
+  if (!dateInput || !dateInput.value) { if(display) display.style.display='none'; checkOrderReady(); return; }
   const d = new Date(dateInput.value + 'T00:00:00');
   const formatted = d.toLocaleDateString('en-AU', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
   if (displayText) displayText.textContent = formatted;
   if (display) display.style.display = 'block';
+  checkOrderReady();
 }
 
 async function mergeCart(){
@@ -1034,6 +1056,7 @@ async function init(){
 // ── AUTO-SELECT single outlet (retail/dealer banner) ─────────────────────────
 function autoSelectOutlet(o, title, note){
   document.getElementById('selectedOutletId').value = o._id;
+    checkOrderReady();
   document.getElementById('outletPickerUI').style.display = 'none';
   const banner = document.getElementById('retailOutletBanner');
   banner.style.display = 'block';
