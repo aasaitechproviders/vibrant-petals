@@ -258,6 +258,7 @@
       <div class="nav-item" id="nav-catalogue" onclick="showPanel('catalogue',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>Catalogue</div>
       <div class="nav-section-label">Sales</div>
       <div class="nav-item" id="nav-orders" onclick="showPanel('orders',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Orders</div>
+      <div class="nav-item" id="nav-pickuporders" onclick="showPanel('pickuporders',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/><circle cx="12" cy="6" r="1" fill="currentColor"/></svg>Pickup Orders</div>
       <div class="nav-item" id="nav-coupons" onclick="showPanel('coupons',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 5H3a1 1 0 00-1 1v4a1 1 0 001 1h.5a1.5 1.5 0 010 3H3a1 1 0 00-1 1v4a1 1 0 001 1h18a1 1 0 001-1v-4a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H21a1 1 0 001-1V6a1 1 0 00-1-1z"/></svg>Coupons</div>
       <div class="nav-section-label">Customers</div>
       <div class="nav-item" id="nav-users" onclick="showPanel('users',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Users</div>
@@ -389,6 +390,29 @@
             <tbody id="ordersBody"></tbody>
           </table>
           <div class="table-pagination" id="ordPag"></div>
+        </div>
+      </div>
+
+      <!-- PICKUP ORDERS (admin outlets) -->
+      <div class="panel" id="panel-pickuporders">
+        <div class="card">
+          <div class="table-toolbar">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <select class="filter-select" id="pickupOrdStatusFilter" onchange="pickupOrdPage=1;loadPickupOrders()">
+                <option value="">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="ready_for_pickup">Ready for Pickup</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Order #</th><th>Customer</th><th>Pickup Outlet</th><th>Items</th><th>Total</th><th>Status</th><th>Pickup Date</th><th>Actions</th></tr></thead>
+            <tbody id="pickupOrdersBody"></tbody>
+          </table>
+          <div class="table-pagination" id="pickupOrdPag"></div>
         </div>
       </div>
 
@@ -1652,7 +1676,7 @@ checkAuth();
 document.getElementById('adminPwd')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
 
 // ── PANEL NAVIGATION ──────────────────────────────────────────────────────────
-const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, templates: loadTemplates, coupons: loadCoupons, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: loadTerritories, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
+const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, pickuporders: () => { pickupOrdPage=1; loadPickupOrders(); }, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, templates: loadTemplates, coupons: loadCoupons, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: loadTerritories, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  TERRITORIES
@@ -1967,7 +1991,7 @@ async function deleteOutlet(id) {
   else showToast(data.message || 'Delete failed', 'error');
 }
 window.deleteOutlet = deleteOutlet;
-const panelTitles = { dashboard: 'Dashboard', approvals: 'Approvals', catalogue: 'Catalogue', orders: 'Orders', coupons: 'Coupons', users: 'Users (Customers)', newsletter: 'Newsletter', campaigns: 'Email Campaigns', emaillogs: 'Email Logs', templates: 'Email Templates', storefront: 'Storefront', territories: 'Territory Management', dealers: 'Dealers', outlets: 'Retail Outlets & Accounts' };
+const panelTitles = { dashboard: 'Dashboard', approvals: 'Approvals', catalogue: 'Catalogue', orders: 'Orders', pickuporders: 'Pickup Orders (Admin Outlets)', coupons: 'Coupons', users: 'Users (Customers)', newsletter: 'Newsletter', campaigns: 'Email Campaigns', emaillogs: 'Email Logs', templates: 'Email Templates', storefront: 'Storefront', territories: 'Territory Management', dealers: 'Dealers', outlets: 'Retail Outlets & Accounts' };
 
 function showPanel(name, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -3419,6 +3443,73 @@ async function loadNewsletter() {
 // ── EXPOSE LOADERS ────────────────────────────────────────────────────────────
 window.loadProducts = loadProducts;
 window.loadOrders = loadOrders;
+
+// ── PICKUP ORDERS (admin-created outlets) ────────────────────────────────────
+let pickupOrdPage = 1;
+
+async function loadPickupOrders() {
+  const status = document.getElementById('pickupOrdStatusFilter')?.value || '';
+  let url = `/admin/pickup-orders?page=${pickupOrdPage}&limit=${LIMIT}`;
+  if (status) url += `&status=${status}`;
+
+  document.getElementById('pickupOrdersBody').innerHTML =
+    '<tr><td colspan="8" style="padding:32px;text-align:center;"><div class="skeleton" style="height:18px;border-radius:4px;"></div></td></tr>';
+
+  const data = await apiFetch(url, { headers: apiHeaders() });
+  const orders = data.orders || [];
+  const pag = data.pagination || { total: 0, totalPages: 1 };
+
+  window._pickupOrdersMap = {};
+  orders.forEach(o => { window._pickupOrdersMap[o._id || o.id] = o; });
+
+  document.getElementById('pickupOrdersBody').innerHTML = orders.length ? orders.map(o => {
+    const oid = o._id || o.id || '';
+    const st = o.status || 'pending';
+    const outletName = o.pickupOutletSnapshot?.name || '—';
+    return `<tr>
+      <td><b>${o.orderNumber || '—'}</b></td>
+      <td style="font-size:13px;">${o.customerEmail || '—'}</td>
+      <td style="font-size:13px;">${outletName}</td>
+      <td>${(o.items || []).length} item${(o.items || []).length !== 1 ? 's' : ''}</td>
+      <td><b>$${(o.total || 0).toFixed(2)}</b></td>
+      <td><span class="status-pill s-${st}">${st.replace(/_/g,' ')}</span></td>
+      <td style="font-size:12px;font-weight:700;color:var(--gold)">${fmtPickupDate(o.scheduledPickupDate)}</td>
+      <td>
+        <div class="action-group">
+          <button class="btn-action btn-action-view" onclick="openOrderModal('${oid}')">View</button>
+          ${['processing','ready_for_pickup','delivered'].includes(st) || st === 'pending' ? `
+          <select class="filter-select" style="font-size:12px;padding:5px 8px;" onchange="updatePickupOrderStatus('${oid}', this.value, this)">
+            <option value="">Update Status</option>
+            ${st !== 'processing'       ? '<option value="processing">Processing</option>' : ''}
+            ${st !== 'ready_for_pickup' ? '<option value="ready_for_pickup">Ready for Pickup</option>' : ''}
+            ${st !== 'delivered'        ? '<option value="delivered">Delivered</option>' : ''}
+          </select>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--mid);">No pickup orders found for admin outlets</td></tr>';
+
+  renderPag('pickupOrdPag', pickupOrdPage, pag.totalPages, 'pickupOrdPage', 'loadPickupOrders');
+}
+
+async function updatePickupOrderStatus(orderId, newStatus, selectEl) {
+  if (!newStatus) return;
+  const o = window._pickupOrdersMap[orderId];
+  const orderNum = o?.orderNumber || orderId;
+  if (!await vpConfirm({ title: 'Update Order Status', message: `Update order <strong>${orderNum}</strong> to <strong>${newStatus.replace(/_/g,' ')}</strong>?`, icon: '📦', confirmText: 'Update', success: true })) {
+    selectEl.value = ''; return;
+  }
+  const data = await apiFetch(`/admin/orders/${orderId}/status`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus }) });
+  if (data.success) {
+    showToast(`Order ${orderNum} updated to ${newStatus.replace(/_/g,' ')}`, 'success');
+    loadPickupOrders();
+  } else {
+    showToast(data.message || 'Failed to update status', 'error');
+    selectEl.value = '';
+  }
+}
+window.loadPickupOrders = loadPickupOrders;
+window.updatePickupOrderStatus = updatePickupOrderStatus;
 window.loadUsers = loadUsers;
 window.loadCustomers = loadCustomers;
 window.loadNewsletter = loadNewsletter;
