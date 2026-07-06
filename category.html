@@ -208,7 +208,7 @@
       <img src="logo.png" alt="Vibrant Petals Logo" /><span class="nav-logo-text"> Vibrant Petals</span>
     </a>
     <nav>
-      <ul>
+      <ul id="mainNavList">
         <li><a href="index.html">Home</a></li>
         <li><a href="category.html?cat=strings" id="navStrings">Strings</a></li>
         <li class="dropdown">
@@ -220,6 +220,7 @@
         </li>
         <li><a href="category.html?cat=loose-flowers" id="navLoose">Loose Flowers</a></li>
         <li><a href="category.html?cat=leaves" id="navLeaves">Leaves</a></li>
+        <!-- Extra categories injected dynamically -->
       </ul>
     </nav>
     <div class="nav-icons">
@@ -239,7 +240,7 @@
   <div class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
   <div class="mobile-nav-drawer">
     <div class="mobile-nav-head"><span>🌸 Vibrant Petals</span><button class="mobile-nav-close" onclick="closeMobileNav()">✕</button></div>
-    <ul>
+    <ul id="mobileNavList">
       <li><a href="index.html">Home</a></li>
       <li><a href="category.html?cat=strings">Strings</a></li>
       <li>
@@ -251,6 +252,7 @@
       </li>
       <li><a href="category.html?cat=loose-flowers">Loose Flowers</a></li>
       <li><a href="category.html?cat=leaves">Leaves</a></li>
+      <!-- Extra categories injected dynamically -->
     </ul>
   </div>
 </div>
@@ -352,6 +354,9 @@ const LIMIT=12,catNameMap={};
 const navMap={strings:'navStrings','loose-flowers':'navLoose',leaves:'navLeaves','pooja-garlands':'navGarlands','special-occasional-garlands':'navGarlands'};
 if(navMap[currentCat]) document.getElementById(navMap[currentCat])?.classList.add('active');
 
+// Slugs hardcoded in top nav — don't duplicate dynamically
+const NAV_KNOWN_SLUGS = new Set(['pooja-garlands','special-occasional-garlands','loose-flowers','strings','leaves']);
+
 async function loadCategories(){
   const data=await apiFetch('/products/categories').catch(()=>({categories:[]}));
   let cats=(data.categories||[]).filter(c=>c.slug!=='all'&&c.name!=='All');
@@ -365,7 +370,29 @@ async function loadCategories(){
     const bn=bi===-1?CAT_ORDER.length:bi;
     return an-bn;
   });
+
+  // Sidebar — shows all categories
   document.getElementById('catList').innerHTML=cats.map(c=>`<li><a href="category.html?cat=${c.slug}" ${c.slug===currentCat?'class="active"':''}>${c.name} <span>${c.count}</span></a></li>`).join('');
+
+  // Top nav — inject any admin-added categories not already hardcoded
+  const extraCats = cats.filter(c => !NAV_KNOWN_SLUGS.has(c.slug));
+  if(extraCats.length){
+    const mainNav   = document.getElementById('mainNavList');
+    const mobileNav = document.getElementById('mobileNavList');
+    extraCats.forEach(c => {
+      const isActive = c.slug === currentCat;
+      if(mainNav){
+        const li = document.createElement('li');
+        li.innerHTML = `<a href="category.html?cat=${c.slug}"${isActive?' class="active"':''}>${c.name}</a>`;
+        mainNav.appendChild(li);
+      }
+      if(mobileNav){
+        const li = document.createElement('li');
+        li.innerHTML = `<a href="category.html?cat=${c.slug}">${c.name}</a>`;
+        mobileNav.appendChild(li);
+      }
+    });
+  }
 }
 
 function showSkeletons(){
