@@ -884,7 +884,11 @@
         <div class="form-group"><label class="form-label">Product Name *</label><input class="form-input" id="pName" placeholder="Jasmine String"/></div>
         <div class="form-group"><label class="form-label">Slug *</label><input class="form-input" id="pSlug" placeholder="jasmine-string"/></div>
       </div>
-      <div class="form-group"><label class="form-label">Short Description</label><input class="form-input" id="pShortDesc" placeholder="Brief product summary"/></div>
+      <div class="form-group">
+        <label class="form-label">Short Description <span style="font-size:11px;font-weight:400;color:var(--mid);">— each line is a bullet point shown below product title</span></label>
+        <div id="pShortDescBullets" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px;"></div>
+        <button type="button" onclick="addShortDescBullet()" style="background:none;border:1px dashed #bbb;border-radius:4px;padding:6px 14px;font-size:13px;color:var(--mid);cursor:pointer;width:100%;text-align:left;">+ Add bullet point</button>
+      </div>
       <div class="form-group">
         <label class="form-label">Description <span style="font-size:11px;font-weight:400;color:var(--mid);">— each line is a bullet point on the product page</span></label>
         <div id="pDescBullets" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px;"></div>
@@ -937,9 +941,10 @@
           <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mid);">Variants <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional — size, weight, length, etc.)</span></div>
           <button type="button" onclick="addVariantRow()" style="background:var(--gold);color:#fff;border:none;border-radius:4px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;">+ Add Variant</button>
         </div>
-        <div id="pVariantsHeader" style="display:none;display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr 32px;gap:6px;margin-bottom:4px;">
+        <div id="pVariantsHeader" style="display:none;display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr 1fr 32px;gap:6px;margin-bottom:4px;">
           <div style="font-size:11px;font-weight:700;color:var(--mid);letter-spacing:.05em;">LABEL</div>
-          <div style="font-size:11px;font-weight:700;color:var(--mid);letter-spacing:.05em;">BASE ($)</div>
+          <div style="font-size:11px;font-weight:700;color:var(--mid);letter-spacing:.05em;">REGULAR ($)</div>
+          <div style="font-size:11px;font-weight:700;color:#c0392b;letter-spacing:.05em;">SALE ($)</div>
           <div style="font-size:11px;font-weight:700;color:#c47f00;letter-spacing:.05em;">⭐ DEALER ($)</div>
           <div style="font-size:11px;font-weight:700;color:#1565c0;letter-spacing:.05em;">🏪 RETAIL ($)</div>
           <div style="font-size:11px;font-weight:700;color:var(--mid);letter-spacing:.05em;">SKU</div>
@@ -951,11 +956,30 @@
 
       <div class="form-row">
         <div class="form-group"><label class="form-label">SKU</label><input class="form-input" id="pSku" placeholder="VP-001"/></div>
-        <div class="form-group"><label class="form-label">Stock Status</label><select class="form-select" id="pStockStatus" onchange="onStockStatusChange()"><option value="instock">In Stock</option><option value="outofstock">Out of Stock</option><option value="onbackorder">On Backorder</option></select></div>
+        <div class="form-group">
+          <label class="form-label">Stock Status</label>
+          <select class="form-select" id="pStockStatus" onchange="onStockStatusChange()">
+            <option value="instock">In Stock</option>
+            <option value="outofstock">Out of Stock</option>
+            <option value="onbackorder">On Backorder</option>
+          </select>
+          <span style="font-size:11px;color:var(--mid);margin-top:4px;display:block;">
+            <b>On Backorder</b> = temporarily unavailable but customers can still pre-order; fulfilled when restocked.
+          </span>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Stock Qty</label><input class="form-input" id="pStockQty" type="number" min="0" placeholder="0"/></div>
-        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="pStatus"><option value="publish">Published</option><option value="draft">Draft</option></select></div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="pStatus">
+            <option value="publish">Published</option>
+            <option value="draft">Draft</option>
+          </select>
+          <span style="font-size:11px;color:var(--mid);margin-top:4px;display:block;">
+            <b>Draft</b> = saved but hidden from the store. Use to prepare products before making them live.
+          </span>
+        </div>
       </div>
       <div class="form-group"><label class="form-label">Categories <span style="font-size:11px;font-weight:400;">(comma-separated)</span></label><input class="form-input" id="pCategories" placeholder="Strings, Garlands"/></div>
 
@@ -2293,6 +2317,36 @@ function addDescBullet(value = '') {
 }
 window.addDescBullet = addDescBullet;
 
+// ── SHORT DESCRIPTION BULLET HELPERS ─────────────────────────────────────────
+function addShortDescBullet(value = '') {
+  const container = document.getElementById('pShortDescBullets');
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:6px;align-items:center;';
+  row.innerHTML = `
+    <span style="color:var(--gold);font-size:16px;flex-shrink:0;">•</span>
+    <input class="form-input" style="flex:1;" placeholder="Enter bullet point..." value="${value.replace(/"/g,'&quot;')}"/>
+    <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:18px;padding:0 4px;flex-shrink:0;" title="Remove">×</button>
+  `;
+  container.appendChild(row);
+  row.querySelector('input').focus();
+}
+window.addShortDescBullet = addShortDescBullet;
+
+function getShortDescBullets() {
+  return Array.from(document.querySelectorAll('#pShortDescBullets input'))
+    .map(i => i.value.trim()).filter(Boolean);
+}
+
+function setShortDescBullets(value) {
+  document.getElementById('pShortDescBullets').innerHTML = '';
+  if (!value) return;
+  let points = [];
+  try { const p = JSON.parse(value); if (Array.isArray(p)) points = p; } catch(e) {
+    points = value.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(Boolean);
+  }
+  points.forEach(pt => addShortDescBullet(pt));
+}
+
 function getDescBullets() {
   return Array.from(document.querySelectorAll('#pDescBullets input'))
     .map(i => i.value.trim()).filter(Boolean);
@@ -2329,10 +2383,11 @@ function addVariantRow(v = {}) {
   const container = document.getElementById('pVariants');
   const row = document.createElement('div');
   row.className = 'variant-row';
-  row.style.cssText = 'display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr 32px;gap:6px;align-items:center;';
+  row.style.cssText = 'display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr 1fr 32px;gap:6px;align-items:center;';
   row.innerHTML = `
     <input class="form-input" placeholder="e.g. 1.5 feet, 500g, Large" value="${(v.label||'').replace(/"/g,'&quot;')}" style="font-size:13px;padding:8px 10px;"/>
-    <input class="form-input" type="number" step="0.01" min="0" placeholder="0.00" value="${v.price != null ? v.price : ''}" style="font-size:13px;padding:8px 10px;"/>
+    <input class="form-input" type="number" step="0.01" min="0" placeholder="0.00" value="${v.price != null ? v.price : ''}" style="font-size:13px;padding:8px 10px;" title="Regular price for this variant"/>
+    <input class="form-input" type="number" step="0.01" min="0" placeholder="optional" value="${v.salePrice != null ? v.salePrice : ''}" style="font-size:13px;padding:8px 10px;border-color:#f5c6c6;" title="Sale price — leave blank if no sale"/>
     <input class="form-input" type="number" step="0.01" min="0" placeholder="optional" value="${v.dealerPrice != null ? v.dealerPrice : ''}" style="font-size:13px;padding:8px 10px;border-color:#f5d98a;"/>
     <input class="form-input" type="number" step="0.01" min="0" placeholder="optional" value="${v.retailPrice != null ? v.retailPrice : ''}" style="font-size:13px;padding:8px 10px;border-color:#bee3f8;"/>
     <input class="form-input" placeholder="optional" value="${(v.sku||'').replace(/"/g,'&quot;')}" style="font-size:13px;padding:8px 10px;"/>
@@ -2349,10 +2404,11 @@ function getVariants() {
     const inputs = row.querySelectorAll('input');
     const label       = inputs[0].value.trim();
     const price       = parseFloat(inputs[1].value) || 0;
-    const dealerPrice = inputs[2].value !== '' ? parseFloat(inputs[2].value) : null;
-    const retailPrice = inputs[3].value !== '' ? parseFloat(inputs[3].value) : null;
-    const sku         = inputs[4].value.trim();
-    return { label, price, dealerPrice, retailPrice, sku };
+    const salePrice   = inputs[2].value !== '' ? parseFloat(inputs[2].value) : null;
+    const dealerPrice = inputs[3].value !== '' ? parseFloat(inputs[3].value) : null;
+    const retailPrice = inputs[4].value !== '' ? parseFloat(inputs[4].value) : null;
+    const sku         = inputs[5].value.trim();
+    return { label, price, salePrice, dealerPrice, retailPrice, sku };
   }).filter(v => v.label);
 }
 
@@ -2367,9 +2423,10 @@ function openProductModal() {
   document.getElementById('prodModalTitle').textContent = 'Add Product';
   document.getElementById('prodSaveBtn').textContent = 'Save Product';
   document.getElementById('prodSaveBtn').disabled = false;
-  ['pName','pSlug','pShortDesc','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku','pCategories'].forEach(id => {
+  ['pName','pSlug','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku','pCategories'].forEach(id => {
     document.getElementById(id).value = '';
   });
+  document.getElementById('pShortDescBullets').innerHTML = '';
   document.getElementById('pDescBullets').innerHTML = '';
   document.getElementById('pStockStatus').value = 'instock';
   document.getElementById('pStockQty').value = '0';
@@ -2390,9 +2447,10 @@ async function editProduct(id) {
   document.getElementById('prodModalTitle').textContent = 'Edit Product';
   document.getElementById('prodSaveBtn').textContent = 'Loading…';
   document.getElementById('prodSaveBtn').disabled = true;
-  ['pName','pSlug','pShortDesc','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku','pCategories'].forEach(i => {
+  ['pName','pSlug','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku','pCategories'].forEach(i => {
     document.getElementById(i).value = '';
   });
+  document.getElementById('pShortDescBullets').innerHTML = '';
   document.getElementById('pDescBullets').innerHTML = '';
   document.getElementById('prodFormMsg').className = 'form-msg';
   resetImageUI();
@@ -2411,7 +2469,7 @@ async function editProduct(id) {
 
   document.getElementById('pName').value = p.name || '';
   document.getElementById('pSlug').value = p.slug || '';
-  document.getElementById('pShortDesc').value = p.shortDescription || p.short_description || '';
+  setShortDescBullets(p.shortDescription || p.short_description || '');
   setDescBullets(p.description || '');
   setVariants(p.variants || []);
   document.getElementById('pPrice').value = p.price != null ? p.price : '';
@@ -2455,7 +2513,7 @@ async function saveProduct() {
 
   const body = {
     name, slug,
-    shortDescription: document.getElementById('pShortDesc').value,
+    shortDescription: getShortDescBullets().join('\n'),
     description: JSON.stringify(getDescBullets()),
     price: parseFloat(document.getElementById('pPrice').value) || 0,
     regularPrice: parseFloat(document.getElementById('pRegPrice').value) || 0,
