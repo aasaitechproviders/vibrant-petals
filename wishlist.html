@@ -236,7 +236,7 @@ async function loadWishlist(){
             </div>
           </div>
         </div>
-        <div class="product-info"><div class="product-name">${p.name}</div><div class="product-price">${price}</div></div>
+        <div class="product-info"><div class="product-name">${p.name}</div>${p.sku?`<div style="font-size:11px;color:var(--mid);font-weight:400;letter-spacing:.03em;">SKU: ${p.sku}</div>`:""}<div class="product-price">${price}</div></div>
       </div>`;
     }).join('')}</div>`;
 }
