@@ -1329,7 +1329,7 @@ async function loadApprovals() {
           <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
           <td><div class="action-group">
             <button class="btn-action btn-action-approve" onclick="openDealerApprovalModal('${u._id}')">Review</button>
-            <button class="btn-action btn-action-reject" onclick="quickRejectDealer('${u._id}','${u.username}')">Reject</button>
+            <button class="btn-action btn-action-reject" onclick="quickRejectDealer('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}')">Reject</button>
           </div></td>
         </tr>`).join('')}</tbody>
       </table>`}
@@ -1353,8 +1353,8 @@ async function loadApprovals() {
           <td style="text-align:center;">${u.outlet?.pickupEnabled ? '<span style="color:#27ae60;font-weight:700;">Yes</span>' : '<span style="color:var(--mid);">No</span>'}</td>
           <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
           <td><div class="action-group">
-            <button class="btn-action btn-action-approve" onclick="approveRetail('${u._id}','${u.username}','${u.outlet?.pickupEnabled}')">Approve</button>
-            <button class="btn-action btn-action-reject" onclick="rejectRetail('${u._id}','${u.username}')">Reject</button>
+            <button class="btn-action btn-action-approve" onclick="approveRetail('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}','${u.outlet?.pickupEnabled}')">Approve</button>
+            <button class="btn-action btn-action-reject" onclick="rejectRetail('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}')">Reject</button>
           </div></td>
         </tr>`).join('')}</tbody>
       </table>`}
@@ -1557,9 +1557,9 @@ async function loadRetailUsers() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
               ${o.pickupEnabled ? 'Pickup On' : 'Pickup Off'}</button>` : ''}
             ${u.approvalStatus === 'pending' ? `
-              <button class="btn-action btn-action-approve" onclick="approveRetail('${u._id}','${u.username}','${o?.pickupEnabled}')">Approve</button>
-              <button class="btn-action btn-action-reject" onclick="rejectRetail('${u._id}','${u.username}')">Reject</button>` : ''}
-            ${u.approvalStatus === 'approved' ? `<button class="btn-action btn-action-deactivate" onclick="deactivateRetail('${u._id}','${u.username}')">Deactivate</button>` : ''}
+              <button class="btn-action btn-action-approve" onclick="approveRetail('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}','${o?.pickupEnabled}')">Approve</button>
+              <button class="btn-action btn-action-reject" onclick="rejectRetail('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}')">Reject</button>` : ''}
+            ${u.approvalStatus === 'approved' ? `<button class="btn-action btn-action-deactivate" onclick="deactivateRetail('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}')">Deactivate</button>` : ''}
             </div>
           </div></td>
         </tr>`;
@@ -1634,8 +1634,8 @@ async function loadDealers() {
           <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
           <td><div style="display:flex;gap:5px;">
             ${u.isActive
-              ? `<button class="btn-sm btn-delete" onclick="toggleDealerStatus('${u._id}',false,'${u.username}')">Deactivate</button>`
-              : `<button class="btn-action btn-action-activate" onclick="toggleDealerStatus('${u._id}',true,'${u.username}')">Activate</button>`}
+              ? `<button class="btn-sm btn-delete" onclick="toggleDealerStatus('${u._id}',false,'${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}')">Deactivate</button>`
+              : `<button class="btn-action btn-action-activate" onclick="toggleDealerStatus('${u._id}',true,'${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}')">Activate</button>`}
           </div></td>
         </tr>`;
       }).join('')}</tbody>
