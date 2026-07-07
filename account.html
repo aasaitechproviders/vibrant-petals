@@ -743,7 +743,7 @@ async function loadMe(){
   document.getElementById('acctAvatar').textContent=(userData.firstName||userData.username||'?')[0].toUpperCase();
   document.getElementById('profFirst').value=userData.firstName||'';
   document.getElementById('profLast').value=userData.lastName||'';
-  document.getElementById('profDisplay').value=userData.displayName||userData.username||'';
+  document.getElementById('profDisplay').value=userData.firstName||userData.displayName||userData.username||'';
   document.getElementById('profEmail').value=userData.email||'';
   document.getElementById('profRole').value=userData.role||'Customer';
 
