@@ -429,6 +429,7 @@ function renderProducts(products){
         </div>
         <div class="product-info">
           <div class="product-name">${p.name}</div>
+          ${p.sku?`<div style="font-size:11px;color:var(--mid);font-weight:400;letter-spacing:.03em;">SKU: ${p.sku}</div>`:""}
           <div class="product-price">${price}</div>
           ${inStock?`
           <div class="product-qty-row" onclick="event.stopPropagation()">
