@@ -211,17 +211,13 @@
     /* ── BRANDED CONFIRM MODAL ── */
     .vp-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
     .vp-modal-overlay.open{opacity:1;pointer-events:all;}
-    .vp-modal{background:#fff;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.18);width:min(440px,92vw);overflow:hidden;transform:translateY(12px) scale(.97);transition:transform .2s;font-family:'Nunito',sans-serif;}
+    .vp-modal{background:#fff;border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.2);width:min(440px,92vw);overflow:hidden;transform:translateY(16px) scale(.97);transition:transform .25s;}
     .vp-modal-overlay.open .vp-modal{transform:translateY(0) scale(1);}
-    .vp-modal-header{background:var(--cream2);border-bottom:1px solid #e8e0d2;padding:20px 24px;display:flex;align-items:center;gap:12px;}
-    .vp-modal-logo{height:36px;width:auto;object-fit:contain;}
-    .vp-modal-brand{font-family:'Playfair Display',serif;font-size:16px;color:var(--dark);font-weight:400;letter-spacing:.02em;}
-    .vp-modal-brand span{color:var(--gold);}
-    .vp-modal-body{padding:28px 24px 20px;}
+    .vp-modal-body{padding:36px 28px 20px;}
     .vp-modal-icon{font-size:32px;text-align:center;margin-bottom:12px;}
-    .vp-modal-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--dark);margin-bottom:10px;text-align:center;}
+    .vp-modal-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--dark);margin-bottom:12px;text-align:center;font-weight:400;}
     .vp-modal-message{font-size:14px;color:var(--mid);line-height:1.65;text-align:center;}
-    .vp-modal-footer{display:flex;gap:10px;padding:0 24px 24px;justify-content:center;}
+    .vp-modal-footer{display:flex;gap:10px;padding:0 28px 28px;justify-content:center;}
     .vp-modal-btn{flex:1;max-width:160px;padding:12px 20px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:var(--radius);border:none;cursor:pointer;font-family:inherit;transition:background .15s,opacity .15s;}
     .vp-modal-btn:hover{opacity:.88;}
     .vp-modal-cancel{background:#f0ebe0;color:var(--mid);}
@@ -1176,7 +1172,7 @@ function vpConfirm({ title, message, icon = '❓', confirmText = 'Confirm', canc
 
     document.getElementById('vpModalConfirm').onclick = () => close(true);
     document.getElementById('vpModalCancel').onclick  = () => close(false);
-    overlay.onclick = (e) => { if (e.target === overlay) close(false); };
+    // overlay click-outside disabled — use Cancel button to close
     document.addEventListener('keydown', function esc(e) {
       if (e.key === 'Escape') { document.removeEventListener('keydown', esc); close(false); }
     }, { once: true });
@@ -1213,6 +1209,13 @@ function showToast(m, t = '') {
 }
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Prevent click-outside from closing any modal — only explicit close buttons work
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) e.stopPropagation(); });
+  });
+});
 window.closeModal = closeModal;
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
@@ -4557,13 +4560,9 @@ window.handleSiteImageFile = handleSiteImageFile;
   </div>
 </div>
 
-<!-- ── BRANDED CONFIRM MODAL ── -->
+<!-- ── CONFIRM MODAL ── -->
 <div class="vp-modal-overlay" id="vpModalOverlay">
   <div class="vp-modal" role="dialog" aria-modal="true">
-    <div class="vp-modal-header">
-      <img class="vp-modal-logo" src="logo.png" alt="Vibrant Petals"/>
-      <div class="vp-modal-brand">Vibrant <span>Petals</span></div>
-    </div>
     <div class="vp-modal-body">
       <div class="vp-modal-icon" id="vpModalIcon"></div>
       <div class="vp-modal-title" id="vpModalTitle"></div>
