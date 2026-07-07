@@ -2803,7 +2803,7 @@ async function openOrderModal(id) {
     <table class="order-items-table">
       <thead><tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr></thead>
       <tbody>${items.map(i => `<tr>
-        <td>${i.name || i.productName || '—'}</td>
+        <td>${i.name || i.productName || '—'}${i.sku ? `<div style="font-size:11px;color:var(--mid);font-weight:400;margin-top:2px;letter-spacing:.03em;">SKU: ${i.sku}</div>` : ''}</td>
         <td>${i.quantity || 1}</td>
         <td>$${(i.price || 0).toFixed(2)}</td>
         <td><b>$${((i.price || 0) * (i.quantity || 1)).toFixed(2)}</b></td>
