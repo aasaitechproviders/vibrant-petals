@@ -161,6 +161,18 @@
     .gate-pwd-wrap .pwd-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--mid);cursor:pointer;padding:4px;line-height:0;}
     .gate-pwd-wrap .pwd-toggle:hover{color:var(--dark);}
     .gate-pwd-wrap .pwd-toggle svg{width:18px;height:18px;display:block;}
+    .gate-link{display:block;text-align:right;font-size:12px;color:var(--gold);font-weight:700;cursor:pointer;margin-top:-8px;margin-bottom:14px;letter-spacing:.04em;}
+    .gate-link:hover{text-decoration:underline;}
+    .gate-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--mid);cursor:pointer;margin-bottom:18px;font-weight:700;letter-spacing:.04em;}
+    .gate-back:hover{color:var(--dark);}
+    .gate-back svg{width:14px;height:14px;}
+    .gate-otp-inputs{display:flex;gap:10px;justify-content:center;margin-bottom:14px;}
+    .gate-otp-inputs input{width:46px;height:52px;text-align:center;font-size:22px;font-weight:700;border:1px solid #ddd;border-radius:var(--radius);font-family:inherit;outline:none;transition:border-color .2s;}
+    .gate-otp-inputs input:focus{border-color:var(--gold);}
+    .gate-resend{font-size:12px;color:var(--mid);text-align:center;margin-top:8px;}
+    .gate-resend span{color:var(--gold);font-weight:700;cursor:pointer;}
+    .gate-resend span:hover{text-decoration:underline;}
+    .gate-resend span.disabled{color:#bbb;cursor:default;text-decoration:none;}
     .gate-select{width:100%;padding:13px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:14px;border-radius:var(--radius);background:#fff;}
     .btn-gate{width:100%;padding:14px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);margin-top:4px;}
     .btn-gate:hover{background:var(--gold-dark);}
@@ -272,7 +284,8 @@
   <div class="login-gate">
     <h2>Welcome Back</h2>
     <p>Sign in to your account to manage orders, wishlist and more.</p>
-    <div class="tab-panel active" id="tab-login">
+    <!-- STEP 1: LOGIN -->
+    <div id="fpStep-login">
       <input type="email" class="gate-input" id="gLoginEmail" placeholder="Email address *"/>
       <div class="gate-pwd-wrap">
         <input type="password" class="gate-input" id="gLoginPwd" placeholder="Password *"/>
@@ -280,12 +293,68 @@
           <svg id="loginEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </span>
       </div>
+      <span class="gate-link" onclick="showFpStep('email')">Forgot password?</span>
       <button class="btn-gate" onclick="doLogin()">Sign In</button>
       <div class="gate-msg" id="gLoginMsg"></div>
       <p style="text-align:center;font-size:13px;color:var(--mid);margin-top:16px;">
         Don't have an account? <a href="signup.html" style="color:var(--gold);font-weight:700;text-decoration:underline;">Sign up here</a>
       </p>
     </div>
+
+    <!-- STEP 2: ENTER EMAIL FOR RESET -->
+    <div id="fpStep-email" style="display:none;">
+      <span class="gate-back" onclick="showFpStep('login')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Sign In
+      </span>
+      <h2 style="margin-bottom:8px;">Forgot Password</h2>
+      <p style="margin-bottom:24px;">Enter your registered email and we'll send you a reset code.</p>
+      <input type="email" class="gate-input" id="fpEmail" placeholder="Email address *"/>
+      <button class="btn-gate" onclick="doForgotPassword()">Send Reset Code</button>
+      <div class="gate-msg" id="fpEmailMsg"></div>
+    </div>
+
+    <!-- STEP 3: ENTER OTP -->
+    <div id="fpStep-otp" style="display:none;">
+      <span class="gate-back" onclick="showFpStep('email')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </span>
+      <h2 style="margin-bottom:8px;">Enter Reset Code</h2>
+      <p style="margin-bottom:24px;">We sent a 6-digit code to <strong id="fpEmailDisplay"></strong></p>
+      <div class="gate-otp-inputs">
+        <input type="text" maxlength="1" inputmode="numeric" class="otp-box" id="fp_o0" oninput="fpOtpInput(this,0)"/>
+        <input type="text" maxlength="1" inputmode="numeric" class="otp-box" id="fp_o1" oninput="fpOtpInput(this,1)"/>
+        <input type="text" maxlength="1" inputmode="numeric" class="otp-box" id="fp_o2" oninput="fpOtpInput(this,2)"/>
+        <input type="text" maxlength="1" inputmode="numeric" class="otp-box" id="fp_o3" oninput="fpOtpInput(this,3)"/>
+        <input type="text" maxlength="1" inputmode="numeric" class="otp-box" id="fp_o4" oninput="fpOtpInput(this,4)"/>
+        <input type="text" maxlength="1" inputmode="numeric" class="otp-box" id="fp_o5" oninput="fpOtpInput(this,5)"/>
+      </div>
+      <button class="btn-gate" onclick="doVerifyResetOtp()">Verify Code</button>
+      <div class="gate-msg" id="fpOtpMsg"></div>
+      <div class="gate-resend">Didn't receive it? <span id="fpResendBtn" onclick="doResendResetOtp()">Resend code</span></div>
+    </div>
+
+    <!-- STEP 4: SET NEW PASSWORD -->
+    <div id="fpStep-newpwd" style="display:none;">
+      <h2 style="margin-bottom:8px;">Set New Password</h2>
+      <p style="margin-bottom:24px;">Choose a strong password for your account.</p>
+      <div class="gate-pwd-wrap" style="margin-bottom:14px;">
+        <input type="password" class="gate-input" id="fpNewPwd" placeholder="New password (min 6 chars) *"/>
+        <span class="pwd-toggle" onclick="toggleFpPwd('fpNewPwd','fpNewPwdIcon')" title="Show/hide">
+          <svg id="fpNewPwdIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </span>
+      </div>
+      <div class="gate-pwd-wrap">
+        <input type="password" class="gate-input" id="fpConfirmPwd" placeholder="Confirm new password *"/>
+        <span class="pwd-toggle" onclick="toggleFpPwd('fpConfirmPwd','fpConfirmPwdIcon')" title="Show/hide">
+          <svg id="fpConfirmPwdIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </span>
+      </div>
+      <button class="btn-gate" onclick="doResetPassword()">Reset Password</button>
+      <div class="gate-msg" id="fpNewPwdMsg"></div>
+    </div>
+
   </div>
 </div>
 
@@ -1833,6 +1902,163 @@ async function saveProfile(){
 }
 
 // ── CHANGE PASSWORD ───────────────────────────────────────────────────────────
+// ── FORGOT PASSWORD FLOW ──────────────────────────────────────────────────────
+let fpEmailVal = '';
+
+const FP_STEPS = ['login','email','otp','newpwd'];
+function showFpStep(step) {
+  FP_STEPS.forEach(s => {
+    const el = document.getElementById('fpStep-' + s);
+    if (el) el.style.display = s === step ? '' : 'none';
+  });
+  // Clear messages when switching steps
+  ['fpEmailMsg','fpOtpMsg','fpNewPwdMsg','gLoginMsg'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = ''; el.className = 'gate-msg'; }
+  });
+}
+
+function fpGateMsg(id, msg, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'gate-msg ' + (type === 'ok' ? 'ok' : 'err');
+  el.style.display = msg ? 'block' : 'none';
+}
+
+async function doForgotPassword() {
+  const email = (document.getElementById('fpEmail').value || '').trim();
+  if (!email) return fpGateMsg('fpEmailMsg', 'Please enter your email address.', 'err');
+  fpEmailVal = email.toLowerCase();
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const data = await apiFetch('/auth/forgot-password', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: fpEmailVal })
+  });
+  btn.disabled = false; btn.textContent = 'Send Reset Code';
+  if (data.success) {
+    document.getElementById('fpEmailDisplay').textContent = fpEmailVal;
+    // Clear OTP boxes
+    for (let i = 0; i < 6; i++) { const b = document.getElementById('fp_o' + i); if (b) b.value = ''; }
+    showFpStep('otp');
+    document.getElementById('fp_o0')?.focus();
+    startFpResendCooldown();
+  } else {
+    fpGateMsg('fpEmailMsg', data.message || 'Failed to send reset code.', 'err');
+  }
+}
+
+function fpOtpInput(el, idx) {
+  el.value = el.value.replace(/\D/g, '').slice(0, 1);
+  if (el.value && idx < 5) document.getElementById('fp_o' + (idx + 1))?.focus();
+  // Auto-verify when all 6 filled
+  const all = Array.from({length: 6}, (_, i) => document.getElementById('fp_o' + i)?.value || '');
+  if (all.every(v => v)) doVerifyResetOtp();
+}
+
+// Backspace moves to previous OTP box
+document.addEventListener('keydown', e => {
+  if (e.key === 'Backspace' && e.target.classList.contains('otp-box')) {
+    const idx = parseInt(e.target.id.replace('fp_o', ''));
+    if (!e.target.value && idx > 0) {
+      e.preventDefault();
+      const prev = document.getElementById('fp_o' + (idx - 1));
+      if (prev) { prev.value = ''; prev.focus(); }
+    }
+  }
+});
+
+async function doVerifyResetOtp() {
+  const otp = Array.from({length: 6}, (_, i) => document.getElementById('fp_o' + i)?.value || '').join('');
+  if (otp.length < 6) return fpGateMsg('fpOtpMsg', 'Please enter the full 6-digit code.', 'err');
+  // We verify server-side on reset — just proceed to new password step
+  // Store the OTP temporarily for the reset call
+  window._fpOtp = otp;
+  showFpStep('newpwd');
+  document.getElementById('fpNewPwd')?.focus();
+}
+
+async function doResetPassword() {
+  const newPwd     = (document.getElementById('fpNewPwd').value || '').trim();
+  const confirmPwd = (document.getElementById('fpConfirmPwd').value || '').trim();
+  if (!newPwd)             return fpGateMsg('fpNewPwdMsg', 'Please enter a new password.', 'err');
+  if (newPwd.length < 6)  return fpGateMsg('fpNewPwdMsg', 'Password must be at least 6 characters.', 'err');
+  if (newPwd !== confirmPwd) return fpGateMsg('fpNewPwdMsg', 'Passwords do not match.', 'err');
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = 'Resetting…';
+  const data = await apiFetch('/auth/reset-password', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: fpEmailVal, otp: window._fpOtp, newPassword: newPwd })
+  });
+  btn.disabled = false; btn.textContent = 'Reset Password';
+  if (data.success) {
+    fpGateMsg('fpNewPwdMsg', '✓ Password reset successfully! Redirecting to sign in…', 'ok');
+    window._fpOtp = null;
+    setTimeout(() => {
+      showFpStep('login');
+      document.getElementById('gLoginEmail').value = fpEmailVal;
+      document.getElementById('gLoginPwd').value = '';
+    }, 2000);
+  } else {
+    // OTP was wrong — send back to OTP step
+    if (data.message && (data.message.toLowerCase().includes('incorrect') || data.message.toLowerCase().includes('expired') || data.message.toLowerCase().includes('attempts'))) {
+      fpGateMsg('fpNewPwdMsg', '', '');
+      showFpStep('otp');
+      fpGateMsg('fpOtpMsg', data.message, 'err');
+      for (let i = 0; i < 6; i++) { const b = document.getElementById('fp_o' + i); if (b) b.value = ''; }
+      document.getElementById('fp_o0')?.focus();
+    } else {
+      fpGateMsg('fpNewPwdMsg', data.message || 'Password reset failed. Please try again.', 'err');
+    }
+  }
+}
+
+async function doResendResetOtp() {
+  const btn = document.getElementById('fpResendBtn');
+  if (btn?.classList.contains('disabled')) return;
+  const data = await apiFetch('/auth/forgot-password', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: fpEmailVal })
+  });
+  if (data.success) {
+    fpGateMsg('fpOtpMsg', 'A new code has been sent to your email.', 'ok');
+    for (let i = 0; i < 6; i++) { const b = document.getElementById('fp_o' + i); if (b) b.value = ''; }
+    document.getElementById('fp_o0')?.focus();
+    startFpResendCooldown();
+  } else {
+    fpGateMsg('fpOtpMsg', data.message || 'Failed to resend code.', 'err');
+  }
+}
+
+function startFpResendCooldown(secs = 30) {
+  const btn = document.getElementById('fpResendBtn');
+  if (!btn) return;
+  btn.classList.add('disabled');
+  let remaining = secs;
+  btn.textContent = `Resend code (${remaining}s)`;
+  const t = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(t);
+      btn.textContent = 'Resend code';
+      btn.classList.remove('disabled');
+    } else {
+      btn.textContent = `Resend code (${remaining}s)`;
+    }
+  }, 1000);
+}
+
+function toggleFpPwd(inputId, iconId) {
+  const inp  = document.getElementById(inputId);
+  const icon = document.getElementById(iconId);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  icon.outerHTML = show
+    ? `<svg id="${iconId}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+    : `<svg id="${iconId}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+}
+
 function toggleLoginPwd(){
   const inp = document.getElementById('gLoginPwd');
   const icon = document.getElementById('loginEyeIcon');
