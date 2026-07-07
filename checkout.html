@@ -261,6 +261,10 @@
         </li>
         <li><a href="category.html?cat=loose-flowers">Loose Flowers</a></li>
         <li><a href="category.html?cat=leaves">Leaves</a></li>
+        <li class="dropdown" id="othersNavItem" style="display:none;">
+          <a href="category.html?cat=all">Others <span>▾</span></a>
+          <div class="dropdown-menu" id="othersDropdownMenu"></div>
+        </li>
       </ul>
     </nav>
     <div class="nav-icons">
@@ -1097,6 +1101,22 @@ function showMyOutletsPicker(filtered, allMine, title, subtitle){
 }
 
 init();
+
+const KNOWN_SLUGS = new Set(["pooja-garlands","special-occasional-garlands","loose-flowers","strings","leaves"]);
+async function loadOthersNav(){
+  try{
+    const data = await apiFetch("/products/categories");
+    const extras = (data.categories||[]).filter(c => c.slug !== "all" && c.name !== "All" && !KNOWN_SLUGS.has(c.slug));
+    if(!extras.length) return;
+    const navItem = document.getElementById("othersNavItem");
+    const menu    = document.getElementById("othersDropdownMenu");
+    if(navItem && menu){
+      menu.innerHTML = extras.map(c=>`<a href="category.html?cat=${c.slug}">${c.name}</a>`).join("");
+      navItem.style.display = "";
+    }
+  }catch(e){}
+}
+loadOthersNav();
 
 // ── CART DRAWER ───────────────────────────────────────────────────────────────
 const cartOverlay = document.getElementById('cartOverlay');
