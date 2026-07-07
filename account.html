@@ -156,6 +156,11 @@
     .tab-panel{display:none;}.tab-panel.active{display:block;}
     .gate-input{width:100%;padding:13px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:14px;border-radius:var(--radius);transition:border-color .2s;}
     .gate-input:focus{border-color:var(--gold);}
+    .gate-pwd-wrap{position:relative;margin-bottom:14px;}
+    .gate-pwd-wrap .gate-input{margin-bottom:0;padding-right:44px;}
+    .gate-pwd-wrap .pwd-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--mid);cursor:pointer;padding:4px;line-height:0;}
+    .gate-pwd-wrap .pwd-toggle:hover{color:var(--dark);}
+    .gate-pwd-wrap .pwd-toggle svg{width:18px;height:18px;display:block;}
     .gate-select{width:100%;padding:13px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:14px;border-radius:var(--radius);background:#fff;}
     .btn-gate{width:100%;padding:14px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);margin-top:4px;}
     .btn-gate:hover{background:var(--gold-dark);}
@@ -269,7 +274,12 @@
     <p>Sign in to your account to manage orders, wishlist and more.</p>
     <div class="tab-panel active" id="tab-login">
       <input type="email" class="gate-input" id="gLoginEmail" placeholder="Email address *"/>
-      <input type="password" class="gate-input" id="gLoginPwd" placeholder="Password *"/>
+      <div class="gate-pwd-wrap">
+        <input type="password" class="gate-input" id="gLoginPwd" placeholder="Password *"/>
+        <span class="pwd-toggle" onclick="toggleLoginPwd()" title="Show/hide password">
+          <svg id="loginEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </span>
+      </div>
       <button class="btn-gate" onclick="doLogin()">Sign In</button>
       <div class="gate-msg" id="gLoginMsg"></div>
       <p style="text-align:center;font-size:13px;color:var(--mid);margin-top:16px;">
@@ -1823,6 +1833,16 @@ async function saveProfile(){
 }
 
 // ── CHANGE PASSWORD ───────────────────────────────────────────────────────────
+function toggleLoginPwd(){
+  const inp = document.getElementById('gLoginPwd');
+  const icon = document.getElementById('loginEyeIcon');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  icon.outerHTML = show
+    ? `<svg id="loginEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+    : `<svg id="loginEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+}
+
 function toggleAcctPwd(id, btn){
   const inp=document.getElementById(id);
   const show=inp.type==='password';
