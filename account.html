@@ -1,2419 +1,464 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8"/>
   <link rel="icon" type="image/png" href="logo.png"/>
-  <title>My Account – VibrantPetals</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>About Us – VibrantPetals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
   <style>
     :root{--gold:#9B8B5A;--gold-dark:#7A6B3F;--gold-lt:#C5B483;--cream:#FAF7F2;--cream2:#F2EDE3;--dark:#1A1A1A;--mid:#555;--card-bg:#E8F0F5;--radius:4px;--nav-h:70px;--bar-h:40px;}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Lato',sans-serif;background:var(--cream);color:var(--dark);overflow-x:hidden;}
-    a{text-decoration:none;color:inherit;}img{max-width:100%;display:block;}ul{list-style:none;}button{cursor:pointer;border:none;background:none;font-family:inherit;}
+    a{color:inherit;text-decoration:none;}
+    img{max-width:100%;}
+
+    /* ── ANNOUNCEMENT BAR ── */
+
+    /* ── HEADER ── */
+    /* Dropdown */
+    /* Hamburger */
+
+    /* ── PAGE HERO ── */
+
+    /* ── CONTENT AREA ── */
+    .page-content{max-width:860px;margin:0 auto;padding:64px 24px 80px;}
+    .section-block{margin-bottom:52px;}
+    .section-block:last-child{margin-bottom:0;}
+    .section-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--dark);margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--gold);display:inline-block;}
+    .subsection-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--dark);margin:28px 0 10px;}
+    .numbered-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--dark);margin:32px 0 10px;display:flex;align-items:center;gap:10px;}
+    .numbered-title::before{content:attr(data-n);background:var(--gold);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-family:'Lato',sans-serif;font-weight:700;flex-shrink:0;}
+    p{font-size:15px;line-height:1.85;color:#444;margin-bottom:14px;}
+    ul.content-list{margin:10px 0 14px 0;padding-left:0;list-style:none;}
+    ul.content-list li{font-size:15px;line-height:1.8;color:#444;padding:5px 0 5px 22px;position:relative;}
+    ul.content-list li::before{content:'';position:absolute;left:0;top:14px;width:6px;height:6px;background:var(--gold);border-radius:50%;}
+    .highlight-box{background:linear-gradient(135deg,rgba(155,139,90,.06),rgba(155,139,90,.12));border-left:3px solid var(--gold);border-radius:0 var(--radius) var(--radius) 0;padding:18px 22px;margin:20px 0;}
+    .highlight-box p{margin:0;}
+    .contact-box{background:#fff;border:1px solid rgba(155,139,90,.25);border-radius:8px;padding:28px 32px;text-align:center;margin-top:40px;}
+    .contact-box h3{font-family:'Playfair Display',serif;font-size:20px;color:var(--dark);margin-bottom:8px;}
+    .contact-box p{margin:0;color:var(--mid);font-size:14px;}
+    .contact-box a{color:var(--gold);font-weight:700;}
+
+    /* ── CARDS (for FAQ, Festival) ── */
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;margin:24px 0;}
+    .info-card{background:#fff;border:1px solid rgba(155,139,90,.2);border-radius:8px;padding:24px;transition:box-shadow .2s;}
+    .info-card:hover{box-shadow:0 4px 20px rgba(155,139,90,.12);}
+    .info-card-icon{font-size:28px;margin-bottom:12px;}
+    .info-card h3{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--dark);margin-bottom:8px;}
+    .info-card p{font-size:14px;color:var(--mid);line-height:1.7;margin:0;}
+
+    /* ── FAQ ACCORDION ── */
+    .faq-group{margin-bottom:40px;}
+    .faq-group-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--dark);margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid rgba(155,139,90,.3);}
+    .faq-item{border-bottom:1px solid rgba(0,0,0,.07);}
+    .faq-q{width:100%;background:none;border:none;padding:18px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;text-align:left;font-family:'Lato',sans-serif;font-size:15px;font-weight:700;color:var(--dark);gap:16px;transition:color .2s;}
+    .faq-q:hover{color:var(--gold);}
+    .faq-q .faq-icon{width:20px;height:20px;flex-shrink:0;transition:transform .3s;color:var(--gold);}
+    .faq-item.open .faq-q .faq-icon{transform:rotate(45deg);}
+    .faq-a{display:none;padding:0 0 18px;font-size:14px;line-height:1.8;color:var(--mid);}
+    .faq-item.open .faq-a{display:block;}
+
+    /* ── FOOTER ── */
+    .newsletter-input::placeholder{color:rgba(255,255,255,.4);}
+
+    /* ── MOBILE ── */
+    @media(max-width:900px){
+      .nav-inner { padding: 0 16px; }
+      .page-content { padding: 40px 20px 60px; }
+      footer { padding: 40px 16px 0; }
+    }
+    @media(max-width:600px){
+      .page-content { padding: 28px 16px 48px; }
+      .page-hero { padding: 40px 16px; }
+      .page-hero h1 { font-size: clamp(26px,7vw,38px); }
+    }
+    @media(max-width:400px){
+      .page-content { padding: 20px 12px 36px; }
+    }
+    footer{background:var(--cream);border-top:1px solid #e8e0d2;padding:60px 32px 0;}
+    .footer-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:60px;padding-bottom:50px;}
+    .footer-col-title{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px;color:var(--dark);}
+    .footer-contact{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--mid);}
+    .footer-links{display:flex;flex-direction:column;gap:10px;}
+    .footer-links a{font-size:14px;color:var(--mid);transition:color .2s;}
+    .footer-links a:hover{color:var(--gold);}
+    .newsletter-desc{font-size:14px;color:var(--mid);margin-bottom:20px;line-height:1.6;}
+    .newsletter-input{width:100%;padding:14px 16px;border:1px solid #ddd;background:#fff;font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;transition:border-color .2s;}
+    .newsletter-input:focus{border-color:var(--gold);}
+    .btn-subscribe{background:var(--gold);color:#fff;padding:14px 36px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;transition:background .2s;border-radius:var(--radius);border:none;cursor:pointer;}
+    .btn-subscribe:hover{background:var(--gold-dark);}
+    .footer-bottom{border-top:1px solid #e8e0d2;text-align:center;padding:20px;font-size:13px;color:var(--mid);}
+    @media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;gap:24px;}}
+    @media(max-width:600px){.footer-grid{grid-template-columns:1fr;gap:36px;}}
+    .page-hero{background:var(--cream2);border-bottom:1px solid #e8e0d2;padding:60px 24px;text-align:center;position:relative;overflow:hidden;}
+        .page-hero-inner{max-width:700px;margin:0 auto;position:relative;z-index:1;}
+        .page-hero-eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+        .page-hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4.5vw,50px);font-weight:300;line-height:1.2;color:var(--dark);margin-bottom:16px;}
+        .page-hero p{font-size:15px;color:var(--mid);line-height:1.7;max-width:520px;margin:0 auto;}
+        .hero-divider{display:flex;align-items:center;gap:12px;justify-content:center;margin-top:20px;}
+        .hero-divider span{width:40px;height:1px;background:var(--gold);opacity:.5;display:block;}
+        .hero-divider i{color:var(--gold);font-size:14px;font-style:normal;}
     .ann-bar{background:var(--gold);color:#fff;text-align:center;font-size:13px;letter-spacing:.06em;height:var(--bar-h);display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:200;}
     header{position:sticky;top:var(--bar-h);z-index:190;background:#fff;border-bottom:1px solid #e8e0d2;height:var(--nav-h);}
     .nav-inner{max-width:1280px;margin:0 auto;padding:0 32px;height:100%;display:flex;align-items:center;justify-content:space-between;}
-    .nav-logo{display:flex;align-items:center;gap:10px;font-family:"Playfair Display",serif;font-size:22px;height:100%;}.nav-logo img{height:100%;width:auto;object-fit:contain;display:block;}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--dark);height:100%;}
+    .nav-logo img{height:100%;width:auto;object-fit:contain;display:block;}
     nav ul{display:flex;align-items:center;gap:36px;}
+    nav ul li{position:relative;}
     nav ul li a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--dark);padding-bottom:4px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
-    nav ul li a:hover{color:var(--gold);border-bottom-color:var(--gold);}
+    nav ul li a:hover,nav ul li a.active{color:var(--gold);border-bottom-color:var(--gold);}
     .dropdown{position:relative;}
-    .dropdown-menu{position:absolute;top:100%;left:50%;padding-top:18px;transform:translateX(-50%) translateY(-6px);background:transparent;border:none;min-width:200px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:300;}
+    .dropdown-menu{position:absolute;top:100%;left:50%;padding-top:18px;transform:translateX(-50%) translateY(-6px);background:transparent;border:none;min-width:200px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;}
     .dropdown-menu::before{content:'';display:block;background:#fff;border:1px solid #e8e0d2;box-shadow:0 8px 30px rgba(0,0,0,.08);position:absolute;top:18px;left:0;right:0;bottom:0;z-index:-1;}
     .dropdown:hover .dropdown-menu{opacity:1;pointer-events:all;transform:translateX(-50%) translateY(0);}
-    .dropdown-menu a{display:block;padding:12px 20px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-bottom:1px solid #f0ebe0;position:relative;background:#fff;}
-    .dropdown-menu a:last-child{border-bottom:none;}.dropdown-menu a:hover{background:var(--cream2);color:var(--gold);}
+    .dropdown-menu a{display:block;padding:12px 20px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-bottom:1px solid #f0ebe0;color:var(--dark);background:#fff;transition:background .15s,color .15s;}
+    .dropdown-menu a:last-child{border-bottom:none;}
+    .dropdown-menu a:hover{background:var(--cream2);color:var(--gold);}
     .nav-icons{display:flex;align-items:center;gap:20px;}
-    .nav-icon-btn{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--dark);transition:color .2s;}
+    .nav-icon-btn{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--dark);transition:color .2s;background:none;border:none;cursor:pointer;}
     .nav-icon-btn:hover{color:var(--gold);}
     .nav-icon-btn svg{width:22px;height:22px;stroke-width:1.6;}
+    .acct-icon-wrap{position:relative;}
+    .acct-icon-wrap .acct-drop{display:none;position:absolute;top:100%;right:0;padding-top:10px;background:#fff;border:1px solid #e8e0d2;box-shadow:0 8px 30px rgba(0,0,0,.1);min-width:160px;z-index:9999;}
+    .acct-icon-wrap:hover .acct-drop{display:block;}
+    .acct-drop a,.acct-drop button{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;border:none;background:none;font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;color:var(--dark);cursor:pointer;text-align:left;border-bottom:1px solid #f0ebe0;transition:background .15s;}
+    .acct-drop a:last-child,.acct-drop button:last-child{border-bottom:none;}
+    .acct-drop a:hover,.acct-drop button:hover{background:var(--cream2);color:var(--gold);}
+    .acct-drop .drop-logout{color:#c0392b;}
+    .acct-drop .drop-logout:hover{background:#fce4e4;color:#c0392b;}
     .badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-    .page-hero{position:relative;height:240px;background:#d6e4ed;overflow:hidden;}
-    .page-hero img{width:100%;height:100%;object-fit:cover;filter:brightness(.6);}
-    .page-hero-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:38px;font-style:italic;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,.4);}
-    .account-layout{max-width:1200px;margin:0 auto;padding:50px 32px 80px;display:grid;grid-template-columns:240px 1fr;gap:40px;align-items:start;}
-    .acct-sidebar{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);overflow:hidden;position:sticky;top:calc(var(--nav-h)+var(--bar-h)+20px);}
-    .acct-user{padding:24px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;text-align:center;}
-    .acct-avatar{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.3);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-family:'Playfair Display',serif;}
-    .acct-username{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:4px;}
-    .acct-email{font-size:12px;opacity:.85;}
-    .role-badge{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
-    .role-customer{background:rgba(255,255,255,.2);color:#fff;}
-    .role-dealer{background:#FFD700;color:#1A1A1A;}
-    .role-administrator{background:#c0392b;color:#fff;}
-    .acct-nav{padding:8px 0;}
-    .acct-nav-item{display:flex;align-items:center;gap:12px;padding:13px 20px;font-size:14px;color:var(--mid);cursor:pointer;transition:background .15s,color .15s;border-left:3px solid transparent;}
-    .acct-nav-item:hover{background:var(--cream2);color:var(--dark);}
-    .acct-nav-item.active{background:var(--cream2);color:var(--gold);border-left-color:var(--gold);font-weight:700;}
-    .acct-nav-item svg{width:18px;height:18px;flex-shrink:0;}
-    .acct-nav-divider{height:1px;background:#e8e0d2;margin:8px 0;}
-    .acct-nav-item.logout{color:#c0392b;}
-    .acct-nav-item.logout:hover{background:#fce4e4;}
-    .acct-panel{display:none;}
-    .acct-panel.active{display:block;}
-    .panel-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:400;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #e8e0d2;}
-    .form-card{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:28px;margin-bottom:24px;}
-    .form-card-title{font-size:15px;font-weight:700;letter-spacing:.06em;margin-bottom:20px;color:var(--dark);display:flex;justify-content:space-between;align-items:center;}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-    .form-row.full{grid-template-columns:1fr;}
-    .form-group{display:flex;flex-direction:column;gap:6px;}
-    .form-label{font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--mid);}
-    .form-input,.form-select{width:100%;padding:12px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;border-radius:var(--radius);background:#fff;transition:border-color .2s;}
-    .form-input:focus,.form-select:focus{border-color:var(--gold);}
-    .form-input:read-only{background:var(--cream2);cursor:default;}
-    /* Password toggle */
-    .input-wrap{position:relative;}
-    .input-wrap .form-input{padding-right:44px;}
-    .pwd-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--mid);cursor:pointer;padding:4px;border-radius:3px;transition:color .2s;line-height:0;}
-    .pwd-toggle:hover{color:var(--dark);}
-    .pwd-toggle svg{width:18px;height:18px;display:block;}
-    /* Hide browser native password-reveal icon */
-    input[type="password"]::-ms-reveal,
-    input[type="password"]::-ms-clear{display:none;}
-    input[type="password"]::-webkit-credentials-auto-fill-button{visibility:hidden;}
-    .btn-save{padding:13px 32px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);transition:background .2s;}
-    .btn-save:hover{background:var(--gold-dark);}
-    .btn-sm{padding:8px 16px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);transition:background .2s,color .2s;}
-    .btn-sm.gold{background:var(--gold);color:#fff;}.btn-sm.gold:hover{background:var(--gold-dark);}
-    .btn-sm.outline{border:1px solid #ddd;color:var(--mid);}.btn-sm.outline:hover{border-color:var(--gold);color:var(--gold);}
-    .btn-sm.danger{border:1px solid #c0392b;color:#c0392b;}.btn-sm.danger:hover{background:#c0392b;color:#fff;}
-    .form-msg{font-size:13px;margin-top:12px;padding:10px 14px;border-radius:var(--radius);}
-    .form-msg.ok{background:#e8f5e9;color:#2e7d32;}.form-msg.err{background:#fce4e4;color:#c62828;}
-    .orders-empty{text-align:center;padding:60px 20px;color:var(--mid);}
-    .orders-empty svg{width:56px;height:56px;margin:0 auto 16px;opacity:.3;}
-    .orders-empty p{margin-bottom:20px;}
-    .btn-shop-link{display:inline-block;padding:12px 28px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);}
-    .orders-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);overflow:hidden;}
-    .orders-table th{padding:14px 16px;text-align:left;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--mid);background:var(--cream2);border-bottom:1px solid #e8e0d2;}
-    .orders-table td{padding:14px 16px;font-size:14px;border-bottom:1px solid #f0ebe0;vertical-align:middle;}
-    .orders-table tr:last-child td{border-bottom:none;}
-    .orders-table tr:hover td{background:var(--cream2);}
-    .order-status{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
-    .status-pending{background:#fff3cd;color:#856404;}.status-processing{background:#cce5ff;color:#004085;}
-    .status-shipped{background:#d4edda;color:#155724;}.status-delivered{background:#d4edda;color:#155724;}
-    .status-ready-for-pickup{background:#cce5ff;color:#004085;}
-    .status-cancelled{background:#f8d7da;color:#721c24;}.status-refunded{background:#e2d9f3;color:#4a235a;}
-    .order-detail-btn{font-size:12px;color:var(--gold);font-weight:700;text-decoration:underline;cursor:pointer;margin-right:8px;}
-    .order-cancel-btn{font-size:12px;color:#c0392b;font-weight:700;text-decoration:underline;cursor:pointer;}
-    .order-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:800;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
-    .order-modal.open{opacity:1;pointer-events:all;}
-    .order-modal-box{background:#fff;width:min(640px,94vw);max-height:85vh;overflow-y:auto;border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.2);}
-    .order-modal-head{padding:24px 28px;border-bottom:1px solid #e8e0d2;display:flex;justify-content:space-between;align-items:center;}
-    .order-modal-head h3{font-family:'Playfair Display',serif;font-size:20px;}
-    .order-modal-close{font-size:22px;color:var(--mid);cursor:pointer;}
-    .order-modal-body{padding:24px 28px;}
-    .order-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
-    .order-info-item{font-size:14px;}
-    .order-info-label{font-weight:700;color:var(--mid);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
-    .order-items-list{border-top:1px solid #e8e0d2;padding-top:16px;margin-bottom:16px;}
-    .order-item-row{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #f0ebe0;}
-    .order-item-row:last-child{border-bottom:none;}
-    .order-item-row img{width:52px;height:52px;object-fit:cover;background:var(--card-bg);}
-    .order-item-row .name{flex:1;font-size:14px;font-weight:600;}
-    .order-item-row .qty{font-size:13px;color:var(--mid);}
-    .order-item-row .price{font-size:14px;font-weight:700;}
-    .order-totals{border-top:1px solid #e8e0d2;padding-top:12px;}
-    .order-total-row{display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:var(--mid);}
-    .order-total-row.grand{font-weight:700;color:var(--dark);font-size:16px;}
-    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:30px;}
-    .stat-card{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:20px;text-align:center;}
-    .stat-val{font-family:'Playfair Display',serif;font-size:32px;color:var(--gold);margin-bottom:6px;}
-    .stat-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mid);font-weight:700;}
-    /* ADDRESSES */
-    .addr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:16px;}
-    .addr-card{background:var(--cream2);border:1px solid #e8e0d2;border-radius:var(--radius);padding:16px;position:relative;}
-    .addr-card.default-card{border-color:var(--gold);}
-    .addr-default-badge{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--gold);color:#fff;padding:2px 8px;border-radius:20px;}
-    .addr-label{font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
-    .addr-text{font-size:13px;color:var(--mid);line-height:1.6;}
-    .addr-actions{display:flex;gap:8px;margin-top:12px;}
-    /* ADDRESS MODAL */
-    .addr-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:900;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
-    .addr-modal.open{opacity:1;pointer-events:all;}
-    .addr-modal-box{background:#fff;width:min(500px,94vw);max-height:90vh;overflow-y:auto;border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.2);}
-    .addr-modal-head{padding:20px 24px;border-bottom:1px solid #e8e0d2;display:flex;justify-content:space-between;align-items:center;}
-    .addr-modal-head h3{font-family:'Playfair Display',serif;font-size:18px;}
-    .addr-modal-body{padding:20px 24px;}
-    /* DEALER SECTION */
-    .dealer-info-card{background:linear-gradient(135deg,#FFD700,#FFA500);border-radius:var(--radius);padding:24px;color:#1A1A1A;margin-bottom:24px;}
-    .dealer-badge-lg{font-size:32px;margin-bottom:8px;}
-    .dealer-info-card h3{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:6px;}
-    .dealer-info-card p{font-size:14px;opacity:.8;margin-bottom:0;}
-    /* ORDERS PAGINATION */
-    .orders-pagination{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:20px;}
-    .pag-btn{padding:8px 16px;border:1px solid #ddd;font-size:13px;font-weight:700;border-radius:var(--radius);transition:background .2s,color .2s,border-color .2s;color:var(--mid);}
-    .pag-btn:hover{border-color:var(--gold);color:var(--gold);}
-    .pag-btn.active{background:var(--gold);color:#fff;border-color:var(--gold);}
-    .pag-btn:disabled{opacity:.4;cursor:not-allowed;}
-    .pag-info{font-size:13px;color:var(--mid);}
-    /* LOGIN GATE */
-    .login-gate{max-width:460px;margin:0 auto;background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:40px;text-align:center;}
-    .login-gate h2{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:12px;}
-    .login-gate p{font-size:14px;color:var(--mid);margin-bottom:28px;}
-    .tabs{display:flex;border-bottom:2px solid #e8e0d2;margin-bottom:24px;}
-    .tab-btn{flex:1;padding:12px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--mid);border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .2s,border-color .2s;}
-    .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
-    .tab-panel{display:none;}.tab-panel.active{display:block;}
-    .gate-input{width:100%;padding:13px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:14px;border-radius:var(--radius);transition:border-color .2s;}
-    .gate-input:focus{border-color:var(--gold);}
-    .gate-pwd-wrap{position:relative;margin-bottom:14px;}
-    .gate-pwd-wrap .gate-input{margin-bottom:0;padding-right:44px;}
-    .gate-pwd-wrap .pwd-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--mid);cursor:pointer;padding:4px;line-height:0;}
-    .gate-pwd-wrap .pwd-toggle:hover{color:var(--dark);}
-    .gate-pwd-wrap .pwd-toggle svg{width:18px;height:18px;display:block;}
-    .gate-link{display:block;text-align:right;font-size:12px;color:var(--gold);font-weight:700;cursor:pointer;margin-top:-8px;margin-bottom:14px;letter-spacing:.04em;}
-    .gate-link:hover{text-decoration:underline;}
-    .gate-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--mid);cursor:pointer;margin-bottom:18px;font-weight:700;letter-spacing:.04em;}
-    .gate-back:hover{color:var(--dark);}
-    .gate-back svg{width:14px;height:14px;}
-    .gate-otp-inputs{display:flex;gap:10px;justify-content:center;margin-bottom:14px;}
-    .gate-otp-inputs input{width:46px;height:52px;text-align:center;font-size:22px;font-weight:700;border:1px solid #ddd;border-radius:var(--radius);font-family:inherit;outline:none;transition:border-color .2s;}
-    .gate-otp-inputs input:focus{border-color:var(--gold);}
-    .gate-resend{font-size:12px;color:var(--mid);text-align:center;margin-top:8px;}
-    .gate-resend span{color:var(--gold);font-weight:700;cursor:pointer;}
-    .gate-resend span:hover{text-decoration:underline;}
-    .gate-resend span.disabled{color:#bbb;cursor:default;text-decoration:none;}
-    .gate-select{width:100%;padding:13px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:14px;border-radius:var(--radius);background:#fff;}
-    .btn-gate{width:100%;padding:14px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);margin-top:4px;}
-    .btn-gate:hover{background:var(--gold-dark);}
-    .gate-msg{font-size:13px;margin-top:10px;text-align:center;}
-    .gate-msg.ok{color:#2d7a2d;}.gate-msg.err{color:#c0392b;}
+    .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:none;border:none;cursor:pointer;padding:4px;border-radius:4px;transition:background .15s;}
+    .hamburger:hover{background:var(--cream2);}
+    .hamburger span{display:block;width:22px;height:2px;background:var(--dark);border-radius:2px;transition:transform .25s,opacity .25s;}
+    .mobile-nav{display:none;position:fixed;inset:0;z-index:800;}
+    .mobile-nav.open{display:block;}
+    .mobile-nav-overlay{position:absolute;inset:0;background:rgba(0,0,0,.45);}
+    .mobile-nav-drawer{position:absolute;top:0;left:0;bottom:0;width:min(300px,85vw);background:#fff;overflow-y:auto;box-shadow:4px 0 30px rgba(0,0,0,.12);display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);}
+    .mobile-nav.open .mobile-nav-drawer{transform:translateX(0);}
+    .mobile-nav-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #e8e0d2;font-family:'Playfair Display',serif;font-size:18px;color:var(--dark);}
+    .mobile-nav-close{font-size:22px;color:var(--mid);background:none;border:none;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px;transition:background .15s;}
+    .mobile-nav-close:hover{background:var(--cream2);}
+    .mobile-nav ul{list-style:none;padding:10px 0;margin:0;flex:1;}
+    .mobile-nav ul li a,.mobile-nav ul li button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 20px;font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dark);background:none;border:none;cursor:pointer;text-align:left;border-bottom:1px solid #f5f0e8;transition:background .15s,color .15s;text-decoration:none;}
+    .mobile-nav ul li a:hover,.mobile-nav ul li button:hover{background:var(--cream2);color:var(--gold);}
+    .mobile-nav-sub{display:none;background:var(--cream2);border-bottom:1px solid #e8e0d2;}
+    .mobile-nav-sub.open{display:block;}
+    .mobile-nav-sub a{padding:11px 20px 11px 36px!important;font-size:13px!important;letter-spacing:.05em!important;color:var(--mid)!important;border-bottom:1px solid #ede8de!important;}
+    .mobile-nav-sub a:hover{color:var(--gold)!important;}
+    .search-overlay{position:fixed;inset:0;background:rgba(250,247,242,.97);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:15vh;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .search-overlay.open{opacity:1;pointer-events:all;}
+    .search-close{position:absolute;top:20px;right:24px;font-size:28px;color:var(--dark);cursor:pointer;transition:color .2s;background:none;border:none;}
+    .search-close:hover{color:var(--gold);}
+    .search-label{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:24px;color:var(--dark);}
+    .search-bar{display:flex;align-items:center;width:min(600px,90vw);border-bottom:2px solid var(--dark);padding-bottom:10px;gap:12px;}
+    .search-bar input{flex:1;border:none;background:transparent;font-size:20px;outline:none;font-family:'Cormorant Garamond',serif;}
+    .search-results{width:min(600px,90vw);margin-top:24px;display:flex;flex-direction:column;gap:12px;max-height:55vh;overflow-y:auto;}
+    .search-result-item{display:flex;align-items:center;gap:16px;padding:12px;background:#fff;border:1px solid #e8e0d2;cursor:pointer;transition:border-color .2s;}
+    .search-result-item:hover{border-color:var(--gold);}
+    .search-result-item img{width:50px;height:50px;object-fit:cover;}
+    .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:700;opacity:0;pointer-events:none;transition:opacity .3s;}
+    .cart-overlay.open{opacity:1;pointer-events:all;}
+    .cart-drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,95vw);background:#fff;z-index:710;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-4px 0 40px rgba(0,0,0,.15);}
+    .cart-drawer.open{transform:translateX(0);}
+    .cart-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #e8e0d2;}
+    .cart-head h3{font-family:'Playfair Display',serif;font-size:18px;}
+    .cart-body{flex:1;overflow-y:auto;padding:20px 24px;}
+    .cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;color:var(--mid);}
+    .cart-empty svg{width:48px;height:48px;opacity:.3;}
+    .btn-shop-all{display:inline-block;padding:12px 28px;border:1px solid var(--dark);font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;transition:background .2s,color .2s;}
+    .btn-shop-all:hover{background:var(--dark);color:#fff;}
+    .cart-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f0ebe0;}
+    .cart-item img{width:70px;height:70px;object-fit:cover;background:var(--card-bg);}
+    .cart-item-info{flex:1;}
+    .cart-item-name{font-size:13px;font-weight:600;margin-bottom:4px;}
+    .cart-item-price{font-size:13px;color:var(--mid);}
+    .cart-item-qty{display:flex;align-items:center;gap:10px;margin-top:8px;}
+    .qty-btn{width:26px;height:26px;border:1px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:background .2s;background:none;}
+    .qty-btn:hover{background:var(--cream2);}
+    .qty-val{font-size:14px;font-weight:600;min-width:20px;text-align:center;}
+    .cart-remove{font-size:18px;color:#aaa;cursor:pointer;align-self:flex-start;transition:color .2s;background:none;border:none;}
+    .cart-remove:hover{color:#c0392b;}
+    .cart-foot{padding:20px 24px;border-top:1px solid #e8e0d2;}
+    .cart-totals{margin-bottom:16px;}
+    .cart-total-row{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;color:var(--mid);}
+    .cart-total-row.grand{font-weight:700;color:var(--dark);font-size:16px;}
+    .btn-checkout{width:100%;padding:16px;background:var(--gold);color:#fff;font-size:14px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);transition:background .2s;border:none;cursor:pointer;}
+    .btn-checkout:hover{background:var(--gold-dark);}
+    .toast{position:fixed;bottom:28px;right:28px;background:var(--dark);color:#fff;padding:14px 22px;border-radius:4px;font-size:13px;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:999;}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast.success{background:#2d7a2d;}
+    .toast.error{background:#c0392b;}
+    .back-top{position:fixed;bottom:28px;right:28px;width:42px;height:42px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 16px rgba(0,0,0,.18);opacity:0;pointer-events:none;transition:opacity .3s;z-index:400;cursor:pointer;border:none;}
+    .back-top.visible{opacity:1;pointer-events:all;}
     .skeleton{background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-    .toast{position:fixed;bottom:28px;right:28px;background:var(--dark);color:#fff;padding:14px 22px;border-radius:4px;font-size:13px;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:999;}
-    .toast.show{transform:translateY(0);opacity:1;}.toast.success{background:#2d7a2d;}.toast.error{background:#c0392b;}
-    /* WISHLIST PANEL */
-    .wish-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;margin-top:16px;}
-    .wish-card{cursor:pointer;display:flex;flex-direction:column;}
-    .wish-card-inner{background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e5ddd0;transition:box-shadow .25s,transform .25s;display:flex;flex-direction:column;height:100%;}
-    .wish-card:hover .wish-card-inner{box-shadow:0 6px 20px rgba(0,0,0,.10);transform:translateY(-3px);}
-    .wish-card-img{position:relative;background:#fff;padding:16px;aspect-ratio:1;overflow:hidden;}
-    .wish-card-img img{width:100%;height:100%;object-fit:contain;transition:transform .4s;display:block;}
-    .wish-card:hover .wish-card-img img{transform:scale(1.04);}
-    .wish-remove-btn{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e5ddd0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#c0392b;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:color .2s,border-color .2s;z-index:2;}
-    .wish-remove-btn:hover{background:#fff3f3;border-color:#c0392b;}
-    .wish-remove-btn svg{width:13px;height:13px;}
-    .wish-out-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,.92);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:6px 14px;white-space:nowrap;border-radius:3px;}
-    .wish-card-body{padding:16px 16px 16px;border-top:1px solid #f0ebe0;display:flex;flex-direction:column;align-items:center;text-align:center;flex:1;gap:10px;}
-    .wish-card-name{font-size:14px;color:var(--dark);font-weight:600;line-height:1.4;min-height:40px;margin:0;}
-    .wish-card-price{font-size:15px;color:var(--gold);font-weight:700;margin:0;}
-    .wish-qty-row{display:flex;align-items:center;border:1px solid #ccc;border-radius:50px;overflow:hidden;width:160px;height:38px;margin:0;}
-    .wish-qty-btn{flex:0 0 38px;height:38px;background:#f5f0e8;border:none;font-size:20px;font-weight:300;color:var(--dark);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;font-family:inherit;line-height:1;flex-shrink:0;}
-    .wish-qty-btn:first-child{border-radius:50px 0 0 50px;}.wish-qty-btn:last-child{border-radius:0 50px 50px 0;}
-    .wish-qty-btn:hover{background:var(--cream2);}
-    .wish-qty-val{flex:1;text-align:center;font-size:14px;font-weight:600;color:var(--dark);border-left:1px solid #ccc;border-right:1px solid #ccc;height:38px;line-height:38px;user-select:none;}
-    .wish-btn-cart{display:inline-flex;align-items:center;justify-content:center;gap:7px;width:160px;height:38px;background:var(--gold);color:#fff;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border-radius:50px;cursor:pointer;border:none;font-family:inherit;transition:background .2s;white-space:nowrap;}
-    .wish-btn-cart:hover{background:var(--gold-dark);}
-    .wish-btn-cart:disabled{opacity:.5;cursor:not-allowed;}
-    .wish-btn-cart svg{width:14px;height:14px;stroke-width:2;}
-    .wish-clear-btn{padding:9px 20px;border:1px solid #ddd;font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--mid);border-radius:var(--radius);transition:background .2s,color .2s,border-color .2s;}
-    .wish-clear-btn:hover{background:#c0392b;color:#fff;border-color:#c0392b;}
-    .wish-empty{text-align:center;padding:60px 20px;color:var(--mid);}
-    .wish-empty svg{width:52px;height:52px;margin:0 auto 16px;opacity:.3;}
-    .wish-empty p{margin-bottom:20px;font-size:14px;}
-    footer{background:var(--cream);border-top:1px solid #e8e0d2;padding:40px 32px;text-align:center;font-size:13px;color:var(--mid);}
-    @media(max-width:900px){
-      .nav-logo-text{display:none;}.nav-icons{gap:12px;}.nav-icon-btn{width:30px;height:30px;}.nav-icon-btn svg{width:19px;height:19px;}
-      .nav-inner { padding: 0 16px; }
-      nav ul{display:none;}.hamburger{display:flex;}
-      .account-layout{grid-template-columns:1fr; padding: 24px 16px 60px; gap: 24px;}
-      .form-row{grid-template-columns:1fr;}
-      .stats-grid{grid-template-columns:1fr 1fr;}
-      .order-info-grid{grid-template-columns:1fr;}
-      footer { padding: 24px 16px; }
-    }
-    @media(max-width:600px){
-      .account-layout { padding: 16px 12px 48px; }
-      .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-      .panel-section { padding: 20px 16px; }
-    }
-    @media(max-width:400px){
-      .stats-grid { grid-template-columns: 1fr; }
-      .account-layout { padding: 12px 10px 36px; }
-    }
-
-    /* ── BRANDED CONFIRM MODAL ── */
-    .vp-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
-    .vp-modal-overlay.open{opacity:1;pointer-events:all;}
-    .vp-modal{background:#fff;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.18);width:min(440px,92vw);overflow:hidden;transform:translateY(12px) scale(.97);transition:transform .2s;font-family:'Nunito',sans-serif;}
-    .vp-modal-overlay.open .vp-modal{transform:translateY(0) scale(1);}
-    .vp-modal-body{padding:28px 24px 20px;}
-    .vp-modal-icon{font-size:32px;text-align:center;margin-bottom:12px;}
-    .vp-modal-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--dark);margin-bottom:10px;text-align:center;}
-    .vp-modal-message{font-size:14px;color:var(--mid);line-height:1.65;text-align:center;}
-    .vp-modal-footer{display:flex;gap:10px;padding:0 24px 24px;justify-content:center;}
-    .vp-modal-btn{flex:1;max-width:160px;padding:12px 20px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:var(--radius);border:none;cursor:pointer;font-family:inherit;transition:background .15s,opacity .15s;}
-    .vp-modal-btn:hover{opacity:.88;}
-    .vp-modal-cancel{background:#f0ebe0;color:var(--mid);}
-    .vp-modal-confirm{background:var(--gold);color:#fff;}
-    .vp-modal-confirm.danger{background:#c0392b;}
-    .vp-modal-confirm.success{background:#27ae60;}
+    @media(max-width:900px){.nav-logo-text{display:none;}.nav-icons{gap:12px;}.nav-icon-btn{width:30px;height:30px;}.nav-icon-btn svg{width:19px;height:19px;}nav ul{display:none;}.hamburger{display:flex;}}
   </style>
 </head>
 <body>
 <div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney</div>
+
 <header>
   <div class="nav-inner">
-    <a href="index.html" class="nav-logo"><img src="logo.png" alt="Vibrant Petals Logo" /><span class="nav-logo-text"> Vibrant Petals</span></a>
-    <nav><ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="category.html?cat=strings">Strings</a></li>
-      <li class="dropdown"><a href="category.html?cat=pooja-garlands">Garlands <span>▾</span></a>
-        <div class="dropdown-menu"><a href="category.html?cat=pooja-garlands">Pooja Garlands</a><a href="category.html?cat=special-occasional-garlands">Special Garlands</a></div>
-      </li>
-      <li><a href="category.html?cat=loose-flowers">Loose Flowers</a></li>
-      <li><a href="category.html?cat=leaves">Leaves</a></li>
-      <li class="dropdown" id="othersNavItem" style="display:none;">
-        <a href="category.html?cat=all">Others <span>▾</span></a>
-        <div class="dropdown-menu" id="othersDropdownMenu"></div>
-      </li>
-    </ul></nav>
+    <a href="index.html" class="nav-logo">
+      <img src="logo.png" alt="Vibrant Petals Logo" /><span class="nav-logo-text"> Vibrant Petals</span>
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="category.html?cat=strings">Strings</a></li>
+        <li class="dropdown">
+          <a href="category.html?cat=pooja-garlands">Garlands <span>▾</span></a>
+          <div class="dropdown-menu">
+            <a href="category.html?cat=pooja-garlands">Pooja Garlands</a>
+            <a href="category.html?cat=special-occasional-garlands">Special Occasional Garlands</a>
+          </div>
+        </li>
+        <li><a href="category.html?cat=loose-flowers">Loose Flowers</a></li>
+        <li><a href="category.html?cat=leaves">Leaves</a></li>
+        <li class="dropdown" id="othersNavItem" style="display:none;">
+          <a href="category.html?cat=all">Others <span>&#9660;</span></a>
+          <div class="dropdown-menu" id="othersDropdownMenu"></div>
+        </li>
+      </ul>
+    </nav>
     <div class="nav-icons">
-      <button class="nav-icon-btn" id="searchBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></button>
-      <button class="nav-icon-btn" style="color:var(--gold)"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
-      <button class="nav-icon-btn" id="navWishlistBtn" onclick="showPanel('wishlist',document.getElementById('navWishlist'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount" style="display:none;">0</span></button>
-      <button class="nav-icon-btn" id="navCartBtn" onclick="location.href='checkout.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="badge" id="cartCount">0</span></button>
+      <button class="nav-icon-btn" id="searchBtn" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></button>
+      <div class="acct-icon-wrap">
+        <button class="nav-icon-btn" id="loginBtn" title="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+        <div class="acct-drop" id="acctDrop"></div>
+      </div>
+      <button class="nav-icon-btn" title="Wishlist" onclick="location.href='account.html?panel=wishlist'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount" style="display:none;">0</span></button>
+      <button class="nav-icon-btn" id="cartBtn" title="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="badge" id="cartCount">0</span></button>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" onclick="openMobileNav()"><span></span><span></span><span></span></button>
     </div>
   </div>
 </header>
 
 
+<div class="page-content">
 
-<!-- NOT LOGGED IN: LOGIN/REGISTER GATE -->
-<div id="loginGate" style="padding:60px 32px 80px;display:none;">
-  <div class="login-gate">
-    <h2>Welcome Back</h2>
-    <p>Sign in to your account to manage orders, wishlist and more.</p>
-    <!-- STEP 1: LOGIN -->
-    <div id="fpStep-login">
-      <input type="email" class="gate-input" id="gLoginEmail" placeholder="Email address *"/>
-      <div class="gate-pwd-wrap">
-        <input type="password" class="gate-input" id="gLoginPwd" placeholder="Password *"/>
-        <span class="pwd-toggle" onclick="toggleLoginPwd()" title="Show/hide password">
-          <svg id="loginEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </span>
-      </div>
-      <span class="gate-link" onclick="showFpStep('email')">Forgot password?</span>
-      <button class="btn-gate" onclick="doLogin()">Sign In</button>
-      <div class="gate-msg" id="gLoginMsg"></div>
-      <p style="text-align:center;font-size:13px;color:var(--mid);margin-top:16px;">
-        Don't have an account? <a href="signup.html" style="color:var(--gold);font-weight:700;text-decoration:underline;">Sign up here</a>
-      </p>
-    </div>
-
-    <!-- STEP 2: ENTER EMAIL FOR RESET -->
-    <div id="fpStep-email" style="display:none;">
-      <span class="gate-back" onclick="showFpStep('login')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        Back to Sign In
-      </span>
-      <h2 style="margin-bottom:8px;">Forgot Password</h2>
-      <p style="margin-bottom:24px;">Enter your registered email and we'll send you a reset code.</p>
-      <input type="email" class="gate-input" id="fpEmail" placeholder="Email address *"/>
-      <button class="btn-gate" onclick="doForgotPassword()">Send Reset Code</button>
-      <div class="gate-msg" id="fpEmailMsg"></div>
-    </div>
-
-    <!-- STEP 3: ENTER OTP -->
-    <div id="fpStep-otp" style="display:none;">
-      <span class="gate-back" onclick="showFpStep('email')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        Back
-      </span>
-      <h2 style="margin-bottom:8px;">Enter Reset Code</h2>
-      <p style="margin-bottom:24px;">We sent a 6-digit code to <strong id="fpEmailDisplay"></strong></p>
-      <div class="gate-otp-inputs">
-        <input type="text" maxlength="1" inputmode="numeric" class="otp-box" id="fp_o0" oninput="fpOtpInput(this,0)"/>
-        <input type="text" maxlength="1" inputmode="numeric" class="otp-box" id="fp_o1" oninput="fpOtpInput(this,1)"/>
-        <input type="text" maxlength="1" inputmode="numeric" class="otp-box" id="fp_o2" oninput="fpOtpInput(this,2)"/>
-        <input type="text" maxlength="1" inputmode="numeric" class="otp-box" id="fp_o3" oninput="fpOtpInput(this,3)"/>
-        <input type="text" maxlength="1" inputmode="numeric" class="otp-box" id="fp_o4" oninput="fpOtpInput(this,4)"/>
-        <input type="text" maxlength="1" inputmode="numeric" class="otp-box" id="fp_o5" oninput="fpOtpInput(this,5)"/>
-      </div>
-      <button class="btn-gate" onclick="doVerifyResetOtp()">Verify Code</button>
-      <div class="gate-msg" id="fpOtpMsg"></div>
-      <div class="gate-resend">Didn't receive it? <span id="fpResendBtn" onclick="doResendResetOtp()">Resend code</span></div>
-    </div>
-
-    <!-- STEP 4: SET NEW PASSWORD -->
-    <div id="fpStep-newpwd" style="display:none;">
-      <h2 style="margin-bottom:8px;">Set New Password</h2>
-      <p style="margin-bottom:24px;">Choose a strong password for your account.</p>
-      <div class="gate-pwd-wrap" style="margin-bottom:14px;">
-        <input type="password" class="gate-input" id="fpNewPwd" placeholder="New password (min 6 chars) *"/>
-        <span class="pwd-toggle" onclick="toggleFpPwd('fpNewPwd','fpNewPwdIcon')" title="Show/hide">
-          <svg id="fpNewPwdIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </span>
-      </div>
-      <div class="gate-pwd-wrap">
-        <input type="password" class="gate-input" id="fpConfirmPwd" placeholder="Confirm new password *"/>
-        <span class="pwd-toggle" onclick="toggleFpPwd('fpConfirmPwd','fpConfirmPwdIcon')" title="Show/hide">
-          <svg id="fpConfirmPwdIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </span>
-      </div>
-      <button class="btn-gate" onclick="doResetPassword()">Reset Password</button>
-      <div class="gate-msg" id="fpNewPwdMsg"></div>
-    </div>
-
-  </div>
+<div class="section-block">
+  <h2 class="section-title">Our Story</h2>
+  <p>Nivas Vibrant Petals was founded with a vision to bridge the floral heritage of India with the multicultural lifestyle of Australia.</p>
+  <p>Living away from home often creates a longing for familiar traditions and celebrations. We recognised the growing need for access to authentic Indian flowers in Australia — flowers deeply connected to spirituality, culture, and family traditions.</p>
+  <p>Through strong sourcing partnerships and careful handling practices, we bring premium-quality flowers from trusted growers to customers who value freshness, authenticity, and cultural connection.</p>
 </div>
 
-<!-- LOGGED IN: ACCOUNT DASHBOARD -->
-<div id="accountDash" style="display:none;">
-  <div class="account-layout">
-    <!-- SIDEBAR -->
-    <aside class="acct-sidebar">
-      <div class="acct-user">
-        <div class="acct-avatar" id="acctAvatar">🌸</div>
-        <div class="acct-username" id="acctName">Loading...</div>
-        <div class="acct-email" id="acctEmailDisp"></div>
-        <div id="acctRoleBadge"></div>
-      </div>
-      <div class="acct-nav">
-        <div class="acct-nav-item active" onclick="showPanel('dashboard',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
-        </div>
-        <div class="acct-nav-item" id="navOrders" style="display:none;" onclick="showPanel('orders',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>My Orders
-        </div>
-        <!-- Addresses removed — pickup-only model, no door delivery -->
-        <div class="acct-nav-item" onclick="showPanel('profile',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile Settings
-        </div>
-        <div class="acct-nav-item" onclick="showPanel('password',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Change Password
-        </div>
-        <div class="acct-nav-item" id="navDealer" style="display:none;" onclick="showPanel('dealer',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>My Territories
-        </div>
-        <div class="acct-nav-item" id="navMyStore" style="display:none;" onclick="showPanel('mystore',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>My Outlets
-        </div>
-        <div class="acct-nav-item" id="navOutlets" style="display:none;" onclick="showPanel('outlets',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>My Retail Outlets
-        </div>
-        <div class="acct-nav-item" id="navAdmin" style="display:none;" onclick="location.href='admin.html'">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Admin Panel ↗
-        </div>
-        <div class="acct-nav-item" id="navWishlist" style="display:none;" onclick="showPanel('wishlist',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Wishlist
-        </div>
-        <div class="acct-nav-divider"></div>
-        <div class="acct-nav-item logout" onclick="doLogout()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out
-        </div>
-      </div>
-    </aside>
-
-    <!-- PANELS -->
-    <main>
-      <!-- DASHBOARD -->
-      <div class="acct-panel active" id="panel-dashboard">
-        <div class="panel-title">Dashboard</div>
-        <div class="stats-grid">
-          <div class="stat-card"><div class="stat-val" id="statOrders">—</div><div class="stat-label">Total Orders</div></div>
-          <div class="stat-card"><div class="stat-val" id="statSpent">—</div><div class="stat-label">Total Spent</div></div>
-          <div class="stat-card"><div class="stat-val" id="statWish">—</div><div class="stat-label">Wishlist Items</div></div>
-        </div>
-        <div class="form-card">
-          <div class="form-card-title">RECENT ORDERS</div>
-          <div id="dashRecentOrders"><div class="skeleton" style="height:60px;border-radius:4px;margin-bottom:10px;"></div><div class="skeleton" style="height:60px;border-radius:4px;"></div></div>
-        </div>
-        <div class="form-card" id="dashQuickLinks" style="margin-top:16px;">
-          <div class="form-card-title">QUICK LINKS</div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;">
-            <a href="category.html?cat=all" style="display:inline-block;padding:10px 20px;border:1px solid var(--gold);color:var(--gold);font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);">Shop Now</a>
-            <button onclick="showPanel('wishlist',document.getElementById('navWishlist'))" style="display:inline-block;padding:10px 20px;border:1px solid #ddd;color:var(--mid);font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);background:none;cursor:pointer;">View Wishlist</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ORDERS -->
-      <div class="acct-panel" id="panel-orders">
-        <div class="panel-title">My Orders</div>
-        <div id="orderTabsBar" style="display:none;margin-bottom:20px;border-bottom:2px solid #e8e0d2;">
-          <button id="tabMyOrders"     onclick="switchOrderTab('placed')"  style="padding:10px 20px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--mid);">My Orders</button>
-          <button id="tabPickupOrders" onclick="switchOrderTab('pickup')"  style="padding:10px 20px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--mid);">My Pickup Orders</button>
-        </div>
-        <div id="ordersContent"><div class="skeleton" style="height:300px;border-radius:4px;"></div></div>
-        <div class="orders-pagination" id="ordersPagination"></div>
-      </div>
-
-      <!-- ADDRESSES — hidden, pickup-only model -->
-      <div class="acct-panel" id="panel-addresses" style="display:none!important;"></div>
-
-      <!-- WISHLIST -->
-      <div class="acct-panel" id="panel-wishlist">
-        <div class="panel-title">Wishlist</div>
-        <div id="wishlistPanelContent">
-          <div class="skeleton" style="height:300px;border-radius:4px;"></div>
-        </div>
-      </div>
-
-      <!-- PROFILE -->
-      <div class="acct-panel" id="panel-profile">
-        <div class="panel-title">Profile Settings</div>
-        <div class="form-card">
-          <div class="form-card-title">PERSONAL INFORMATION</div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-input" id="profFirst"/></div>
-            <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-input" id="profLast"/></div>
-          </div>
-          <div class="form-row full">
-            <div class="form-group"><label class="form-label">Display Name</label><input type="text" class="form-input" id="profDisplay"/></div>
-          </div>
-          <div class="form-row full">
-            <div class="form-group"><label class="form-label">Email (read-only)</label><input type="email" class="form-input" id="profEmail" readonly/></div>
-          </div>
-          <div class="form-row full">
-            <div class="form-group"><label class="form-label">Account Type (read-only)</label><input type="text" class="form-input" id="profRole" readonly/></div>
-          </div>
-          <button class="btn-save" onclick="saveProfile()">Save Changes</button>
-          <div class="form-msg" id="profMsg" style="display:none;"></div>
-        </div>
-
-        <!-- Location Preferences (customers only) -->
-        <div class="form-card" id="locationPrefCard">
-          <div class="form-card-title">PICKUP LOCATION PREFERENCES</div>
-          <p style="font-size:13px;color:var(--mid);margin-bottom:18px;line-height:1.6;">Your preferred state and territory help us show you the nearest pickup outlets at checkout.</p>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">State</label>
-              <select class="form-select" id="profState" onchange="onProfStateChange()">
-                <option value="">Select state…</option>
-                <option value="Melbourne">Melbourne</option>
-                <option value="Sydney">Sydney</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Territory / Suburb</label>
-              <select class="form-select" id="profTerritory" disabled>
-                <option value="">Select state first…</option>
-              </select>
-            </div>
-          </div>
-          <button class="btn-save" onclick="saveLocation()">Update Location</button>
-          <div class="form-msg" id="locMsg" style="display:none;"></div>
-        </div>
-      </div>
-
-      <!-- PASSWORD -->
-      <div class="acct-panel" id="panel-password">
-        <div class="panel-title">Change Password</div>
-        <div class="form-card">
-          <div class="form-card-title">UPDATE PASSWORD</div>
-          <div class="form-row full"><div class="form-group"><label class="form-label">Current Password</label><div class="input-wrap"><input type="password" class="form-input" id="pwdCurrent" placeholder="Enter current password"/><span class="pwd-toggle" onclick="toggleAcctPwd('pwdCurrent',this)" title="Show/hide password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span></div></div></div>
-          <div class="form-row full"><div class="form-group"><label class="form-label">New Password (min 6 chars)</label><div class="input-wrap"><input type="password" class="form-input" id="pwdNew" placeholder="Enter new password"/><span class="pwd-toggle" onclick="toggleAcctPwd('pwdNew',this)" title="Show/hide password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span></div></div></div>
-          <div class="form-row full"><div class="form-group"><label class="form-label">Confirm New Password</label><div class="input-wrap"><input type="password" class="form-input" id="pwdConfirm" placeholder="Confirm new password"/><span class="pwd-toggle" onclick="toggleAcctPwd('pwdConfirm',this)" title="Show/hide password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span></div></div></div>
-          <button class="btn-save" onclick="changePassword()">Update Password</button>
-          <div class="form-msg" id="pwdMsg" style="display:none;"></div>
-        </div>
-      </div>
-
-      <!-- DEALER PORTAL -->
-      <div class="acct-panel" id="panel-dealer">
-        <div class="panel-title">My Territories</div>
-
-        <!-- All Territories -->
-        <div class="form-card">
-          <div class="form-card-title" style="display:flex;justify-content:space-between;align-items:center;">
-            MY TERRITORIES
-            <button class="btn-sm gold" onclick="openDealerTerritoryModal()">+ Request Territory</button>
-          </div>
-          <div id="dealerTerritoriesContent"><div class="skeleton" style="height:60px;border-radius:4px;"></div></div>
-        </div>
-
-        <!-- Benefits -->
-        <div class="form-card" style="background:linear-gradient(135deg,rgba(155,139,90,.05),rgba(155,139,90,.1));border-color:rgba(155,139,90,.3);">
-          <div class="form-card-title">DEALER BENEFITS</div>
-          <ul style="font-size:14px;color:var(--mid);line-height:2;margin-top:4px;padding-left:16px;list-style:disc;">
-            <li>Exclusive wholesale pricing on all products</li>
-            <li>Priority order processing</li>
-            <li>Dedicated dealer coupon codes</li>
-            <li>Bulk order support &mdash; contact us for custom quotes</li>
-          </ul>
-        </div>
-      </div>
-            <!-- MY STORE PANEL (Retail users) -->
-      <div class="acct-panel" id="panel-mystore">
-        <div class="panel-title">My Outlets</div>
-
-        <!-- PRIMARY STORE (linked outlet) -->
-        <div id="myStoreContent">
-          <div class="skeleton" style="height:120px;border-radius:4px;margin-bottom:16px;"></div>
-          <div class="skeleton" style="height:200px;border-radius:4px;"></div>
-        </div>
-
-        <!-- ADDITIONAL OUTLETS — List -->
-        <div class="form-card" style="margin-top:20px;">
-          <div class="form-card-title" style="display:flex;justify-content:space-between;align-items:center;">
-            MY OUTLETS
-            <button class="btn-sm gold" onclick="openRetailOutletForm()">+ Request New Outlet</button>
-          </div>
-          <div id="retailOutletsContent">
-            <div class="skeleton" style="height:80px;border-radius:4px;"></div>
-          </div>
-        </div>
-
-        <!-- Info box -->
-        <div class="form-card" style="margin-top:20px;background:linear-gradient(135deg,rgba(155,139,90,.05),rgba(155,139,90,.1));border-color:rgba(155,139,90,.3);">
-          <div class="form-card-title">HOW ADDITIONAL OUTLETS WORK</div>
-          <ul style="font-size:14px;color:var(--mid);line-height:2.2;padding-left:18px;list-style:disc;">
-            <li>You can request outlets in <strong>any territory</strong> — same or different to your primary store</li>
-            <li>Each outlet is linked to your retail account for order routing</li>
-            <li>Customers select your outlet as a pickup point at checkout</li>
-            <li>Admin reviews and activates each outlet registration</li>
-            <li>You can operate multiple outlets across Melbourne &amp; Sydney</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- DEALER RETAIL OUTLETS PANEL -->
-      <div class="acct-panel" id="panel-outlets">
-        <div class="panel-title">My Outlets &amp; Territories</div>
-
-        <!-- Add Territory / Edit Form -->
-        <div class="form-card" id="outletFormCard" style="display:none;">
-          <div class="form-card-title" id="outletFormTitle">REQUEST ADDITIONAL TERRITORY</div>
-          <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.6;">Provide the pickup location details for the new territory. Pickup is enabled by default. Your request goes to admin for review.</p>
-          <input type="hidden" id="editingOutletId"/>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Store / Pickup Name *</label>
-              <input type="text" class="form-input" id="outletName" placeholder="e.g. VibrantPetals Tarneit Store"/>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Phone</label>
-              <input type="text" class="form-input" id="outletPhone" placeholder="+61 3 9000 0001"/>
-            </div>
-          </div>
-          <div class="form-row full">
-            <div class="form-group">
-              <label class="form-label">Pickup Address *</label>
-              <input type="text" class="form-input" id="outletAddress" placeholder="Shop 4, Tarneit Central, 533 Derrimut Rd"/>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Suburb *</label>
-              <input type="text" class="form-input" id="outletSuburb" placeholder="e.g. Tarneit"/>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Trading Hours</label>
-              <input type="text" class="form-input" id="outletHours" placeholder="Mon&ndash;Sat 9am&ndash;6pm"/>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">State *</label>
-              <select class="form-select" id="outletState" onchange="loadOutletTerritoryOptions()">
-                <option value="">Select state&hellip;</option>
-                <option value="Melbourne">Melbourne</option>
-                <option value="Sydney">Sydney</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Territory / Suburb *</label>
-              <select class="form-select" id="outletTerritory" disabled>
-                <option value="">Select state first&hellip;</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-msg" id="outletFormMsg" style="display:none;"></div>
-          <div style="display:flex;gap:10px;margin-top:16px;">
-            <button class="btn-save" id="outletSaveBtn" onclick="saveOutletFromAccount()">Submit Request</button>
-            <button class="btn-sm outline" onclick="closeOutletForm()">Cancel</button>
-          </div>
-        </div>
-
-        <!-- Primary Outlet -->
-        <div class="form-card">
-          <div class="form-card-title">MY PRIMARY OUTLET</div>
-          <div id="dealerPrimaryOutlet"><div class="skeleton" style="height:80px;border-radius:4px;"></div></div>
-        </div>
-
-        <!-- Additional Territories -->
-        <div class="form-card">
-          <div class="form-card-title" style="display:flex;justify-content:space-between;align-items:center;">
-            ADDITIONAL TERRITORIES
-            <button class="btn-sm gold" onclick="openOutletForm()">+ Request Territory</button>
-          </div>
-          <div id="dealerOutletsContent">
-            <div class="skeleton" style="height:80px;border-radius:4px;"></div>
-          </div>
-        </div>
-
-        <!-- Info -->
-        <div class="form-card" style="background:linear-gradient(135deg,rgba(155,139,90,.05),rgba(155,139,90,.1));border-color:rgba(155,139,90,.3);">
-          <div class="form-card-title">HOW TERRITORIES WORK</div>
-          <ul style="font-size:14px;color:var(--mid);line-height:2.2;padding-left:18px;list-style:disc;">
-            <li>Your primary outlet was created when your account was approved &mdash; pickup enabled by default</li>
-            <li>Request additional territories by providing a full pickup location address</li>
-            <li>Each territory request is reviewed by admin before going live</li>
-            <li>Additional territories lock that suburb for your account</li>
-            <li>Edits and deletions also go through admin approval</li>
-          </ul>
-        </div>
-      </div>
-
-    </main>
-    </main>
-  </div>
-</div>
-
-<!-- ORDER DETAIL MODAL -->
-<div class="order-modal" id="orderModal">
-  <div class="order-modal-box">
-    <div class="order-modal-head">
-      <h3 id="modalOrderNum">Order Details</h3>
-      <span class="order-modal-close" onclick="closeOrderModal()">✕</span>
+<div class="section-block">
+  <h2 class="section-title">Our Mission &amp; Vision</h2>
+  <div class="card-grid">
+    <div class="info-card">
+      <div class="info-card-icon">🌸</div>
+      <h3>Our Mission</h3>
+      <p>To provide high-quality Indian flowers and floral products that help customers celebrate traditions, spirituality, and life's special moments with authenticity and convenience.</p>
     </div>
-    <div class="order-modal-body" id="modalOrderBody"></div>
-  </div>
-</div>
-
-<!-- ADDRESS MODAL -->
-<div class="addr-modal" id="addrModal">
-  <div class="addr-modal-box">
-    <div class="addr-modal-head">
-      <h3 id="addrModalTitle">Add Address</h3>
-      <span class="order-modal-close" onclick="closeAddrModal()">✕</span>
-    </div>
-    <div class="addr-modal-body">
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Label (e.g. Home, Office)</label><input type="text" class="form-input" id="aLabel" value="Home"/></div>
-        <div class="form-group"><label class="form-label">Phone</label><input type="text" class="form-input" id="aPhone" placeholder="+61 400 000 000"/></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">First Name *</label><input type="text" class="form-input" id="aFirst"/></div>
-        <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-input" id="aLast"/></div>
-      </div>
-      <div class="form-row full"><div class="form-group"><label class="form-label">Street Address *</label><input type="text" class="form-input" id="aStreet"/></div></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" id="aCity"/></div>
-        <div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" id="aState"/></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Postcode *</label><input type="text" class="form-input" id="aPostcode"/></div>
-        <div class="form-group"><label class="form-label">Country</label><input type="text" class="form-input" id="aCountry" value="Australia"/></div>
-      </div>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:8px 0 16px;cursor:pointer;">
-        <input type="checkbox" id="aDefault" style="accent-color:var(--gold);"> Set as default address
-      </label>
-      <div class="form-msg" id="addrMsg" style="display:none;"></div>
-      <button class="btn-save" id="addrSaveBtn" onclick="saveAddress()">Save Address</button>
+    <div class="info-card">
+      <div class="info-card-icon">🌟</div>
+      <h3>Our Vision</h3>
+      <p>To become one of Australia's most trusted Indian floral brands by delivering freshness, quality, reliability, and cultural value through every order.</p>
     </div>
   </div>
 </div>
 
-<footer>Copyright © Nivas Vibrant Petals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></footer>
+<div class="section-block">
+  <h2 class="section-title">What Makes Us Different</h2>
+  <div class="card-grid">
+    <div class="info-card">
+      <div class="info-card-icon">🪷</div>
+      <h3>Authentic Indian Floral Experience</h3>
+      <p>We specialise in flowers used in Indian traditions, festivals, weddings, poojas, and cultural celebrations.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">✨</div>
+      <h3>Freshness &amp; Quality</h3>
+      <p>Every flower is carefully selected and handled to maintain freshness, fragrance, and appearance from source to your door.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">💛</div>
+      <h3>Customer-Focused Service</h3>
+      <p>We are committed to a smooth shopping experience, timely communication, and dependable delivery services.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">🕌</div>
+      <h3>Cultural Connection</h3>
+      <p>We understand the emotional and spiritual significance flowers hold within Indian communities and aim to preserve those traditions.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-block">
+  <h2 class="section-title">Our Commitment</h2>
+  <ul class="content-list">
+    <li>Delivering premium-quality flowers</li>
+    <li>Maintaining hygienic handling and packaging</li>
+    <li>Supporting reliable sourcing practices</li>
+    <li>Improving customer satisfaction</li>
+    <li>Bringing cultural traditions closer to communities across Australia</li>
+  </ul>
+  <div class="highlight-box">
+    <p>From festivals and weddings to poojas and everyday devotion, Nivas Vibrant Petals is honoured to be part of your meaningful moments. Thank you for choosing us — we look forward to serving you with freshness, care, and tradition.</p>
+  </div>
+</div>
+<div class="contact-box">
+  <h3>Get in Touch</h3>
+  <p>For any enquiries, please reach out to our team.<br/>
+  <a href="mailto:nivafoodsintl@gmail.com">nivafoodsintl@gmail.com</a> &nbsp;·&nbsp; +61 416 424 745</p>
+</div>
+</div>
+<footer>
+  <div class="footer-grid">
+    <div>
+      <h4 class="footer-col-title">Get in touch</h4>
+      <div class="footer-contact"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>nivafoodsintl@gmail.com</div>
+      <div class="footer-contact" style="margin-top:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.22 2 2 0 012.22 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>+61 416 424 745</div>
+      <div class="footer-contact" style="margin-top:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Niva Foods Aus Pty Ltd</div>
+      <div style="margin-top:4px;padding-left:26px;font-size:13px;color:var(--mid);line-height:1.7;">1/20 Lonhro Blvd,<br>Cranbourne West,<br>Vic 3977</div>
+    </div>
+    <div>
+      <h4 class="footer-col-title">Information</h4>
+      <div class="footer-links">
+        <a href="about.html">About Us</a>
+        <a href="festival.html">Festival Guide</a>
+        <a href="wholesale.html">Wholesale Orders</a>
+        <a href="faq.html">FAQs</a>
+      </div>
+    </div>
+    <div>
+      <h4 class="footer-col-title">Policies</h4>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms &amp; Conditions</a>
+        <a href="refund.html">Refund Policy</a>
+        <a href="delivery.html">Delivery Policy</a>
+      </div>
+    </div>
+    <div>
+      <h4 class="footer-col-title">Newsletter</h4>
+      <p class="newsletter-desc">Sign up for our newsletter to hear about our Deals of the Week, special sales and more.</p>
+      <input type="email" class="newsletter-input" id="nlEmail" placeholder="Enter here..."/>
+      <button class="btn-subscribe" id="nlSubmit">Subscribe</button>
+      <div id="nlMsg" style="font-size:13px;margin-top:10px;"></div>
+    </div>
+  </div>
+  <div class="footer-bottom">Copyright &copy; Nivas Vibrant Petals. All Rights Reserved. &middot; <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></div>
+</footer>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<div class="search-overlay" id="searchOverlay">
+  <button class="search-close" id="searchClose">✕</button>
+  <div class="search-label">What are you looking for?</div>
+  <div class="search-bar"><input type="text" id="searchInput" placeholder="Search products..." autocomplete="off"/><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--dark)" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<div class="cart-overlay" id="cartOverlay"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-head"><h3>Shopping Cart(<span id="cartCountHead">0</span>)</h3><button id="cartClose" style="font-size:22px;color:var(--mid);background:none;border:none;cursor:pointer;">✕</button></div>
+  <div class="cart-body" id="cartBody"><div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><p>Your cart is currently empty.</p><a href="category.html?cat=all" class="btn-shop-all">Shop All Products</a></div></div>
+  <div class="cart-foot" id="cartFoot" style="display:none;">
+    <div class="cart-totals">
+      <div class="cart-total-row"><span>Subtotal</span><span id="cartSubtotal">$0.00</span></div>
+      <div class="cart-total-row"><span>Pickup</span><span id="cartShipping">Free (In-store)</span></div>
+      <div class="cart-total-row grand"><span>Total</span><span id="cartTotal">$0.00</span></div>
+    </div>
+    <button class="btn-checkout" onclick="handleCheckout()">Proceed to Checkout</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-
-// ── BRANDED CONFIRM MODAL ─────────────────────────────────────────────────
-function vpConfirm({ title, message, icon = '❓', confirmText = 'Confirm', cancelText = 'Cancel', danger = false, success = false }) {
-  return new Promise(resolve => {
-    const overlay  = document.getElementById('vpModalOverlay');
-    const iconEl   = document.getElementById('vpModalIcon');
-    const titleEl  = document.getElementById('vpModalTitle');
-    const msgEl    = document.getElementById('vpModalMessage');
-    const confirmBtn = document.getElementById('vpModalConfirm');
-    const cancelBtn  = document.getElementById('vpModalCancel');
-
-    iconEl.textContent   = icon;
-    titleEl.textContent  = title;
-    msgEl.innerHTML      = message;
-    confirmBtn.textContent = confirmText;
-    cancelBtn.textContent  = cancelText;
-    confirmBtn.className = 'vp-modal-btn vp-modal-confirm' + (danger ? ' danger' : success ? ' success' : '');
-
-    overlay.classList.add('open');
-    confirmBtn.focus();
-
-    const close = (result) => {
-      overlay.classList.remove('open');
-      confirmBtn.replaceWith(confirmBtn.cloneNode(true));
-      cancelBtn.replaceWith(cancelBtn.cloneNode(true));
-      resolve(result);
-    };
-
-    document.getElementById('vpModalConfirm').onclick = () => close(true);
-    document.getElementById('vpModalCancel').onclick  = () => close(false);
-    overlay.onclick = (e) => { if (e.target === overlay) close(false); };
-    document.addEventListener('keydown', function esc(e) {
-      if (e.key === 'Escape') { document.removeEventListener('keydown', esc); close(false); }
-    }, { once: true });
-  });
-}
-
-function fmtPickupDate(d) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
-}
-const API='https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
-// Clear expired token immediately to prevent auth flicker
-(function(){
-  const raw=localStorage.getItem('vp_token');
-  if(raw){try{const p=JSON.parse(atob(raw.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(p.exp&&p.exp*1000<Date.now())localStorage.removeItem('vp_token');}catch(e){localStorage.removeItem('vp_token');}}
-})();
+const API = 'https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
+(function(){const raw=localStorage.getItem('vp_token');if(raw){try{const p=JSON.parse(atob(raw.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(p.exp&&p.exp*1000<Date.now())localStorage.removeItem('vp_token');}catch(e){localStorage.removeItem('vp_token');}}})();
 let token=localStorage.getItem('vp_token')||'';
 let sessionId=localStorage.getItem('vp_session')||'sess_'+Math.random().toString(36).slice(2);
 localStorage.setItem('vp_session',sessionId);
-function apiHeaders(a=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(a&&token)h['Authorization']='Bearer '+token;return h;}
-async function apiFetch(p,o={}){
-  try{const r=await fetch(API+p,o);if(!r.ok&&r.status!==400&&r.status!==401&&r.status!==403&&r.status!==404&&r.status!==409){throw new Error('HTTP '+r.status);}return r.json();}
-  catch(e){console.error('apiFetch',p,e);return{success:false,message:e.message};}
-}
-function showToast(m,t=''){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+(t||'');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
+function apiHeaders(auth=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(auth&&token)h['Authorization']='Bearer '+token;return h;}
+async function apiFetch(path,opts={}){try{const r=await fetch(API+path,opts);return r.json();}catch(e){return{success:false,message:e.message};}}
+function showToast(msg,type=''){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function getTokenRole(){try{if(!token)return null;const p=token.split('.')[1];const j=JSON.parse(atob(p.replace(/-/g,'+').replace(/_/g,'/')));return j.role||null;}catch{return null;}}
 
-// ── TAB SWITCH (login gate) ───────────────────────────────────────────────────
-function switchTab(name,btn){
-  document.querySelectorAll('.tabs .tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
-}
+// Mobile nav
+function openMobileNav(){document.getElementById('mobileNav').classList.add('open');document.getElementById('hamburgerBtn').classList.add('open');document.body.style.overflow='hidden';}
+function closeMobileNav(){document.getElementById('mobileNav').classList.remove('open');document.getElementById('hamburgerBtn').classList.remove('open');document.body.style.overflow='';}
+function toggleMobileSub(id,btn){const sub=document.getElementById(id);const arrow=document.getElementById('garlandsArrow');const isOpen=sub.classList.toggle('open');if(arrow)arrow.classList.toggle('open',isOpen);}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMobileNav();if(document.getElementById('searchOverlay'))document.getElementById('searchOverlay').classList.remove('open');}});
 
-// ── PANEL SWITCH ─────────────────────────────────────────────────────────────
-function showPanel(name,el){
-  document.querySelectorAll('.acct-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.acct-nav-item').forEach(i=>i.classList.remove('active'));
-  document.getElementById('panel-'+name).classList.add('active');
-  if(el)el.classList.add('active');
-  if(name==='orders')loadOrders(1);
-  if(name==='addresses')loadAddresses();
-  if(name==='dealer')loadDealerPanel();
-  if(name==='outlets')loadOutletsPanel();
-  if(name==='wishlist')loadWishlistPanel();
-}
-window.showPanel=showPanel;
+// Search
+const searchOverlay=document.getElementById('searchOverlay');
+document.getElementById('searchBtn').onclick=()=>{searchOverlay.classList.add('open');document.getElementById('searchInput').focus();};
+document.getElementById('searchClose').onclick=()=>searchOverlay.classList.remove('open');
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input',function(){
+  clearTimeout(searchTimer);const q=this.value.trim();
+  if(q.length<2){document.getElementById('searchResults').innerHTML='';return;}
+  searchTimer=setTimeout(async()=>{
+    const data=await apiFetch('/products/search?q='+encodeURIComponent(q)+'&limit=10').catch(()=>({products:[]}));
+    const prods=data.products||[];
+    document.getElementById('searchResults').innerHTML=prods.length
+      ?prods.map(p=>`<div class="search-result-item" onclick="location.href='product.html?id=${p._id}'"><img src="${p.images?.[0]||''}" onerror="this.style.display='none'"/><div><div style="font-size:14px;font-weight:600;">${p.name}</div><div style="font-size:13px;color:var(--mid)">${p.price?'$'+p.price.toFixed(2):''}</div></div></div>`).join('')
+      :'<p style="color:var(--mid);font-size:14px;">No results found</p>';
+  },300);
+});
 
-// ── CHECK AUTH ────────────────────────────────────────────────────────────────
-function init(){
+// Cart
+const cartOverlay=document.getElementById('cartOverlay'),cartDrawer=document.getElementById('cartDrawer');
+function openCart(){cartOverlay.classList.add('open');cartDrawer.classList.add('open');loadCart();}
+function closeCart(){cartOverlay.classList.remove('open');cartDrawer.classList.remove('open');}
+document.getElementById('cartBtn').onclick=openCart;
+document.getElementById('cartClose').onclick=closeCart;
+cartOverlay.onclick=closeCart;
+async function loadCart(){const data=await apiFetch('/cart',{headers:apiHeaders()}).catch(()=>({cart:{items:[]}}));renderCart(data.cart||{items:[]});}
+function renderCart(cart){
+  const items=cart.items||[];const count=items.reduce((s,i)=>s+i.quantity,0);
+  document.getElementById('cartCount').textContent=count;
+  document.getElementById('cartCountHead').textContent=count;
+  const cartBody=document.getElementById('cartBody');const cartFoot=document.getElementById('cartFoot');
+  if(!items.length){cartBody.innerHTML='<div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><p>Your cart is currently empty.</p><a href="category.html?cat=all" class="btn-shop-all">Shop All Products</a></div>';cartFoot.style.display='none';return;}
+  cartBody.innerHTML=items.map(i=>`<div class="cart-item"><img src="${i.image||''}" alt="${i.name}" onerror="this.style.display='none'"/><div class="cart-item-info"><div class="cart-item-name">${i.name}</div><div class="cart-item-price">$${i.price.toFixed(2)}</div><div class="cart-item-qty"><button class="qty-btn" onclick="changeQty('${i.productId}',${i.quantity-1})">−</button><span class="qty-val">${i.quantity}</span><button class="qty-btn" onclick="changeQty('${i.productId}',${i.quantity+1})">+</button></div></div><button class="cart-remove" onclick="removeFromCart('${i.productId}')">✕</button></div>`).join('');
+  document.getElementById('cartSubtotal').textContent='$'+(cart.subtotal||0).toFixed(2);
+  document.getElementById('cartShipping').textContent=cart.shippingCost===0?'Free (In-store)':'$'+(cart.shippingCost||0).toFixed(2);
+  document.getElementById('cartTotal').textContent='$'+(cart.total||0).toFixed(2);
+  cartFoot.style.display='block';
+}
+async function changeQty(pid,qty){if(qty<1)return removeFromCart(pid);const data=await apiFetch('/cart/items/'+pid,{method:'PUT',headers:apiHeaders(),body:JSON.stringify({quantity:qty})}).catch(()=>({success:false}));if(data.success)renderCart(data.cart);}
+async function removeFromCart(pid){const data=await apiFetch('/cart/items/'+pid,{method:'DELETE',headers:apiHeaders()}).catch(()=>({success:false}));if(data.success)renderCart(data.cart);}
+function handleCheckout(){location.href='checkout.html';}
+
+// Account dropdown
+function buildAcctDrop(){
+  const drop=document.getElementById('acctDrop');if(!drop)return;
   if(token){
-    document.getElementById('loginGate').style.display='none';
-    document.getElementById('accountDash').style.display='block';
-    loadMe();
-    // Auto-open panel from URL param e.g. account.html?panel=wishlist
-    const urlPanel=new URLSearchParams(location.search).get('panel');
-    if(urlPanel){
-      // Wait for loadMe to set up nav visibility first
-      setTimeout(()=>{
-        const navEl=document.getElementById('nav'+urlPanel.charAt(0).toUpperCase()+urlPanel.slice(1));
-        showPanel(urlPanel, navEl||null);
-      }, 300);
-    }
+    const _role=(()=>{try{return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')))?.role||'';}catch(e){return '';}})();
+    const isAdmin=_role==='Administrator';
+    drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Account</a>
+      ${isAdmin
+        ?`<a href="admin.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Admin Panel</a>`
+        :`<a href="category.html?cat=all"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Shop Now</a>
+           <a href="account.html?panel=wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>View Wishlist</a>`}
+      <button class="drop-logout" onclick="doHeaderLogout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</button>`;
+    document.getElementById('loginBtn').onclick=()=>{location.href='account.html';};
   }else{
-    document.getElementById('loginGate').style.display='block';
-    document.getElementById('accountDash').style.display='none';
+    drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Sign In</a><a href="signup.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Register</a>`;
+    document.getElementById('loginBtn').onclick=()=>{location.href='account.html';};
   }
 }
+function doHeaderLogout(){localStorage.removeItem('vp_token');location.reload();}
 
-// ── LOAD ME ───────────────────────────────────────────────────────────────────
-let userData=null;
-async function loadMe(){
-  const data=await apiFetch('/auth/me',{headers:apiHeaders()});
-  if(!data||!data.success){doLogout();return;}
-  userData=data.user;
-  const role=userData.role; // 'Customer' | 'Dealer' | 'Administrator'
-
-  // Fill profile fields
-  // Show firstName > displayName > username (avoids showing email as name when username=email)
-  const displayLabel = userData.firstName || userData.displayName || (userData.username && !userData.username.includes('@') ? userData.username : null) || 'Friend';
-  document.getElementById('acctName').textContent = displayLabel;
-  document.getElementById('acctEmailDisp').textContent=userData.email;
-  document.getElementById('acctAvatar').textContent=(userData.firstName||userData.username||'?')[0].toUpperCase();
-  document.getElementById('profFirst').value=userData.firstName||'';
-  document.getElementById('profLast').value=userData.lastName||'';
-  document.getElementById('profDisplay').value=userData.firstName||userData.displayName||userData.username||'';
-  document.getElementById('profEmail').value=userData.email||'';
-  document.getElementById('profRole').value=userData.role||'Customer';
-
-  // Role badge
-  const roleMap={Customer:'role-customer',Dealer:'role-dealer',Administrator:'role-administrator'};
-  const roleLabel={Customer:'Customer',Dealer:'Dealer ⭐',Administrator:'Admin 🔑'};
-  document.getElementById('acctRoleBadge').innerHTML=`<span class="role-badge ${roleMap[role]||'role-customer'}">${roleLabel[role]||role}</span>`;
-
-  // ── SHOW/HIDE NAV ICONS ───────────────────────────────────────────────────
-  // Admin: no wishlist, no cart
-  // Dealer: no wishlist, keep cart
-  // Customer: both
-  const wishlistBtn = document.getElementById('navWishlistBtn');
-  const cartBtn     = document.getElementById('navCartBtn');
-  if(role==='Administrator'){
-    if(wishlistBtn) wishlistBtn.style.display='none';
-    if(cartBtn)     cartBtn.style.display='none';
-  } else if(role==='Dealer'){
-    if(wishlistBtn) wishlistBtn.style.display='none';
-  } else if(role==='Retail'){
-    if(wishlistBtn) wishlistBtn.style.display='none';
-  }
-
-  // ── SIDEBAR NAV PER ROLE ──────────────────────────────────────────────────
-  const show = id => { const el=document.getElementById(id); if(el) el.style.display='flex'; };
-
-  if(role==='Administrator'){
-    // Admin: Dashboard, Profile, Password, Admin Panel — nothing else
-    show('navAdmin');
-    // Hide location preferences
-    const lc=document.getElementById('locationPrefCard');
-    if(lc) lc.style.display='none';
-
-  } else if(role==='Dealer'){
-    // Dealer: Dashboard, My Orders, Profile, Password, Dealer Portal
-    show('navOrders');
-    show('navDealer');
-    const lc=document.getElementById('locationPrefCard');
-    if(lc) lc.style.display='none';
-
-  } else if(role==='Retail'){
-    // Retail: Dashboard, My Orders, My Store, Profile, Password
-    show('navOrders');
-    show('navMyStore');
-    const lc=document.getElementById('locationPrefCard');
-    if(lc) lc.style.display='none';
-    // Load My Store data (orders are loaded from inside loadMyStore after template renders)
-    loadMyStore();
-
-  } else {
-    // Customer: Dashboard, My Orders, Profile, Password, Wishlist
-    show('navOrders');
-    show('navWishlist');
-    // Load location preferences
-    await loadProfTerritories();
-    if(userData.preferredState){
-      document.getElementById('profState').value=userData.preferredState;
-      await onProfStateChange();
-      if(userData.preferredTerritory) document.getElementById('profTerritory').value=userData.preferredTerritory;
-    }
-  }
-  // Dashboard depends on userData.role — call it here so role is guaranteed to be set
-  loadDashboard();
-}
-
-// ── DASHBOARD ─────────────────────────────────────────────────────────────────
-async function loadDashboard(){
-  const role=userData?.role;
-  const isAdmin=role==='Administrator';
-  const isDealer=role==='Dealer';
-
-  if(isAdmin){
-    // Admin: show total orders only, no wishlist stat, no spent, Admin Panel quick link
-    document.getElementById('statSpent').closest('.stat-card').style.display='none';
-    document.getElementById('statWish').closest('.stat-card').style.display='none';
-    const ql=document.getElementById('dashQuickLinks');
-    if(ql) ql.style.display='none';
-    const od=await apiFetch('/orders?limit=3',{headers:apiHeaders()});
-    const orders=od.orders||[];
-    document.getElementById('statOrders').textContent=od.pagination?.total||orders.length;
-    renderRecentOrders(orders);
-    return;
-  }
-
-  if(isDealer){
-    // Dealer: orders + spent, no wishlist stat
-    document.getElementById('statWish').closest('.stat-card').style.display='none';
-    const ql=document.getElementById('dashQuickLinks');
-    if(ql) ql.innerHTML='<div class="form-card-title">QUICK LINKS</div><div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;"><a href="category.html?cat=all" style="display:inline-block;padding:10px 20px;border:1px solid var(--gold);color:var(--gold);font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);">Shop Now</a></div>';
-    const od=await apiFetch('/orders?limit=3',{headers:apiHeaders()});
-    const orders=od.orders||[];
-    document.getElementById('statOrders').textContent=od.pagination?.total||orders.length;
-    document.getElementById('statSpent').textContent='$'+(orders.reduce((s,o)=>s+(o.total||0),0)).toFixed(2);
-    renderRecentOrders(orders);
-    return;
-  }
-
-  // Customer: orders + spent + wishlist
-  const [od,wd]=await Promise.all([
-    apiFetch('/orders?limit=3',{headers:apiHeaders()}),
-    apiFetch('/wishlist',{headers:apiHeaders()})
-  ]);
-  const orders=od.orders||[];
-  document.getElementById('statOrders').textContent=od.pagination?.total||orders.length;
-  document.getElementById('statSpent').textContent='$'+(orders.reduce((s,o)=>s+(o.total||0),0)).toFixed(2);
-  document.getElementById('statWish').textContent=(wd.wishlist?.products||[]).length;
-  renderRecentOrders(orders);
-}
-
-function renderRecentOrders(orders){
-  if(!orders.length){
-    document.getElementById('dashRecentOrders').innerHTML='<p style="color:var(--mid);font-size:14px;">No orders yet. <a href="category.html?cat=all" style="color:var(--gold)">Start shopping!</a></p>';
-    return;
-  }
-  document.getElementById('dashRecentOrders').innerHTML=`
-    <table class="orders-table" style="margin-top:8px;">
-      <thead><tr><th>Order #</th><th>Ordered</th><th>Pickup Date</th><th>Status</th><th>Total</th><th></th></tr></thead>
-      <tbody>${orders.map(o=>`<tr>
-        <td><b>${o.orderNumber}</b></td>
-        <td>${new Date(o.createdAt).toLocaleDateString()}</td>
-        <td style="font-size:12px;color:var(--gold);font-weight:700;">${fmtPickupDate(o.scheduledPickupDate)}</td>
-        <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
-        <td><b>$${(o.total||0).toFixed(2)}</b></td>
-        <td><span class="order-detail-btn" onclick="viewOrder('${o._id}')">Details</span></td>
-      </tr>`).join('')}</tbody>
-    </table>`;
-}
-
-// ── ORDERS PAGE ───────────────────────────────────────────────────────────────
-let orderPage=1, orderTotalPages=1;
-let currentOrderTab = 'placed';
-
-function switchOrderTab(tab) {
-  currentOrderTab = tab;
-  const gold = 'var(--gold)';
-  const grey = 'var(--mid)';
-  const none = '2px solid transparent';
-  const active = `2px solid ${gold}`;
-  document.getElementById('tabMyOrders').style.borderBottomColor     = tab === 'placed' ? gold : 'transparent';
-  document.getElementById('tabMyOrders').style.color                  = tab === 'placed' ? gold : grey;
-  document.getElementById('tabPickupOrders').style.borderBottomColor  = tab === 'pickup' ? gold : 'transparent';
-  document.getElementById('tabPickupOrders').style.color              = tab === 'pickup' ? gold : grey;
-  if (tab === 'placed') loadOrders(1);
-  else loadPickupOrders(1);
-}
-window.switchOrderTab = switchOrderTab;
-
-async function loadOrders(page=1){
-  orderPage=page;
-  const el=document.getElementById('ordersContent');
-  el.innerHTML='<div class="skeleton" style="height:300px;border-radius:4px;"></div>';
-
-  // Show tabs for Retail and Dealer roles
-  try {
-    const tok = localStorage.getItem('vp_token');
-    const role = tok ? JSON.parse(atob(tok.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role : null;
-    const tabBar = document.getElementById('orderTabsBar');
-    if ((role === 'Retail' || role === 'Dealer') && tabBar) {
-      tabBar.style.display = 'block';
-      // Set active tab style on first load
-      document.getElementById('tabMyOrders').style.color = currentOrderTab === 'placed' ? 'var(--gold)' : 'var(--mid)';
-      document.getElementById('tabMyOrders').style.borderBottomColor = currentOrderTab === 'placed' ? 'var(--gold)' : 'transparent';
-      document.getElementById('tabPickupOrders').style.color = currentOrderTab === 'pickup' ? 'var(--gold)' : 'var(--mid)';
-      document.getElementById('tabPickupOrders').style.borderBottomColor = currentOrderTab === 'pickup' ? 'var(--gold)' : 'transparent';
-      if (currentOrderTab === 'pickup') { loadPickupOrders(1); return; }
-    }
-  } catch(e){}
-
-  const data=await apiFetch(`/orders?page=${page}&limit=10`,{headers:apiHeaders()});
-  const orders=data.orders||[];
-  orderTotalPages=data.pagination?.totalPages||1;
-  if(!orders.length){
-    el.innerHTML=`<div class="orders-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><p>You haven't placed any orders yet.</p><a href="category.html?cat=all" class="btn-shop-link">Start Shopping</a></div>`;
-    document.getElementById('ordersPagination').innerHTML='';
-    return;
-  }
-  el.innerHTML=`<table class="orders-table">
-    <thead><tr><th>Order #</th><th>Ordered</th><th>Pickup Date</th><th>Items</th><th>Status</th><th>Total</th><th></th></tr></thead>
-    <tbody>${orders.map(o=>{
-      const canCancel=['pending','processing'].includes(o.status);
-      return`<tr>
-        <td><b>${o.orderNumber}</b></td>
-        <td>${new Date(o.createdAt).toLocaleDateString()}</td>
-        <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
-        <td>${(o.items||[]).length} item${(o.items||[]).length!==1?'s':''}</td>
-        <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
-        <td><b>$${(o.total||0).toFixed(2)}</b></td>
-        <td>
-          <span class="order-detail-btn" onclick="viewOrder('${o._id}')">Details</span>
-          ${canCancel?`<span class="order-cancel-btn" onclick="cancelOrder('${o._id}','${o.orderNumber}')">Cancel</span>`:''}
-        </td>
-      </tr>`;
-    }).join('')}</tbody>
-  </table>`;
-  const pag=document.getElementById('ordersPagination');
-  if(orderTotalPages<=1){pag.innerHTML='';return;}
-  pag.innerHTML=`
-    <button class="pag-btn" onclick="loadOrders(${orderPage-1})" ${orderPage<=1?'disabled':''}>← Prev</button>
-    <span class="pag-info">Page ${orderPage} of ${orderTotalPages}</span>
-    <button class="pag-btn" onclick="loadOrders(${orderPage+1})" ${orderPage>=orderTotalPages?'disabled':''}>Next →</button>`;
-}
-
-let pickupOrderPage = 1;
-let pickupOrderTotalPages = 1;
-
-async function loadPickupOrders(page=1) {
-  pickupOrderPage = page;
-  const el = document.getElementById('ordersContent');
-  el.innerHTML = '<div class="skeleton" style="height:300px;border-radius:4px;"></div>';
-  const data = await apiFetch(`/dealer/orders?limit=10&page=${page}`, { headers: apiHeaders() });
-  const orders = data.orders || [];
-  pickupOrderTotalPages = data.pagination?.totalPages || 1;
-  if (!orders.length) {
-    el.innerHTML = '<div class="orders-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><p>No pickup orders for your outlet yet.</p></div>';
-    document.getElementById('ordersPagination').innerHTML = '';
-    return;
-  }
-  const TRANSITIONS = {
-    processing:       { label: 'Mark Ready for Pickup', next: 'ready_for_pickup' },
-    ready_for_pickup: { label: 'Mark Collected',        next: 'delivered' },
-  };
-  el.innerHTML = `<table class="orders-table">
-    <thead><tr><th>Order #</th><th>Customer</th><th>Ordered</th><th>Pickup Date</th><th>Status</th><th>Total</th><th>Action</th></tr></thead>
-    <tbody>${orders.map(o => {
-      const t = TRANSITIONS[o.status];
-      const btn = t
-        ? `<button onclick="updatePickupOrderStatus('${o._id}','${t.next}','${o.orderNumber}')" style="padding:7px 14px;font-size:12px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;white-space:nowrap;">${t.label}</button>`
-        : `<span style="font-size:12px;color:var(--mid);">—</span>`;
-      return `<tr>
-        <td><b>${o.orderNumber}</b></td>
-        <td style="font-size:12px;">${o.customerEmail||'—'}</td>
-        <td style="font-size:12px;">${new Date(o.createdAt).toLocaleDateString()}</td>
-        <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
-        <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
-        <td><b>$${(o.total||0).toFixed(2)}</b></td>
-        <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <span class="order-detail-btn" onclick="viewOrder('${o._id}')">Details</span>
-          ${btn}
-        </td>
-      </tr>`;
-    }).join('')}</tbody>
-  </table>`;
-  const pag = document.getElementById('ordersPagination');
-  if (pickupOrderTotalPages <= 1) { pag.innerHTML = ''; return; }
-  pag.innerHTML = `
-    <button class="pag-btn" onclick="loadPickupOrders(${pickupOrderPage-1})" ${pickupOrderPage<=1?'disabled':''}>← Prev</button>
-    <span class="pag-info">Page ${pickupOrderPage} of ${pickupOrderTotalPages}</span>
-    <button class="pag-btn" onclick="loadPickupOrders(${pickupOrderPage+1})" ${pickupOrderPage>=pickupOrderTotalPages?'disabled':''}>Next →</button>`;
-}
-window.loadPickupOrders = loadPickupOrders;
-
-async function updatePickupOrderStatus(id, newStatus, orderNum) {
-  if (!await vpConfirm({ title: 'Update Order Status', message: `Update order <strong>#${orderNum}</strong> to <strong>${newStatus.replace(/_/g,' ')}</strong>?`, icon: '📦', confirmText: 'Update', success: true })) return;
-  const data = await apiFetch(`/dealer/orders/${id}/status`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus }) });
-  if (data.success) { showToast('Order updated', 'success'); loadPickupOrders(pickupOrderPage); }
-  else showToast(data.message || 'Failed', 'error');
-}
-window.updatePickupOrderStatus = updatePickupOrderStatus;
-
-// ── CANCEL ORDER ──────────────────────────────────────────────────────────────
-async function cancelOrder(id,num){
-  if(!await vpConfirm({ title: 'Cancel Order', message: `Cancel order <strong>#${num}</strong>? This cannot be undone.`, icon: '❌', confirmText: 'Cancel Order', danger: true }))return;
-  const data=await apiFetch(`/orders/${id}/cancel`,{method:'PUT',headers:apiHeaders()});
-  if(data.success){showToast('Order cancelled','success');loadOrders(orderPage);}
-  else showToast(data.message||'Could not cancel order','error');
-}
-window.cancelOrder=cancelOrder;
-
-// ── VIEW ORDER DETAIL ─────────────────────────────────────────────────────────
-async function viewOrder(id){
-  const data=await apiFetch('/orders/'+id,{headers:apiHeaders()});
-  if(!data||!data.order){showToast('Could not load order','error');return;}
-  const o=data.order;
-  document.getElementById('modalOrderNum').textContent='Order #'+o.orderNumber;
-  const snap=o.pickupOutletSnapshot||{};
-  const pickupHtml=snap.name
-    ? `<b>${snap.name}</b><br/>${snap.address||''}<br/>${snap.suburb||''}${snap.suburb&&snap.state?', ':''}${snap.state||''}${snap.phone?'<br/>📞 '+snap.phone:''}`
-    : '—';
-  document.getElementById('modalOrderBody').innerHTML=`
-    <div class="order-info-grid">
-      <div class="order-info-item"><div class="order-info-label">Order Date</div>${new Date(o.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'})}</div>
-      <div class="order-info-item"><div class="order-info-label">📅 Pickup Date</div><span style="font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</span></div>
-      <div class="order-info-item"><div class="order-info-label">Status</div><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></div>
-      <div class="order-info-item"><div class="order-info-label">Payment</div>${o.paymentMethod||'—'} · <em>${o.paymentStatus||'pending'}</em></div>
-      <div class="order-info-item"><div class="order-info-label">🏪 Pickup At</div>${pickupHtml}</div>
-    </div>
-    <div class="order-items-list">
-      ${(o.items||[]).map(i=>`<div class="order-item-row">
-        <img src="${i.image||'https://via.placeholder.com/52'}" onerror="this.src='https://via.placeholder.com/52'" alt="${i.name}"/>
-        <div class="name">${i.name}${i.sku?`<div style="font-size:11px;color:var(--mid);font-weight:400;margin-top:2px;letter-spacing:.03em;">SKU: ${i.sku}</div>`:''}</div>
-        <div class="qty">× ${i.quantity}</div>
-        <div class="price">$${(i.price*i.quantity).toFixed(2)}</div>
-      </div>`).join('')}
-    </div>
-    <div class="order-totals">
-      <div class="order-total-row"><span>Subtotal</span><span>$${(o.subtotal||0).toFixed(2)}</span></div>
-      <div class="order-total-row"><span>Pickup</span><span>In-store (free)</span></div>
-      ${o.discount?`<div class="order-total-row"><span>Discount</span><span>-$${o.discount.toFixed(2)}</span></div>`:''}
-      <div class="order-total-row grand"><span>Total</span><span>$${(o.total||0).toFixed(2)}</span></div>
-    </div>
-    ${o.notes?`<div style="margin-top:16px;padding:12px 16px;background:#FBF9F4;border:1px solid #e8e0d2;border-radius:4px;font-size:13px;"><span style="font-weight:700;color:var(--mid);letter-spacing:.06em;text-transform:uppercase;font-size:11px;">Order Notes</span><p style="margin-top:6px;color:var(--dark);line-height:1.7;">${o.notes}</p></div>`:''}`;
-  document.getElementById('orderModal').classList.add('open');
-}
-function closeOrderModal(){document.getElementById('orderModal').classList.remove('open');}
-window.viewOrder=viewOrder;window.closeOrderModal=closeOrderModal;
-
-// ── DEALER PANEL ──────────────────────────────────────────────────────────────
-let dealerReqTerritoriesData = { Melbourne: [], Sydney: [] };
-
-async function loadDealerPanel() {
-  await loadDealerTerritories();
-}
-
-async function loadDealerPortalPrimary() {
-  const el = document.getElementById('dealerPortalPrimary');
-  if (!el) return;
-  const data = await apiFetch('/dealer/outlets', { headers: apiHeaders() });
-  const outlets = data.outlets || [];
-  window._dealerOutletsMap = window._dealerOutletsMap || {};
-  outlets.forEach(o => { window._dealerOutletsMap[o._id] = o; });
-  const primary = outlets.find(o => o.isPrimaryOutlet);
-  if (!primary) { el.innerHTML = '<p style="color:var(--mid);font-size:14px;">No primary outlet found. Contact admin.</p>'; return; }
-  el.innerHTML = `
-    <div style="display:flex;align-items:flex-start;gap:14px;padding:16px;border:1px solid #e8e0d2;border-radius:4px;background:#fff;">
-      <div style="font-size:26px;flex-shrink:0;">&#127978;</div>
-      <div style="flex:1;">
-        <div style="font-weight:700;font-size:15px;margin-bottom:2px;">${primary.name} <span style="font-size:11px;color:var(--gold);font-weight:600;">(Primary)</span></div>
-        <div style="font-size:13px;color:var(--mid);">${primary.address}, ${primary.suburb}, ${primary.state}</div>
-        ${primary.phone ? `<div style="font-size:13px;color:var(--mid);">${primary.phone}</div>` : ''}
-        ${primary.hours ? `<div style="font-size:12px;color:var(--light);">${primary.hours}</div>` : ''}
-        <div style="font-size:11px;color:var(--light);margin-top:4px;">Territory: ${primary.territorySlug} &middot; ${primary.pickupEnabled ? '<span style="color:#27ae60;font-weight:600;">Pickup: Enabled</span>' : '<span style="color:var(--mid);">Pickup: Disabled</span>'}</div>
-        ${primary.requestType === 'edit' ? '<div style="font-size:12px;color:#004085;margin-top:6px;">Edit pending admin approval.</div>' : ''}
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end;">
-        ${outletStatusBadge(primary)}
-        ${!primary.requestType ? `<button class="btn-sm outline" onclick="editDealerOutlet('${primary._id}')">Edit</button>` : ''}
-      </div>
-    </div>`;
-}
-
-async function loadDealerTerritories() {
-  const el = document.getElementById('dealerTerritoriesContent');
-  if (!el) return;
-  const data = await apiFetch('/dealer/outlets', { headers: apiHeaders() });
-  const outlets = data.outlets || [];
-  window._dealerOutletsMap = window._dealerOutletsMap || {};
-  outlets.forEach(o => { window._dealerOutletsMap[o._id] = o; });
-
-  // Show ALL territories — primary first, then additional
-  const all = [...outlets.filter(o => o.isPrimaryOutlet), ...outlets.filter(o => !o.isPrimaryOutlet)];
-  if (!all.length) {
-    el.innerHTML = '<p style="color:var(--mid);font-size:14px;padding:12px 0;">No territories yet.</p>';
-    return;
-  }
-  el.innerHTML = all.map(o => `
-    <div style="display:flex;align-items:flex-start;gap:14px;padding:16px;border:1px solid #e8e0d2;border-radius:4px;margin-bottom:10px;background:#fff;">
-      <div style="font-size:24px;flex-shrink:0;">&#128205;</div>
-      <div style="flex:1;">
-        <div style="font-weight:700;font-size:14px;margin-bottom:2px;">
-          ${o.name}
-          ${o.isPrimaryOutlet ? '<span style="font-size:11px;color:var(--gold);font-weight:600;margin-left:6px;">(Primary)</span>' : ''}
-        </div>
-        <div style="font-size:13px;color:var(--mid);">${o.address}, ${o.suburb}, ${o.state}</div>
-        ${o.phone ? `<div style="font-size:13px;color:var(--mid);">${o.phone}</div>` : ''}
-        ${o.hours ? `<div style="font-size:12px;color:var(--light);">${o.hours}</div>` : ''}
-        <div style="font-size:11px;color:var(--light);margin-top:4px;">Territory: ${o.territorySlug} &middot; ${o.pickupEnabled ? '<span style="color:#27ae60;font-weight:600;">Pickup: Enabled</span>' : '<span style="color:var(--mid);">Pickup: Disabled</span>'}</div>
-        ${o.requestType === 'edit'   ? '<div style="font-size:12px;color:#004085;margin-top:6px;">Edit pending admin approval.</div>' : ''}
-        ${o.requestType === 'delete' ? '<div style="font-size:12px;color:#856404;margin-top:6px;">Deletion pending admin approval.</div>' : ''}
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end;">
-        ${outletStatusBadge(o)}
-        ${!o.requestType && o.approvalStatus !== 'rejected' ? `<button class="btn-sm outline" onclick="editDealerOutlet('${o._id}')">Edit</button>` : ''}
-        ${!o.isPrimaryOutlet && !o.requestType && o.approvalStatus !== 'rejected' ? `<button class="btn-sm" style="background:#fff0f0;color:#c0392b;border:1px solid #f5c6cb;" onclick="deleteDealerOutlet('${o._id}','${o.name.replace(/'/g,"\'")}')">Delete</button>` : ''}
-      </div>
-    </div>`).join('');
-}
-
-
-// Dealer territory request modal
-async function openDealerTerritoryModal(outletId) {
-  const isEdit = !!outletId;
-  const o = isEdit ? window._dealerOutletsMap?.[outletId] : null;
-  document.getElementById('dealerTerrModalId').value   = isEdit ? outletId : '';
-  document.getElementById('dealerTerrModalTitle').textContent = isEdit
-    ? (o?.isPrimaryOutlet ? 'EDIT PRIMARY OUTLET' : 'EDIT TERRITORY OUTLET')
-    : 'REQUEST ADDITIONAL TERRITORY';
-  document.getElementById('dealerTerrName').value      = o?.name    || '';
-  document.getElementById('dealerTerrPhone').value     = o?.phone   || '';
-  document.getElementById('dealerTerrAddress').value   = o?.address || '';
-  document.getElementById('dealerTerrHours').value     = o?.hours   || '';
-  document.getElementById('dealerTerrState').value     = o?.state   || '';
-  document.getElementById('dealerTerrMsg').style.display = 'none';
-  document.getElementById('dealerTerrSaveBtn').disabled   = false;
-  document.getElementById('dealerTerrSaveBtn').textContent = isEdit ? 'Submit Edit' : 'Submit Request';
-  // Force fresh territory data so statuses are current
-  dealerOutletTerritoriesData = { Melbourne: [], Sydney: [] };
-  await loadDealerTerrTerritoryOptions();
-  if (o?.territorySlug) document.getElementById('dealerTerrTerritory').value = o.territorySlug;
-  const modal = document.getElementById('dealerTerritoryModal');
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-window.openDealerTerritoryModal = openDealerTerritoryModal;
-
-function closeDealerTerritoryModal() {
-  document.getElementById('dealerTerritoryModal').style.display = 'none';
-  document.body.style.overflow = '';
-}
-window.closeDealerTerritoryModal = closeDealerTerritoryModal;
-
-async function loadDealerTerrTerritoryOptions() {
-  const state = document.getElementById('dealerTerrState').value;
-  const sel   = document.getElementById('dealerTerrTerritory');
-  sel.innerHTML = '<option value="">Select territory...</option>';
-  if (!state) { sel.disabled = true; return; }
-  if (!dealerOutletTerritoriesData[state]?.length) {
-    sel.innerHTML = '<option value="">Loading...</option>'; sel.disabled = true;
-    const td = await apiFetch('/territories?state=' + encodeURIComponent(state));
-    dealerOutletTerritoriesData[state] = td.territories || [];
-  }
-  // Get dealer's already-held territory slugs to also disable those
-  const heldSlugs = new Set(
-    (window._dealerOutletsMap ? Object.values(window._dealerOutletsMap) : []).map(o => o.territorySlug)
-  );
-  sel.innerHTML = '<option value="">Select territory...</option>' +
-    dealerOutletTerritoriesData[state].map(t => {
-      const taken   = t.status === 'assigned';
-      const pending = t.status === 'pending';
-      const held    = heldSlugs.has(t.slug);
-      const label   = taken   ? `${t.name} (Taken)`
-                    : pending ? `${t.name} (Under Review)`
-                    : held    ? `${t.name} (Already yours)`
-                    : t.name;
-      return `<option value="${t.slug}" ${taken || pending || held ? 'disabled' : ''}>${label}</option>`;
-    }).join('');
-  sel.disabled = false;
-}
-window.loadDealerTerrTerritoryOptions = loadDealerTerrTerritoryOptions;
-
-async function saveDealerTerritoryModal() {
-  const editId       = document.getElementById('dealerTerrModalId').value;
-  const name         = document.getElementById('dealerTerrName').value.trim();
-  const phone        = document.getElementById('dealerTerrPhone').value.trim();
-  const address      = document.getElementById('dealerTerrAddress').value.trim();
-  const hours        = document.getElementById('dealerTerrHours').value.trim();
-  const state        = document.getElementById('dealerTerrState').value;
-  const terrSel      = document.getElementById('dealerTerrTerritory');
-  const territorySlug= terrSel.value;
-  const suburb       = terrSel.options[terrSel.selectedIndex]?.text || territorySlug;
-  const msg          = document.getElementById('dealerTerrMsg');
-  msg.style.display  = 'none';
-  if (!state) {
-    msg.className = 'form-msg err'; msg.textContent = 'Please select a state.'; msg.style.display = 'block'; return;
-  }
-  if (!editId && !territorySlug) {
-    msg.className = 'form-msg err'; msg.textContent = 'Please select a territory.'; msg.style.display = 'block'; return;
-  }
-  const btn = document.getElementById('dealerTerrSaveBtn');
-  btn.disabled = true; btn.textContent = 'Submitting...';
-  let data;
-  if (editId) {
-    data = await apiFetch(`/dealer/outlets/${editId}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ name, phone, address, suburb, state, territorySlug, hours }) });
-  } else {
-    // Use territory name as outlet name fallback if dealer didn't provide one
-    const outletName = name || (terrSel.options[terrSel.selectedIndex]?.text?.replace(/ \(.*\)$/, '') || territorySlug);
-    data = await apiFetch('/dealer/territories', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ name: outletName, phone, address, suburb, state, territorySlug, hours }) });
-  }
-  btn.disabled = false; btn.textContent = editId ? 'Submit Edit' : 'Submit Request';
-  if (data.success) {
-    closeDealerTerritoryModal();
-    showToast(editId ? 'Edit submitted for approval' : 'Territory request submitted', 'success');
-    loadDealerTerritories();
-    loadDealerPortalPrimary();
-  } else {
-    msg.className = 'form-msg err'; msg.textContent = data.message || 'Failed to submit.'; msg.style.display = 'block';
-  }
-}
-window.saveDealerTerritoryModal = saveDealerTerritoryModal;
-
-// updateDealerOrderStatus still used by loadPickupOrders (dealer)
-async function updateDealerOrderStatus(id, newStatus, orderNum) {
-  if (!await vpConfirm({ title: 'Update Order Status', message: `Update order <strong>#${orderNum}</strong> to <strong>${newStatus.replace(/_/g,' ')}</strong>?`, icon: '📦', confirmText: 'Update', success: true })) return;
-  const data = await apiFetch(`/dealer/orders/${id}/status`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus }) });
-  if (data.success) { showToast(`Order updated`, 'success'); loadPickupOrders(pickupOrderPage); }
-  else showToast(data.message || 'Status update failed', 'error');
-}
-window.updateDealerOrderStatus = updateDealerOrderStatus;
-
-
-
-// ── DEALER RETAIL OUTLETS ─────────────────────────────────────────────────────
-let dealerOutletTerritoriesData = { Melbourne: [], Sydney: [] };
-
-// status badge helper for outlet cards
-function outletStatusBadge(o) {
-  if (o.requestType === 'delete')  return '<span style="padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;background:#fff3cd;color:#856404;">Pending Deletion</span>';
-  if (o.requestType === 'edit')    return '<span style="padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;background:#cce5ff;color:#004085;">Pending Edit</span>';
-  if (o.requestType === 'create' || o.approvalStatus === 'pending') return '<span style="padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;background:#fff3cd;color:#856404;">Pending Approval</span>';
-  if (o.approvalStatus === 'rejected') return '<span style="padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;background:#f8d7da;color:#721c24;">Rejected</span>';
-  return o.isActive
-    ? '<span style="padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;background:#d4edda;color:#155724;">Active</span>'
-    : '<span style="padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;background:#f8d7da;color:#721c24;">Inactive</span>';
-}
-
-async function loadOutletsPanel() {
-  loadDealerPortalPrimary();
-  const td = await apiFetch('/territories');
-  dealerOutletTerritoriesData = { Melbourne: [], Sydney: [] };
-  (td.territories || []).forEach(t => {
-    if (!dealerOutletTerritoriesData[t.state]) dealerOutletTerritoriesData[t.state] = [];
-    dealerOutletTerritoriesData[t.state].push(t);
-  });
-  await loadDealerOutlets();
-}
-
-async function loadDealerOutlets() {
-  const elAdditional = document.getElementById('dealerOutletsContent');
-  const elPrimary    = document.getElementById('dealerPrimaryOutlet');
-  const data = await apiFetch('/dealer/outlets', { headers: apiHeaders() });
-  const outlets = data.outlets || [];
-  window._dealerOutletsMap = {};
-  outlets.forEach(o => { window._dealerOutletsMap[o._id] = o; });
-  const primary    = outlets.filter(o => o.isPrimaryOutlet);
-  const additional = outlets.filter(o => !o.isPrimaryOutlet);
-
-  // Primary outlet
-  if (elPrimary) {
-    if (!primary.length) {
-      elPrimary.innerHTML = '<p style="color:var(--mid);font-size:14px;padding:16px 0;">No primary outlet found. Contact admin.</p>';
-    } else {
-      const o = primary[0];
-      elPrimary.innerHTML = `
-        <div style="display:flex;align-items:flex-start;gap:14px;padding:16px;border:1px solid #e8e0d2;border-radius:4px;background:#fff;">
-          <div style="font-size:28px;flex-shrink:0;">🏪</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;font-size:15px;margin-bottom:4px;">${o.name} <span style="font-size:11px;color:var(--gold);font-weight:600;">(Primary)</span></div>
-            <div style="font-size:13px;color:var(--mid);">${o.address}, ${o.suburb}, ${o.state}</div>
-            ${o.phone ? `<div style="font-size:13px;color:var(--mid);">${o.phone}</div>` : ''}
-            ${o.hours ? `<div style="font-size:12px;color:var(--light);">${o.hours}</div>` : ''}
-            <div style="font-size:11px;color:var(--light);margin-top:4px;">Territory: ${o.territorySlug} &middot; ${o.pickupEnabled ? '<span style="color:#27ae60;font-weight:600;">Pickup: Enabled</span>' : '<span style="color:var(--mid);">Pickup: Disabled</span>'}</div>
-            ${o.requestType === 'edit' ? `<div style="font-size:12px;color:#004085;margin-top:6px;">&#10000; Edit pending admin approval &mdash; outlet inactive until approved.</div>` : ''}
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end;">
-            ${outletStatusBadge(o)}
-            ${!o.requestType && o.approvalStatus !== 'rejected' ? `<button class="btn-sm outline" onclick="editDealerOutlet('${o._id}')">Edit</button>` : ''}
-          </div>
-        </div>`;
-    }
-  }
-
-  // Additional territory outlets
-  if (elAdditional) {
-    if (!additional.length) {
-      elAdditional.innerHTML = `<div style="text-align:center;padding:28px;color:var(--mid);">
-        <div style="font-size:36px;margin-bottom:10px;">&#128205;</div>
-        <p style="font-size:14px;margin-bottom:14px;">No additional territories yet.</p>
-        <button class="btn-sm gold" onclick="openOutletForm()">Request Your First Territory</button>
-      </div>`;
-    } else {
-      elAdditional.innerHTML = additional.map(o => `
-        <div style="display:flex;align-items:flex-start;gap:14px;padding:16px;border:1px solid #e8e0d2;border-radius:4px;margin-bottom:10px;background:#fff;">
-          <div style="font-size:28px;flex-shrink:0;">&#128205;</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;font-size:15px;margin-bottom:4px;">${o.name}</div>
-            <div style="font-size:13px;color:var(--mid);">${o.address}, ${o.suburb}, ${o.state}</div>
-            ${o.phone ? `<div style="font-size:13px;color:var(--mid);">${o.phone}</div>` : ''}
-            ${o.hours ? `<div style="font-size:12px;color:var(--light);">${o.hours}</div>` : ''}
-            <div style="font-size:11px;color:var(--light);margin-top:4px;">Territory: ${o.territorySlug} &middot; Pickup: Enabled</div>
-            ${o.requestType === 'edit' ? `<div style="font-size:12px;color:#004085;margin-top:6px;">&#10000; Edit pending admin approval.</div>` : ''}
-            ${o.requestType === 'delete' ? `<div style="font-size:12px;color:#856404;margin-top:6px;">&#128465; Deletion pending admin approval.</div>` : ''}
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end;">
-            ${outletStatusBadge(o)}
-            ${!o.requestType && o.approvalStatus !== 'rejected' ? `<button class="btn-sm outline" onclick="editDealerOutlet('${o._id}')">Edit</button>` : ''}
-            ${!o.requestType && o.approvalStatus !== 'rejected' ? `<button class="btn-sm" style="background:#fff0f0;color:#c0392b;border:1px solid #f5c6cb;" onclick="deleteDealerOutlet('${o._id}','${o.name.replace(/'/g,"\'")}')">Delete</button>` : ''}
-          </div>
-        </div>`).join('');
-    }
-  }
-}
-
-function openOutletForm() {
-  // Dealers use the territory modal — not this form
-  try {
-    const tok = localStorage.getItem('vp_token');
-    const role = tok ? JSON.parse(atob(tok.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role : null;
-    if (role === 'Dealer') { openDealerTerritoryModal(); return; }
-  } catch(e) {}
-  document.getElementById('editingOutletId').value = '';
-  document.getElementById('outletFormTitle').textContent = 'REQUEST ADDITIONAL TERRITORY';
-  document.getElementById('outletName').value = '';
-  document.getElementById('outletPhone').value = '';
-  document.getElementById('outletAddress').value = '';
-  const subEl = document.getElementById('outletSuburb'); if(subEl) subEl.value = '';
-  document.getElementById('outletState').value = '';
-  document.getElementById('outletTerritory').innerHTML = '<option value="">Select state first...</option>';
-  document.getElementById('outletTerritory').disabled = true;
-  document.getElementById('outletHours').value = '';
-  document.getElementById('outletSaveBtn').textContent = 'Submit Request';
-  document.getElementById('outletFormMsg').style.display = 'none';
-  document.getElementById('outletFormCard').style.display = '';
-  document.getElementById('panel-outlets').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-window.openOutletForm = openOutletForm;
-
-function closeOutletForm() {
-  document.getElementById('outletFormCard').style.display = 'none';
-  document.getElementById('outletFormMsg').style.display = 'none';
-}
-window.closeOutletForm = closeOutletForm;
-
-function editDealerOutlet(outletId) {
-  const o = window._dealerOutletsMap?.[outletId];
-  if (!o) return;
-  // All dealer outlets (primary or additional) use the territory modal
-  openDealerTerritoryModal(outletId);
-}
-window.editDealerOutlet = editDealerOutlet;
-
-function loadOutletTerritoryOptions() {
-  const state = document.getElementById('outletState').value;
-  const sel = document.getElementById('outletTerritory');
-  sel.innerHTML = '<option value="">Select territory...</option>';
-  if (!state) { sel.disabled = true; return; }
-  const list = dealerOutletTerritoriesData[state] || [];
-  list.forEach(t => {
-    const opt = document.createElement('option');
-    opt.value = t.slug; opt.textContent = t.name;
-    sel.appendChild(opt);
-  });
-  sel.disabled = false;
-}
-window.loadOutletTerritoryOptions = loadOutletTerritoryOptions;
-
-async function saveOutletFromAccount() {
-  const editId       = document.getElementById('editingOutletId').value;
-  const name         = document.getElementById('outletName').value.trim();
-  const phone        = document.getElementById('outletPhone').value.trim();
-  const address      = document.getElementById('outletAddress').value.trim();
-  const state        = document.getElementById('outletState').value;
-  const terrSel      = document.getElementById('outletTerritory');
-  const territorySlug= terrSel.value;
-  const suburbEl     = document.getElementById('outletSuburb');
-  const suburb       = suburbEl ? suburbEl.value.trim() : (terrSel.options[terrSel.selectedIndex]?.text || territorySlug);
-  const hours        = document.getElementById('outletHours').value.trim();
-  const msg = document.getElementById('outletFormMsg');
-  msg.style.display = 'none';
-
-  if (!name || !address || !state) {
-    msg.className = 'form-msg err'; msg.textContent = 'Please fill in all required fields.'; msg.style.display = 'block'; return;
-  }
-  if (!editId && (!suburb || !territorySlug)) {
-    msg.className = 'form-msg err'; msg.textContent = 'Please select a territory.'; msg.style.display = 'block'; return;
-  }
-
-  const btn = document.getElementById('outletSaveBtn');
-  btn.disabled = true; btn.textContent = editId ? 'Submitting...' : 'Submitting...';
-
-  const body = { name, address, suburb, state, territorySlug, phone, hours };
-  let data;
-  if (editId) {
-    data = await apiFetch(`/dealer/outlets/${editId}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify(body) });
-  } else {
-    data = await apiFetch('/dealer/territories', { method: 'POST', headers: apiHeaders(), body: JSON.stringify(body) });
-  }
-
-  btn.disabled = false; btn.textContent = editId ? 'Submit Edit' : 'Submit Request';
-
-  if (data.success) {
-    msg.className = 'form-msg ok';
-    msg.textContent = editId ? 'Edit submitted — outlet inactive until admin approves.' : 'Territory request submitted — pending admin approval.';
-    msg.style.display = 'block';
-    setTimeout(() => { closeOutletForm(); loadDealerOutlets(); }, 1600);
-    showToast(editId ? 'Edit submitted for approval' : 'Territory request submitted', 'success');
-  } else {
-    msg.className = 'form-msg err';
-    msg.textContent = data.message || 'Failed to submit.';
-    msg.style.display = 'block';
-  }
-}
-window.saveOutletFromAccount = saveOutletFromAccount;
-
-async function deleteDealerOutlet(id, name) {
-  if (!await vpConfirm({ title: 'Request Outlet Deletion', message: `Request deletion of <strong>${name}</strong>? The outlet stays active until admin approves the removal.`, icon: '🗑', confirmText: 'Request Deletion', success: false })) return;
-  const data = await apiFetch(`/dealer/outlets/${id}`, { method: 'DELETE', headers: apiHeaders() });
-  if (data.success) { showToast('Deletion request submitted', 'success'); loadDealerOutlets(); }
-  else showToast(data.message || 'Failed to request deletion', 'error');
-}
-window.deleteDealerOutlet = deleteDealerOutlet;
-let retailOutletTerritoriesData = { Melbourne: [], Sydney: [] };
-
-async function loadRetailAdditionalOutlets() {
-  const el = document.getElementById('retailOutletsContent');
-  if (!el) return;
-  if (!retailOutletTerritoriesData.Melbourne.length && !retailOutletTerritoriesData.Sydney.length) {
-    const td = await apiFetch('/territories');
-    retailOutletTerritoriesData = { Melbourne: [], Sydney: [] };
-    (td.territories || []).forEach(t => {
-      if (!retailOutletTerritoriesData[t.state]) retailOutletTerritoriesData[t.state] = [];
-      retailOutletTerritoriesData[t.state].push(t);
-    });
-  }
-  const data = await apiFetch('/retail/outlets', { headers: apiHeaders() });
-  const outlets = (data.outlets || []).filter(o => o.approvalStatus !== 'superseded');
-  window._retailOutletsMap = {};
-  outlets.forEach(o => { window._retailOutletsMap[o._id] = o; });
-  if (!outlets.length) {
-    el.innerHTML = `<div style="text-align:center;padding:28px;color:var(--mid);">
-      <div style="font-size:36px;margin-bottom:10px;">&#127978;</div>
-      <p style="font-size:14px;margin-bottom:14px;">No outlets yet.</p>
-      <button class="btn-sm gold" onclick="openRetailOutletForm()">Request Your First Outlet</button>
-    </div>`;
-    return;
-  }
-  // Sort: primary first
-  const sorted = [...outlets].sort((a,b) => (b.isPrimaryOutlet ? 1 : 0) - (a.isPrimaryOutlet ? 1 : 0));
-  el.innerHTML = sorted.map(o => `
-    <div style="display:flex;align-items:flex-start;gap:14px;padding:16px;border:1px solid #e8e0d2;border-radius:4px;margin-bottom:10px;background:#fff;">
-      <div style="font-size:28px;flex-shrink:0;">&#127978;</div>
-      <div style="flex:1;">
-        <div style="font-weight:700;font-size:15px;margin-bottom:2px;">
-          ${o.name}
-          ${o.isPrimaryOutlet ? '<span style="font-size:11px;color:var(--gold);font-weight:600;margin-left:6px;">(Primary)</span>' : ''}
-        </div>
-        <div style="font-size:13px;color:var(--mid);">${o.address}, ${o.suburb}, ${o.state}</div>
-        ${o.phone ? `<div style="font-size:13px;color:var(--mid);">${o.phone}</div>` : ''}
-        ${o.hours ? `<div style="font-size:12px;color:var(--light);">${o.hours}</div>` : ''}
-        <div style="font-size:11px;color:var(--light);margin-top:4px;">
-          Territory: ${o.territorySlug} &middot;
-          ${o.pickupEnabled ? '<span style="color:#27ae60;font-weight:600;">Pickup: Enabled</span>' : '<span style="color:var(--mid);">Pickup: Disabled</span>'}
-        </div>
-        ${o.requestType === 'edit'   ? `<div style="font-size:12px;color:#004085;margin-top:6px;">Edit pending admin approval — outlet inactive until approved.</div>` : ''}
-        ${o.requestType === 'delete' ? `<div style="font-size:12px;color:#856404;margin-top:6px;">Deletion pending admin approval — outlet stays active until then.</div>` : ''}
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end;">
-        ${outletStatusBadge(o)}
-        ${!o.requestType && o.approvalStatus !== 'rejected' ? `<button class="btn-sm outline" onclick="openRetailOutletModal('${o._id}')">Edit</button>` : ''}
-        ${!o.requestType && o.approvalStatus !== 'rejected' && !o.isPrimaryOutlet ? `<button class="btn-sm" style="background:#fff0f0;color:#c0392b;border:1px solid #f5c6cb;" onclick="deleteRetailOutlet('${o._id}','${o.name.replace(/'/g,"\'")}')">Delete</button>` : ''}
-      </div>
-    </div>`).join('');
-}
-
-
-function openRetailOutletForm() {
-  openRetailOutletModal(null);
-}
-window.openRetailOutletForm = openRetailOutletForm;
-
-function closeRetailOutletForm() {
-  closeRetailOutletModal();
-}
-window.closeRetailOutletForm = closeRetailOutletForm;
-
-function editRetailOutlet(outletId) {
-  openRetailOutletModal(outletId);
-}
-window.editRetailOutlet = editRetailOutlet;
-
-async function loadRetailOutletTerritoryOptions() {
-  const state = document.getElementById('retailOutletState').value;
-  const sel   = document.getElementById('retailOutletTerritory');
-  sel.innerHTML = '<option value="">Select territory…</option>';
-  if (!state) { sel.disabled = true; return; }
-  // Fetch on-demand if this state's territories aren't loaded yet
-  if (!retailOutletTerritoriesData[state] || !retailOutletTerritoriesData[state].length) {
-    sel.innerHTML = '<option value="">Loading…</option>';
-    sel.disabled = true;
-    try {
-      const td = await apiFetch('/territories?state=' + encodeURIComponent(state));
-      retailOutletTerritoriesData[state] = td.territories || [];
-    } catch(e) {
-      retailOutletTerritoriesData[state] = [];
-    }
-  }
-  sel.innerHTML = '<option value="">Select territory…</option>';
-  const list = retailOutletTerritoriesData[state] || [];
-  list.forEach(t => {
-    const opt = document.createElement('option');
-    opt.value = t.slug; opt.textContent = t.name;
-    sel.appendChild(opt);
-  });
-  sel.disabled = false;
-}
-window.loadRetailOutletTerritoryOptions = loadRetailOutletTerritoryOptions;
-
-async function saveRetailOutlet() {
-  const editId       = document.getElementById('editingRetailOutletId').value;
-  const name         = document.getElementById('retailOutletName').value.trim();
-  const phone        = document.getElementById('retailOutletPhone').value.trim();
-  const address      = document.getElementById('retailOutletAddress').value.trim();
-  const state        = document.getElementById('retailOutletState').value;
-  const terrSel      = document.getElementById('retailOutletTerritory');
-  const territorySlug= terrSel.value;
-  const suburb       = terrSel.options[terrSel.selectedIndex]?.text || territorySlug;
-  const hours        = document.getElementById('retailOutletHours').value.trim();
-  const pickupEnabled = document.getElementById('retailOutletPickupEnabled').checked;
-  const msg          = document.getElementById('retailOutletFormMsg');
-  msg.style.display  = 'none';
-
-  if (!name || !address || !suburb || !state || !territorySlug) {
-    msg.className = 'form-msg err'; msg.textContent = 'Please fill in all required fields.'; msg.style.display = 'block'; return;
-  }
-
-  const btn = document.getElementById('retailOutletSaveBtn');
-  btn.disabled = true; btn.textContent = editId ? 'Saving…' : 'Submitting…';
-
-  const body = { name, address, suburb, state, territorySlug, phone, hours, pickupEnabled };
-  let data;
-  if (editId) {
-    data = await apiFetch(`/retail/outlets/${editId}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify(body) });
-  } else {
-    data = await apiFetch('/retail/outlets', { method: 'POST', headers: apiHeaders(), body: JSON.stringify(body) });
-  }
-
-  btn.disabled = false; btn.textContent = editId ? 'Save Changes' : 'Submit Outlet';
-
-  if (data.success) {
-    msg.className = 'form-msg ok';
-    msg.textContent = editId ? '✓ Outlet updated successfully.' : '✓ Outlet requested — pending admin activation.';
-    msg.style.display = 'block';
-    setTimeout(() => { closeRetailOutletForm(); loadRetailAdditionalOutlets(); }, 1500);
-    showToast(editId ? 'Outlet updated' : 'Outlet requested', 'success');
-  } else {
-    msg.className = 'form-msg err';
-    msg.textContent = data.message || 'Failed to save outlet.';
-    msg.style.display = 'block';
-  }
-}
-window.saveRetailOutlet = saveRetailOutlet;
-
-async function deleteRetailOutlet(id, name) {
-  if (!await vpConfirm({ title: 'Request Outlet Deletion', message: `Request deletion of <strong>${name}</strong>? The outlet stays active until admin approves the removal.`, icon: '🗑️', confirmText: 'Request Deletion', success: false })) return;
-  const data = await apiFetch(`/retail/outlets/${id}`, { method: 'DELETE', headers: apiHeaders() });
-  if (data.success) { showToast('Deletion request submitted', 'success'); loadRetailAdditionalOutlets(); }
-  else showToast(data.message || 'Failed to request deletion', 'error');
-}
-window.deleteRetailOutlet = deleteRetailOutlet;
-
-async function openRetailOutletModal(outletId) {
-  const isNew = !outletId;
-  const o = isNew ? null : window._retailOutletsMap?.[outletId];
-  document.getElementById('modalOutletId').value       = o?._id || '';
-  document.getElementById('outletModalTitle').textContent = isNew ? 'REQUEST NEW OUTLET' : (o?.isPrimaryOutlet ? 'EDIT PRIMARY STORE' : 'EDIT OUTLET');
-  document.getElementById('modalOutletName').value     = o?.name    || '';
-  document.getElementById('modalOutletPhone').value    = o?.phone   || '';
-  document.getElementById('modalOutletAddress').value  = o?.address || '';
-  document.getElementById('modalOutletHours').value    = o?.hours   || '';
-  document.getElementById('modalOutletPickup').checked = !!o?.pickupEnabled;
-  document.getElementById('modalOutletState').value    = o?.state   || '';
-  document.getElementById('modalOutletMsg').style.display = 'none';
-  document.getElementById('modalOutletSaveBtn').disabled = false;
-  document.getElementById('modalOutletSaveBtn').textContent = isNew ? 'Submit Request' : 'Submit Edit';
-  await loadModalTerritoryOptions();
-  if (o?.territorySlug) document.getElementById('modalOutletTerritory').value = o.territorySlug;
-  const modal = document.getElementById('outletEditModal');
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-window.openRetailOutletModal = openRetailOutletModal;
-
-function closeRetailOutletModal() {
-  document.getElementById('outletEditModal').style.display = 'none';
-  document.body.style.overflow = '';
-}
-window.closeRetailOutletModal = closeRetailOutletModal;
-
-async function loadModalTerritoryOptions() {
-  const state = document.getElementById('modalOutletState').value;
-  const sel   = document.getElementById('modalOutletTerritory');
-  sel.innerHTML = '<option value="">Select territory…</option>';
-  if (!state) { sel.disabled = true; return; }
-  if (!retailOutletTerritoriesData[state]?.length) {
-    sel.innerHTML = '<option value="">Loading…</option>'; sel.disabled = true;
-    const td = await apiFetch('/territories?state=' + encodeURIComponent(state));
-    retailOutletTerritoriesData[state] = td.territories || [];
-  }
-  sel.innerHTML = '<option value="">Select territory…</option>' +
-    retailOutletTerritoriesData[state].map(t => `<option value="${t.slug}">${t.name}</option>`).join('');
-  sel.disabled = false;
-}
-window.loadModalTerritoryOptions = loadModalTerritoryOptions;
-
-async function saveRetailOutletModal() {
-  const id           = document.getElementById('modalOutletId').value;
-  const name         = document.getElementById('modalOutletName').value.trim();
-  const phone        = document.getElementById('modalOutletPhone').value.trim();
-  const address      = document.getElementById('modalOutletAddress').value.trim();
-  const hours        = document.getElementById('modalOutletHours').value.trim();
-  const pickupEnabled= document.getElementById('modalOutletPickup').checked;
-  const state        = document.getElementById('modalOutletState').value;
-  const terrSel      = document.getElementById('modalOutletTerritory');
-  const territorySlug= terrSel.value;
-  const suburb       = terrSel.options[terrSel.selectedIndex]?.text || territorySlug;
-  const msg          = document.getElementById('modalOutletMsg');
-  msg.style.display  = 'none';
-  const isNew = !id;
-  if (!name || !address) {
-    msg.className = 'form-msg err'; msg.textContent = 'Name and address are required.'; msg.style.display = 'block'; return;
-  }
-  if (isNew && (!territorySlug || !state)) {
-    msg.className = 'form-msg err'; msg.textContent = 'Please select a state and territory.'; msg.style.display = 'block'; return;
-  }
-  const btn = document.getElementById('modalOutletSaveBtn');
-  btn.disabled = true; btn.textContent = 'Submitting…';
-  let data;
-  if (isNew) {
-    data = await apiFetch('/retail/outlets', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ name, phone, address, hours, pickupEnabled, state, territorySlug, suburb }) });
-  } else {
-    data = await apiFetch(`/retail/outlets/${id}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ name, phone, address, hours, pickupEnabled, state, territorySlug, suburb }) });
-  }
-  btn.disabled = false; btn.textContent = isNew ? 'Submit Request' : 'Submit Edit';
-  if (data.success) {
-    closeRetailOutletModal();
-    showToast(isNew ? 'Outlet submitted — pending admin approval' : 'Edit submitted — pending admin approval', 'success');
-    loadRetailAdditionalOutlets();
-  } else {
-    msg.className = 'form-msg err'; msg.textContent = data.message || 'Failed to submit.'; msg.style.display = 'block';
-  }
-}
-window.saveRetailOutletModal = saveRetailOutletModal;
-
-// ── ADDRESSES ─────────────────────────────────────────────────────────────────
-let editingAddrId=null;
-async function loadAddresses(){
-  const el=document.getElementById('addressesContent');
-  const data=await apiFetch('/auth/addresses',{headers:apiHeaders()});
-  const addrs=(data.addresses||[]);
-  if(!addrs.length){
-    el.innerHTML='<p style="color:var(--mid);font-size:14px;margin-bottom:16px;">No saved addresses yet. Add one below.</p>';
-    return;
-  }
-  el.innerHTML=`<div class="addr-grid">${addrs.map(a=>`
-    <div class="addr-card ${a.isDefault?'default-card':''}">
-      ${a.isDefault?'<span class="addr-default-badge">Default</span>':''}
-      <div class="addr-label">${a.label||'Address'}</div>
-      <div class="addr-text">
-        ${[a.firstName,a.lastName].filter(Boolean).join(' ')}<br/>
-        ${a.address}<br/>
-        ${a.city}${a.state?', '+a.state:''} ${a.postcode}<br/>
-        ${a.country||''}
-        ${a.phone?'<br/>'+a.phone:''}
-      </div>
-      <div class="addr-actions">
-        <button class="btn-sm outline" onclick="openAddrModal('${a._id}')">Edit</button>
-        <button class="btn-sm danger" onclick="deleteAddress('${a._id}')">Delete</button>
-      </div>
-    </div>`).join('')}</div>`;
-}
-
-function openAddrModal(addrId=null){
-  editingAddrId=addrId;
-  document.getElementById('addrModalTitle').textContent=addrId?'Edit Address':'Add New Address';
-  // If editing, pre-fill
-  if(addrId&&userData?.addresses){
-    const a=userData.addresses.find(x=>x._id===addrId)||(()=>{apiFetch('/auth/addresses',{headers:apiHeaders()}).then(d=>{const addr=(d.addresses||[]).find(x=>x._id===addrId);if(addr)fillAddrForm(addr);});return null;})();
-    if(a)fillAddrForm(a);
-  }else{
-    document.getElementById('aLabel').value='Home';
-    document.getElementById('aFirst').value='';document.getElementById('aLast').value='';
-    document.getElementById('aPhone').value='';document.getElementById('aStreet').value='';
-    document.getElementById('aCity').value='';document.getElementById('aState').value='';
-    document.getElementById('aPostcode').value='';document.getElementById('aCountry').value='Australia';
-    document.getElementById('aDefault').checked=false;
-  }
-  document.getElementById('addrMsg').style.display='none';
-  document.getElementById('addrModal').classList.add('open');
-}
-function fillAddrForm(a){
-  document.getElementById('aLabel').value=a.label||'Home';
-  document.getElementById('aFirst').value=a.firstName||'';document.getElementById('aLast').value=a.lastName||'';
-  document.getElementById('aPhone').value=a.phone||'';document.getElementById('aStreet').value=a.address||'';
-  document.getElementById('aCity').value=a.city||'';document.getElementById('aState').value=a.state||'';
-  document.getElementById('aPostcode').value=a.postcode||'';document.getElementById('aCountry').value=a.country||'Australia';
-  document.getElementById('aDefault').checked=!!a.isDefault;
-}
-function closeAddrModal(){document.getElementById('addrModal').classList.remove('open');editingAddrId=null;}
-window.openAddrModal=openAddrModal;window.closeAddrModal=closeAddrModal;
-
-async function saveAddress(){
-  const msg=document.getElementById('addrMsg');
-  const body={
-    label:document.getElementById('aLabel').value.trim(),
-    firstName:document.getElementById('aFirst').value.trim(),
-    lastName:document.getElementById('aLast').value.trim(),
-    phone:document.getElementById('aPhone').value.trim(),
-    address:document.getElementById('aStreet').value.trim(),
-    city:document.getElementById('aCity').value.trim(),
-    state:document.getElementById('aState').value.trim(),
-    postcode:document.getElementById('aPostcode').value.trim(),
-    country:document.getElementById('aCountry').value.trim(),
-    isDefault:document.getElementById('aDefault').checked,
-  };
-  if(!body.firstName||!body.address||!body.city||!body.postcode){msg.style.display='block';msg.className='form-msg err';msg.textContent='Please fill all required fields.';return;}
-  const url=editingAddrId?`/auth/addresses/${editingAddrId}`:'/auth/addresses';
-  const method=editingAddrId?'PUT':'POST';
-  const data=await apiFetch(url,{method,headers:apiHeaders(),body:JSON.stringify(body)});
-  if(data.success||data.address||data.message==='Address updated'){
-    showToast(editingAddrId?'Address updated':'Address added','success');
-    closeAddrModal();loadAddresses();
-    // Refresh userData addresses
-    apiFetch('/auth/me',{headers:apiHeaders()}).then(d=>{if(d.success)userData=d.user;});
-  }else{msg.style.display='block';msg.className='form-msg err';msg.textContent=data.message||'Failed to save address';}
-}
-window.saveAddress=saveAddress;
-
-async function deleteAddress(addrId){
-  if(!await vpConfirm({ title: 'Remove Address', message: 'Are you sure you want to remove this address?', icon: '📍', confirmText: 'Remove', danger: true }))return;
-  const data=await apiFetch(`/auth/addresses/${addrId}`,{method:'DELETE',headers:apiHeaders()});
-  if(data.success){showToast('Address removed','success');loadAddresses();}
-  else showToast('Failed to remove address','error');
-}
-window.deleteAddress=deleteAddress;
-
-// ── LOCATION PREFERENCES ──────────────────────────────────────────────────────
-let profTerritoriesData = { Melbourne: [], Sydney: [] };
-
-async function loadProfTerritories() {
-  try {
-    const data = await apiFetch('/territories');
-    if (data.territories) {
-      profTerritoriesData.Melbourne = data.territories.filter(t => t.state === 'Melbourne');
-      profTerritoriesData.Sydney    = data.territories.filter(t => t.state === 'Sydney');
-    }
-  } catch(e) {}
-}
-
-async function onProfStateChange() {
-  const state = document.getElementById('profState').value;
-  const terrSel = document.getElementById('profTerritory');
-  terrSel.innerHTML = '<option value="">Select territory…</option>';
-  if (!state) { terrSel.disabled = true; return; }
-  if (!profTerritoriesData[state]?.length) await loadProfTerritories();
-  const list = profTerritoriesData[state] || [];
-  list.forEach(t => {
-    const opt = document.createElement('option');
-    opt.value = t.slug; opt.textContent = t.name;
-    terrSel.appendChild(opt);
-  });
-  terrSel.disabled = false;
-}
-window.onProfStateChange = onProfStateChange;
-
-async function saveLocation() {
-  const preferredState     = document.getElementById('profState').value;
-  const preferredTerritory = document.getElementById('profTerritory').value;
-  const msg = document.getElementById('locMsg');
-  if (!preferredState)     { msg.style.display='block'; msg.className='form-msg err'; msg.textContent='Please select a state.'; return; }
-  if (!preferredTerritory) { msg.style.display='block'; msg.className='form-msg err'; msg.textContent='Please select a territory.'; return; }
-  const data = await apiFetch('/auth/me', { method:'PUT', headers:apiHeaders(), body:JSON.stringify({preferredState, preferredTerritory}) });
-  msg.style.display = 'block';
-  if (data.success) {
-    msg.className = 'form-msg ok';
-    msg.textContent = 'Location preferences saved!';
-    userData.preferredState = preferredState;
-    userData.preferredTerritory = preferredTerritory;
-  } else {
-    msg.className = 'form-msg err';
-    msg.textContent = data.message || 'Update failed';
-  }
-}
-window.saveLocation = saveLocation;
-
-// ── SAVE PROFILE ──────────────────────────────────────────────────────────────
-async function saveProfile(){
-  const firstName=document.getElementById('profFirst').value.trim();
-  const lastName=document.getElementById('profLast').value.trim();
-  const displayName=document.getElementById('profDisplay').value.trim();
-  const data=await apiFetch('/auth/me',{method:'PUT',headers:apiHeaders(),body:JSON.stringify({firstName,lastName,displayName})});
-  const msg=document.getElementById('profMsg');
-  msg.style.display='block';
-  if(data.success){msg.className='form-msg ok';msg.textContent='Profile updated successfully!';loadMe();}
-  else{msg.className='form-msg err';msg.textContent=data.message||'Update failed';}
-}
-
-// ── CHANGE PASSWORD ───────────────────────────────────────────────────────────
-// ── FORGOT PASSWORD FLOW ──────────────────────────────────────────────────────
-let fpEmailVal = '';
-
-const FP_STEPS = ['login','email','otp','newpwd'];
-function showFpStep(step) {
-  FP_STEPS.forEach(s => {
-    const el = document.getElementById('fpStep-' + s);
-    if (el) el.style.display = s === step ? '' : 'none';
-  });
-  // Clear messages when switching steps
-  ['fpEmailMsg','fpOtpMsg','fpNewPwdMsg','gLoginMsg'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.textContent = ''; el.className = 'gate-msg'; }
-  });
-}
-
-function fpGateMsg(id, msg, type) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = msg;
-  el.className = 'gate-msg ' + (type === 'ok' ? 'ok' : 'err');
-  el.style.display = msg ? 'block' : 'none';
-}
-
-async function doForgotPassword() {
-  const email = (document.getElementById('fpEmail').value || '').trim();
-  if (!email) return fpGateMsg('fpEmailMsg', 'Please enter your email address.', 'err');
-  fpEmailVal = email.toLowerCase();
-  const btn = event.target;
-  btn.disabled = true; btn.textContent = 'Sending…';
-  const data = await apiFetch('/auth/forgot-password', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: fpEmailVal })
-  });
-  btn.disabled = false; btn.textContent = 'Send Reset Code';
-  if (data.success) {
-    document.getElementById('fpEmailDisplay').textContent = fpEmailVal;
-    // Clear OTP boxes
-    for (let i = 0; i < 6; i++) { const b = document.getElementById('fp_o' + i); if (b) b.value = ''; }
-    showFpStep('otp');
-    document.getElementById('fp_o0')?.focus();
-    startFpResendCooldown();
-  } else {
-    fpGateMsg('fpEmailMsg', data.message || 'Failed to send reset code.', 'err');
-  }
-}
-
-function fpOtpInput(el, idx) {
-  el.value = el.value.replace(/\D/g, '').slice(0, 1);
-  if (el.value && idx < 5) document.getElementById('fp_o' + (idx + 1))?.focus();
-  // Auto-verify when all 6 filled
-  const all = Array.from({length: 6}, (_, i) => document.getElementById('fp_o' + i)?.value || '');
-  if (all.every(v => v)) doVerifyResetOtp();
-}
-
-// Backspace moves to previous OTP box
-document.addEventListener('keydown', e => {
-  if (e.key === 'Backspace' && e.target.classList.contains('otp-box')) {
-    const idx = parseInt(e.target.id.replace('fp_o', ''));
-    if (!e.target.value && idx > 0) {
-      e.preventDefault();
-      const prev = document.getElementById('fp_o' + (idx - 1));
-      if (prev) { prev.value = ''; prev.focus(); }
-    }
-  }
-});
-
-async function doVerifyResetOtp() {
-  const otp = Array.from({length: 6}, (_, i) => document.getElementById('fp_o' + i)?.value || '').join('');
-  if (otp.length < 6) return fpGateMsg('fpOtpMsg', 'Please enter the full 6-digit code.', 'err');
-  // We verify server-side on reset — just proceed to new password step
-  // Store the OTP temporarily for the reset call
-  window._fpOtp = otp;
-  showFpStep('newpwd');
-  document.getElementById('fpNewPwd')?.focus();
-}
-
-async function doResetPassword() {
-  const newPwd     = (document.getElementById('fpNewPwd').value || '').trim();
-  const confirmPwd = (document.getElementById('fpConfirmPwd').value || '').trim();
-  if (!newPwd)             return fpGateMsg('fpNewPwdMsg', 'Please enter a new password.', 'err');
-  if (newPwd.length < 6)  return fpGateMsg('fpNewPwdMsg', 'Password must be at least 6 characters.', 'err');
-  if (newPwd !== confirmPwd) return fpGateMsg('fpNewPwdMsg', 'Passwords do not match.', 'err');
-  const btn = event.target;
-  btn.disabled = true; btn.textContent = 'Resetting…';
-  const data = await apiFetch('/auth/reset-password', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: fpEmailVal, otp: window._fpOtp, newPassword: newPwd })
-  });
-  btn.disabled = false; btn.textContent = 'Reset Password';
-  if (data.success) {
-    fpGateMsg('fpNewPwdMsg', '✓ Password reset successfully! Redirecting to sign in…', 'ok');
-    window._fpOtp = null;
-    setTimeout(() => {
-      showFpStep('login');
-      document.getElementById('gLoginEmail').value = fpEmailVal;
-      document.getElementById('gLoginPwd').value = '';
-    }, 2000);
-  } else {
-    // OTP was wrong — send back to OTP step
-    if (data.message && (data.message.toLowerCase().includes('incorrect') || data.message.toLowerCase().includes('expired') || data.message.toLowerCase().includes('attempts'))) {
-      fpGateMsg('fpNewPwdMsg', '', '');
-      showFpStep('otp');
-      fpGateMsg('fpOtpMsg', data.message, 'err');
-      for (let i = 0; i < 6; i++) { const b = document.getElementById('fp_o' + i); if (b) b.value = ''; }
-      document.getElementById('fp_o0')?.focus();
-    } else {
-      fpGateMsg('fpNewPwdMsg', data.message || 'Password reset failed. Please try again.', 'err');
-    }
-  }
-}
-
-async function doResendResetOtp() {
-  const btn = document.getElementById('fpResendBtn');
-  if (btn?.classList.contains('disabled')) return;
-  const data = await apiFetch('/auth/forgot-password', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: fpEmailVal })
-  });
-  if (data.success) {
-    fpGateMsg('fpOtpMsg', 'A new code has been sent to your email.', 'ok');
-    for (let i = 0; i < 6; i++) { const b = document.getElementById('fp_o' + i); if (b) b.value = ''; }
-    document.getElementById('fp_o0')?.focus();
-    startFpResendCooldown();
-  } else {
-    fpGateMsg('fpOtpMsg', data.message || 'Failed to resend code.', 'err');
-  }
+async function loadWishCount(){
+  if(!token)return;
+  try{const data=await apiFetch('/wishlist',{headers:apiHeaders()});const count=(data.wishlist?.products||[]).length;const el=document.getElementById('wishCount');if(el){el.textContent=count;el.style.display=count>0?'flex':'none';}}catch(e){}
 }
 
-function startFpResendCooldown(secs = 30) {
-  const btn = document.getElementById('fpResendBtn');
-  if (!btn) return;
-  btn.classList.add('disabled');
-  let remaining = secs;
-  btn.textContent = `Resend code (${remaining}s)`;
-  const t = setInterval(() => {
-    remaining--;
-    if (remaining <= 0) {
-      clearInterval(t);
-      btn.textContent = 'Resend code';
-      btn.classList.remove('disabled');
-    } else {
-      btn.textContent = `Resend code (${remaining}s)`;
-    }
-  }, 1000);
-}
-
-function toggleFpPwd(inputId, iconId) {
-  const inp  = document.getElementById(inputId);
-  const icon = document.getElementById(iconId);
-  const show = inp.type === 'password';
-  inp.type = show ? 'text' : 'password';
-  icon.outerHTML = show
-    ? `<svg id="${iconId}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
-    : `<svg id="${iconId}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-}
-
-function toggleLoginPwd(){
-  const inp = document.getElementById('gLoginPwd');
-  const icon = document.getElementById('loginEyeIcon');
-  const show = inp.type === 'password';
-  inp.type = show ? 'text' : 'password';
-  icon.outerHTML = show
-    ? `<svg id="loginEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
-    : `<svg id="loginEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-}
-
-function toggleAcctPwd(id, btn){
-  const inp=document.getElementById(id);
-  const show=inp.type==='password';
-  inp.type=show?'text':'password';
-  btn.innerHTML=show
-    ?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
-    :`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-}
-async function changePassword(){
-  const current=document.getElementById('pwdCurrent').value;
-  const newPwd=document.getElementById('pwdNew').value;
-  const confirm=document.getElementById('pwdConfirm').value;
-  const msg=document.getElementById('pwdMsg');
-  msg.style.display='none';
-  if(!current||!newPwd){msg.style.display='block';msg.className='form-msg err';msg.textContent='Please fill all fields.';return;}
-  if(newPwd!==confirm){msg.style.display='block';msg.className='form-msg err';msg.textContent='New passwords do not match.';return;}
-  if(newPwd.length<6){msg.style.display='block';msg.className='form-msg err';msg.textContent='Password must be at least 6 characters.';return;}
-  const data=await apiFetch('/auth/change-password',{method:'PUT',headers:apiHeaders(),body:JSON.stringify({currentPassword:current,newPassword:newPwd})});
-  msg.style.display='block';
-  if(data.success){msg.className='form-msg ok';msg.textContent='Password changed successfully!';document.getElementById('pwdCurrent').value='';document.getElementById('pwdNew').value='';document.getElementById('pwdConfirm').value='';}
-  else{msg.className='form-msg err';msg.textContent=data.message||'Failed to change password.';}
-}
-
-// ── AUTH ACTIONS ──────────────────────────────────────────────────────────────
-async function doLogin(){
-  const email=document.getElementById('gLoginEmail').value.trim();
-  const pwd=document.getElementById('gLoginPwd').value;
-  const msg=document.getElementById('gLoginMsg');
-  msg.textContent='';msg.className='gate-msg';
-  const data=await apiFetch('/auth/login',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email,password:pwd})});
-  if(data.success){
-    token=data.token;localStorage.setItem('vp_token',token);
-    if(data.user?.role==='Administrator'){location.href='admin.html';return;}
-    // Merge guest cart before loading dashboard
-    await mergeCart();
-    init();
-  }else{msg.textContent=data.message||'Login failed';msg.className='gate-msg err';}
-}
-
-async function doRegister(){
-  const username=document.getElementById('gRegUser').value.trim();
-  const email=document.getElementById('gRegEmail').value.trim();
-  const pwd=document.getElementById('gRegPwd').value;
-  const firstName=document.getElementById('gRegFirst').value.trim();
-  const lastName=document.getElementById('gRegLast').value.trim();
-  const role=document.getElementById('gRegRole').value;
-  const msg=document.getElementById('gRegMsg');msg.textContent='';
-  const data=await apiFetch('/auth/register',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({username,email,password:pwd,firstName,lastName,role})});
-  if(data.success){
-    token=data.token;localStorage.setItem('vp_token',token);
-    await mergeCart();
-    init();
-  }else{msg.textContent=data.message||'Registration failed';msg.className='gate-msg err';}
-}
-
-// Merge guest session cart into logged-in user cart
-async function mergeCart(){
-  if(!sessionId||!token)return;
-  try{await apiFetch('/cart/merge',{method:'POST',headers:apiHeaders(),body:JSON.stringify({sessionId})});}
-  catch(e){console.warn('Cart merge failed',e);}
-}
-
-function doLogout(){token='';localStorage.removeItem('vp_token');location.href='index.html';}
-
-document.addEventListener('keydown',e=>{
-  if(e.key==='Enter'){
-    if(document.getElementById('tab-login').classList.contains('active'))doLogin();
-    else if(document.getElementById('tab-register').classList.contains('active'))doRegister();
-  }
-});
-
-
-// ── MY STORE (Retail users) ───────────────────────────────────────────────────
-async function loadMyStore() {
-  const el = document.getElementById('myStoreContent');
-  if (!el) return;
-  const data = await apiFetch('/retail/my-outlet', { headers: apiHeaders() });
-  if (!data.success || !data.outlet) {
-    el.innerHTML = `<div class="form-card" style="text-align:center;padding:40px;">
-      <div style="font-size:36px;margin-bottom:12px;">🏪</div>
-      <p style="color:var(--mid);font-size:14px;">${data.message || 'No outlet linked to your account. Please contact admin.'}</p>
-    </div>`;
-    return;
-  }
-  const o = data.outlet;
-  const statusColor = { approved: '#27ae60', pending: '#e67e22', rejected: '#c0392b', superseded: '#7f8c8d' };
-  const col = statusColor[o.approvalStatus] || '#aaa';
-  el.innerHTML = `
-    <div style="background:${col}15;border:1px solid ${col}40;border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;">
-      <div style="font-size:22px;">${o.approvalStatus === 'approved' ? '✅' : o.approvalStatus === 'pending' ? '⏳' : o.approvalStatus === 'superseded' ? '🔄' : '❌'}</div>
-      <div>
-        <div style="font-weight:700;font-size:14px;color:${col};">Account ${o.approvalStatus === 'approved' ? 'Active' : o.approvalStatus === 'pending' ? 'Pending Admin Review' : o.approvalStatus === 'superseded' ? 'Territory Change Pending' : 'Rejected'}</div>
-        <div style="font-size:13px;color:var(--mid);">${o.approvalStatus === 'approved' ? 'Your outlet is live on the platform.' : o.approvalStatus === 'pending' ? 'Our team will review your application within a few business days.' : o.approvalStatus === 'superseded' ? 'Your territory change request is under admin review.' : (o.rejectionReason || 'Please contact support for more information.')}</div>
-      </div>
-    </div>
-
-    <div class="form-card" style="margin-top:0;">
-      <div class="form-card-title">ORDERS FOR MY OUTLET</div>
-      <p style="font-size:13px;color:var(--mid);margin-bottom:8px;">Outlet orders are now shown under <strong>My Orders → My Pickup Orders</strong>.</p>
-    </div>`;
-  loadRetailAdditionalOutlets();
-}
-
-// ── MY STORE — TERRITORY HELPERS ─────────────────────────────────────────────
-async function initMyStoreTerritory(state, currentSlug) {
-  if (!state) return;
-  if (!retailOutletTerritoriesData[state]?.length) {
-    const td = await apiFetch('/territories?state=' + encodeURIComponent(state));
-    retailOutletTerritoriesData[state] = td.territories || [];
-  }
-  const terrSel = document.getElementById('myStoreTerritory');
-  if (!terrSel) return;
-  terrSel.innerHTML = '<option value="">Select territory…</option>' +
-    retailOutletTerritoriesData[state].map(t =>
-      `<option value="${t.slug}" ${t.slug === currentSlug ? 'selected' : ''}>${t.name}</option>`
-    ).join('');
-}
-window.initMyStoreTerritory = initMyStoreTerritory;
-
-async function onMyStoreStateChange() {
-  const state   = document.getElementById('myStoreState')?.value;
-  const terrSel = document.getElementById('myStoreTerritory');
-  if (!terrSel) return;
-  terrSel.innerHTML = '<option value="">Loading…</option>';
-  if (!state) { terrSel.innerHTML = '<option value="">Select state first…</option>'; return; }
-  if (!retailOutletTerritoriesData[state]?.length) {
-    const td = await apiFetch('/territories?state=' + encodeURIComponent(state));
-    retailOutletTerritoriesData[state] = td.territories || [];
-  }
-  terrSel.innerHTML = '<option value="">Select territory…</option>' +
-    retailOutletTerritoriesData[state].map(t =>
-      `<option value="${t.slug}">${t.name}</option>`
-    ).join('');
-}
-window.onMyStoreStateChange = onMyStoreStateChange;
-
-async function saveMyStore() {
-  const name        = document.getElementById('myStoreName')?.value.trim();
-  const phone       = document.getElementById('myStorePhone')?.value.trim();
-  const address     = document.getElementById('myStoreAddress')?.value.trim();
-  const hours       = document.getElementById('myStoreHours')?.value.trim();
-  const stateEl     = document.getElementById('myStoreState');
-  const terrEl      = document.getElementById('myStoreTerritory');
-  const newState    = stateEl?.value || '';
-  const newTerritory= terrEl?.value || '';
-  const origState   = stateEl?.dataset.original || '';
-  const origTerritory = terrEl?.dataset.original || '';
-  const msg         = document.getElementById('myStoreMsg');
-  msg.style.display = 'none';
-
-  const territoryChanged = (newState !== origState || newTerritory !== origTerritory) && newState && newTerritory;
-
-  // Always save name/phone/address/hours to existing outlet
-  const basicUpdate = await apiFetch('/retail/my-outlet', {
-    method: 'PUT', headers: apiHeaders(),
-    body: JSON.stringify({ name, phone, address, hours }),
-  });
-  if (!basicUpdate.success) {
-    msg.className = 'form-msg err';
-    msg.textContent = basicUpdate.message || 'Update failed.';
-    msg.style.display = 'block';
-    return;
-  }
-
-  // If territory or state changed — create a new outlet request and deactivate the old one
-  if (territoryChanged) {
-    const suburb = terrEl.options[terrEl.selectedIndex]?.text || newTerritory;
-    const reqData = await apiFetch('/retail/outlets', {
-      method: 'POST', headers: apiHeaders(),
-      body: JSON.stringify({ name, phone, address, suburb, state: newState, territorySlug: newTerritory, hours }),
-    });
-    msg.style.display = 'block';
-    if (reqData.success) {
-      // Deactivate the old outlet now that a new request is in progress
-      await apiFetch('/retail/my-outlet', {
-        method: 'PUT', headers: apiHeaders(),
-        body: JSON.stringify({ deactivate: true }),
-      });
-      msg.className = 'form-msg ok';
-      msg.textContent = '✓ Territory change requested. Your old outlet has been deactivated — admin will review and activate the new one.';
-      showToast('Territory change requested', 'success');
-      // Update data-original so next save doesn't re-submit
-      stateEl.dataset.original = newState;
-      terrEl.dataset.original  = newTerritory;
-      // Reload store to reflect deactivated status + new outlet in additional list
-      setTimeout(() => loadMyStore(), 1800);
-    } else {
-      msg.className = 'form-msg err';
-      msg.textContent = '✓ Store details saved, but territory request failed: ' + (reqData.message || 'Unknown error');
-    }
-  } else {
-    msg.className = 'form-msg ok';
-    msg.textContent = '✓ Store details updated!';
-    msg.style.display = 'block';
-    showToast('Store updated', 'success');
-  }
-}
-
-
-// ── MY STORE ORDERS (Retail users see orders for their outlet) ────────────────
-async function loadMyStoreOrders() {
-  const el = document.getElementById('myStoreOrdersContent');
-  if (!el) return;
-  const data = await apiFetch('/dealer/orders?limit=20', { headers: apiHeaders() });
-  const orders = data.orders || [];
-  if (!orders.length) {
-    el.innerHTML = '<p style="color:var(--mid);font-size:14px;padding:12px 0;">No orders for your outlet yet. Once customers choose your outlet at checkout and orders are assigned, they will appear here.</p>';
-    return;
-  }
-  const TRANSITIONS = {
-    processing:       { label: 'Mark Ready for Pickup', next: 'ready_for_pickup' },
-    ready_for_pickup: { label: 'Mark Collected',        next: 'delivered' },
-  };
-  el.innerHTML = `<table class="orders-table">
-    <thead><tr><th>Order #</th><th>Customer</th><th>Ordered</th><th>Pickup Date</th><th>Status</th><th>Total</th><th>Action</th></tr></thead>
-    <tbody>${orders.map(o => {
-      const t   = TRANSITIONS[o.status];
-      const btn = t
-        ? `<button onclick="updateMyOutletOrderStatus('${o._id}','${t.next}','${o.orderNumber}')" style="padding:7px 14px;font-size:12px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;white-space:nowrap;">${t.label}</button>`
-        : `<span style="font-size:12px;color:var(--mid);">—</span>`;
-      return `<tr>
-        <td><b>${o.orderNumber}</b></td>
-        <td style="font-size:12px;">${o.customerEmail||'—'}</td>
-        <td style="font-size:12px;">${new Date(o.createdAt).toLocaleDateString()}</td>
-    <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
-        <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
-        <td><b>$${(o.total||0).toFixed(2)}</b></td>
-        <td>${btn}</td>
-      </tr>`;
-    }).join('')}</tbody>
-  </table>`;
-}
-
-async function updateMyOutletOrderStatus(id, newStatus, orderNum) {
-  if (!await vpConfirm({ title: 'Update Order Status', message: `Update order <strong>#${orderNum}</strong> to <strong>${newStatus.replace(/_/g,' ')}</strong>?`, icon: '📦', confirmText: 'Update', success: true })) return;
-  const data = await apiFetch(`/dealer/orders/${id}/status`, {
-    method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus }),
-  });
-  if (data.success) { showToast(`Order updated`, 'success'); loadMyStoreOrders(); }
-  else showToast(data.message || 'Failed', 'error');
-}
-
-// ── COUNTS ────────────────────────────────────────────────────────────────────
-async function loadCounts(){
-  const [cd, wd] = await Promise.all([
-    apiFetch('/cart',{headers:apiHeaders()}),
-    token ? apiFetch('/wishlist',{headers:apiHeaders()}) : Promise.resolve(null),
-  ]);
-  document.getElementById('cartCount').textContent=(cd.cart?.items||[]).reduce((s,i)=>s+i.quantity,0);
-  const wishBtn = document.getElementById('wishCount');
-  if(wishBtn && wd){
-    const wCount=(wd.wishlist?.products||[]).length;
-    wishBtn.textContent=wCount;
-    wishBtn.style.display=wCount>0?'flex':'none';
-  }
-}
-
-// ── WISHLIST PANEL ────────────────────────────────────────────────────────────
-async function loadWishlistPanel(){
-  const el=document.getElementById('wishlistPanelContent');
-  if(!el)return;
-  el.innerHTML='<div class="skeleton" style="height:300px;border-radius:4px;"></div>';
-  const data=await apiFetch('/wishlist',{headers:apiHeaders()});
-  const products=(data.wishlist?.products)||[];
-
-  // Update sidebar badge
-  const wishBtn=document.getElementById('wishCount');
-  if(wishBtn){wishBtn.textContent=products.length;wishBtn.style.display=products.length>0?'flex':'none';}
-
-  if(!products.length){
-    el.innerHTML=`<div class="wish-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-      <p>Your wishlist is empty. Browse our flowers and click the heart icon to save your favourites.</p>
-      <a href="category.html?cat=all" class="btn-shop-link">Shop All Products</a>
-    </div>`;
-    return;
-  }
-
-  el.innerHTML=`
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <span style="font-size:14px;color:var(--mid);">${products.length} item${products.length!==1?'s':''} saved</span>
-      <button class="wish-clear-btn" onclick="clearWishlistPanel()">🗑 Clear All</button>
-    </div>
-    <div class="wish-grid">
-      ${products.map(p=>{
-        const img=p.images?.[0]||'';
-        const price=p.salePrice!=null?`$${p.salePrice.toFixed(2)}`:p.price!=null?`$${p.price.toFixed(2)}`:'';
-        const outOfStock=p.stockStatus==='outofstock';
-        const cardId='wqty_'+p._id;
-        return `<div class="wish-card" onclick="location.href='product.html?id=${p._id}'">
-          <div class="wish-card-inner">
-            <div class="wish-card-img">
-              ${img?`<img src="${img}" loading="lazy" onerror="this.style.display='none'" alt="${p.name}"/>`:'<div style="width:100%;height:100%;background:var(--cream2);"></div>'}
-              ${outOfStock?'<div class="wish-out-badge">Out of Stock</div>':''}
-              <button class="wish-remove-btn" onclick="event.stopPropagation();removeFromWishlistPanel('${p._id}')" title="Remove">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-              </button>
-            </div>
-            <div class="wish-card-body">
-              <div class="wish-card-name">${p.name}</div>
-              <div class="wish-card-price">${price}</div>
-              ${!outOfStock?`
-              <div class="wish-qty-row" onclick="event.stopPropagation()">
-                <button class="wish-qty-btn" onclick="event.stopPropagation();changeWishQty('${cardId}',-1)">−</button>
-                <span class="wish-qty-val" id="${cardId}">1</span>
-                <button class="wish-qty-btn" onclick="event.stopPropagation();changeWishQty('${cardId}',1)">+</button>
-              </div>
-              <button class="wish-btn-cart" onclick="event.stopPropagation();addToCartFromWishlist('${p._id}','${cardId}')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-                Add to Cart
-              </button>`:`<button class="wish-btn-cart" disabled>Out of Stock</button>`}
-            </div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`;
-}
-
-async function addToCartFromWishlist(productId, cardId){
-  const el = cardId ? document.getElementById(cardId) : null;
-  const qty = el ? (parseInt(el.textContent)||1) : 1;
-  const data=await apiFetch('/cart/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId,quantity:qty})});
-  if(data.success){showToast('Added to cart!','success');loadCounts();if(el)el.textContent='1';}
-  else showToast(data.message||'Could not add to cart','error');
-}
-function changeWishQty(cardId,delta){const el=document.getElementById(cardId);if(!el)return;el.textContent=Math.max(1,(parseInt(el.textContent)||1)+delta);}
-window.changeWishQty=changeWishQty;
-
-async function removeFromWishlistPanel(productId){
-  const data=await apiFetch(`/wishlist/items/${productId}`,{method:'DELETE',headers:apiHeaders()});
-  if(data.success){showToast('Removed from wishlist');loadWishlistPanel();}
-  else showToast(data.message||'Error','error');
-}
-
-async function clearWishlistPanel(){
-  if(!await vpConfirm({ title: 'Clear Wishlist', message: 'Remove all items from your wishlist? This cannot be undone.', icon: '🗑️', confirmText: 'Clear All', danger: true }))return;
-  const data=await apiFetch('/wishlist',{method:'DELETE',headers:apiHeaders()});
-  if(data.success){showToast('Wishlist cleared');loadWishlistPanel();}
-  else showToast(data.message||'Error','error');
-}
-window.addToCartFromWishlist=addToCartFromWishlist;
-window.removeFromWishlistPanel=removeFromWishlistPanel;
-window.clearWishlistPanel=clearWishlistPanel;
+window.addEventListener('scroll',()=>document.getElementById('backTop').classList.toggle('visible',window.scrollY>400));
 
+// Init
+loadCart();loadWishCount();buildAcctDrop();
 const KNOWN_SLUGS = new Set(["pooja-garlands","special-occasional-garlands","loose-flowers","strings","leaves"]);
 async function loadOthersNav(){
   try{
@@ -2428,105 +473,30 @@ async function loadOthersNav(){
     }
   }catch(e){}
 }
-
-loadCounts();
-init();
 loadOthersNav();
+
+
+// Simple FAQ accordion
+document.querySelectorAll('.faq-q').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const item=btn.closest('.faq-item');
+    const wasOpen=item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+    if(!wasOpen) item.classList.add('open');
+  });
+});
+
+// ── NEWSLETTER ─────────────────────────────────────────────────────────────
+document.getElementById('nlSubmit')?.addEventListener('click', async () => {
+  const email = document.getElementById('nlEmail')?.value.trim();
+  const msgEl = document.getElementById('nlMsg');
+  if (!email) { if(msgEl){msgEl.textContent='Please enter your email.';msgEl.style.color='#c0392b';} return; }
+  const data = await apiFetch('/newsletter/subscribe',{method:'POST',headers:apiHeaders(false),body:JSON.stringify({email})}).catch(()=>({success:false}));
+  if(msgEl){ msgEl.textContent=data.message||(data.success?'Subscribed! 🌸':'Error.');msgEl.style.color=data.success?'#27ae60':'#c0392b'; }
+  if(data.success && document.getElementById('nlEmail')) document.getElementById('nlEmail').value='';
+});
+
 </script>
 
-<!-- ── BRANDED CONFIRM MODAL ── -->
-<div class="vp-modal-overlay" id="vpModalOverlay">
-  <div class="vp-modal" role="dialog" aria-modal="true">
-
-    <div class="vp-modal-body">
-      <div class="vp-modal-icon" id="vpModalIcon"></div>
-      <div class="vp-modal-title" id="vpModalTitle"></div>
-      <div class="vp-modal-message" id="vpModalMessage"></div>
-    </div>
-    <div class="vp-modal-footer">
-      <button class="vp-modal-btn vp-modal-cancel" id="vpModalCancel">Cancel</button>
-      <button class="vp-modal-btn vp-modal-confirm" id="vpModalConfirm">Confirm</button>
-    </div>
-  </div>
-</div>
-<!-- ── DEALER TERRITORY REQUEST MODAL ─────────────────────────────────────── -->
-<div id="dealerTerritoryModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:6px;padding:32px;width:100%;max-width:540px;margin:16px;max-height:90vh;overflow-y:auto;position:relative;">
-    <button onclick="closeDealerTerritoryModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--mid);">&#10005;</button>
-    <div id="dealerTerrModalTitle" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--dark);margin-bottom:8px;">REQUEST ADDITIONAL TERRITORY</div>
-    <p style="font-size:13px;color:var(--mid);margin-bottom:20px;line-height:1.6;">Select the state and territory you wish to cover. Admin will review and activate your request.</p>
-    <input type="hidden" id="dealerTerrModalId"/>
-    <!-- Hidden fields kept for API compatibility -->
-    <input type="hidden" id="dealerTerrName"/>
-    <input type="hidden" id="dealerTerrPhone"/>
-    <input type="hidden" id="dealerTerrAddress"/>
-    <input type="hidden" id="dealerTerrHours"/>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">State *</label>
-        <select class="form-select" id="dealerTerrState" onchange="loadDealerTerrTerritoryOptions()">
-          <option value="">Select state&hellip;</option>
-          <option value="Melbourne">Melbourne</option>
-          <option value="Sydney">Sydney</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Territory *</label>
-        <select class="form-select" id="dealerTerrTerritory" disabled><option value="">Select state first&hellip;</option></select>
-      </div>
-    </div>
-    <div class="form-msg" id="dealerTerrMsg" style="display:none;margin-top:12px;"></div>
-    <div style="display:flex;gap:10px;margin-top:20px;">
-      <button class="btn-save" id="dealerTerrSaveBtn" onclick="saveDealerTerritoryModal()">Submit Request</button>
-      <button class="btn-sm outline" onclick="closeDealerTerritoryModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── OUTLET EDIT MODAL ──────────────────────────────────────────────────── -->
-<div id="outletEditModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:6px;padding:32px;width:100%;max-width:540px;margin:16px;max-height:90vh;overflow-y:auto;position:relative;">
-    <button onclick="closeRetailOutletModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--mid);">&#10005;</button>
-    <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--dark);margin-bottom:20px;" id="outletModalTitle">EDIT OUTLET</div>
-    <input type="hidden" id="modalOutletId"/>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Outlet Name *</label><input type="text" class="form-input" id="modalOutletName"/></div>
-      <div class="form-group"><label class="form-label">Phone</label><input type="text" class="form-input" id="modalOutletPhone"/></div>
-    </div>
-    <div class="form-row full">
-      <div class="form-group"><label class="form-label">Street Address *</label><input type="text" class="form-input" id="modalOutletAddress"/></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">State *</label>
-        <select class="form-select" id="modalOutletState" onchange="loadModalTerritoryOptions()">
-          <option value="">Select state…</option>
-          <option value="Melbourne">Melbourne</option>
-          <option value="Sydney">Sydney</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Territory / Suburb *</label>
-        <select class="form-select" id="modalOutletTerritory" disabled>
-          <option value="">Select state first…</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row full">
-      <div class="form-group"><label class="form-label">Trading Hours</label><input type="text" class="form-input" id="modalOutletHours" placeholder="Mon–Sat 9am–6pm"/></div>
-    </div>
-    <div style="margin-top:6px;padding:12px 14px;background:#faf8f4;border:1px solid #e8e0d2;border-radius:4px;">
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;">
-        <input type="checkbox" id="modalOutletPickup" style="width:16px;height:16px;accent-color:#9B8B5A;flex-shrink:0;">
-        Request customer pickup from this store
-      </label>
-    </div>
-    <div class="form-msg" id="modalOutletMsg" style="display:none;margin-top:12px;"></div>
-    <div style="display:flex;gap:10px;margin-top:20px;">
-      <button class="btn-save" id="modalOutletSaveBtn" onclick="saveRetailOutletModal()">Submit Edit</button>
-      <button class="btn-sm outline" onclick="closeRetailOutletModal()">Cancel</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
