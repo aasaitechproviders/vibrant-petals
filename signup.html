@@ -1031,16 +1031,15 @@ function showMsg(id, text, type) {
 function hideMsg(id) { const el = document.getElementById(id); el.style.display = 'none'; }
 
 // ── USERNAME AUTO-GENERATION ───────────────────────────────────────────────────
-// Generates a username from the email prefix + random 4-digit suffix
-// e.g. priya@email.com → priya_4821
+// Generates a username from the email prefix (clean, no random suffix)
+// e.g. priya@email.com -> priya
 function generateUsername(email) {
   const prefix = (email || '').split('@')[0].toLowerCase()
     .replace(/[^a-z0-9]/g, '_')
     .replace(/_+/g, '_')
     .replace(/^_|_$/g, '')
-    .slice(0, 16);
-  const suffix = Math.floor(1000 + Math.random() * 9000);
-  return (prefix || 'user') + '_' + suffix;
+    .slice(0, 20);
+  return prefix || 'user';
 }
 
 // ── OTP VERIFICATION (shared across customer / dealer / retail signup) ─────────
