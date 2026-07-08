@@ -941,6 +941,14 @@
   Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney
 </div>
 
+<!-- STATE SELECTOR BAR -->
+<div id="stateSelectorBar" style="background:#fffdf7;border-bottom:1px solid #e8dfc8;padding:7px 0;text-align:center;font-size:13px;color:#5a4e3b;">
+  <span style="margin-right:10px;">📍 Showing prices for:</span>
+  <button id="stateBtn_Melbourne" onclick="setVpState('Melbourne')" style="padding:4px 14px;border:1.5px solid #ddd;border-radius:20px;background:#fff;font-size:12px;font-weight:700;cursor:pointer;margin-right:6px;transition:all .15s;font-family:inherit;">Melbourne</button>
+  <button id="stateBtn_Sydney"    onclick="setVpState('Sydney')"    style="padding:4px 14px;border:1.5px solid #ddd;border-radius:20px;background:#fff;font-size:12px;font-weight:700;cursor:pointer;margin-right:6px;transition:all .15s;font-family:inherit;">Sydney</button>
+  <span id="stateClearSpan" style="display:none;font-size:12px;color:#9B8B5A;cursor:pointer;text-decoration:underline;" onclick="setVpState('')">Clear</span>
+</div>
+
 <!-- HEADER / NAV -->
 <header>
   <div class="nav-inner">
@@ -1340,6 +1348,63 @@ function showToast(msg, type=''){
       </div>
     </div>`).join('');
 
+  // ── State selector ────────────────────────────────────────────────────────
+  function getVpState() { return localStorage.getItem('vp_state') || ''; }
+  function setVpState(s) {
+    if (s) localStorage.setItem('vp_state', s); else localStorage.removeItem('vp_state');
+    initStateBar();
+    renderFeatured();
+  }
+  function initStateBar() {
+    const s = getVpState();
+    const styles = {
+      active:   'padding:4px 14px;border:1.5px solid var(--gold);border-radius:20px;background:var(--gold);color:#fff;font-size:12px;font-weight:700;cursor:pointer;margin-right:6px;transition:all .15s;font-family:inherit;',
+      inactive: 'padding:4px 14px;border:1.5px solid #ddd;border-radius:20px;background:#fff;color:#5a4e3b;font-size:12px;font-weight:700;cursor:pointer;margin-right:6px;transition:all .15s;font-family:inherit;',
+    };
+    document.getElementById('stateBtn_Melbourne').style.cssText = s==='Melbourne' ? styles.active : styles.inactive;
+    document.getElementById('stateBtn_Sydney').style.cssText    = s==='Sydney'    ? styles.active : styles.inactive;
+    document.getElementById('stateClearSpan').style.display     = s ? 'inline' : 'none';
+  }
+  initStateBar();
+
+  // ── Variant-aware price resolver ─────────────────────────────────────────
+  function getTokenRole(){try{const raw=localStorage.getItem('vp_token');if(!raw)return null;const pt=raw.split('.')[1];const j=JSON.parse(atob(pt.replace(/-/g,'+').replace(/_/g,'/')));return j.role||null;}catch{return null;}}
+  function resolveCardPrice(p) {
+    const role  = getTokenRole();
+    const state = getVpState();
+    const variants = (p.variants||[]).filter(v=>v&&v.label);
+
+    if (variants.length) {
+      // Filter to state-relevant variants (state-match OR null-state)
+      const relevant = variants.filter(v => !v.state || v.state === state);
+      const pool = relevant.length ? relevant : variants;
+      // Find minimum price for this role across the pool
+      let min = Infinity;
+      for (const v of pool) {
+        let vp;
+        if      (role==='Dealer' && v.dealerPrice)  vp = v.dealerPrice;
+        else if (role==='Retail' && v.retailPrice)  vp = v.retailPrice;
+        else                                         vp = v.salePrice ?? v.price ?? 0;
+        if (vp < min) min = vp;
+      }
+      if (min < Infinity) {
+        const prefix = role==='Dealer' ? '⭐ From $' : role==='Retail' ? '🏪 From $' : 'From $';
+        const clr    = role==='Dealer' ? 'color:#F5A623;font-weight:700;' : role==='Retail' ? 'color:#1565c0;font-weight:700;' : '';
+        return clr ? `<span style="${clr}">${prefix}${min.toFixed(2)}</span>` : `${prefix}${min.toFixed(2)}`;
+      }
+    }
+
+    // No variants — existing logic
+    if (role==='Dealer' && p.dealerPrice)  return `<span style="color:#F5A623;font-weight:700;">⭐ $${p.dealerPrice.toFixed(2)}</span>`;
+    if (role==='Retail' && p.retailPrice)  return `<span style="color:#1565c0;font-weight:700;">🏪 $${p.retailPrice.toFixed(2)}</span>`;
+    if (p.salePrice && p.regularPrice)     return `$${p.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${p.regularPrice.toFixed(2)}</span>`;
+    if (p.price)                           return `$${p.price.toFixed(2)}`;
+    return '';
+  }
+
+  async function renderFeatured() {
+  const grid = document.getElementById('featuredGrid');
+  if (!grid) return;
   const data = await apiFetch('/products/featured').catch(()=>({products:[]}));
   const products = data.products || [];
   if(!products.length){
@@ -1352,10 +1417,7 @@ function showToast(msg, type=''){
   }
 
   grid.innerHTML = products.map(p => {
-    const hasRange = p.regularPrice && p.price && p.regularPrice !== p.price;
-    const priceStr = hasRange
-      ? `$${Math.min(p.price, p.regularPrice).toFixed(2)} – $${Math.max(p.price, p.regularPrice).toFixed(2)}`
-      : p.price ? `$${p.price.toFixed(2)}` : '';
+    const priceStr = resolveCardPrice(p);
     const img = p.images?.[0] || '';
     const inStock = p.stockStatus !== 'outofstock';
     const cardId = 'qty_' + p._id;
@@ -1373,7 +1435,7 @@ function showToast(msg, type=''){
           <div class="product-name">${p.name}</div>
           ${p.sku?`<div style="font-size:11px;color:var(--mid);font-weight:400;letter-spacing:.03em;">SKU: ${p.sku}</div>`:""}
           <div class="product-price">${priceStr}</div>
-          ${inStock ? `
+          ${inStock && !(p.variants||[]).filter(v=>v&&v.label).length ? `
           <div class="product-qty-row" onclick="event.stopPropagation()">
             <button class="qty-btn-card" onclick="event.stopPropagation();changeCardQty('${cardId}',-1)">−</button>
             <span class="qty-val-card" id="${cardId}">1</span>
@@ -1382,12 +1444,18 @@ function showToast(msg, type=''){
           <button class="btn-add-cart" onclick="event.stopPropagation();addToCartQty('${p._id}','${cardId}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
             Add to Cart
+          </button>` : inStock ? `
+          <button class="btn-add-cart" onclick="event.stopPropagation();location.href='product.html?id=${p._id}'" style="background:var(--gold);">
+            Select Option
           </button>` : `
           <button class="btn-add-cart" disabled style="opacity:.5;cursor:not-allowed;background:var(--gold);">Out of Stock</button>`}
         </div>
       </div>
     </div>`;
   }).join('');
+  }
+
+  renderFeatured();
 })();
 
 // ── SEARCH ─────────────────────────────────────────────────
