@@ -943,10 +943,12 @@
 
 <!-- STATE SELECTOR BAR -->
 <div id="stateSelectorBar" style="background:#fffdf7;border-bottom:1px solid #e8dfc8;padding:7px 0;text-align:center;font-size:13px;color:#5a4e3b;">
-  <span style="margin-right:10px;">📍 Showing prices for:</span>
-  <button id="stateBtn_Melbourne" onclick="setVpState('Melbourne')" style="padding:4px 14px;border:1.5px solid #ddd;border-radius:20px;background:#fff;font-size:12px;font-weight:700;cursor:pointer;margin-right:6px;transition:all .15s;font-family:inherit;">Melbourne</button>
-  <button id="stateBtn_Sydney"    onclick="setVpState('Sydney')"    style="padding:4px 14px;border:1.5px solid #ddd;border-radius:20px;background:#fff;font-size:12px;font-weight:700;cursor:pointer;margin-right:6px;transition:all .15s;font-family:inherit;">Sydney</button>
-  <span id="stateClearSpan" style="display:none;font-size:12px;color:#9B8B5A;cursor:pointer;text-decoration:underline;" onclick="setVpState('')">Clear</span>
+  <span style="margin-right:8px;">📍 Showing prices for:</span>
+  <select id="stateDropdown" onchange="setVpState(this.value)" style="padding:4px 10px;border:1.5px solid #d4c89a;border-radius:4px;background:#fff;font-size:13px;font-family:inherit;color:#5a4e3b;cursor:pointer;outline:none;">
+    <option value="">All States</option>
+    <option value="Melbourne">Melbourne</option>
+    <option value="Sydney">Sydney</option>
+  </select>
 </div>
 
 <!-- HEADER / NAV -->
@@ -1357,13 +1359,8 @@ function showToast(msg, type=''){
   }
   function initStateBar() {
     const s = getVpState();
-    const styles = {
-      active:   'padding:4px 14px;border:1.5px solid var(--gold);border-radius:20px;background:var(--gold);color:#fff;font-size:12px;font-weight:700;cursor:pointer;margin-right:6px;transition:all .15s;font-family:inherit;',
-      inactive: 'padding:4px 14px;border:1.5px solid #ddd;border-radius:20px;background:#fff;color:#5a4e3b;font-size:12px;font-weight:700;cursor:pointer;margin-right:6px;transition:all .15s;font-family:inherit;',
-    };
-    document.getElementById('stateBtn_Melbourne').style.cssText = s==='Melbourne' ? styles.active : styles.inactive;
-    document.getElementById('stateBtn_Sydney').style.cssText    = s==='Sydney'    ? styles.active : styles.inactive;
-    document.getElementById('stateClearSpan').style.display     = s ? 'inline' : 'none';
+    const dd = document.getElementById('stateDropdown');
+    if (dd) dd.value = s;
   }
   initStateBar();
 
