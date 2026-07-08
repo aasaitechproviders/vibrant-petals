@@ -256,7 +256,7 @@
   </style>
 </head>
 <body>
-<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney<span class="ann-bar-sel"><span>📍</span><select id="stateDropdown" onchange="setVpState(this.value)"><option value="Melbourne">Melbourne</option><option value="Sydney">Sydney</option></select></span></div>
+<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney<span class="ann-bar-sel"><span>📍</span><select id="stateDropdown" onchange="setVpState(this.value)"></select></span></div>
 <header>
   <div class="nav-inner">
     <a href="index.html" class="nav-logo"><img src="logo.png" alt="Vibrant Petals Logo" /><span class="nav-logo-text"> Vibrant Petals</span></a>
@@ -486,8 +486,6 @@
               <label class="form-label">State</label>
               <select class="form-select" id="profState" onchange="onProfStateChange()">
                 <option value="">Select state…</option>
-                <option value="Melbourne">Melbourne</option>
-                <option value="Sydney">Sydney</option>
               </select>
             </div>
             <div class="form-group">
@@ -613,8 +611,6 @@
               <label class="form-label">State *</label>
               <select class="form-select" id="outletState" onchange="loadOutletTerritoryOptions()">
                 <option value="">Select state&hellip;</option>
-                <option value="Melbourne">Melbourne</option>
-                <option value="Sydney">Sydney</option>
               </select>
             </div>
             <div class="form-group">
@@ -2456,6 +2452,42 @@ async function loadOthersNav(){
 loadCounts();
 init();
 loadOthersNav();
+
+// Load state dropdowns dynamically from DB
+async function loadStateDropdowns(){
+  // Also populate account-specific state selects
+  try {
+    const _sd = await apiFetch('/states');
+    const _ss = (_sd.states || []);
+    if (_ss.length) {
+      const _so = _ss.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+      ['profState','outletState','dealerTerrState','modalOutletState'].forEach(function(id){
+        const el = document.getElementById(id);
+        if (!el) return;
+        const cur = el.value;
+        const first = el.innerHTML.match(/<option value="">[^<]*<\/option>/)?.[0] || '';
+        el.innerHTML = first + _so;
+        if (cur) el.value = cur;
+      });
+    }
+  } catch(e) {}
+  try {
+    const data = await apiFetch('/states');
+    const states = data.states || [];
+    if (!states.length) return;
+    const opts = states.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+    const saved = getVpState();
+    ['stateDropdown','mobileStateDropdown'].forEach(function(id){
+      const dd = document.getElementById(id);
+      if (!dd) return;
+      dd.innerHTML = opts;
+      // Restore saved value, fall back to first state
+      dd.value = saved || '';
+      if (!dd.value && states.length) { dd.value = states[0].name; setVpState(states[0].name); }
+    });
+  } catch(e) {}
+}
+loadStateDropdowns();
 </script>
 
 <!-- ── BRANDED CONFIRM MODAL ── -->
@@ -2490,8 +2522,6 @@ loadOthersNav();
         <label class="form-label">State *</label>
         <select class="form-select" id="dealerTerrState" onchange="loadDealerTerrTerritoryOptions()">
           <option value="">Select state&hellip;</option>
-          <option value="Melbourne">Melbourne</option>
-          <option value="Sydney">Sydney</option>
         </select>
       </div>
       <div class="form-group">
@@ -2525,8 +2555,6 @@ loadOthersNav();
         <label class="form-label">State *</label>
         <select class="form-select" id="modalOutletState" onchange="loadModalTerritoryOptions()">
           <option value="">Select state…</option>
-          <option value="Melbourne">Melbourne</option>
-          <option value="Sydney">Sydney</option>
         </select>
       </div>
       <div class="form-group">
