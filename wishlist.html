@@ -109,7 +109,7 @@
   </style>
 </head>
 <body>
-<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney<span class="ann-bar-sel"><span>📍</span><select id="stateDropdown" onchange="setVpState(this.value)"><option value="Melbourne">Melbourne</option><option value="Sydney">Sydney</option></select></span></div>
+<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney<span class="ann-bar-sel"><span>📍</span><select id="stateDropdown" onchange="setVpState(this.value)"></select></span></div>
 <header>
   <div class="nav-inner">
     <a href="index.html" class="nav-logo"><img src="logo.png" alt="Vibrant Petals Logo" style="width:50px;height:40px;object-fit:contain;" /><span class="nav-logo-text"> Vibrant Petals</span></a>
@@ -386,6 +386,26 @@ document.getElementById('nlSubmit')?.addEventListener('click', async () => {
   msg.style.color = data.success ? '#27ae60' : '#c0392b';
   if (data.success) document.getElementById('nlEmail').value = '';
 });
+
+// Load state dropdowns dynamically from DB
+async function loadStateDropdowns(){
+  try {
+    const data = await apiFetch('/states');
+    const states = data.states || [];
+    if (!states.length) return;
+    const opts = states.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+    const saved = getVpState();
+    ['stateDropdown','mobileStateDropdown'].forEach(function(id){
+      const dd = document.getElementById(id);
+      if (!dd) return;
+      dd.innerHTML = opts;
+      // Restore saved value, fall back to first state
+      dd.value = saved || '';
+      if (!dd.value && states.length) { dd.value = states[0].name; setVpState(states[0].name); }
+    });
+  } catch(e) {}
+}
+loadStateDropdowns();
 </script>
 </body>
 </html>
