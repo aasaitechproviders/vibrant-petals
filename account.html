@@ -1842,15 +1842,16 @@ async function deleteAddress(addrId){
 window.deleteAddress=deleteAddress;
 
 // ── LOCATION PREFERENCES ──────────────────────────────────────────────────────
-let profTerritoriesData = { Melbourne: [], Sydney: [] };
+let profTerritoriesData = {};
 
 async function loadProfTerritories() {
   try {
     const data = await apiFetch('/territories');
-    if (data.territories) {
-      profTerritoriesData.Melbourne = data.territories.filter(t => t.state === 'Melbourne');
-      profTerritoriesData.Sydney    = data.territories.filter(t => t.state === 'Sydney');
-    }
+    profTerritoriesData = {};
+    (data.territories || []).forEach(t => {
+      if (!profTerritoriesData[t.state]) profTerritoriesData[t.state] = [];
+      profTerritoriesData[t.state].push(t);
+    });
   } catch(e) {}
 }
 
