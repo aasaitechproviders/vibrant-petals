@@ -566,7 +566,7 @@ function renderProduct(p){
         ${priceBadge}
       </div>
       <div class="product-meta">
-        ${p.sku?`<span><b>SKU:</b> ${p.sku}</span>`:''}
+        ${p.sku?`<span id="productSku"><b>SKU:</b> ${p.sku}</span>`:'<span id="productSku" style="display:none;"><b>SKU:</b> </span>'}
         ${p.tags?.length?`<span><b>Tags:</b> ${p.tags.join(', ')}</span>`:''}
       </div>
       <div class="stock-pill ${inStock?'instock':'outofstock'}">
@@ -669,6 +669,14 @@ window.selectVariant = function(btn, origIndex) {
 
   const priceEl = document.querySelector('.price-main');
   if (priceEl) priceEl.textContent = '$' + vPrice.toFixed(2);
+
+  // Update SKU — use variant SKU if present, fall back to product SKU
+  const skuEl = document.getElementById('productSku');
+  if (skuEl) {
+    const sku = v.sku || productData.sku || '';
+    if (sku) { skuEl.innerHTML = `<b>SKU:</b> ${sku}`; skuEl.style.display = ''; }
+    else      { skuEl.style.display = 'none'; }
+  }
 
   const cartBtn = document.getElementById('addCartBtn');
   if (cartBtn && productData.stockStatus !== 'outofstock') cartBtn.disabled = false;
