@@ -1334,6 +1334,44 @@ function showToast(msg, type=''){
 })();
 
 // ── FEATURED PRODUCTS ──────────────────────────────────────
+// State helpers — module level so dropdown onchange can reach them
+function getVpState() { return localStorage.getItem('vp_state') || ''; }
+function setVpState(s) {
+  if (s) localStorage.setItem('vp_state', s); else localStorage.removeItem('vp_state');
+  const dd = document.getElementById('stateDropdown');
+  if (dd) dd.value = s || '';
+  if (window._renderFeatured) window._renderFeatured();
+}
+function resolveVariantsForState(allVariants, state) {
+  const byLabel = {};
+  (allVariants||[]).forEach((v, i) => {
+    if (!v || !v.label) return;
+    if (!byLabel[v.label]) byLabel[v.label] = [];
+    byLabel[v.label].push({ ...v, _origIndex: i });
+  });
+  const result = [];
+  for (const vs of Object.values(byLabel)) {
+    const stateMatch = vs.find(v => v.state === state);
+    const nullMatch  = vs.find(v => !v.state);
+    const chosen = stateMatch || nullMatch;
+    if (chosen) result.push({ ...chosen, outOfStock: false });
+  }
+  if (!result.length && (allVariants||[]).filter(v=>v&&v.label).length) {
+    const seen = new Set();
+    (allVariants||[]).forEach((v, i) => {
+      if (!v || !v.label || seen.has(v.label)) return;
+      seen.add(v.label);
+      result.push({ ...v, _origIndex: i, outOfStock: true });
+    });
+  }
+  return result;
+}
+// Restore dropdown from localStorage on every page load
+(function initStateBar() {
+  const dd = document.getElementById('stateDropdown');
+  if (dd) dd.value = getVpState();
+})();
+
 (async function(){
   const grid = document.getElementById('featuredGrid');
 
@@ -1349,20 +1387,6 @@ function showToast(msg, type=''){
         </div>
       </div>
     </div>`).join('');
-
-  // ── State selector ────────────────────────────────────────────────────────
-  function getVpState() { return localStorage.getItem('vp_state') || ''; }
-  function setVpState(s) {
-    if (s) localStorage.setItem('vp_state', s); else localStorage.removeItem('vp_state');
-    initStateBar();
-    renderFeatured();
-  }
-  function initStateBar() {
-    const s = getVpState();
-    const dd = document.getElementById('stateDropdown');
-    if (dd) dd.value = s;
-  }
-  initStateBar();
 
   // ── Variant-aware price resolver ─────────────────────────────────────────
   function getTokenRole(){try{const raw=localStorage.getItem('vp_token');if(!raw)return null;const pt=raw.split('.')[1];const j=JSON.parse(atob(pt.replace(/-/g,'+').replace(/_/g,'/')));return j.role||null;}catch{return null;}}
@@ -1475,6 +1499,7 @@ function showToast(msg, type=''){
   }
 
   renderFeatured();
+  window._renderFeatured = renderFeatured;
 })();
 
 // ── SEARCH ─────────────────────────────────────────────────
