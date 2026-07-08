@@ -617,6 +617,15 @@ function renderProduct(p){
       ${p.tags?.length?`<tr><td style="padding:10px 0;font-weight:700;">Tags</td><td style="padding:10px 0;color:var(--mid)">${p.tags.join(', ')}</td></tr>`:''}
     </table>`;
   document.getElementById('productTabs').style.display='block';
+
+  // Auto-select first available variant so price shows immediately
+  if (hasVariants) {
+    const firstBtn = document.querySelector('.variant-btn:not(:disabled)');
+    if (firstBtn) {
+      const origIndex = parseInt(firstBtn.dataset.vidx);
+      selectVariant(firstBtn, origIndex);
+    }
+  }
 }
 
 window.setImg=function(src,thumb){
