@@ -1564,6 +1564,7 @@ async function loadRetailUsers() {
               <button class="btn-action btn-action-approve" onclick="approveRetail('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}','${o?.pickupEnabled}')">Approve</button>
               <button class="btn-action btn-action-reject" onclick="rejectRetail('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}')">Reject</button>` : ''}
             ${u.approvalStatus === 'approved' ? `<button class="btn-action btn-action-deactivate" onclick="deactivateRetail('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}')">Deactivate</button>` : ''}
+            <button class="btn-sm btn-action-delete" onclick="deleteUser('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email).replace(/'/g,"\\'")}','Retail')">Delete</button>
             </div>
           </div></td>
         </tr>`;
@@ -1636,10 +1637,11 @@ async function loadDealers() {
           <td style="font-size:12px;">${assigned.length ? assigned.map(n=>`<span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-right:4px;">${n}</span>`).join('') : '<span style="color:var(--mid);">—</span>'}</td>
           <td style="font-size:12px;">${pending.length ? pending.map(n=>`<span style="background:#fff3cd;color:#856404;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-right:4px;">${n}</span>`).join('') : '—'}</td>
           <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
-          <td><div style="display:flex;gap:5px;">
+          <td><div style="display:flex;gap:5px;flex-wrap:wrap;">
             ${u.isActive
-              ? `<button class="btn-sm btn-delete" onclick="toggleDealerStatus('${u._id}',false,'${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}')">Deactivate</button>`
-              : `<button class="btn-action btn-action-activate" onclick="toggleDealerStatus('${u._id}',true,'${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}')">Activate</button>`}
+              ? `<button class="btn-sm btn-delete" onclick="toggleDealerStatus('${u._id}',false,'${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email).replace(/'/g,"\\'")}')">Deactivate</button>`
+              : `<button class="btn-action btn-action-activate" onclick="toggleDealerStatus('${u._id}',true,'${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email).replace(/'/g,"\\'")}')">Activate</button>`}
+            <button class="btn-sm btn-action-delete" onclick="deleteUser('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email).replace(/'/g,"\\'")}','Dealer')">Delete</button>
           </div></td>
         </tr>`;
       }).join('')}</tbody>
@@ -1655,6 +1657,34 @@ async function toggleDealerStatus(id, activate, username) {
   else showToast(data.message || 'Failed', 'error');
 }
 window.toggleDealerStatus = toggleDealerStatus;
+
+async function deleteUser(id, displayName, role) {
+  const roleWarnings = {
+    Dealer: 'All their outlets and territory assignments will also be permanently removed.',
+    Retail: 'Their linked outlet(s) will also be permanently deleted.',
+    Customer: '',
+  };
+  const extra = roleWarnings[role] ? `<br/><span style="color:#c0392b;font-size:13px;">⚠️ ${roleWarnings[role]}</span>` : '';
+  const confirmed = await vpConfirm({
+    title: `Delete ${role} Account`,
+    message: `Permanently delete <strong>${displayName}</strong>? This cannot be undone.${extra}`,
+    icon: '🗑️',
+    confirmText: 'Delete Permanently',
+    danger: true,
+  });
+  if (!confirmed) return;
+  const data = await apiFetch(`/admin/users/${id}`, { method: 'DELETE', headers: apiHeaders() });
+  if (data.success) {
+    showToast(`"${displayName}" deleted`, 'success');
+    loadUsers();
+    if (role === 'Dealer') loadDealers();
+    if (role === 'Retail') { loadRetailUsers(); loadOutlets(); }
+    loadApprovals();
+  } else {
+    showToast(data.message || 'Delete failed', 'error');
+  }
+}
+window.deleteUser = deleteUser;
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  USERS (Customers only)
@@ -3165,6 +3195,7 @@ async function loadUsers() {
      const actionBtns = isPendingDealer
        ? `<button class="btn-sm btn-edit" onclick="openDealerApprovalModal('${uid}')" style="background:#9B8B5A;color:#fff;border:none;">Review</button>`
        : `<button class="btn-sm ${u.isActive ? 'btn-delete' : 'btn-edit'}" onclick="toggleUserStatus('${uid}',${!u.isActive})">${u.isActive ? 'Disable' : 'Enable'}</button>`;
+     const safeDisplayName = (`${u.firstName||''} ${u.lastName||''}`.trim() || u.email || '').replace(/'/g,"\\'");
      return `<tr${isPendingDealer ? ' style="background:#fffdf0;"' : ''}>
        <td><b>${u.username || '—'}</b>${u.firstName ? `<br/><span style="font-size:12px;color:var(--mid)">${u.firstName} ${u.lastName || ''}</span>` : ''}${dealerExtra}</td>
        <td style="font-size:13px;">${u.email}</td>
@@ -3175,6 +3206,7 @@ async function loadUsers() {
          <button class="btn-sm" style="background:#e8f0fe;color:#1a56db;border:none;" onclick="openUserDetailsModal('${uid}')">Details</button>
          <button class="btn-sm btn-edit" onclick="openUserRoleModal('${uid}','${safeUsername}','${safeEmail}','${u.role || 'Customer'}')">Role</button>
          ${actionBtns}
+         <button class="btn-sm btn-action-delete" onclick="deleteUser('${uid}','${safeDisplayName}','${u.role||'Customer'}')">Delete</button>
        </td>
      </tr>`;
    }).join('') : `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--mid);">No users found</td></tr>`;
