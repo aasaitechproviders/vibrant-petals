@@ -923,6 +923,23 @@
       .trust-bar-desc { font-size: 11px; }
       .ann-bar { font-size: 11px; padding: 0 8px; }
     }
+    /* ── STATE SELECTOR (inline in header) ─────────────────── */
+    .nav-state-sel {
+      display: flex; align-items: center; gap: 5px;
+      border: 1.5px solid #e0d8c8; border-radius: 4px;
+      padding: 0 4px 0 9px; background: var(--cream);
+      height: 32px; flex-shrink: 0;
+    }
+    .nav-state-sel select {
+      border: none; background: transparent;
+      font-size: 12px; font-weight: 700; font-family: inherit;
+      color: var(--dark); cursor: pointer; outline: none;
+      padding: 0 4px 0 0; letter-spacing: .05em; text-transform: uppercase;
+      height: 100%;
+    }
+    .nav-state-sel select:hover { color: var(--gold); }
+    @media(max-width:900px) { .nav-state-sel { display: none; } }
+
     @media(max-width:400px){
       .nav-logo { font-size: 16px; gap: 6px; }
       .nav-icons { gap: 10px; }
@@ -939,16 +956,6 @@
 <!-- ANNOUNCEMENT BAR -->
 <div class="ann-bar">
   Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney
-</div>
-
-<!-- STATE SELECTOR BAR -->
-<div id="stateSelectorBar" style="background:#fffdf7;border-bottom:1px solid #e8dfc8;padding:7px 0;text-align:center;font-size:13px;color:#5a4e3b;">
-  <span style="margin-right:8px;">📍 Showing prices for:</span>
-  <select id="stateDropdown" onchange="setVpState(this.value)" style="padding:4px 10px;border:1.5px solid #d4c89a;border-radius:4px;background:#fff;font-size:13px;font-family:inherit;color:#5a4e3b;cursor:pointer;outline:none;">
-    <option value="">All States</option>
-    <option value="Melbourne">Melbourne</option>
-    <option value="Sydney">Sydney</option>
-  </select>
 </div>
 
 <!-- HEADER / NAV -->
@@ -983,6 +990,15 @@
 
     <!-- Icons -->
     <div class="nav-icons">
+      <!-- State selector — desktop only; mobile version is in the drawer -->
+      <div class="nav-state-sel">
+        <span>📍</span>
+        <select id="stateDropdown" onchange="setVpState(this.value)">
+          <option value="">All States</option>
+          <option value="Melbourne">Melbourne</option>
+          <option value="Sydney">Sydney</option>
+        </select>
+      </div>
       <button class="nav-icon-btn" id="searchBtn" title="Search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
       </button>
@@ -1019,6 +1035,17 @@
       <button class="mobile-nav-close" onclick="closeMobileNav()">✕</button>
     </div>
     <ul>
+      <li>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid #f5f0e8;">
+          <span>📍</span>
+          <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);white-space:nowrap;">Prices for:</span>
+          <select id="mobileStateDropdown" onchange="setVpState(this.value);closeMobileNav();" style="flex:1;border:1px solid #e0d8c8;border-radius:4px;padding:5px 8px;font-size:13px;font-family:inherit;background:#fff;color:var(--dark);cursor:pointer;outline:none;">
+            <option value="">All States</option>
+            <option value="Melbourne">Melbourne</option>
+            <option value="Sydney">Sydney</option>
+          </select>
+        </div>
+      </li>
       <li><a href="index.html">Home</a></li>
       <li><a href="category.html?cat=strings">Strings</a></li>
       <li>
@@ -1338,8 +1365,10 @@ function showToast(msg, type=''){
 function getVpState() { return localStorage.getItem('vp_state') || ''; }
 function setVpState(s) {
   if (s) localStorage.setItem('vp_state', s); else localStorage.removeItem('vp_state');
-  const dd = document.getElementById('stateDropdown');
-  if (dd) dd.value = s || '';
+  ['stateDropdown', 'mobileStateDropdown'].forEach(id => {
+    const dd = document.getElementById(id);
+    if (dd) dd.value = s || '';
+  });
   if (window._renderFeatured) window._renderFeatured();
 }
 function resolveVariantsForState(allVariants, state) {
@@ -1366,10 +1395,13 @@ function resolveVariantsForState(allVariants, state) {
   }
   return result;
 }
-// Restore dropdown from localStorage on every page load
+// Restore both dropdowns from localStorage on every page load
 (function initStateBar() {
-  const dd = document.getElementById('stateDropdown');
-  if (dd) dd.value = getVpState();
+  const s = getVpState();
+  ['stateDropdown', 'mobileStateDropdown'].forEach(id => {
+    const dd = document.getElementById(id);
+    if (dd) dd.value = s || '';
+  });
 })();
 
 (async function(){
@@ -1498,19 +1530,25 @@ function resolveVariantsForState(allVariants, state) {
   }).join('');
   }
 
-  // ── Sync preferredState from user profile if not already set ────────────
-  if (!getVpState()) {
-    const tok = localStorage.getItem('vp_token');
-    if (tok) {
-      try {
-        const meData = await apiFetch('/auth/me', { headers: { Authorization: 'Bearer ' + tok } });
-        if (meData?.user?.preferredState) {
-          localStorage.setItem('vp_state', meData.user.preferredState);
-          const dd = document.getElementById('stateDropdown');
+  // ── Sync preferredState from user profile once per browser session ───────
+  // Uses sessionStorage so: first load after login always reflects the user's
+  // preferredState, but manual dropdown changes within a session are respected.
+  // Clears the flag on logout so the next login re-syncs correctly.
+  const _tok = localStorage.getItem('vp_token');
+  if (_tok && !sessionStorage.getItem('vp_state_synced')) {
+    try {
+      const meData = await apiFetch('/auth/me', { headers: { Authorization: 'Bearer ' + _tok } });
+      if (meData?.user?.preferredState) {
+        localStorage.setItem('vp_state', meData.user.preferredState);
+        sessionStorage.setItem('vp_state_synced', '1');
+        ['stateDropdown', 'mobileStateDropdown'].forEach(id => {
+          const dd = document.getElementById(id);
           if (dd) dd.value = meData.user.preferredState;
-        }
-      } catch(e) {}
-    }
+        });
+      }
+    } catch(e) {}
+  } else if (!_tok) {
+    sessionStorage.removeItem('vp_state_synced');
   }
 
   window._renderFeatured = renderFeatured;
@@ -1580,6 +1618,7 @@ function buildAcctDrop(){
 }
 function doHeaderLogout(){
   localStorage.removeItem('vp_token');
+  sessionStorage.removeItem('vp_state_synced');
   location.reload();
 }
 
