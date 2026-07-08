@@ -569,7 +569,12 @@ function renderSummary(cart){
   document.getElementById('summaryItems').innerHTML=items.map(i=>`
     <div class="summary-item">
       <img src="${i.image||'https://via.placeholder.com/56'}" onerror="this.src='https://via.placeholder.com/56'" alt="${i.name}"/>
-      <div class="summary-item-info"><div class="summary-item-name">${i.name}</div><div class="summary-item-qty">× ${i.quantity}</div></div>
+      <div class="summary-item-info">
+        <div class="summary-item-name">${i.name}</div>
+        ${i.variantLabel ? `<div style="font-size:11px;color:var(--mid);margin-top:1px;">${i.variantLabel}</div>` : ''}
+        ${i.sku ? `<div style="font-size:11px;color:var(--mid);letter-spacing:.03em;">SKU: ${i.sku}</div>` : ''}
+        <div class="summary-item-qty">× ${i.quantity}</div>
+      </div>
       <div class="summary-item-price">$${(i.price*i.quantity).toFixed(2)}</div>
     </div>`).join('');
   document.getElementById('sumSubtotal').textContent='$'+(cart.subtotal||0).toFixed(2);
@@ -1160,7 +1165,9 @@ function renderCartDrawer(cart){
     <div class="cart-item">
       <img src="${i.image||''}" alt="${i.name}" onerror="this.style.display='none'" style="width:70px;height:70px;object-fit:cover;background:var(--cream2);flex-shrink:0;"/>
       <div class="cart-item-info">
-        <div class="cart-item-name">${i.name}${i.variantLabel ? `<span style="font-size:11px;color:var(--mid);font-weight:400;margin-left:6px;">(${i.variantLabel})</span>` : ''}</div>
+        <div class="cart-item-name">${i.name}</div>
+        ${i.variantLabel ? `<div style="font-size:11px;color:var(--mid);margin-top:1px;">${i.variantLabel}</div>` : ''}
+        ${i.sku ? `<div style="font-size:11px;color:var(--mid);letter-spacing:.03em;">SKU: ${i.sku}</div>` : ''}
         <div class="cart-item-price">$${i.price.toFixed(2)}</div>
         <div class="cart-item-qty">
           <button class="qty-btn" onclick="drawerChangeQty('${i.productId}',${i.quantity-1},${vIdxStr})">−</button>
