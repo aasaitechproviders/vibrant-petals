@@ -404,6 +404,30 @@ async function loadProducts(){
 }
 
 function getVpState(){ return localStorage.getItem('vp_state') || ''; }
+function resolveVariantsForState(allVariants, state) {
+  const byLabel = {};
+  (allVariants||[]).forEach((v, i) => {
+    if (!v || !v.label) return;
+    if (!byLabel[v.label]) byLabel[v.label] = [];
+    byLabel[v.label].push({ ...v, _origIndex: i });
+  });
+  const result = [];
+  for (const vs of Object.values(byLabel)) {
+    const stateMatch = vs.find(v => v.state === state);
+    const nullMatch  = vs.find(v => !v.state);
+    const chosen = stateMatch || nullMatch;
+    if (chosen) result.push({ ...chosen, outOfStock: false });
+  }
+  if (!result.length && (allVariants||[]).filter(v=>v&&v.label).length) {
+    const seen = new Set();
+    (allVariants||[]).forEach((v, i) => {
+      if (!v || !v.label || seen.has(v.label)) return;
+      seen.add(v.label);
+      result.push({ ...v, _origIndex: i, outOfStock: true });
+    });
+  }
+  return result;
+}
 function formatPrice(p){
   const role  = getTokenRole();
   const state = getVpState();
@@ -441,10 +465,34 @@ function renderProducts(products){
     return;
   }
   g.innerHTML=products.map(p=>{
-    const price=formatPrice(p);
+    const role     = getTokenRole();
+    const cardVars = resolveVariantsForState(p.variants||[], getVpState());
+    const hasVars  = cardVars.length > 0;
     const img=p.images?.[0]||'';
     const inStock=p.stockStatus!=='outofstock';
     const cardId='qty_'+p._id;
+
+    let priceHtml, variantDropdownHtml;
+    if (hasVars) {
+      const fv = cardVars[0];
+      const fp = role==='Dealer'&&fv.dealerPrice ? fv.dealerPrice
+               : role==='Retail'&&fv.retailPrice ? fv.retailPrice
+               : (fv.salePrice??fv.price??0);
+      priceHtml = role==='Dealer' ? `<span style="color:#F5A623;font-weight:700;">⭐ $${fp.toFixed(2)}</span>`
+                : role==='Retail' ? `<span style="color:#1565c0;font-weight:700;">🏪 $${fp.toFixed(2)}</span>`
+                : `$${fp.toFixed(2)}`;
+      const opts = cardVars.map(v => {
+        const vp = role==='Dealer'&&v.dealerPrice ? v.dealerPrice
+                 : role==='Retail'&&v.retailPrice ? v.retailPrice
+                 : (v.salePrice??v.price??0);
+        return `<option value="${v._origIndex}" data-price="${vp}">${v.label} — $${vp.toFixed(2)}</option>`;
+      }).join('');
+      variantDropdownHtml = `<select id="varSel_${p._id}" onclick="event.stopPropagation()" onchange="event.stopPropagation();onCardVariantChange('${p._id}',this)" style="width:100%;padding:5px 8px;border:1px solid #e0d8c8;border-radius:4px;font-family:inherit;font-size:12px;background:#fff;cursor:pointer;margin-bottom:6px;outline:none;">${opts}</select>`;
+    } else {
+      priceHtml = formatPrice(p);
+      variantDropdownHtml = '';
+    }
+
     return `
     <div class="product-card" onclick="location.href='product.html?id=${p._id}'">
       <div class="product-card-inner">
@@ -458,8 +506,9 @@ function renderProducts(products){
         <div class="product-info">
           <div class="product-name">${p.name}</div>
           ${p.sku?`<div style="font-size:11px;color:var(--mid);font-weight:400;letter-spacing:.03em;">SKU: ${p.sku}</div>`:""}
-          <div class="product-price">${price}</div>
-          ${inStock && !(p.variants||[]).filter(v=>v&&v.label).length ?`
+          <div class="product-price" id="cardPrice_${p._id}">${priceHtml}</div>
+          ${inStock?`
+          ${variantDropdownHtml}
           <div class="product-qty-row" onclick="event.stopPropagation()">
             <button class="qty-btn-card" onclick="event.stopPropagation();changeCardQty('${cardId}',-1)">−</button>
             <span class="qty-val-card" id="${cardId}">1</span>
@@ -468,9 +517,6 @@ function renderProducts(products){
           <button class="btn-add-cart" onclick="event.stopPropagation();addToCartQty('${p._id}','${cardId}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
             Add to Cart
-          </button>`:inStock?`
-          <button class="btn-add-cart" onclick="event.stopPropagation();location.href='product.html?id=${p._id}'">
-            Select Option
           </button>`:`<button class="btn-add-cart" disabled style="opacity:.5;cursor:not-allowed;">Out of Stock</button>`}
         </div>
       </div>
@@ -552,9 +598,22 @@ function changeCardQty(cardId,delta){const el=document.getElementById(cardId);if
 async function addToCartQty(productId,cardId){
   const el=document.getElementById(cardId);
   const qty=el?(parseInt(el.textContent)||1):1;
-  const data=await apiFetch('/cart/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId,quantity:qty})}).catch(()=>({success:false}));
+  const body={productId,quantity:qty};
+  const varSel=document.getElementById('varSel_'+productId);
+  if(varSel) body.variantIndex=parseInt(varSel.value);
+  const data=await apiFetch('/cart/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify(body)}).catch(()=>({success:false}));
   if(data.success){renderCart(data.cart);showToast('Added to cart!','success');if(el)el.textContent='1';}
   else showToast(data.message||'Error','error');
+}
+function onCardVariantChange(pid, sel) {
+  const opt   = sel.options[sel.selectedIndex];
+  const price = parseFloat(opt.dataset.price);
+  const role  = getTokenRole();
+  const fmt   = role==='Dealer' ? `<span style="color:#F5A623;font-weight:700;">⭐ $${price.toFixed(2)}</span>`
+              : role==='Retail' ? `<span style="color:#1565c0;font-weight:700;">🏪 $${price.toFixed(2)}</span>`
+              : `$${price.toFixed(2)}`;
+  const el = document.getElementById('cardPrice_'+pid);
+  if(el) el.innerHTML = fmt;
 }
 async function addToWishlist(productId){
   if(!token){location.href='account.html';return;}
@@ -570,7 +629,7 @@ async function addToWishlist(productId){
   }
 }
 window.addToCart=addToCart;window.changeQty=changeQty;window.removeFromCart=removeFromCart;
-window.addToWishlist=addToWishlist;window.changeCardQty=changeCardQty;window.addToCartQty=addToCartQty;
+window.addToWishlist=addToWishlist;window.changeCardQty=changeCardQty;window.addToCartQty=addToCartQty;window.onCardVariantChange=onCardVariantChange;
 
 // Search
 const searchOverlay=document.getElementById('searchOverlay');
