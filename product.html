@@ -85,6 +85,12 @@
     .btn-add{flex:1;padding:14px;background:var(--gold);color:#fff;font-size:14px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);transition:background .2s;}
     .btn-add:hover{background:var(--gold-dark);}
     .btn-add:disabled{background:#bbb;cursor:not-allowed;}
+    /* Variant buttons */
+    .variant-btns{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;}
+    .variant-btn{padding:8px 18px;border:1.5px solid #ddd;border-radius:4px;background:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--dark);}
+    .variant-btn:hover:not(:disabled){border-color:var(--gold);color:var(--gold);}
+    .variant-btn.active{border-color:var(--gold);background:var(--gold);color:#fff;}
+    .variant-btn.oos{opacity:.45;cursor:not-allowed;text-decoration:line-through;}
     .btn-wishlist{width:48px;height:48px;border:1px solid #ddd;display:flex;align-items:center;justify-content:center;border-radius:var(--radius);transition:background .2s,border-color .2s,color .2s;color:var(--mid);}
     .btn-wishlist:hover,.btn-wishlist.active{background:var(--gold);border-color:var(--gold);color:#fff;}
     .btn-wishlist svg{width:20px;height:20px;}
@@ -462,6 +468,42 @@ function renderProduct(p){
   const userRole  = getTokenRole();
   const isDealer  = userRole === 'Dealer';
   const isRetail  = userRole === 'Retail';
+  // ── State and variant helpers ─────────────────────────────────────────────
+  const vpState = localStorage.getItem('vp_state') || '';
+
+  // Resolve which variants to show for the selected state, returns array with _origIndex
+  function resolveVariantsForState(allVariants, state) {
+    const byLabel = {};
+    allVariants.forEach((v, i) => {
+      if (!v || !v.label) return;
+      if (!byLabel[v.label]) byLabel[v.label] = [];
+      byLabel[v.label].push({ ...v, _origIndex: i });
+    });
+    const result = [];
+    for (const vs of Object.values(byLabel)) {
+      const stateMatch = vs.find(v => v.state === state);
+      const nullMatch  = vs.find(v => !v.state);
+      const chosen = stateMatch || nullMatch;
+      if (chosen) result.push({ ...chosen, outOfStock: false });
+    }
+    // No match for this state — show other-state variants as out of stock
+    if (!result.length && allVariants.filter(v=>v&&v.label).length) {
+      const seen = new Set();
+      allVariants.forEach((v, i) => {
+        if (!v || !v.label || seen.has(v.label)) return;
+        seen.add(v.label);
+        result.push({ ...v, _origIndex: i, outOfStock: true });
+      });
+    }
+    return result;
+  }
+
+  function resolveVariantPrice(v, role) {
+    if      (role === 'Dealer' && v.dealerPrice)  return v.dealerPrice;
+    else if (role === 'Retail' && v.retailPrice)  return v.retailPrice;
+    else                                           return v.salePrice ?? v.price ?? 0;
+  }
+
   let   price, priceBadge, regPrice, discount;
   if (isDealer && p.dealerPrice) {
     price      = p.dealerPrice;
@@ -478,27 +520,32 @@ function renderProduct(p){
     discount   = regPrice ? Math.round((1 - price / regPrice) * 100) : null;
   }
 
-  // Build variant dropdown HTML before the main template (avoids nested backtick issue)
-  const variantDropdownHTML = (function(){
-    const variants = Array.isArray(p.variants) ? p.variants.filter(v => v && v.label) : [];
-    if (!variants.length) return '';
-    const opts = variants.map((v, i) => {
-      let vPrice;
-      if (isDealer && v.dealerPrice != null)       vPrice = v.dealerPrice;
-      else if (isRetail && v.retailPrice != null)  vPrice = v.retailPrice;
-      else                                          vPrice = v.price || 0;
-      const priceStr = (typeof vPrice === 'number') ? ' — $' + vPrice.toFixed(2) : '';
-      return '<option value="' + i + '">' + v.label + priceStr + '</option>';
-    }).join('');
-    return '<div style="margin-bottom:16px;margin-top:16px;">'
-      + '<label style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:6px;">Select Option</label>'
-      + '<select id="variantSelect" onchange="onVariantChange()" style="width:100%;max-width:320px;padding:11px 14px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;border-radius:4px;background:#fff;cursor:pointer;">'
-      + '<option value="">— Choose an option —</option>'
-      + opts
-      + '</select></div>';
-  })();
-  // Also update productData.variants to filtered list for onVariantChange
-  p.variants = Array.isArray(p.variants) ? p.variants.filter(v => v && v.label) : [];
+  // Build variant buttons HTML
+  const allVariants    = Array.isArray(p.variants) ? p.variants : [];
+  const resolvedVars   = resolveVariantsForState(allVariants, vpState);
+  const hasVariants    = resolvedVars.length > 0;
+
+  // If we have variants, override displayed price with "From $X.XX"
+  if (hasVariants) {
+    const role  = isDealer ? 'Dealer' : isRetail ? 'Retail' : 'Customer';
+    const avail = resolvedVars.filter(v => !v.outOfStock);
+    const pool  = avail.length ? avail : resolvedVars;
+    const min   = Math.min(...pool.map(v => resolveVariantPrice(v, role)));
+    const prefix = isDealer ? '⭐ From $' : isRetail ? '🏪 From $' : 'From $';
+    price     = min;
+    priceBadge = '';
+    regPrice   = null; discount = null;
+    // Will update via selectVariant when user picks one
+  }
+
+  const variantBtnsHTML = hasVariants
+    ? `<div style="margin-bottom:4px;margin-top:16px;"><label style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:8px;">Select Option</label>
+       <div class="variant-btns" id="variantBtns">
+         ${resolvedVars.map(v =>
+           `<button class="variant-btn${v.outOfStock?' oos':''}" data-vidx="${v._origIndex}" onclick="selectVariant(this,${v._origIndex})" ${v.outOfStock?'disabled':''}>${v.label}</button>`
+         ).join('')}
+       </div></div>`
+    : '';
 
   document.getElementById('productLayout').innerHTML=`
     <div class="gallery">
@@ -511,7 +558,7 @@ function renderProduct(p){
       <div class="product-cats">${(p.categories||[]).join(' · ')}</div>
       <h1 class="product-title">${p.name}</h1>
       <div class="product-price-row">
-        <span class="price-main">$${price.toFixed(2)}</span>
+        <span class="price-main">${hasVariants ? (isDealer?'⭐ ':isRetail?'🏪 ':'')+'From $'+price.toFixed(2) : '$'+price.toFixed(2)}</span>
         ${regPrice?`<span class="price-reg">$${regPrice.toFixed(2)}</span>`:''}
         ${discount?`<span class="price-sale">${discount}% OFF</span>`:''}
         ${priceBadge}
@@ -526,7 +573,7 @@ function renderProduct(p){
       ${p.shortDescription?`<p class="product-desc">${p.shortDescription}</p>`:''}
 
       <div><strong>ORDERS SUBJECT TO PRE-BOOKING ONLY</strong></div>
-      ${variantDropdownHTML}
+      ${variantBtnsHTML}
       <div class="add-section">
         <div style="display:flex;flex-direction:column;gap:4px;">
           <label style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);">Quantity</label>
@@ -536,7 +583,7 @@ function renderProduct(p){
             <button class="qty-btn" onclick="changeQtyLocal(1)">+</button>
           </div>
         </div>
-        <button class="btn-add" id="addCartBtn" ${(!inStock||(p.variants&&p.variants.filter(v=>v&&v.label).length))?'disabled':''} onclick="addToCart('${p._id}')">
+        <button class="btn-add" id="addCartBtn" ${(!inStock || hasVariants)?'disabled':''} onclick="addToCart('${p._id}')">
           ${inStock?'Add to Cart':'Out of Stock'}
         </button>
         <button class="btn-wishlist" id="wishBtn" onclick="toggleWishlist('${p._id}')" title="Add to Wishlist">
@@ -583,28 +630,25 @@ window.changeQtyLocal=function(delta){
 
 // Variant selection
 let selectedVariantIndex = null;
-window.onVariantChange = function() {
-  const sel = document.getElementById('variantSelect');
-  const btn = document.getElementById('addCartBtn');
-  if (!sel) return;
-  const val = sel.value;
-  if (val === '') {
-    selectedVariantIndex = null;
-    if (btn) { btn.disabled = true; }
-    return;
-  }
-  selectedVariantIndex = Number(val);
-  const v = productData.variants[selectedVariantIndex];
-  // Update displayed price
-  function getTokenRole(){try{if(!token)return null;const pt=token.split('.')[1];const j=JSON.parse(atob(pt.replace(/-/g,'+').replace(/_/g,'/')));return j.role||null;}catch{return null;}}
-  const role = getTokenRole();
+window.selectVariant = function(btn, origIndex) {
+  // Toggle active state on buttons
+  document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedVariantIndex = origIndex;
+
+  // Resolve price for selected variant
+  const v    = productData.variants[origIndex];
+  const role = isDealer ? 'Dealer' : isRetail ? 'Retail' : 'Customer';
   let vPrice;
-  if (role === 'Dealer' && v.dealerPrice)       vPrice = v.dealerPrice;
+  if      (role === 'Dealer' && v.dealerPrice)  vPrice = v.dealerPrice;
   else if (role === 'Retail' && v.retailPrice)  vPrice = v.retailPrice;
-  else                                           vPrice = v.price;
+  else                                           vPrice = v.salePrice ?? v.price ?? 0;
+
   const priceEl = document.querySelector('.price-main');
   if (priceEl) priceEl.textContent = '$' + vPrice.toFixed(2);
-  if (btn && productData.stockStatus !== 'outofstock') btn.disabled = false;
+
+  const cartBtn = document.getElementById('addCartBtn');
+  if (cartBtn && productData.stockStatus !== 'outofstock') cartBtn.disabled = false;
 };
 
 // TABS
