@@ -209,6 +209,52 @@ async function loadCartCount(){
   document.getElementById('cartCount').textContent=(d.cart?.items||[]).reduce((s,i)=>s+i.quantity,0);
 }
 
+function getTokenRole(){try{if(!token)return null;const pt=token.split('.')[1];return JSON.parse(atob(pt.replace(/-/g,'+').replace(/_/g,'/')))?.role||null;}catch{return null;}}
+function getVpState(){ return localStorage.getItem('vp_state') || ''; }
+function resolveVariantsForState(allVariants, state) {
+  const byLabel = {};
+  (allVariants||[]).forEach((v, i) => {
+    if (!v || !v.label) return;
+    if (!byLabel[v.label]) byLabel[v.label] = [];
+    byLabel[v.label].push({ ...v, _origIndex: i });
+  });
+  const result = [];
+  for (const vs of Object.values(byLabel)) {
+    const chosen = vs.find(v => v.state === state) || vs.find(v => !v.state);
+    if (chosen) result.push(chosen);
+  }
+  if (!result.length && (allVariants||[]).filter(v=>v&&v.label).length) {
+    const seen = new Set();
+    (allVariants||[]).forEach(v => { if(v&&v.label&&!seen.has(v.label)){seen.add(v.label);result.push(v);} });
+  }
+  return result;
+}
+function resolveWishPrice(p) {
+  const role  = getTokenRole();
+  const state = getVpState();
+  const variants = (p.variants||[]).filter(v=>v&&v.label);
+  if (variants.length) {
+    const pool = resolveVariantsForState(variants, state);
+    let min = Infinity;
+    for (const v of pool) {
+      const vp = role==='Dealer'&&v.dealerPrice ? v.dealerPrice
+               : role==='Retail'&&v.retailPrice ? v.retailPrice
+               : (v.salePrice ?? v.price ?? 0);
+      if (vp < min) min = vp;
+    }
+    if (min < Infinity) {
+      if (role==='Dealer') return `<span style="color:#F5A623;font-weight:700;">⭐ From $${min.toFixed(2)}</span>`;
+      if (role==='Retail') return `<span style="color:#1565c0;font-weight:700;">🏪 From $${min.toFixed(2)}</span>`;
+      return `From $${min.toFixed(2)}`;
+    }
+  }
+  if (role==='Dealer' && p.dealerPrice) return `<span style="color:#F5A623;font-weight:700;">⭐ $${p.dealerPrice.toFixed(2)}</span>`;
+  if (role==='Retail' && p.retailPrice) return `<span style="color:#1565c0;font-weight:700;">🏪 $${p.retailPrice.toFixed(2)}</span>`;
+  if (p.salePrice && p.regularPrice)    return `$${p.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${p.regularPrice.toFixed(2)}</span>`;
+  if (p.price)                          return `$${p.price.toFixed(2)}`;
+  return '';
+}
+
 async function loadWishlist(){
   if(!token){
     document.getElementById('wishNotice').style.display='block';
@@ -228,15 +274,21 @@ async function loadWishlist(){
   document.getElementById('wishlistContent').innerHTML=`
     <button class="btn-clear" onclick="clearWishlist()">🗑 Clear Wishlist</button>
     <div class="products-grid">${products.map(p=>{
-      const img=p.images?.[0]||'https://via.placeholder.com/300?text=Flower';
-      const price=p.salePrice?`$${p.salePrice.toFixed(2)}`:p.price?`$${p.price.toFixed(2)}`:'';
+      const img     = p.images?.[0]||'https://via.placeholder.com/300?text=Flower';
+      const price   = resolveWishPrice(p);
+      const hasVars = (p.variants||[]).filter(v=>v&&v.label).length > 0;
+      const cartBtn = p.stockStatus==='outofstock'
+        ? `<button class="product-action-btn" disabled title="Out of stock" style="opacity:.4;cursor:not-allowed;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>`
+        : hasVars
+          ? `<button class="product-action-btn" onclick="event.stopPropagation();location.href='product.html?id=${p._id}'" title="Select option to add to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>`
+          : `<button class="product-action-btn" onclick="event.stopPropagation();addToCart('${p._id}')" title="Add to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>`;
       return `<div class="product-card" onclick="location.href='product.html?id=${p._id}'">
         <div class="product-card-inner">
           <div class="product-img-wrap">
             <img src="${img}" loading="lazy" onerror="this.src='https://via.placeholder.com/300?text=Flower'" alt="${p.name}"/>
             ${p.stockStatus==='outofstock'?'<div class="stock-badge">Out Of Stock</div>':''}
             <div class="product-actions">
-              <button class="product-action-btn" onclick="event.stopPropagation();addToCart('${p._id}')" title="Add to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              ${cartBtn}
               <button class="product-action-btn remove-btn" onclick="event.stopPropagation();removeFromWishlist('${p._id}')" title="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
             </div>
           </div>
