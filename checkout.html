@@ -1153,20 +1153,23 @@ function renderCartDrawer(cart){
     return;
   }
 
-  cartBody.innerHTML = items.map(i=>`
+  cartBody.innerHTML = items.map(i=>{
+    const vIdx = i.variantIndex != null ? i.variantIndex : null;
+    const vIdxStr = vIdx !== null ? vIdx : 'null';
+    return `
     <div class="cart-item">
       <img src="${i.image||''}" alt="${i.name}" onerror="this.style.display='none'" style="width:70px;height:70px;object-fit:cover;background:var(--cream2);flex-shrink:0;"/>
       <div class="cart-item-info">
-        <div class="cart-item-name">${i.name}</div>
+        <div class="cart-item-name">${i.name}${i.variantLabel ? `<span style="font-size:11px;color:var(--mid);font-weight:400;margin-left:6px;">(${i.variantLabel})</span>` : ''}</div>
         <div class="cart-item-price">$${i.price.toFixed(2)}</div>
         <div class="cart-item-qty">
-          <button class="qty-btn" onclick="drawerChangeQty('${i.productId}',${i.quantity-1})">−</button>
+          <button class="qty-btn" onclick="drawerChangeQty('${i.productId}',${i.quantity-1},${vIdxStr})">−</button>
           <span class="qty-val">${i.quantity}</span>
-          <button class="qty-btn" onclick="drawerChangeQty('${i.productId}',${i.quantity+1})">+</button>
+          <button class="qty-btn" onclick="drawerChangeQty('${i.productId}',${i.quantity+1},${vIdxStr})">+</button>
         </div>
       </div>
-      <span class="cart-remove" onclick="drawerRemove('${i.productId}')">✕</span>
-    </div>`).join('');
+      <span class="cart-remove" onclick="drawerRemove('${i.productId}',${vIdxStr})">✕</span>
+    </div>`}).join('');
 
   document.getElementById('cartSubtotal').textContent = '$'+(cart.subtotal||0).toFixed(2);
   document.getElementById('cartShipping').textContent = cart.shippingCost===0?'Free (In-store)':'$'+(cart.shippingCost||0).toFixed(2);
@@ -1174,14 +1177,17 @@ function renderCartDrawer(cart){
   cartFoot.style.display='block';
 }
 
-async function drawerChangeQty(productId, qty){
-  if(qty<1){ return drawerRemove(productId); }
-  const data = await apiFetch(`/cart/items/${productId}`,{method:'PUT',headers:apiHeaders(),body:JSON.stringify({quantity:qty})}).catch(()=>({success:false}));
+async function drawerChangeQty(productId, qty, vIdx=null){
+  if(qty<1){ return drawerRemove(productId, vIdx); }
+  const body = {quantity:qty};
+  if(vIdx !== null) body.variantIndex = vIdx;
+  const data = await apiFetch(`/cart/items/${productId}`,{method:'PUT',headers:apiHeaders(),body:JSON.stringify(body)}).catch(()=>({success:false}));
   if(data.success){ renderCartDrawer(data.cart); renderSummary(data.cart); cartData=data.cart; }
 }
 
-async function drawerRemove(productId){
-  const data = await apiFetch(`/cart/items/${productId}`,{method:'DELETE',headers:apiHeaders()}).catch(()=>({success:false}));
+async function drawerRemove(productId, vIdx=null){
+  const qs = vIdx !== null ? `?variantIndex=${vIdx}` : '';
+  const data = await apiFetch(`/cart/items/${productId}${qs}`,{method:'DELETE',headers:apiHeaders()}).catch(()=>({success:false}));
   if(data.success){ renderCartDrawer(data.cart); renderSummary(data.cart); cartData=data.cart;
     if(!data.cart.items?.length){ document.getElementById('emptyCart').style.display='block'; document.getElementById('checkoutLayout').style.display='none'; }
   }
