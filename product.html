@@ -258,7 +258,7 @@
 </head>
 <body>
 
-<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney<span class="ann-bar-sel"><span>📍</span><select id="stateDropdown" onchange="setVpState(this.value)"><option value="Melbourne">Melbourne</option><option value="Sydney">Sydney</option></select></span></div>
+<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney<span class="ann-bar-sel"><span>📍</span><select id="stateDropdown" onchange="setVpState(this.value)"></select></span></div>
 
 <header>
   <div class="nav-inner">
@@ -298,7 +298,7 @@
   <div class="mobile-nav-drawer">
     <div class="mobile-nav-head"><span>🌸 Vibrant Petals</span><button class="mobile-nav-close" onclick="closeMobileNav()">✕</button></div>
     <ul>
-      <li><div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid #f5f0e8;"><span>📍</span><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid,#555);white-space:nowrap;">Prices for:</span><select id="mobileStateDropdown" onchange="setVpState(this.value);closeMobileNav();" style="flex:1;border:1px solid #e0d8c8;border-radius:4px;padding:5px 8px;font-size:13px;font-family:inherit;background:#fff;color:var(--dark,#1A1A1A);cursor:pointer;outline:none;"><option value="Melbourne">Melbourne</option><option value="Sydney">Sydney</option></select></div></li>
+      <li><div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid #f5f0e8;"><span>📍</span><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid,#555);white-space:nowrap;">Prices for:</span><select id="mobileStateDropdown" onchange="setVpState(this.value);closeMobileNav();" style="flex:1;border:1px solid #e0d8c8;border-radius:4px;padding:5px 8px;font-size:13px;font-family:inherit;background:#fff;color:var(--dark,#1A1A1A);cursor:pointer;outline:none;"></select></div></li>
       <li><a href="index.html">Home</a></li>
       <li><a href="category.html?cat=strings">Strings</a></li>
       <li>
@@ -943,6 +943,26 @@ async function loadOthersNav(){
   }catch(e){}
 }
 loadOthersNav();
+
+// Load state dropdowns dynamically from DB
+async function loadStateDropdowns(){
+  try {
+    const data = await apiFetch('/states');
+    const states = data.states || [];
+    if (!states.length) return;
+    const opts = states.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+    const saved = getVpState();
+    ['stateDropdown','mobileStateDropdown'].forEach(function(id){
+      const dd = document.getElementById(id);
+      if (!dd) return;
+      dd.innerHTML = opts;
+      // Restore saved value, fall back to first state
+      dd.value = saved || '';
+      if (!dd.value && states.length) { dd.value = states[0].name; setVpState(states[0].name); }
+    });
+  } catch(e) {}
+}
+loadStateDropdowns();
 </script>
 </body>
 </html>
