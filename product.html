@@ -441,6 +441,8 @@ const params=new URLSearchParams(location.search);
 const productId=params.get('id');
 let productData=null;
 let qty=1;
+let isDealer=false;
+let isRetail=false;
 
 async function loadProduct(){
   if(!productId){document.getElementById('productLayout').innerHTML='<p style="padding:40px;color:var(--mid)">No product specified.</p>';return;}
@@ -466,8 +468,8 @@ function renderProduct(p){
   const inStock=p.stockStatus!=='outofstock';
   function getTokenRole(){try{if(!token)return null;const pt=token.split('.')[1];const j=JSON.parse(atob(pt.replace(/-/g,'+').replace(/_/g,'/')));return j.role||null;}catch{return null;}}
   const userRole  = getTokenRole();
-  const isDealer  = userRole === 'Dealer';
-  const isRetail  = userRole === 'Retail';
+  isDealer  = userRole === 'Dealer';
+  isRetail  = userRole === 'Retail';
   // ── State and variant helpers ─────────────────────────────────────────────
   const vpState = localStorage.getItem('vp_state') || '';
 
