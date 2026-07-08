@@ -403,8 +403,30 @@ async function loadProducts(){
   renderPagination();
 }
 
+function getVpState(){ return localStorage.getItem('vp_state') || ''; }
 function formatPrice(p){
-  const role=getTokenRole();
+  const role  = getTokenRole();
+  const state = getVpState();
+  const variants = (p.variants||[]).filter(v=>v&&v.label);
+
+  if (variants.length) {
+    const relevant = variants.filter(v => !v.state || v.state === state);
+    const pool = relevant.length ? relevant : variants;
+    let min = Infinity;
+    for (const v of pool) {
+      let vp;
+      if      (role==='Dealer' && v.dealerPrice)  vp = v.dealerPrice;
+      else if (role==='Retail' && v.retailPrice)  vp = v.retailPrice;
+      else                                         vp = v.salePrice ?? v.price ?? 0;
+      if (vp < min) min = vp;
+    }
+    if (min < Infinity) {
+      if (role==='Dealer') return `<span style="color:#F5A623;font-weight:700;">⭐ From $${min.toFixed(2)}</span>`;
+      if (role==='Retail') return `<span style="color:#1565c0;font-weight:700;">🏪 From $${min.toFixed(2)}</span>`;
+      return `From $${min.toFixed(2)}`;
+    }
+  }
+
   if(role==='Dealer'&&p.dealerPrice) return `<span style="color:#F5A623;font-weight:700;">⭐ $${p.dealerPrice.toFixed(2)}</span>`;
   if(role==='Retail'&&p.retailPrice) return `<span style="color:#1565c0;font-weight:700;">🏪 $${p.retailPrice.toFixed(2)}</span>`;
   if(p.salePrice&&p.regularPrice) return `$${p.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${p.regularPrice.toFixed(2)}</span>`;
@@ -437,7 +459,7 @@ function renderProducts(products){
           <div class="product-name">${p.name}</div>
           ${p.sku?`<div style="font-size:11px;color:var(--mid);font-weight:400;letter-spacing:.03em;">SKU: ${p.sku}</div>`:""}
           <div class="product-price">${price}</div>
-          ${inStock?`
+          ${inStock && !(p.variants||[]).filter(v=>v&&v.label).length ?`
           <div class="product-qty-row" onclick="event.stopPropagation()">
             <button class="qty-btn-card" onclick="event.stopPropagation();changeCardQty('${cardId}',-1)">−</button>
             <span class="qty-val-card" id="${cardId}">1</span>
@@ -446,6 +468,9 @@ function renderProducts(products){
           <button class="btn-add-cart" onclick="event.stopPropagation();addToCartQty('${p._id}','${cardId}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
             Add to Cart
+          </button>`:inStock?`
+          <button class="btn-add-cart" onclick="event.stopPropagation();location.href='product.html?id=${p._id}'">
+            Select Option
           </button>`:`<button class="btn-add-cart" disabled style="opacity:.5;cursor:not-allowed;">Out of Stock</button>`}
         </div>
       </div>
