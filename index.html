@@ -1498,8 +1498,23 @@ function resolveVariantsForState(allVariants, state) {
   }).join('');
   }
 
-  renderFeatured();
+  // ── Sync preferredState from user profile if not already set ────────────
+  if (!getVpState()) {
+    const tok = localStorage.getItem('vp_token');
+    if (tok) {
+      try {
+        const meData = await apiFetch('/auth/me', { headers: { Authorization: 'Bearer ' + tok } });
+        if (meData?.user?.preferredState) {
+          localStorage.setItem('vp_state', meData.user.preferredState);
+          const dd = document.getElementById('stateDropdown');
+          if (dd) dd.value = meData.user.preferredState;
+        }
+      } catch(e) {}
+    }
+  }
+
   window._renderFeatured = renderFeatured;
+  renderFeatured();
 })();
 
 // ── SEARCH ─────────────────────────────────────────────────
