@@ -1117,7 +1117,7 @@ async function viewOrder(id){
     <div class="order-items-list">
       ${(o.items||[]).map(i=>`<div class="order-item-row">
         <img src="${i.image||'https://via.placeholder.com/52'}" onerror="this.src='https://via.placeholder.com/52'" alt="${i.name}"/>
-        <div class="name">${i.name}${i.sku?`<div style="font-size:11px;color:var(--mid);font-weight:400;margin-top:2px;letter-spacing:.03em;">SKU: ${i.sku}</div>`:''}</div>
+        <div class="name">${i.name}${i.variantLabel ? `<div style="font-size:11px;color:var(--gold);font-weight:600;margin-top:2px;">${i.variantLabel}</div>` : ''}${i.sku?`<div style="font-size:11px;color:var(--mid);font-weight:400;margin-top:2px;letter-spacing:.03em;">SKU: ${i.sku}</div>`:''}</div>
         <div class="qty">× ${i.quantity}</div>
         <div class="price">$${(i.price*i.quantity).toFixed(2)}</div>
       </div>`).join('')}
