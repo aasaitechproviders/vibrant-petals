@@ -962,8 +962,9 @@
           <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mid);">Variants <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional — size, weight, length, etc.)</span></div>
           <button type="button" onclick="addVariantRow()" style="background:var(--gold);color:#fff;border:none;border-radius:4px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;">+ Add Variant</button>
         </div>
-        <div id="pVariantsHeader" style="display:none;display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr 1fr 32px;gap:6px;margin-bottom:4px;">
+        <div id="pVariantsHeader" style="display:none;display:grid;grid-template-columns:1.6fr 0.9fr 1fr 1fr 1fr 1fr 0.8fr 32px;gap:6px;margin-bottom:4px;">
           <div style="font-size:11px;font-weight:700;color:var(--mid);letter-spacing:.05em;">LABEL</div>
+          <div style="font-size:11px;font-weight:700;color:var(--mid);letter-spacing:.05em;">STATE</div>
           <div style="font-size:11px;font-weight:700;color:var(--mid);letter-spacing:.05em;">REGULAR ($)</div>
           <div style="font-size:11px;font-weight:700;color:#c0392b;letter-spacing:.05em;">SALE ($)</div>
           <div style="font-size:11px;font-weight:700;color:#c47f00;letter-spacing:.05em;">⭐ DEALER ($)</div>
@@ -2441,32 +2442,37 @@ function addVariantRow(v = {}) {
   const container = document.getElementById('pVariants');
   const row = document.createElement('div');
   row.className = 'variant-row';
-  row.style.cssText = 'display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr 1fr 32px;gap:6px;align-items:center;';
+  row.style.cssText = 'display:grid;grid-template-columns:1.6fr 0.9fr 1fr 1fr 1fr 1fr 0.8fr 32px;gap:6px;align-items:center;';
   row.innerHTML = `
-    <input class="form-input" placeholder="e.g. 1.5 feet, 500g, Large" value="${(v.label||'').replace(/"/g,'&quot;')}" style="font-size:13px;padding:8px 10px;"/>
-    <input class="form-input" type="number" step="0.01" min="0" placeholder="0.00" value="${v.price != null ? v.price : ''}" style="font-size:13px;padding:8px 10px;" title="Regular price for this variant"/>
-    <input class="form-input" type="number" step="0.01" min="0" placeholder="optional" value="${v.salePrice != null ? v.salePrice : ''}" style="font-size:13px;padding:8px 10px;border-color:#f5c6c6;" title="Sale price — leave blank if no sale"/>
-    <input class="form-input" type="number" step="0.01" min="0" placeholder="optional" value="${v.dealerPrice != null ? v.dealerPrice : ''}" style="font-size:13px;padding:8px 10px;border-color:#f5d98a;"/>
-    <input class="form-input" type="number" step="0.01" min="0" placeholder="optional" value="${v.retailPrice != null ? v.retailPrice : ''}" style="font-size:13px;padding:8px 10px;border-color:#bee3f8;"/>
-    <input class="form-input" placeholder="optional" value="${(v.sku||'').replace(/"/g,'&quot;')}" style="font-size:13px;padding:8px 10px;"/>
+    <input class="form-input v-label" placeholder="e.g. 100g, 500g, Small" value="${(v.label||'').replace(/"/g,'&quot;')}" style="font-size:13px;padding:8px 10px;"/>
+    <select class="form-select v-state" style="font-size:13px;padding:8px 6px;">
+      <option value="">All States</option>
+      <option value="Melbourne" ${v.state==='Melbourne'?'selected':''}>Melbourne</option>
+      <option value="Sydney" ${v.state==='Sydney'?'selected':''}>Sydney</option>
+    </select>
+    <input class="form-input v-price" type="number" step="0.01" min="0" placeholder="0.00" value="${v.price != null ? v.price : ''}" style="font-size:13px;padding:8px 10px;" title="Regular price for this variant"/>
+    <input class="form-input v-sale" type="number" step="0.01" min="0" placeholder="optional" value="${v.salePrice != null ? v.salePrice : ''}" style="font-size:13px;padding:8px 10px;border-color:#f5c6c6;" title="Sale price — leave blank if no sale"/>
+    <input class="form-input v-dealer" type="number" step="0.01" min="0" placeholder="optional" value="${v.dealerPrice != null ? v.dealerPrice : ''}" style="font-size:13px;padding:8px 10px;border-color:#f5d98a;"/>
+    <input class="form-input v-retail" type="number" step="0.01" min="0" placeholder="optional" value="${v.retailPrice != null ? v.retailPrice : ''}" style="font-size:13px;padding:8px 10px;border-color:#bee3f8;"/>
+    <input class="form-input v-sku" placeholder="optional" value="${(v.sku||'').replace(/"/g,'&quot;')}" style="font-size:13px;padding:8px 10px;"/>
     <button type="button" onclick="this.closest('.variant-row').remove();syncVariantsUI();" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:20px;padding:0;line-height:1;" title="Remove">×</button>
   `;
   container.appendChild(row);
   syncVariantsUI();
-  row.querySelector('input').focus();
+  row.querySelector('.v-label').focus();
 }
 window.addVariantRow = addVariantRow;
 
 function getVariants() {
   return Array.from(document.querySelectorAll('#pVariants .variant-row')).map(row => {
-    const inputs = row.querySelectorAll('input');
-    const label       = inputs[0].value.trim();
-    const price       = parseFloat(inputs[1].value) || 0;
-    const salePrice   = inputs[2].value !== '' ? parseFloat(inputs[2].value) : null;
-    const dealerPrice = inputs[3].value !== '' ? parseFloat(inputs[3].value) : null;
-    const retailPrice = inputs[4].value !== '' ? parseFloat(inputs[4].value) : null;
-    const sku         = inputs[5].value.trim();
-    return { label, price, salePrice, dealerPrice, retailPrice, sku };
+    const label       = row.querySelector('.v-label').value.trim();
+    const state       = row.querySelector('.v-state').value || null;
+    const price       = parseFloat(row.querySelector('.v-price').value) || 0;
+    const salePrice   = row.querySelector('.v-sale').value   !== '' ? parseFloat(row.querySelector('.v-sale').value)   : null;
+    const dealerPrice = row.querySelector('.v-dealer').value !== '' ? parseFloat(row.querySelector('.v-dealer').value) : null;
+    const retailPrice = row.querySelector('.v-retail').value !== '' ? parseFloat(row.querySelector('.v-retail').value) : null;
+    const sku         = row.querySelector('.v-sku').value.trim();
+    return { label, state, price, salePrice, dealerPrice, retailPrice, sku };
   }).filter(v => v.label);
 }
 
