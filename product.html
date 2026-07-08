@@ -572,7 +572,19 @@ function renderProduct(p){
       <div class="stock-pill ${inStock?'instock':'outofstock'}">
         ${inStock?'● In Stock':'● Out of Stock'}
       </div>
-      ${p.shortDescription?`<p class="product-desc">${p.shortDescription}</p>`:''}
+      ${(function(){
+        const raw = p.shortDescription || '';
+        if (!raw) return '';
+        let html;
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length) {
+            html = '<ul class="desc-bullets" style="margin-bottom:28px;">' + parsed.map(pt => `<li>${pt}</li>`).join('') + '</ul>';
+          }
+        } catch(e) {}
+        if (!html) html = `<p class="product-desc">${raw}</p>`;
+        return html;
+      })()}
 
       <div><strong>ORDERS SUBJECT TO PRE-BOOKING ONLY</strong></div>
       ${variantBtnsHTML}
