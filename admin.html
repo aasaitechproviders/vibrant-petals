@@ -707,14 +707,30 @@
 
       <!-- ══ TERRITORIES ══ -->
       <div class="panel" id="panel-territories">
+        <!-- STATES MANAGEMENT -->
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-head">
+            <div>
+              <div class="card-title">🗺️ States</div>
+              <div style="font-size:12px;color:var(--mid);margin-top:4px;font-weight:400;letter-spacing:0;text-transform:none;">States control which regions are available for territories, outlets, and customer price selection. Order number prefixes are set per state.</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;flex-shrink:0;">
+              <button class="btn-add" onclick="openStateModal()">+ Add State</button>
+              <button class="btn-sm btn-edit" onclick="seedStates()" title="Seed Victoria + NSW if not present" style="font-size:12px;">⚙ Seed Defaults</button>
+            </div>
+          </div>
+          <div id="statesTableWrap">
+            <div class="skeleton" style="height:100px;margin:20px;border-radius:4px;"></div>
+          </div>
+        </div>
+
+        <!-- TERRITORIES MANAGEMENT -->
         <div class="card">
           <div class="card-head">
             <div class="card-title">Territory Management</div>
             <div style="display:flex;gap:10px;align-items:center;">
-              <select id="terrStateFilter" class="form-select" style="width:160px;padding:8px 12px;font-size:13px;" onchange="loadTerritories()">
+              <select id="terrStateFilter" class="form-select" style="width:180px;padding:8px 12px;font-size:13px;" onchange="loadTerritories()">
                 <option value="">All States</option>
-                <option value="Melbourne">Melbourne</option>
-                <option value="Sydney">Sydney</option>
               </select>
               <select id="terrStatusFilter" class="form-select" style="width:160px;padding:8px 12px;font-size:13px;" onchange="loadTerritories()">
                 <option value="">All Statuses</option>
@@ -853,8 +869,6 @@
           <label class="form-label">State *</label>
           <select class="form-select" id="tState">
             <option value="">Select state…</option>
-            <option value="Melbourne">Melbourne</option>
-            <option value="Sydney">Sydney</option>
           </select>
         </div>
       </div>
@@ -862,6 +876,38 @@
     <div class="modal-foot">
       <button class="btn-cancel" onclick="closeTerritoryModal()">Cancel</button>
       <button class="btn-save" onclick="saveTerritory()">Save Territory</button>
+    </div>
+  </div>
+</div>
+
+<!-- STATE MODAL -->
+<div class="modal" id="stateModal">
+  <div class="modal-box" style="max-width:440px;">
+    <div class="modal-head"><h3 id="stateModalTitle">Add State</h3><span class="modal-close" onclick="closeStateModal()">✕</span></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">State Name *</label>
+          <input class="form-input" id="sName" placeholder="e.g. Victoria"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Order Code *</label>
+          <input class="form-input" id="sCode" placeholder="e.g. VIC" maxlength="6" style="text-transform:uppercase;"/>
+          <div style="font-size:11px;color:var(--mid);margin-top:4px;">Used in order numbers: VP-VIC-00001</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Active</label>
+        <select class="form-select" id="sActive">
+          <option value="true">Yes — visible to customers &amp; staff</option>
+          <option value="false">No — hidden</option>
+        </select>
+      </div>
+      <div class="form-msg" id="stateFormMsg" style="display:none;"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeStateModal()">Cancel</button>
+      <button class="btn-save" id="stateSubmitBtn" onclick="saveState()">Save State</button>
     </div>
   </div>
 </div>
@@ -877,8 +923,6 @@
           <label class="form-label">State *</label>
           <select class="form-select" id="oState" onchange="loadOutletTerritories()">
             <option value="">Select state…</option>
-            <option value="Melbourne">Melbourne</option>
-            <option value="Sydney">Sydney</option>
           </select>
         </div>
       </div>
@@ -1723,7 +1767,7 @@ checkAuth();
 document.getElementById('adminPwd')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
 
 // ── PANEL NAVIGATION ──────────────────────────────────────────────────────────
-const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, pickuporders: () => { pickupOrdPage=1; loadPickupOrders(); }, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, templates: loadTemplates, coupons: loadCoupons, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: loadTerritories, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
+const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, pickuporders: () => { pickupOrdPage=1; loadPickupOrders(); }, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, templates: loadTemplates, coupons: loadCoupons, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: () => { loadStates(); loadTerritories(); }, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  TERRITORIES
@@ -1832,7 +1876,139 @@ async function territoryAction(slug, action) {
 }
 
 // ── ADD / DELETE TERRITORY ────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+//  STATES
+// ══════════════════════════════════════════════════════════════════════════════
+let _adminStates = []; // cached list used by variant rows + modals
+
+async function loadStates() {
+  const data = await apiFetch('/admin/states', { headers: apiHeaders() });
+  _adminStates = data.states || [];
+  renderStatesTable(_adminStates);
+  populateStateSelects(_adminStates);
+}
+
+// Fill every state <select> in the page from the live list
+function populateStateSelects(states) {
+  const opts = states.map(s =>
+    `<option value="${s.name}">${s.name}${!s.isActive ? ' (inactive)' : ''}</option>`
+  ).join('');
+  // terrStateFilter — keep "All States" first
+  const tsf = document.getElementById('terrStateFilter');
+  if (tsf) { tsf.innerHTML = '<option value="">All States</option>' + opts; }
+  // territory modal
+  const tState = document.getElementById('tState');
+  if (tState) { const cur = tState.value; tState.innerHTML = '<option value="">Select state…</option>' + opts; if (cur) tState.value = cur; }
+  // outlet modal
+  const oState = document.getElementById('oState');
+  if (oState) { const cur = oState.value; oState.innerHTML = '<option value="">Select state…</option>' + opts; if (cur) oState.value = cur; }
+}
+
+function renderStatesTable(states) {
+  const wrap = document.getElementById('statesTableWrap');
+  if (!wrap) return;
+  if (!states.length) {
+    wrap.innerHTML = '<div style="padding:20px;color:var(--mid);font-size:14px;">No states yet. Click <strong>+ Add State</strong> or <strong>⚙ Seed Defaults</strong> to add Victoria and New South Wales.</div>';
+    return;
+  }
+  wrap.innerHTML = `
+    <table class="data-table">
+      <thead><tr>
+        <th>State Name</th><th>Order Code</th><th>Active</th><th>Used In</th><th style="text-align:right;">Actions</th>
+      </tr></thead>
+      <tbody>
+        ${states.map(s => `<tr>
+          <td><strong>${s.name}</strong></td>
+          <td><span style="font-family:monospace;font-size:13px;background:#f5efdc;padding:2px 8px;border-radius:3px;color:#7a6230;">VP-${s.code}-XXXXX</span></td>
+          <td><span class="status-badge ${s.isActive ? 's-active' : 's-inactive'}">${s.isActive ? 'Active' : 'Inactive'}</span></td>
+          <td style="font-size:12px;color:var(--mid);" id="stateUsage_${s._id}">—</td>
+          <td style="text-align:right;">
+            <button class="btn-action btn-action-edit" onclick="openStateModal('${s._id}')">Edit</button>
+            <button class="btn-action btn-action-delete" onclick="deleteState('${s._id}','${s.name}')">Delete</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  // Load usage counts asynchronously
+  states.forEach(async s => {
+    try {
+      const [t, o] = await Promise.all([
+        apiFetch(`/admin/territories?state=${encodeURIComponent(s.name)}&limit=0`, { headers: apiHeaders() }),
+        apiFetch(`/admin/retail-outlets?state=${encodeURIComponent(s.name)}&limit=0`, { headers: apiHeaders() }),
+      ]);
+      const el = document.getElementById(`stateUsage_${s._id}`);
+      if (el) el.textContent = `${t.pagination?.total ?? 0} territories, ${o.outlets?.length ?? 0} outlets`;
+    } catch(e) {}
+  });
+}
+
+// State modal
+let _editStateId = null;
+function openStateModal(id) {
+  _editStateId = id || null;
+  document.getElementById('stateModalTitle').textContent = id ? 'Edit State' : 'Add State';
+  const msg = document.getElementById('stateFormMsg');
+  msg.style.display = 'none';
+  if (id) {
+    const s = _adminStates.find(x => x._id === id || x._id?.toString() === id);
+    if (s) {
+      document.getElementById('sName').value   = s.name;
+      document.getElementById('sCode').value   = s.code;
+      document.getElementById('sActive').value = s.isActive ? 'true' : 'false';
+    }
+  } else {
+    document.getElementById('sName').value   = '';
+    document.getElementById('sCode').value   = '';
+    document.getElementById('sActive').value = 'true';
+  }
+  document.getElementById('stateModal').classList.add('open');
+}
+function closeStateModal() { document.getElementById('stateModal').classList.remove('open'); }
+window.openStateModal  = openStateModal;
+window.closeStateModal = closeStateModal;
+
+async function saveState() {
+  const name    = document.getElementById('sName').value.trim();
+  const code    = document.getElementById('sCode').value.trim().toUpperCase();
+  const isActive = document.getElementById('sActive').value === 'true';
+  const msg     = document.getElementById('stateFormMsg');
+  const btn     = document.getElementById('stateSubmitBtn');
+  msg.style.display = 'none';
+  if (!name) { msg.textContent = 'State name is required.'; msg.style.cssText = 'display:block;color:#c0392b;font-size:13px;'; return; }
+  if (!code) { msg.textContent = 'Order code is required (e.g. VIC).'; msg.style.cssText = 'display:block;color:#c0392b;font-size:13px;'; return; }
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const url    = _editStateId ? `/admin/states/${_editStateId}` : '/admin/states';
+    const method = _editStateId ? 'PUT' : 'POST';
+    const data   = await apiFetch(url, { method, headers: apiHeaders(), body: JSON.stringify({ name, code, isActive }) });
+    if (!data.success) throw new Error(data.message || 'Save failed');
+    showToast(`State "${name}" ${_editStateId ? 'updated' : 'created'}`, 'success');
+    closeStateModal();
+    await loadStates();
+  } catch(e) {
+    msg.textContent = e.message; msg.style.cssText = 'display:block;color:#c0392b;font-size:13px;';
+  } finally { btn.disabled = false; btn.textContent = 'Save State'; }
+}
+window.saveState = saveState;
+
+async function deleteState(id, name) {
+  if (!await vpConfirm({ title: 'Delete State', message: `Delete state <strong>${name}</strong>? This is blocked if territories or outlets are assigned to it.`, icon: '🗺️', confirmText: 'Delete', danger: true })) return;
+  const data = await apiFetch(`/admin/states/${id}`, { method: 'DELETE', headers: apiHeaders() });
+  if (data.success) { showToast(data.message, 'success'); loadStates(); }
+  else showToast(data.message || 'Delete failed', 'error');
+}
+window.deleteState = deleteState;
+
+async function seedStates() {
+  const data = await apiFetch('/admin/seed/states', { method: 'POST', headers: apiHeaders() });
+  if (data.success) { showToast(data.message, 'success'); loadStates(); }
+  else showToast(data.message || 'Seed failed', 'error');
+}
+window.seedStates = seedStates;
+
+// ══════════════════════════════════════════════════════════════════════════════
 function openTerritoryModal() {
+  populateStateSelects(_adminStates);
   document.getElementById('tName').value  = '';
   document.getElementById('tState').value = '';
   document.getElementById('territoryModal').classList.add('open');
@@ -1983,6 +2159,7 @@ function openOutletModal(outlet) {
   document.getElementById('oPhone').value   = outlet?.phone   || '';
   document.getElementById('oHours').value   = outlet?.hours   || '';
   document.getElementById('oActive').value  = outlet?.isActive === false ? 'false' : 'true';
+  populateStateSelects(_adminStates);
   document.getElementById('oState').value   = outlet?.state   || '';
   const terrSel = document.getElementById('oTerritory');
   terrSel.innerHTML = '<option value="">Select state first…</option>';
@@ -2459,8 +2636,7 @@ function addVariantRow(v = {}) {
     <input class="form-input v-label" placeholder="e.g. 100g, 500g, Small" value="${(v.label||'').replace(/"/g,'&quot;')}" style="font-size:13px;padding:8px 10px;"/>
     <select class="form-select v-state" style="font-size:13px;padding:8px 6px;">
       <option value="">All States</option>
-      <option value="Melbourne" ${v.state==='Melbourne'?'selected':''}>Melbourne</option>
-      <option value="Sydney" ${v.state==='Sydney'?'selected':''}>Sydney</option>
+      ${(_adminStates||[]).map(s=>`<option value="${s.name}" ${v.state===s.name?'selected':''}>${s.name}</option>`).join('')}
     </select>
     <input class="form-input v-price" type="number" step="0.01" min="0" placeholder="0.00" value="${v.price != null ? v.price : ''}" style="font-size:13px;padding:8px 10px;" title="Regular price for this variant"/>
     <input class="form-input v-sale" type="number" step="0.01" min="0" placeholder="optional" value="${v.salePrice != null ? v.salePrice : ''}" style="font-size:13px;padding:8px 10px;border-color:#f5c6c6;" title="Sale price — leave blank if no sale"/>
