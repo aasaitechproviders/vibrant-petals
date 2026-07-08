@@ -213,11 +213,11 @@
     .wish-empty svg{width:52px;height:52px;margin:0 auto 16px;opacity:.3;}
     .wish-empty p{margin-bottom:20px;font-size:14px;}
     footer{background:var(--cream);border-top:1px solid #e8e0d2;padding:40px 32px;text-align:center;font-size:13px;color:var(--mid);}
-    .nav-state-sel{display:flex;align-items:center;gap:5px;border:1.5px solid #e0d8c8;border-radius:4px;padding:0 4px 0 9px;background:var(--cream);height:32px;flex-shrink:0;}
-    .nav-state-sel select{border:none;background:transparent;font-size:12px;font-weight:700;font-family:inherit;color:var(--dark);cursor:pointer;outline:none;padding:0 4px 0 0;letter-spacing:.05em;text-transform:uppercase;height:100%;}
-    .nav-state-sel select:hover{color:var(--gold);}
+    .ann-bar-sel{display:inline-flex;align-items:center;gap:6px;margin-left:14px;}
+    .ann-bar-sel select{border:none;background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;outline:none;padding:3px 8px;border-radius:3px;letter-spacing:.05em;}
+    .ann-bar-sel select:hover{background:rgba(255,255,255,.25);}
     @media(max-width:900px){
-      .nav-state-sel{display:none;}
+      
       .nav-logo-text{display:none;}.nav-icons{gap:12px;}.nav-icon-btn{width:30px;height:30px;}.nav-icon-btn svg{width:19px;height:19px;}
       .nav-inner { padding: 0 16px; }
       nav ul{display:none;}.hamburger{display:flex;}
@@ -256,7 +256,7 @@
   </style>
 </head>
 <body>
-<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney</div>
+<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney<span class="ann-bar-sel"><span>📍</span><select id="stateDropdown" onchange="setVpState(this.value)"><option value="Melbourne">Melbourne</option><option value="Sydney">Sydney</option></select></span></div>
 <header>
   <div class="nav-inner">
     <a href="index.html" class="nav-logo"><img src="logo.png" alt="Vibrant Petals Logo" /><span class="nav-logo-text"> Vibrant Petals</span></a>
@@ -274,7 +274,6 @@
       </li>
     </ul></nav>
     <div class="nav-icons">
-      <div class="nav-state-sel"><span>📍</span><select id="stateDropdown" onchange="setVpState(this.value)"><option value="Melbourne">Melbourne</option><option value="Sydney">Sydney</option></select></div>
       <button class="nav-icon-btn" id="searchBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></button>
       <button class="nav-icon-btn" style="color:var(--gold)"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
       <button class="nav-icon-btn" id="navWishlistBtn" onclick="showPanel('wishlist',document.getElementById('navWishlist'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="badge" id="wishCount" style="display:none;">0</span></button>
