@@ -221,6 +221,10 @@
     .mobile-nav-sub a:hover{color:var(--gold,#9B8B5A)!important;}
     .mobile-nav-arrow{font-size:11px;transition:transform .2s;}
     .mobile-nav-arrow.open{transform:rotate(180deg);}
+    .nav-state-sel{display:flex;align-items:center;gap:5px;border:1.5px solid #e0d8c8;border-radius:4px;padding:0 4px 0 9px;background:var(--cream);height:32px;flex-shrink:0;}
+    .nav-state-sel select{border:none;background:transparent;font-size:12px;font-weight:700;font-family:inherit;color:var(--dark,#1A1A1A);cursor:pointer;outline:none;padding:0 4px 0 0;letter-spacing:.05em;text-transform:uppercase;height:100%;}
+    .nav-state-sel select:hover{color:var(--gold,#9B8B5A);}
+    @media(max-width:900px){.nav-state-sel{display:none;}}
     @media(max-width:900px){
       .nav-logo-text{display:none;}.nav-icons{gap:12px;}.nav-icon-btn{width:30px;height:30px;}.nav-icon-btn svg{width:19px;height:19px;}
       .nav-inner { padding: 0 16px; }
@@ -275,6 +279,7 @@
       </li>
     </ul></nav>
     <div class="nav-icons">
+      <div class="nav-state-sel"><span>📍</span><select id="stateDropdown" onchange="setVpState(this.value)"><option value="Melbourne">Melbourne</option><option value="Sydney">Sydney</option></select></div>
       <button class="nav-icon-btn" id="searchBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></button>
       <div class="acct-icon-wrap">
         <button class="nav-icon-btn" id="loginBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
@@ -294,6 +299,7 @@
   <div class="mobile-nav-drawer">
     <div class="mobile-nav-head"><span>🌸 Vibrant Petals</span><button class="mobile-nav-close" onclick="closeMobileNav()">✕</button></div>
     <ul>
+      <li><div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid #f5f0e8;"><span>📍</span><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid,#555);white-space:nowrap;">Prices for:</span><select id="mobileStateDropdown" onchange="setVpState(this.value);closeMobileNav();" style="flex:1;border:1px solid #e0d8c8;border-radius:4px;padding:5px 8px;font-size:13px;font-family:inherit;background:#fff;color:var(--dark,#1A1A1A);cursor:pointer;outline:none;"><option value="Melbourne">Melbourne</option><option value="Sydney">Sydney</option></select></div></li>
       <li><a href="index.html">Home</a></li>
       <li><a href="category.html?cat=strings">Strings</a></li>
       <li>
@@ -794,14 +800,34 @@ function buildAcctDrop(){
         ?`<a href="admin.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Admin Panel</a>`
         :`<a href="category.html?cat=all"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Shop Now</a>
            <a href="account.html?panel=wishlist"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>View Wishlist</a>`}
-      <button class="drop-logout" onclick="localStorage.removeItem('vp_token');location.reload()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</button>`;
+      <button class="drop-logout" onclick="doHeaderLogout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</button>`;
     document.getElementById('loginBtn').onclick=()=>{location.href='account.html';};
   }else{
     drop.innerHTML=`<a href="account.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Sign In</a><a href="signup.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Register</a>`;
     document.getElementById('loginBtn').onclick=()=>{location.href='account.html';};
   }
 }
-function doHeaderLogout(){localStorage.removeItem('vp_token');location.reload();}
+function doHeaderLogout(){localStorage.removeItem('vp_token');sessionStorage.removeItem('vp_state_synced');location.reload();}
+function setVpState(s){
+  if(s) localStorage.setItem('vp_state',s); else localStorage.removeItem('vp_state');
+  ['stateDropdown','mobileStateDropdown'].forEach(function(id){var dd=document.getElementById(id);if(dd)dd.value=s||'';});
+  if(productData) renderProduct(productData);
+}
+(function(){var s=localStorage.getItem('vp_state')||'';['stateDropdown','mobileStateDropdown'].forEach(function(id){var dd=document.getElementById(id);if(dd)dd.value=s;});})();
+(async function(){
+  var _tok=localStorage.getItem('vp_token');
+  if(_tok && !sessionStorage.getItem('vp_state_synced')){
+    try{
+      var r=await fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+_tok,'Content-Type':'application/json'}});
+      var d=await r.json();
+      if(d&&d.user&&d.user.preferredState){
+        localStorage.setItem('vp_state',d.user.preferredState);
+        sessionStorage.setItem('vp_state_synced','1');
+        ['stateDropdown','mobileStateDropdown'].forEach(function(id){var dd=document.getElementById(id);if(dd)dd.value=d.user.preferredState;});
+      }
+    }catch(e){}
+  } else if(!_tok){ sessionStorage.removeItem('vp_state_synced'); }
+})();
 buildAcctDrop();
 document.getElementById('nlSubmit').onclick=async()=>{
   const email=document.getElementById('nlEmail').value.trim();
