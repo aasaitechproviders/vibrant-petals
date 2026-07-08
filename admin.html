@@ -559,12 +559,13 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th>To</th>
+                <th>Recipient</th>
                 <th>Subject</th>
                 <th>Type</th>
                 <th>Status</th>
                 <th>Date / Time</th>
-                <th>Error</th>
+                <th>Ref ID</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="elBody"></tbody>
@@ -580,6 +581,17 @@
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;" id="tplGrid">
           <!-- cards rendered by JS -->
+        </div>
+      </div>
+
+      <!-- EMAIL LOG VIEW MODAL -->
+      <div class="modal" id="elViewModal">
+        <div class="modal-box modal-wide" style="width:min(780px,95vw);max-height:90vh;overflow-y:auto;">
+          <div class="modal-head">
+            <h3>Email Log Detail</h3>
+            <span class="modal-close" onclick="closeModal('elViewModal')">✕</span>
+          </div>
+          <div style="padding:20px 24px;" id="elViewModalBody"></div>
         </div>
       </div>
 
@@ -3944,32 +3956,42 @@ async function loadEmailLogs(page = 1) {
 
   const data = await apiFetch(`/admin/email-logs?${params}`, { headers: apiHeaders() });
   const tbody = document.getElementById('elBody');
-  if (!data.success) { tbody.innerHTML = `<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--mid);">Failed to load logs</td></tr>`; return; }
+  if (!data.success) { tbody.innerHTML = `<tr><td colspan="7" style="padding:24px;text-align:center;color:var(--mid);">Failed to load logs</td></tr>`; return; }
 
   if (!data.logs.length) {
-    tbody.innerHTML = `<tr><td colspan="6" style="padding:40px;text-align:center;color:var(--mid);">No emails logged yet</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="padding:40px;text-align:center;color:var(--mid);">No emails logged yet</td></tr>`;
     document.getElementById('elPag').innerHTML = '';
     return;
   }
 
-  tbody.innerHTML = data.logs.map(log => {
-    const typeColor = EMAIL_TYPE_COLORS[log.type] || '#7f8c8d';
-    const typeLabel = EMAIL_TYPE_LABELS[log.type] || log.type || '—';
-    const sentDate  = log.sentAt ? new Date(log.sentAt).toLocaleString('en-AU', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+  // Store logs globally so the view modal can access them
+  window._emailLogs = data.logs;
+
+  tbody.innerHTML = data.logs.map((log, idx) => {
+    const typeColor  = EMAIL_TYPE_COLORS[log.type] || '#7f8c8d';
+    const typeLabel  = EMAIL_TYPE_LABELS[log.type] || log.type || '—';
+    const sentDate   = log.sentAt ? new Date(log.sentAt).toLocaleString('en-AU', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
     const statusPill = log.status === 'sent'
       ? `<span class="status-pill" style="background:#eafaf1;color:#1e8449;">✓ Sent</span>`
       : `<span class="status-pill" style="background:#fce4e4;color:#c0392b;">✗ Failed</span>`;
-    const errorCell = log.error
-      ? `<span style="font-size:11px;color:#c0392b;max-width:200px;display:block;word-break:break-word;">${log.error}</span>`
-      : `<span style="color:#bbb;">—</span>`;
+    // Recipient: show name + email
+    const recipientName = log.recipientName ? `<div style="font-size:12px;font-weight:600;">${log.recipientName}</div>` : '';
+    const recipientEmail = `<div style="font-size:11px;color:var(--mid);word-break:break-all;">${log.to || '—'}</div>`;
+    // Error inline
+    const errorBadge = log.error
+      ? `<div style="font-size:11px;color:#c0392b;margin-top:3px;">✗ ${log.error}</div>` : '';
+    // refId short
+    const refShort = log.refId ? `<span style="font-family:monospace;font-size:11px;color:var(--mid);">${String(log.refId).slice(-8)}</span>` : '<span style="color:#bbb;">—</span>';
+
     return `
       <tr>
-        <td style="font-size:13px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${log.to || '—'}</td>
-        <td style="font-size:13px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${log.subject || ''}">${log.subject || '—'}</td>
+        <td style="max-width:180px;">${recipientName}${recipientEmail}${errorBadge}</td>
+        <td style="font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(log.subject||'').replace(/"/g,'&quot;')}">${log.subject || '—'}</td>
         <td><span style="background:${typeColor}22;color:${typeColor};font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.04em;white-space:nowrap;">${typeLabel}</span></td>
         <td>${statusPill}</td>
         <td style="font-size:12px;color:var(--mid);white-space:nowrap;">${sentDate}</td>
-        <td>${errorCell}</td>
+        <td>${refShort}</td>
+        <td><button class="btn-sm btn-edit" onclick="viewEmailLog(${idx})" style="font-size:11px;padding:3px 10px;">View</button></td>
       </tr>
     `;
   }).join('');
@@ -3988,6 +4010,91 @@ async function loadEmailLogs(page = 1) {
   `;
 }
 window.loadEmailLogs = loadEmailLogs;
+
+function viewEmailLog(idx) {
+  const log = window._emailLogs?.[idx];
+  if (!log) return;
+  const typeLabel  = EMAIL_TYPE_LABELS[log.type] || log.type || '—';
+  const sentDate   = log.sentAt ? new Date(log.sentAt).toLocaleString('en-AU', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+
+  // Build vars table
+  const vars = log.vars || {};
+  // Exclude itemsTable and html from vars table (shown separately)
+  const varRows = Object.entries(vars)
+    .filter(([k]) => k !== 'itemsTable' && k !== 'html')
+    .map(([k, v]) => {
+      const display = v == null || v === '' ? '<span style="color:#bbb;">—</span>' : `<span style="word-break:break-word;">${String(v).replace(/</g,'&lt;')}</span>`;
+      return `<tr><td style="padding:5px 10px;font-family:monospace;font-size:12px;color:#7a5c00;background:#fdf6e3;white-space:nowrap;border-bottom:1px solid #e8dfc8;">{{${k}}}</td><td style="padding:5px 10px;font-size:12px;border-bottom:1px solid #e8dfc8;">${display}</td></tr>`;
+    }).join('');
+
+  const statusColor = log.status === 'sent' ? '#1e8449' : '#c0392b';
+  const statusLabel = log.status === 'sent' ? '✓ Sent' : '✗ Failed';
+
+  document.getElementById('elViewModalBody').innerHTML = `
+    <!-- Header info -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+      <div style="background:#f9f6f0;border:1px solid #e8dfc8;border-radius:6px;padding:12px;">
+        <div style="font-size:11px;color:var(--mid);margin-bottom:4px;">TO</div>
+        <div style="font-weight:600;">${log.recipientName || ''}</div>
+        <div style="font-size:12px;color:var(--mid);word-break:break-all;">${log.to || '—'}</div>
+      </div>
+      <div style="background:#f9f6f0;border:1px solid #e8dfc8;border-radius:6px;padding:12px;">
+        <div style="font-size:11px;color:var(--mid);margin-bottom:4px;">STATUS</div>
+        <div style="font-weight:700;color:${statusColor};">${statusLabel}</div>
+        <div style="font-size:12px;color:var(--mid);">${sentDate}</div>
+      </div>
+      <div style="background:#f9f6f0;border:1px solid #e8dfc8;border-radius:6px;padding:12px;">
+        <div style="font-size:11px;color:var(--mid);margin-bottom:4px;">TYPE</div>
+        <div style="font-weight:600;">${typeLabel}</div>
+        ${log.refId ? `<div style="font-size:11px;font-family:monospace;color:var(--mid);">ref: ${log.refId}</div>` : ''}
+      </div>
+      <div style="background:#f9f6f0;border:1px solid #e8dfc8;border-radius:6px;padding:12px;">
+        <div style="font-size:11px;color:var(--mid);margin-bottom:4px;">SUBJECT</div>
+        <div style="font-size:13px;font-weight:600;">${log.subject || '—'}</div>
+      </div>
+    </div>
+    ${log.error ? `<div style="background:#fce4e4;border:1px solid #f5a9a9;border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#c0392b;"><strong>Error:</strong> ${log.error}</div>` : ''}
+
+    <!-- Tabs -->
+    <div style="display:flex;gap:0;border-bottom:2px solid #e8dfc8;margin-bottom:16px;">
+      <button onclick="elViewTab('vars')" id="elTabVars" style="padding:8px 18px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:700;color:var(--gold);border-bottom:2px solid var(--gold);margin-bottom:-2px;">Variables</button>
+      <button onclick="elViewTab('preview')" id="elTabPreview" style="padding:8px 18px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:600;color:var(--mid);">Email Preview</button>
+    </div>
+
+    <!-- Variables tab -->
+    <div id="elViewVars">
+      ${varRows ? `
+      <div style="max-height:360px;overflow-y:auto;border:1px solid #e8dfc8;border-radius:6px;overflow-x:auto;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+          <thead><tr>
+            <th style="padding:6px 10px;text-align:left;font-size:11px;color:var(--mid);background:#f5efdc;border-bottom:1px solid #e8dfc8;">Variable</th>
+            <th style="padding:6px 10px;text-align:left;font-size:11px;color:var(--mid);background:#f5efdc;border-bottom:1px solid #e8dfc8;">Value</th>
+          </tr></thead>
+          <tbody>${varRows}</tbody>
+        </table>
+      </div>` : '<p style="color:var(--mid);font-size:13px;">No variables stored for this log entry.</p>'}
+    </div>
+
+    <!-- Preview tab (hidden by default) -->
+    <div id="elViewPreview" style="display:none;">
+      ${log.html
+        ? `<iframe srcdoc="${log.html.replace(/"/g,'&quot;')}" style="width:100%;height:480px;border:1px solid #e8dfc8;border-radius:6px;" sandbox="allow-same-origin"></iframe>`
+        : '<p style="color:var(--mid);font-size:13px;">No HTML preview stored for this log entry.</p>'}
+    </div>
+  `;
+  document.getElementById('elViewModal').classList.add('open');
+}
+window.viewEmailLog = viewEmailLog;
+
+function elViewTab(tab) {
+  document.getElementById('elViewVars').style.display    = tab === 'vars'    ? '' : 'none';
+  document.getElementById('elViewPreview').style.display = tab === 'preview' ? '' : 'none';
+  document.getElementById('elTabVars').style.color       = tab === 'vars'    ? 'var(--gold)' : 'var(--mid)';
+  document.getElementById('elTabVars').style.borderBottom= tab === 'vars'    ? '2px solid var(--gold)' : '2px solid transparent';
+  document.getElementById('elTabPreview').style.color    = tab === 'preview' ? 'var(--gold)' : 'var(--mid)';
+  document.getElementById('elTabPreview').style.borderBottom = tab === 'preview' ? '2px solid var(--gold)' : '2px solid transparent';
+}
+window.elViewTab = elViewTab;
 
 // ── EMAIL TEMPLATES ───────────────────────────────────────────────────────────
 let tplCurrentType = null;
@@ -4029,7 +4136,10 @@ async function openTemplateEditor(type) {
   document.getElementById('tplModalTitle').textContent = `Edit — ${t.name}`;
   document.getElementById('tplSubject').value  = t.subject;
   document.getElementById('tplBody').value     = t.body;
-  document.getElementById('tplVarList').textContent = t.variables.map(v => `{{${v}}}`).join('  ');
+  const varListEl = document.getElementById('tplVarList');
+  varListEl.innerHTML = t.variables.map(v =>
+    `<span onclick="insertVar('{{${v}}}')" title="Click to insert" style="display:inline-block;background:#f5efdc;border:1px solid #e8dfc8;color:#7a5c00;font-size:11px;font-family:monospace;padding:2px 7px;border-radius:4px;margin:2px 3px 2px 0;cursor:pointer;user-select:none;" onmouseover="this.style.background='#eee0b8'" onmouseout="this.style.background='#f5efdc'">{{${v}}}</span>`
+  ).join('');
   document.getElementById('tplPreview').style.display = 'none';
   document.getElementById('tplMsg').style.display     = 'none';
 
@@ -4040,22 +4150,38 @@ async function openTemplateEditor(type) {
 }
 window.openTemplateEditor = openTemplateEditor;
 
+function insertVar(varTag) {
+  const ta = document.getElementById('tplBody');
+  if (!ta) return;
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  ta.value = ta.value.slice(0, start) + varTag + ta.value.slice(end);
+  ta.selectionStart = ta.selectionEnd = start + varTag.length;
+  ta.focus();
+}
+window.insertVar = insertVar;
+
 function previewTemplate() {
   const body    = document.getElementById('tplBody').value;
-  const subject = document.getElementById('tplSubject').value;
+  const year    = new Date().getFullYear();
   const fullHtml = `
-    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#fffdf7;border:1px solid #e8dfc8;">
-      <div style="background:#c9a227;padding:20px 24px;">
-        <h1 style="margin:0;font-size:20px;color:#fff;letter-spacing:.5px;">VibrantPetals</h1>
-      </div>
-      <div style="padding:24px;color:#3a3a3a;line-height:1.6;">${body}</div>
-      <div style="padding:16px 24px;background:#f5efdc;font-size:12px;color:#7a7259;">
-        Nivas Vibrant Petals · 1/20 Lonhro Blvd, Cranbourne West VIC 3977 · nivafoodsintl@gmail.com
-      </div>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:20px 0;background:#f0ebe0;">
+  <div style="font-family:Arial,sans-serif;max-width:580px;margin:0 auto;background:#fffdf7;border:1px solid #e8dfc8;border-radius:6px;overflow:hidden;">
+    <div style="background:#c9a227;padding:20px 28px;text-align:center;">
+      <img src="https://vibrant-petals.pages.dev/logo.png" alt="VibrantPetals" style="height:52px;max-width:180px;object-fit:contain;display:inline-block;vertical-align:middle;" onerror="this.style.display='none'">
+      <span style="display:inline-block;vertical-align:middle;margin-left:12px;font-size:22px;font-weight:700;color:#fff;letter-spacing:0.5px;">VibrantPetals</span>
     </div>
-  `;
+    <div style="padding:28px;color:#3a3a3a;line-height:1.7;font-size:15px;">${body}</div>
+    <div style="padding:16px 28px;background:#f5efdc;border-top:1px solid #e8dfc8;font-size:12px;color:#7a7259;line-height:1.6;">
+      <strong>VibrantPetals</strong> &nbsp;|&nbsp; 1/20 Lonhro Blvd, Cranbourne West VIC 3977<br>
+      +61 416 424 745 &nbsp;|&nbsp; <a href="mailto:nivafoodsintl@gmail.com" style="color:#c9a227;">nivafoodsintl@gmail.com</a><br>
+      <span style="font-size:11px;color:#aaa;">&copy; ${year} VibrantPetals. All rights reserved.</span>
+    </div>
+  </div>
+</body></html>`;
   const frame = document.getElementById('tplPreviewFrame');
-  frame.srcdoc = `<!DOCTYPE html><html><body style="margin:10px;background:#f4f1eb;">${fullHtml}</body></html>`;
+  frame.srcdoc = fullHtml;
   document.getElementById('tplPreview').style.display = '';
 }
 window.previewTemplate = previewTemplate;
