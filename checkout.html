@@ -246,7 +246,7 @@
   </style>
 </head>
 <body>
-<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney<span class="ann-bar-sel"><span>📍</span><select id="stateDropdown" onchange="setVpState(this.value)"><option value="Melbourne">Melbourne</option><option value="Sydney">Sydney</option></select></span></div>
+<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney<span class="ann-bar-sel"><span>📍</span><select id="stateDropdown" onchange="setVpState(this.value)"></select></span></div>
 <header>
   <div class="nav-inner">
     <a href="index.html" class="nav-logo"><img src="logo.png" alt="Vibrant Petals Logo" /><span class="nav-logo-text"> Vibrant Petals</span></a>
@@ -287,7 +287,7 @@
   <div class="mobile-nav-drawer">
     <div class="mobile-nav-head"><span>🌸 Vibrant Petals</span><button class="mobile-nav-close" onclick="closeMobileNav()">✕</button></div>
     <ul>
-      <li><div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid #f5f0e8;"><span>📍</span><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);white-space:nowrap;">Prices for:</span><select id="mobileStateDropdown" onchange="setVpState(this.value);closeMobileNav();" style="flex:1;border:1px solid #e0d8c8;border-radius:4px;padding:5px 8px;font-size:13px;font-family:inherit;background:#fff;color:var(--dark);cursor:pointer;outline:none;"><option value="Melbourne">Melbourne</option><option value="Sydney">Sydney</option></select></div></li>
+      <li><div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid #f5f0e8;"><span>📍</span><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);white-space:nowrap;">Prices for:</span><select id="mobileStateDropdown" onchange="setVpState(this.value);closeMobileNav();" style="flex:1;border:1px solid #e0d8c8;border-radius:4px;padding:5px 8px;font-size:13px;font-family:inherit;background:#fff;color:var(--dark);cursor:pointer;outline:none;"></select></div></li>
       <li><a href="index.html">Home</a></li>
       <li><a href="category.html?cat=strings">Strings</a></li>
       <li>
@@ -366,9 +366,6 @@
             <div class="form-group">
               <label class="form-label">Filter by State</label>
               <select class="form-select" id="outletStateFilter" onchange="loadOutlets()">
-                
-                <option value="Melbourne">Melbourne</option>
-                <option value="Sydney">Sydney</option>
               </select>
             </div>
             <div class="form-group">
@@ -1232,6 +1229,35 @@ document.getElementById('nlSubmit')?.addEventListener('click', async () => {
   msg.style.color = data.success ? '#27ae60' : '#c0392b';
   if (data.success) document.getElementById('nlEmail').value = '';
 });
+
+// Load state dropdowns dynamically from DB
+async function loadStateDropdowns(){
+  try {
+    const _sd2 = await apiFetch('/states');
+    const _ss2 = (_sd2.states || []);
+    if (_ss2.length) {
+      const _so2 = _ss2.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+      const el = document.getElementById('outletStateFilter');
+      if (el) { const cur = el.value; const first = el.innerHTML.match(/<option value="">[^<]+<\/option>/)?.[0] || ''; el.innerHTML = first + _so2; if (cur) el.value = cur; }
+    }
+  } catch(e) {}
+  try {
+    const data = await apiFetch('/states');
+    const states = data.states || [];
+    if (!states.length) return;
+    const opts = states.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+    const saved = getVpState();
+    ['stateDropdown','mobileStateDropdown'].forEach(function(id){
+      const dd = document.getElementById(id);
+      if (!dd) return;
+      dd.innerHTML = opts;
+      // Restore saved value, fall back to first state
+      dd.value = saved || '';
+      if (!dd.value && states.length) { dd.value = states[0].name; setVpState(states[0].name); }
+    });
+  } catch(e) {}
+}
+loadStateDropdowns();
 </script>
 </body>
 </html>
