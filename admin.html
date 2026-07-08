@@ -1847,10 +1847,13 @@ async function loadTerritories() {
             : '—';
           const dealerId = t.status === 'assigned' ? t.dealerId : t.status === 'pending' ? t.pendingDealerId : null;
           const actions = t.status === 'pending'
-            ? `<span style="font-size:12px;color:var(--gold);font-style:italic;">→ Review in Approvals</span>`
+            ? `<button class="btn-action btn-action-edit" onclick="openTerritoryModal('${t.slug}','${t.name.replace(/'/g,"\\'")}','${t.state}')">Edit</button>
+               <span style="font-size:12px;color:var(--gold);font-style:italic;">→ Review in Approvals</span>`
             : t.status === 'assigned'
-            ? `<button class="btn-action btn-action-deactivate" onclick="territoryAction('${t.slug}','unassign')">Unassign</button>`
-            : `<button class="btn-action btn-action-delete" onclick="deleteTerritory('${t.slug}','${t.name}')">Delete</button>`;
+            ? `<button class="btn-action btn-action-edit" onclick="openTerritoryModal('${t.slug}','${t.name.replace(/'/g,"\\'")}','${t.state}')">Edit</button>
+               <button class="btn-action btn-action-deactivate" onclick="territoryAction('${t.slug}','unassign')">Unassign</button>`
+            : `<button class="btn-action btn-action-edit" onclick="openTerritoryModal('${t.slug}','${t.name.replace(/'/g,"\\'")}','${t.state}')">Edit</button>
+               <button class="btn-action btn-action-delete" onclick="deleteTerritory('${t.slug}','${t.name}')">Delete</button>`;
           return `<tr>
             <td><strong>${t.name}</strong></td>
             <td>${t.state}</td>
@@ -2007,16 +2010,21 @@ async function seedStates() {
 window.seedStates = seedStates;
 
 // ══════════════════════════════════════════════════════════════════════════════
-function openTerritoryModal() {
+let _editingTerritorySlug = null;
+
+function openTerritoryModal(slug, name, state) {
+  _editingTerritorySlug = slug || null;
   populateStateSelects(_adminStates);
-  document.getElementById('tName').value  = '';
-  document.getElementById('tState').value = '';
+  document.getElementById('territoryModalTitle').textContent = slug ? 'Edit Territory' : 'Add Territory';
+  document.getElementById('tName').value  = name  || '';
+  document.getElementById('tState').value = state || '';
   document.getElementById('territoryModal').classList.add('open');
 }
 window.openTerritoryModal = openTerritoryModal;
 
 function closeTerritoryModal() {
   document.getElementById('territoryModal').classList.remove('open');
+  _editingTerritorySlug = null;
 }
 window.closeTerritoryModal = closeTerritoryModal;
 
@@ -2025,17 +2033,36 @@ async function saveTerritory() {
   const state = document.getElementById('tState').value;
   if (!name)  { showToast('Territory name is required', 'error'); return; }
   if (!state) { showToast('Please select a state', 'error'); return; }
-  const data = await apiFetch('/admin/territories', {
-    method: 'POST', headers: apiHeaders(),
-    body: JSON.stringify({ name, state }),
-  });
-  if (data.success) {
-    showToast(`Territory "${name}" created`, 'success');
-    closeTerritoryModal();
-    adminTerritoriesCache = {}; // clear territory cache so outlet modal repopulates
-    loadTerritories();
+
+  let data;
+  if (_editingTerritorySlug) {
+    // Edit existing — PUT, slug stays the same
+    data = await apiFetch(`/admin/territories/${_editingTerritorySlug}`, {
+      method: 'PUT', headers: apiHeaders(),
+      body: JSON.stringify({ name, state }),
+    });
+    if (data.success) {
+      showToast(`Territory updated`, 'success');
+      closeTerritoryModal();
+      adminTerritoriesCache = {};
+      loadTerritories();
+    } else {
+      showToast(data.message || 'Failed to update territory', 'error');
+    }
   } else {
-    showToast(data.message || 'Failed to create territory', 'error');
+    // New — POST
+    data = await apiFetch('/admin/territories', {
+      method: 'POST', headers: apiHeaders(),
+      body: JSON.stringify({ name, state }),
+    });
+    if (data.success) {
+      showToast(`Territory "${name}" created`, 'success');
+      closeTerritoryModal();
+      adminTerritoriesCache = {};
+      loadTerritories();
+    } else {
+      showToast(data.message || 'Failed to create territory', 'error');
+    }
   }
 }
 window.saveTerritory = saveTerritory;
