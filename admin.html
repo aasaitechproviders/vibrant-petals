@@ -2577,7 +2577,7 @@ async function saveProduct() {
 
   const body = {
     name, slug,
-    shortDescription: getShortDescBullets().join('\n'),
+    shortDescription: JSON.stringify(getShortDescBullets()),
     description: JSON.stringify(getDescBullets()),
     price: parseFloat(document.getElementById('pPrice').value) || 0,
     regularPrice: parseFloat(document.getElementById('pRegPrice').value) || 0,
