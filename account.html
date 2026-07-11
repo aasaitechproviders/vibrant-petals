@@ -95,7 +95,6 @@
     .status-ready-for-pickup{background:#cce5ff;color:#004085;}
     .status-cancelled{background:#f8d7da;color:#721c24;}.status-refunded{background:#e2d9f3;color:#4a235a;}
     .order-detail-btn{font-size:12px;color:var(--gold);font-weight:700;text-decoration:underline;cursor:pointer;margin-right:8px;}
-    .order-cancel-btn{font-size:12px;color:#c0392b;font-weight:700;text-decoration:underline;cursor:pointer;}
     .order-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:800;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
     .order-modal.open{opacity:1;pointer-events:all;}
     .order-modal-box{background:#fff;width:min(640px,94vw);max-height:85vh;overflow-y:auto;border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.2);}
@@ -953,14 +952,14 @@ function renderRecentOrders(orders){
   }
   document.getElementById('dashRecentOrders').innerHTML=`
     <table class="orders-table" style="margin-top:8px;">
-      <thead><tr><th>Order #</th><th>Ordered</th><th>Pickup Date</th><th>Status</th><th>Total</th><th></th></tr></thead>
+      <thead><tr><th>Order #</th><th>Order Date</th><th>Pickup Date</th><th>Status</th><th>Total</th><th></th></tr></thead>
       <tbody>${orders.map(o=>`<tr>
-        <td><b>${o.orderNumber}</b></td>
+        <td><b><span class="order-detail-btn" onclick="viewOrder('${o._id}')" style="text-decoration:none;color:var(--gold);">${o.orderNumber}</span></b></td>
         <td>${fmtDate(o.createdAt)}</td>
         <td style="font-size:12px;color:var(--gold);font-weight:700;">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
-        <td><b>$${(o.total||0).toFixed(2)}</b></td>
-        <td><span class="order-detail-btn" onclick="viewOrder('${o._id}')">Details</span></td>
+        <td style="font-weight:700;font-family:'Lato',sans-serif;">$${(o.total||0).toFixed(2)}</td>
+        <td></td>
       </tr>`).join('')}</tbody>
     </table>`;
 }
@@ -1014,20 +1013,16 @@ async function loadOrders(page=1){
     return;
   }
   el.innerHTML=`<table class="orders-table">
-    <thead><tr><th>Order #</th><th>Ordered</th><th>Pickup Date</th><th>Items</th><th>Status</th><th>Total</th><th></th></tr></thead>
+    <thead><tr><th>Order #</th><th>Order Date</th><th>Pickup Date</th><th>Items</th><th>Status</th><th>Total</th><th></th></tr></thead>
     <tbody>${orders.map(o=>{
-      const canCancel=['pending','processing'].includes(o.status);
       return`<tr>
-        <td><b>${o.orderNumber}</b></td>
+        <td><b><span class="order-detail-btn" onclick="viewOrder('${o._id}')" style="text-decoration:none;color:var(--gold);">${o.orderNumber}</span></b></td>
         <td>${fmtDate(o.createdAt)}</td>
         <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td>${(o.items||[]).length} item${(o.items||[]).length!==1?'s':''}</td>
         <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
-        <td><b>$${(o.total||0).toFixed(2)}</b></td>
-        <td>
-          <span class="order-detail-btn" onclick="viewOrder('${o._id}')">Details</span>
-          ${canCancel?`<span class="order-cancel-btn" onclick="cancelOrder('${o._id}','${o.orderNumber}')">Cancel</span>`:''}
-        </td>
+        <td style="font-weight:700;font-family:'Lato',sans-serif;">$${(o.total||0).toFixed(2)}</td>
+        <td></td>
       </tr>`;
     }).join('')}</tbody>
   </table>`;
@@ -1059,21 +1054,20 @@ async function loadPickupOrders(page=1) {
     ready_for_pickup: { label: 'Mark Collected',        next: 'delivered' },
   };
   el.innerHTML = `<table class="orders-table">
-    <thead><tr><th>Order #</th><th>Customer</th><th>Ordered</th><th>Pickup Date</th><th>Status</th><th>Total</th><th>Action</th></tr></thead>
+    <thead><tr><th>Order #</th><th>Customer</th><th>Order Date</th><th>Pickup Date</th><th>Status</th><th>Total</th><th>Action</th></tr></thead>
     <tbody>${orders.map(o => {
       const t = TRANSITIONS[o.status];
       const btn = t
         ? `<button onclick="updatePickupOrderStatus('${o._id}','${t.next}','${o.orderNumber}')" style="padding:7px 14px;font-size:12px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;white-space:nowrap;">${t.label}</button>`
         : `<span style="font-size:12px;color:var(--mid);">—</span>`;
       return `<tr>
-        <td><b>${o.orderNumber}</b></td>
+        <td><b><span class="order-detail-btn" onclick="viewOrder('${o._id}')" style="text-decoration:none;color:var(--gold);">${o.orderNumber}</span></b></td>
         <td style="font-size:12px;">${o.customerEmail||'—'}</td>
         <td style="font-size:12px;">${fmtDate(o.createdAt)}</td>
         <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
-        <td><b>$${(o.total||0).toFixed(2)}</b></td>
+        <td style="font-weight:700;font-family:'Lato',sans-serif;">$${(o.total||0).toFixed(2)}</td>
         <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <span class="order-detail-btn" onclick="viewOrder('${o._id}')">Details</span>
           ${btn}
         </td>
       </tr>`;
@@ -2155,10 +2149,17 @@ function setVpState(s){
     try{
       var r=await fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+_tok,'Content-Type':'application/json'}});
       var d=await r.json();
-      if(d&&d.user&&d.user.preferredState){
-        localStorage.setItem('vp_state',d.user.preferredState);
-        sessionStorage.setItem('vp_state_synced','1');
-        var dd=document.getElementById('stateDropdown'); if(dd) dd.value=d.user.preferredState;
+      if(d&&d.user){
+        var stateToSet = d.user.preferredState || null;
+        // For Retail/Dealer: fall back to dealerInfo.state if no preferredState
+        if(!stateToSet && (d.user.role==='Retail'||d.user.role==='Dealer') && d.user.dealerInfo?.state){
+          stateToSet = d.user.dealerInfo.state;
+        }
+        if(stateToSet){
+          localStorage.setItem('vp_state', stateToSet);
+          sessionStorage.setItem('vp_state_synced','1');
+          var dd=document.getElementById('stateDropdown'); if(dd) dd.value=stateToSet;
+        }
       }
     }catch(e){}
   } else if(!_tok){ sessionStorage.removeItem('vp_state_synced'); }
@@ -2180,7 +2181,7 @@ async function loadMyStore() {
   if (!data.success || !data.outlet) {
     el.innerHTML = `<div class="form-card" style="text-align:center;padding:40px;">
       <div style="font-size:36px;margin-bottom:12px;">🏪</div>
-      <p style="color:var(--mid);font-size:14px;">${data.message || 'No outlet linked to your account. Please contact admin.'}</p>
+      <p style="color:var(--mid);font-size:14px;">${data.message || 'No outlet linked to your account. Please <a href="about.html" style="color:var(--gold);font-weight:700;">contact us</a>.'}</p>
     </div>`;
     return;
   }
@@ -2192,7 +2193,7 @@ async function loadMyStore() {
       <div style="font-size:22px;">${o.approvalStatus === 'approved' ? '✅' : o.approvalStatus === 'pending' ? '⏳' : o.approvalStatus === 'superseded' ? '🔄' : '❌'}</div>
       <div>
         <div style="font-weight:700;font-size:14px;color:${col};">Account ${o.approvalStatus === 'approved' ? 'Active' : o.approvalStatus === 'pending' ? 'Pending Admin Review' : o.approvalStatus === 'superseded' ? 'Territory Change Pending' : 'Rejected'}</div>
-        <div style="font-size:13px;color:var(--mid);">${o.approvalStatus === 'approved' ? 'Your outlet is live on the platform.' : o.approvalStatus === 'pending' ? 'Our team will review your application within a few business days.' : o.approvalStatus === 'superseded' ? 'Your territory change request is under admin review.' : (o.rejectionReason || 'Please contact support for more information.')}</div>
+        <div style="font-size:13px;color:var(--mid);">${o.approvalStatus === 'approved' ? 'Your outlet is live on the platform.' : o.approvalStatus === 'pending' ? 'Our team will review your application within a few business days.' : o.approvalStatus === 'superseded' ? 'Your territory change request is under admin review.' : (o.rejectionReason || 'Please <a href="about.html" style="color:var(--gold);font-weight:700;">contact us</a> for more information.')}</div>
       </div>
     </div>
 
@@ -2314,19 +2315,19 @@ async function loadMyStoreOrders() {
     ready_for_pickup: { label: 'Mark Collected',        next: 'delivered' },
   };
   el.innerHTML = `<table class="orders-table">
-    <thead><tr><th>Order #</th><th>Customer</th><th>Ordered</th><th>Pickup Date</th><th>Status</th><th>Total</th><th>Action</th></tr></thead>
+    <thead><tr><th>Order #</th><th>Customer</th><th>Order Date</th><th>Pickup Date</th><th>Status</th><th>Total</th><th>Action</th></tr></thead>
     <tbody>${orders.map(o => {
       const t   = TRANSITIONS[o.status];
       const btn = t
         ? `<button onclick="updateMyOutletOrderStatus('${o._id}','${t.next}','${o.orderNumber}')" style="padding:7px 14px;font-size:12px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;white-space:nowrap;">${t.label}</button>`
         : `<span style="font-size:12px;color:var(--mid);">—</span>`;
       return `<tr>
-        <td><b>${o.orderNumber}</b></td>
+        <td><b><span class="order-detail-btn" onclick="viewOrder('${o._id}')" style="text-decoration:none;color:var(--gold);">${o.orderNumber}</span></b></td>
         <td style="font-size:12px;">${o.customerEmail||'—'}</td>
         <td style="font-size:12px;">${fmtDate(o.createdAt)}</td>
-    <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
+        <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
-        <td><b>$${(o.total||0).toFixed(2)}</b></td>
+        <td style="font-weight:700;font-family:'Lato',sans-serif;">$${(o.total||0).toFixed(2)}</td>
         <td>${btn}</td>
       </tr>`;
     }).join('')}</tbody>
