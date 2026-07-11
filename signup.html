@@ -1370,8 +1370,9 @@ async function submitDealer() {
     firstName: document.getElementById('dFirstName').value.trim(),
     lastName:  document.getElementById('dLastName').value.trim(),
     role: 'Dealer',
+    preferredState: desiredState,
     dealerInfo,
-    desiredTerritory, // soft-locks territory on backend during signup
+    desiredTerritory,
   };
 
   const data = await apiFetch('/auth/register', {
@@ -1484,6 +1485,7 @@ async function submitOutlet() {
     username, email, password, firstName, lastName,
     role: 'Retail',
     userType: 'retail',
+    preferredState: state,
     dealerInfo: {
       type:          'retail_outlet',
       mobile,
