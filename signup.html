@@ -1371,6 +1371,7 @@ async function submitDealer() {
     lastName:  document.getElementById('dLastName').value.trim(),
     role: 'Dealer',
     preferredState: desiredState,
+    preferredTerritory: desiredTerritory,
     dealerInfo,
     desiredTerritory,
   };
@@ -1486,6 +1487,7 @@ async function submitOutlet() {
     role: 'Retail',
     userType: 'retail',
     preferredState: state,
+    preferredTerritory: territory,
     dealerInfo: {
       type:          'retail_outlet',
       mobile,
