@@ -2504,7 +2504,7 @@ async function loadStateDropdowns(){
     let saved = getVpState();
     if (meData?.user) {
       const role = meData.user.role;
-      const profileState = meData.user.preferredState || meData.user.dealerInfo?.state || '';
+      const profileState = meData.user.userState || meData.user.preferredState || '';
       if (profileState && (role==='Retail' || role==='Dealer' || !saved)) {
         localStorage.setItem('vp_state', profileState);
         sessionStorage.setItem('vp_state_synced','1');
