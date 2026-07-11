@@ -1241,6 +1241,14 @@ function fmtPickupDate(d) {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
 }
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-AU', {day:'numeric', month:'short', year:'numeric'});
+}
+function fmtDateTime(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleString('en-AU', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+}
 const API = 'https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
 
 var token = localStorage.getItem('vp_token') || localStorage.getItem('vp_admin_token') || '';
@@ -1387,7 +1395,7 @@ async function loadApprovals() {
           <td style="font-size:13px;">${u.email}</td>
           <td style="font-size:12px;">${(u.pendingTerritories||[]).map(t=>t.name).join(', ') || '—'}</td>
           <td style="font-size:12px;">${u.dealerInfo?.state||'—'}</td>
-          <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
+          <td style="font-size:12px;">${fmtDate(u.registeredAt)}</td>
           <td><div class="action-group">
             <button class="btn-action btn-action-approve" onclick="openDealerApprovalModal('${u._id}')">Review</button>
             <button class="btn-action btn-action-reject" onclick="quickRejectDealer('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}')">Reject</button>
@@ -1412,7 +1420,7 @@ async function loadApprovals() {
           <td style="font-size:12px;">${u.outlet?.territorySlug || '—'}</td>
           <td style="font-size:12px;">${u.outlet?.state || u.dealerInfo?.state || '—'}</td>
           <td style="text-align:center;">${u.outlet?.pickupEnabled ? '<span style="color:#27ae60;font-weight:700;">Yes</span>' : '<span style="color:var(--mid);">No</span>'}</td>
-          <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
+          <td style="font-size:12px;">${fmtDate(u.registeredAt)}</td>
           <td><div class="action-group">
             <button class="btn-action btn-action-approve" onclick="approveRetail('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}','${u.outlet?.pickupEnabled}')">Approve</button>
             <button class="btn-action btn-action-reject" onclick="rejectRetail('${u._id}','${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email)}')">Reject</button>
@@ -1693,7 +1701,7 @@ async function loadDealers() {
           <td>${statusBadge(u.approvalStatus)}</td>
           <td style="font-size:12px;">${assigned.length ? assigned.map(n=>`<span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-right:4px;">${n}</span>`).join('') : '<span style="color:var(--mid);">—</span>'}</td>
           <td style="font-size:12px;">${pending.length ? pending.map(n=>`<span style="background:#fff3cd;color:#856404;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-right:4px;">${n}</span>`).join('') : '—'}</td>
-          <td style="font-size:12px;">${new Date(u.registeredAt).toLocaleDateString()}</td>
+          <td style="font-size:12px;">${fmtDate(u.registeredAt)}</td>
           <td><div style="display:flex;gap:5px;flex-wrap:wrap;">
             ${u.isActive
               ? `<button class="btn-sm btn-delete" onclick="toggleDealerStatus('${u._id}',false,'${(`${u.firstName||''} ${u.lastName||''}`.trim()||u.email).replace(/'/g,"\\'")}')">Deactivate</button>`
@@ -3011,7 +3019,7 @@ async function loadOrders() {
       <td><b>$${(o.total || 0).toFixed(2)}</b></td>
       <td><span class="status-pill s-${status2}">${status2}</span></td>
       <td>${assignBadge}</td>
-      <td style="font-size:12px;color:var(--mid)">${new Date(o.createdAt).toLocaleDateString()}</td>
+      <td style="font-size:12px;color:var(--mid)">${fmtDate(o.createdAt)}</td>
       <td style="font-size:12px;font-weight:700;color:var(--gold)">${fmtPickupDate(o.scheduledPickupDate)}</td>
       <td style="display:flex;gap:4px;">
         <div class="action-group">
@@ -3044,7 +3052,7 @@ async function openOrderModal(id) {
 
   document.getElementById('orderModalTitle').textContent = `Order #${o.orderNumber || id}`;
   document.getElementById('omOrderNum').value = o.orderNumber || id;
-  document.getElementById('omDate').value = o.createdAt ? new Date(o.createdAt).toLocaleString() : '—';
+  document.getElementById('omDate').value = o.createdAt ? fmtDateTime(o.createdAt) : '—';
 
   // Pickup date
   const omPickupDate = document.getElementById('omPickupDate');
@@ -3305,7 +3313,7 @@ async function loadCoupons() {
       <td><span class="coupon-badge">${c.code}</span></td>
       <td><b>$${(c.discount || 0).toFixed(2)} off</b>${c.description ? `<br/><span style="font-size:12px;color:var(--mid)">${c.description}</span>` : ''}</td>
       <td style="font-size:13px;color:var(--mid)">${c.usageCount || 0}${c.usageLimit ? '/' + c.usageLimit : ' uses'}</td>
-      <td style="font-size:13px;color:var(--mid)">${c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : 'Never'}</td>
+      <td style="font-size:13px;color:var(--mid)">${c.expiresAt ? fmtDate(c.expiresAt) : 'Never'}</td>
       <td><span class="status-pill" style="background:${c.isActive ? '#d4edda' : '#f8d7da'};color:${c.isActive ? '#155724' : '#721c24'}">${c.isActive ? 'Active' : 'Inactive'}</span></td>
       <td style="display:flex;gap:6px;padding:12px 16px;">
         <button class="btn-sm btn-edit" onclick="editCoupon('${cid}')">Edit</button>
@@ -3421,7 +3429,7 @@ async function loadUsers() {
        <td><b>${u.username || '—'}</b>${u.firstName ? `<br/><span style="font-size:12px;color:var(--mid)">${u.firstName} ${u.lastName || ''}</span>` : ''}${dealerExtra}</td>
        <td style="font-size:13px;">${u.email}</td>
        <td><span class="status-pill ${roleClass[u.role] || 's-customer'}">${u.role || 'Customer'}</span></td>
-       <td style="font-size:12px;color:var(--mid)">${new Date(u.registeredAt || u.createdAt).toLocaleDateString()}</td>
+       <td style="font-size:12px;color:var(--mid)">${fmtDate(u.registeredAt||u.createdAt)}</td>
        <td><span class="status-pill" style="background:${statusBg};color:${statusClr}">${statusLbl}</span></td>
        <td style="display:flex;gap:4px;padding:12px 16px;flex-wrap:wrap;">
          <button class="btn-sm" style="background:#e8f0fe;color:#1a56db;border:none;" onclick="openUserDetailsModal('${uid}')">Details</button>
@@ -3464,7 +3472,7 @@ async function openDealerApprovalModal(uid) {
     <div style="margin-top:12px;padding:12px;background:#fff3cd;border-radius:4px;font-size:13px;color:#856404;">
       <b>How they heard about us:</b> ${di.howHeard || '—'} &nbsp;·&nbsp;
       <b>Pre-order comfort:</b> ${di.preorderComfort || '—'}<br/>
-      <b>Applied:</b> ${user.registeredAt ? new Date(user.registeredAt).toLocaleString() : '—'}
+      <b>Applied:</b> ${user.registeredAt ? fmtDateTime(user.registeredAt) : '—'}
     </div>`;
   document.getElementById('daApproveBtn').onclick = () => { closeModal('dealerApprovalModal'); toggleUserStatus(uid, true); };
   document.getElementById('daRejectBtn').onclick  = () => { closeModal('dealerApprovalModal'); toggleUserStatus(uid, false); };
@@ -3608,8 +3616,8 @@ async function openUserDetailsModal(uid) {
         row('Role',             '<span style="color:' + roleColor + ';font-weight:700;">' + (user.role||'') + '</span>'),
         row('User Type',        user.userType || ''),
         row('Approval Status',  user.approvalStatus || ''),
-        row('Registered',       user.registeredAt ? new Date(user.registeredAt).toLocaleString('en-AU') : ''),
-        row('Last Login',       user.lastLogin    ? new Date(user.lastLogin).toLocaleString('en-AU') : ''),
+        row('Registered',       user.registeredAt ? fmtDateTime(user.registeredAt) : ''),
+        row('Last Login',       user.lastLogin    ? fmtDateTime(user.lastLogin) : ''),
       ].join(''))
 
     + section('Preferences', [
@@ -3680,7 +3688,7 @@ async function loadCustomers() {
     <td><b>${c.firstName || ''} ${c.lastName || ''}</b><br/><span style="font-size:12px;color:var(--mid)">${c.username || ''}</span></td>
     <td style="font-size:13px;">${c.email}</td>
     <td><span class="status-pill ${c.role === 'Dealer' ? 's-dealer' : 's-customer'}">${c.role || 'Customer'}</span></td>
-    <td style="font-size:12px;color:var(--mid)">${new Date(c.registeredAt || c.createdAt).toLocaleDateString()}</td>
+    <td style="font-size:12px;color:var(--mid)">${fmtDate(c.registeredAt||c.createdAt)}</td>
   </tr>`).join('') : `<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--mid);">No customers found</td></tr>`;
   renderPag('custPag', custPage, pag.totalPages, 'custPage', 'loadCustomers');
 }
@@ -3692,7 +3700,7 @@ async function loadNewsletter() {
   document.getElementById('nlCount').textContent = `${pag.total || subs.length} active subscribers`;
   document.getElementById('nlBody').innerHTML = subs.length ? subs.map(s => `<tr>
     <td>${s.email}</td>
-    <td style="font-size:13px;color:var(--mid)">${new Date(s.subscribedAt || s.createdAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+    <td style="font-size:13px;color:var(--mid)">${fmtDate(s.subscribedAt||s.createdAt)}</td>
   </tr>`).join('') : `<tr><td colspan="2" style="text-align:center;padding:40px;color:var(--mid);">No subscribers yet</td></tr>`;
   renderPag('nlPag', nlPage, pag.totalPages, 'nlPage', 'loadNewsletter');
 }
@@ -3814,7 +3822,7 @@ async function exportOrders() {
     (o.items || []).length,
     o.subtotal || 0, o.discount || 0, o.shippingCost || 0, o.total || 0,
     o.status || '', o.paymentStatus || '',
-    o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-AU') : ''
+    o.createdAt ? fmtDate(o.createdAt) : ''
   ]));
   downloadCSV('vibrantpetals_orders_' + today() + '.csv', rows);
 }
@@ -3828,7 +3836,7 @@ async function exportUsers() {
     u.username || '', u.firstName || '', u.lastName || '',
     u.email || '', u.role || 'Customer',
     u.isActive ? 'Active' : 'Disabled',
-    u.registeredAt ? new Date(u.registeredAt).toLocaleDateString('en-AU') : ''
+    u.registeredAt ? fmtDate(u.registeredAt) : ''
   ]));
   downloadCSV('vibrantpetals_users_' + today() + '.csv', rows);
 }
@@ -3841,7 +3849,7 @@ async function exportCustomers() {
   (data.customers || []).forEach(c => rows.push([
     c.username || '', c.firstName || '', c.lastName || '',
     c.email || '', c.role || 'Customer',
-    c.registeredAt ? new Date(c.registeredAt).toLocaleDateString('en-AU') : ''
+    c.registeredAt ? fmtDate(c.registeredAt) : ''
   ]));
   downloadCSV('vibrantpetals_customers_' + today() + '.csv', rows);
 }
@@ -3853,7 +3861,7 @@ async function exportNewsletter() {
   const rows = [['Email','Subscribed On']];
   (data.subscribers || []).forEach(s => rows.push([
     s.email || '',
-    s.subscribedAt ? new Date(s.subscribedAt).toLocaleDateString('en-AU') : ''
+    s.subscribedAt ? fmtDate(s.subscribedAt) : ''
   ]));
   downloadCSV('vibrantpetals_newsletter_' + today() + '.csv', rows);
 }
@@ -4173,7 +4181,7 @@ async function loadEmailLogs(page = 1) {
   tbody.innerHTML = data.logs.map((log, idx) => {
     const typeColor  = EMAIL_TYPE_COLORS[log.type] || '#7f8c8d';
     const typeLabel  = EMAIL_TYPE_LABELS[log.type] || log.type || '—';
-    const sentDate   = log.sentAt ? new Date(log.sentAt).toLocaleString('en-AU', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+    const sentDate   = log.sentAt ? fmtDateTime(log.sentAt) : '—';
     const statusPill = log.status === 'sent'
       ? `<span class="status-pill" style="background:#eafaf1;color:#1e8449;">✓ Sent</span>`
       : `<span class="status-pill" style="background:#fce4e4;color:#c0392b;">✗ Failed</span>`;
@@ -4218,7 +4226,7 @@ function viewEmailLog(idx) {
   const log = window._emailLogs?.[idx];
   if (!log) return;
   const typeLabel  = EMAIL_TYPE_LABELS[log.type] || log.type || '—';
-  const sentDate   = log.sentAt ? new Date(log.sentAt).toLocaleString('en-AU', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+  const sentDate   = log.sentAt ? fmtDateTime(log.sentAt) : '—';
 
   // Build vars table
   const vars = log.vars || {};
@@ -4316,7 +4324,7 @@ async function loadTemplates() {
 
   grid.innerHTML = data.templates.map(t => {
     const icon    = TPL_TYPE_ICONS[t.type] || '📧';
-    const updated = t.updatedAt ? `<div style="font-size:11px;color:#27ae60;margin-top:8px;font-weight:700;">✓ Customised${t.updatedAt ? ' · ' + new Date(t.updatedAt).toLocaleDateString('en-AU') : ''}</div>` : `<div style="font-size:11px;color:var(--mid);margin-top:8px;">Using default</div>`;
+    const updated = t.updatedAt ? `<div style="font-size:11px;color:#27ae60;margin-top:8px;font-weight:700;">✓ Customised${t.updatedAt ? ' · ' + fmtDate(t.updatedAt) : ''}</div>` : `<div style="font-size:11px;color:var(--mid);margin-top:8px;">Using default</div>`;
     return `
       <div onclick="openTemplateEditor('${t.type}')" style="border:1px solid ${t.isCustom ? 'var(--gold)' : '#e8e0d2'};border-radius:6px;padding:18px;cursor:pointer;background:${t.isCustom ? '#fdf6e3' : '#fff'};transition:border-color .15s,box-shadow .15s;" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow=''">
         <div style="font-size:22px;margin-bottom:8px;">${icon}</div>
@@ -4444,7 +4452,7 @@ async function exportCoupons() {
   (data.coupons || []).forEach(c => rows.push([
     c.code || '', c.discount || 0, c.description || '',
     c.usageCount || 0, c.usageLimit || 'Unlimited',
-    c.expiresAt ? new Date(c.expiresAt).toLocaleDateString('en-AU') : 'Never',
+    c.expiresAt ? fmtDate(c.expiresAt) : 'Never',
     c.isActive ? 'Active' : 'Inactive'
   ]));
   downloadCSV('vibrantpetals_coupons_' + today() + '.csv', rows);
