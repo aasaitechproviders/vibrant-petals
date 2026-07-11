@@ -3764,7 +3764,7 @@ async function updatePickupOrderStatus(orderId, newStatus, selectEl) {
   if (!await vpConfirm({ title: 'Update Order Status', message: `Update order <strong>${orderNum}</strong> to <strong>${newStatus.replace(/_/g,' ')}</strong>?`, icon: '📦', confirmText: 'Update', success: true })) {
     selectEl.value = ''; return;
   }
-  const data = await apiFetch(`/admin/orders/${orderId}/status`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus }) });
+  const data = await apiFetch(`/orders/${orderId}/status`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus }) });
   if (data.success) {
     showToast(`Order ${orderNum} updated to ${newStatus.replace(/_/g,' ')}`, 'success');
     loadPickupOrders();
