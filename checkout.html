@@ -983,11 +983,6 @@ async function init(){
     return; // Skip normal init for Stripe returns
   }
 
-  function getVpState(){ return localStorage.getItem('vp_state') || ''; }
-  function setVpState(s){
-    if(s) localStorage.setItem('vp_state',s); else localStorage.removeItem('vp_state');
-    ['stateDropdown','mobileStateDropdown'].forEach(function(id){var dd=document.getElementById(id);if(dd)dd.value=s||'';});
-  }
   (function(){var s=getVpState();['stateDropdown','mobileStateDropdown'].forEach(function(id){var dd=document.getElementById(id);if(dd)dd.value=s;});})();
   (async function(){
     var _tok=localStorage.getItem('vp_token');
@@ -1127,6 +1122,12 @@ function showMyOutletsPicker(filtered, allMine, title, subtitle){
 }
 
 init();
+
+function getVpState(){ return localStorage.getItem('vp_state') || ''; }
+function setVpState(s){
+  if(s) localStorage.setItem('vp_state',s); else localStorage.removeItem('vp_state');
+  ['stateDropdown','mobileStateDropdown'].forEach(function(id){var dd=document.getElementById(id);if(dd)dd.value=s||'';});
+}
 
 const KNOWN_SLUGS = new Set(["pooja-garlands","special-occasional-garlands","loose-flowers","strings","leaves"]);
 async function loadOthersNav(){
