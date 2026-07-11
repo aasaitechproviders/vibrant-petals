@@ -68,7 +68,6 @@
     .acct-drop .drop-logout { color: #c0392b; }
     .acct-drop .drop-logout:hover { background: #fce4e4; color: #c0392b; }
     .badge { position: absolute; top: -4px; right: -4px; background: var(--gold); color: #fff; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
-    .nav-icons{display:flex;align-items:center;gap:20px;}
     .nav-icon-btn{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--dark);transition:color .2s;}
     .nav-icon-btn:hover{color:var(--gold);}
     .nav-icon-btn svg{width:22px;height:22px;stroke-width:1.6;}
@@ -283,8 +282,8 @@
       </ul>
     </nav>
     <div class="nav-icons">
+      <button class="nav-icon-btn" id="searchBtn" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></button>
       <div class="acct-icon-wrap">
-        <button class="nav-icon-btn" id="searchBtn" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></button>
         <button class="nav-icon-btn" id="loginBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
         <div class="acct-drop" id="acctDrop"></div>
       </div>
