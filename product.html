@@ -945,6 +945,8 @@ async function loadOthersNav(){
 loadOthersNav();
 
 // Load state dropdowns dynamically from DB
+function getVpState(){ return localStorage.getItem('vp_state') || ''; }
+
 async function loadStateDropdowns(){
   try {
     const data = await apiFetch('/states');
@@ -960,6 +962,8 @@ async function loadStateDropdowns(){
       dd.value = saved || '';
       if (!dd.value && states.length) { dd.value = states[0].name; setVpState(states[0].name); }
     });
+    // Re-render product now that state is confirmed so variants are correctly enabled
+    if (productData) renderProduct(productData);
   } catch(e) {}
 }
 loadStateDropdowns();
