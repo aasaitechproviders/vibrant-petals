@@ -2361,7 +2361,7 @@ async function showCustDetail(orderId) {
     body.innerHTML = `
       <div class="cust-modal-row"><span class="cust-modal-label">Name</span><span>${name}</span></div>
       <div class="cust-modal-row"><span class="cust-modal-label">Email</span><span>${cu.email || '—'}</span></div>
-      <div class="cust-modal-row"><span class="cust-modal-label">Phone</span><span>${cu.phone || '—'}</span></div>
+      <div class="cust-modal-row"><span class="cust-modal-label">Phone</span><span>${cu.mobile || cu.phone || '—'}</span></div>
       <div class="cust-modal-row"><span class="cust-modal-label">State</span><span>${cu.preferredState || '—'}</span></div>
       ${addr ? `<div class="cust-modal-row"><span class="cust-modal-label">Address</span><span>${[addr.line1,addr.line2,addr.city,addr.state,addr.postcode].filter(Boolean).join(', ')}</span></div>` : ''}
       <div class="cust-modal-row"><span class="cust-modal-label">Member since</span><span>${fmtDate(cu.createdAt)}</span></div>`;
