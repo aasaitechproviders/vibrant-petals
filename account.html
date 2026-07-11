@@ -2119,9 +2119,12 @@ async function doLogin(){
   if(data.success){
     token=data.token;localStorage.setItem('vp_token',token);
     if(data.user?.role==='Administrator'){location.href='admin.html';return;}
+    // Set state immediately from login response — no extra API call needed
+    const _us = data.user?.userState || data.user?.preferredState || '';
+    if(_us){ localStorage.setItem('vp_state',_us); var _dd=document.getElementById('stateDropdown');if(_dd)_dd.value=_us; }
     await mergeCart();
     init();
-    loadStateDropdowns(); // re-run now that token is set — syncs user's state from profile
+    loadStateDropdowns();
   }else{msg.textContent=data.message||'Login failed';msg.className='gate-msg err';}
 }
 
