@@ -2237,6 +2237,7 @@ async function saveOutlet() {
   const suburb        = terrSel.options[terrSel.selectedIndex]?.text || territorySlug;
   const address       = document.getElementById('oAddress').value.trim();
   const phone         = document.getElementById('oPhone').value.trim();
+  if (phone && !/^(?:\+61|61|0)4\d{8}$/.test(phone.replace(/[\s\-]/g,''))) { showToast('Please enter a valid Australian mobile number (e.g. 0412 345 678 or +61 412 345 678).', 'error'); return; }
   const hours         = document.getElementById('oHours').value.trim();
   const isActive      = document.getElementById('oActive').value !== 'false';
   if (!name || !state || !territorySlug || !address) { showToast('Name, state, territory and address are required', 'error'); return; }
