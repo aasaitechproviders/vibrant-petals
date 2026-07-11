@@ -1554,9 +1554,25 @@ if (typeParam === 'dealer') setType('dealer');
 else if (typeParam === 'outlet') setType('outlet');
 else updateLeftPanel('customer'); // default — set customer panel content on load
 
-// Build initial progress + load territories
+// Load state options into all three state selects from DB
+async function loadStateOptions() {
+  try {
+    const data = await apiFetch('/states');
+    const states = data.states || [];
+    if (!states.length) return;
+    const opts = states.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+    ['cState', 'dState', 'oState'].forEach(function(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = `<option value="">Select your state…</option>` + opts;
+    });
+  } catch(e) {}
+}
+
+// Build initial progress + load territories + load states
 buildProgress();
 loadTerritories();
+loadStateOptions();
 
 // ── NEWSLETTER ────────────────────────────────────────────────────────────────
 document.getElementById('nlSubmit')?.addEventListener('click', async () => {
