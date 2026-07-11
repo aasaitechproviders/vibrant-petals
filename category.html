@@ -501,9 +501,9 @@ function formatPrice(p){
       if (vp < min) min = vp;
     }
     if (min < Infinity) {
-      if (role==='Dealer') return `<span style="color:#F5A623;font-weight:700;">⭐ From $${min.toFixed(2)}</span>`;
-      if (role==='Retail') return `<span style="color:#1565c0;font-weight:700;">🏪 From $${min.toFixed(2)}</span>`;
-      return `From $${min.toFixed(2)}`;
+      if (role==='Dealer') return `<span style="color:#F5A623;font-weight:700;">⭐ $${min.toFixed(2)}</span>`;
+      if (role==='Retail') return `<span style="color:#1565c0;font-weight:700;">🏪 $${min.toFixed(2)}</span>`;
+      return `$${min.toFixed(2)}`;
     }
   }
 
