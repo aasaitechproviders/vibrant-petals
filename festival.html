@@ -428,14 +428,14 @@ function renderCart(cart){
   document.getElementById('cartCountHead').textContent=count;
   const cartBody=document.getElementById('cartBody');const cartFoot=document.getElementById('cartFoot');
   if(!items.length){cartBody.innerHTML='<div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><p>Your cart is currently empty.</p><a href="category.html?cat=all" class="btn-shop-all">Shop All Products</a></div>';cartFoot.style.display='none';return;}
-  cartBody.innerHTML=items.map(i=>`<div class="cart-item"><img src="${i.image||''}" alt="${i.name}" onerror="this.style.display='none'"/><div class="cart-item-info"><div class="cart-item-name">${i.name}</div><div class="cart-item-price">$${i.price.toFixed(2)}</div><div class="cart-item-qty"><button class="qty-btn" onclick="changeQty('${i.productId}',${i.quantity-1})">−</button><span class="qty-val">${i.quantity}</span><button class="qty-btn" onclick="changeQty('${i.productId}',${i.quantity+1})">+</button></div></div><button class="cart-remove" onclick="removeFromCart('${i.productId}')">✕</button></div>`).join('');
+  cartBody.innerHTML=items.map(i=>`<div class="cart-item"><img src="${i.image||''}" alt="${i.name}" onerror="this.style.display='none'"/><div class="cart-item-info"><div class="cart-item-name">${i.name}</div><div class="cart-item-price">$${i.price.toFixed(2)}</div><div class="cart-item-qty"><button class="qty-btn" onclick="changeQty('${i.productId}',${i.quantity-1},${i.variantIndex??''})">−</button><span class="qty-val">${i.quantity}</span><button class="qty-btn" onclick="changeQty('${i.productId}',${i.quantity+1},${i.variantIndex??''})">+</button></div></div><button class="cart-remove" onclick="removeFromCart('${i.productId}',${i.variantIndex??''})">✕</button></div>`).join('');
   document.getElementById('cartSubtotal').textContent='$'+(cart.subtotal||0).toFixed(2);
   document.getElementById('cartShipping').textContent=cart.shippingCost===0?'Free (In-store)':'$'+(cart.shippingCost||0).toFixed(2);
   document.getElementById('cartTotal').textContent='$'+(cart.total||0).toFixed(2);
   cartFoot.style.display='block';
 }
-async function changeQty(pid,qty){if(qty<1)return removeFromCart(pid);const data=await apiFetch('/cart/items/'+pid,{method:'PUT',headers:apiHeaders(),body:JSON.stringify({quantity:qty})}).catch(()=>({success:false}));if(data.success)renderCart(data.cart);}
-async function removeFromCart(pid){const data=await apiFetch('/cart/items/'+pid,{method:'DELETE',headers:apiHeaders()}).catch(()=>({success:false}));if(data.success)renderCart(data.cart);}
+async function changeQty(pid,qty,vi){if(qty<1)return removeFromCart(pid,vi);const body={quantity:qty};if(vi!==''&&vi!==null&&vi!==undefined)body.variantIndex=Number(vi);const data=await apiFetch('/cart/items/'+pid,{method:'PUT',headers:apiHeaders(),body:JSON.stringify(body)}).catch(()=>({success:false}));if(data.success)renderCart(data.cart);}
+async function removeFromCart(pid,vi){let url='/cart/items/'+pid;if(vi!==''&&vi!==null&&vi!==undefined)url+='?variantIndex='+vi;const data=await apiFetch(url,{method:'DELETE',headers:apiHeaders()}).catch(()=>({success:false}));if(data.success)renderCart(data.cart);}
 function handleCheckout(){location.href='checkout.html';}
 
 // Account dropdown
