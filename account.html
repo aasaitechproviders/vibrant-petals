@@ -1069,6 +1069,7 @@ async function loadPickupOrders(page=1) {
     return;
   }
   const TRANSITIONS = {
+    pending:          { label: 'Mark Processing',       next: 'processing' },
     processing:       { label: 'Mark Ready for Pickup', next: 'ready_for_pickup' },
     ready_for_pickup: { label: 'Mark Collected',        next: 'delivered' },
   };
@@ -2313,6 +2314,7 @@ async function loadMyStoreOrders() {
     return;
   }
   const TRANSITIONS = {
+    pending:          { label: 'Mark Processing',       next: 'processing' },
     processing:       { label: 'Mark Ready for Pickup', next: 'ready_for_pickup' },
     ready_for_pickup: { label: 'Mark Collected',        next: 'delivered' },
   };
