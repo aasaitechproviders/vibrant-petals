@@ -509,7 +509,7 @@ function formatPrice(p){
 
   if(role==='Dealer'&&p.dealerPrice) return `<span style="color:#F5A623;font-weight:700;">⭐ $${p.dealerPrice.toFixed(2)}</span>`;
   if(role==='Retail'&&p.retailPrice) return `<span style="color:#1565c0;font-weight:700;">🏪 $${p.retailPrice.toFixed(2)}</span>`;
-  if(p.salePrice&&p.regularPrice) return `$${p.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${p.regularPrice.toFixed(2)}</span>`;
+  if(p.salePrice&&p.regularPrice){const pct=Math.round((1-p.salePrice/p.regularPrice)*100);return `$${p.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${p.regularPrice.toFixed(2)}</span>${pct>0?` <span style="background:#27ae60;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:3px;">${pct}% OFF</span>`:''}`;}
   if(p.price) return `$${p.price.toFixed(2)}`;
   return '';
 }
@@ -542,7 +542,7 @@ function renderProducts(products){
         const reg = fv.price ?? 0;
         if (fv.salePrice && reg && fv.salePrice < reg) {
           const pct = Math.round((1 - fv.salePrice / reg) * 100);
-          priceHtml = `$${fv.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${reg.toFixed(2)}</span> <span style="background:#e74c3c;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:3px;">${pct}% OFF</span>`;
+          priceHtml = `$${fv.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${reg.toFixed(2)}</span> <span style="background:#27ae60;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:3px;">${pct}% OFF</span>`;
         } else {
           priceHtml = `$${fp.toFixed(2)}`;
         }
@@ -571,7 +571,7 @@ function renderProducts(products){
         </div>
         <div class="product-info">
           <div class="product-name">${p.name}</div>
-          <div id="cardSku_${p._id}" style="font-size:11px;color:var(--mid);font-weight:400;letter-spacing:.03em;">${hasVars ? (cardVars[0].sku ? `SKU: ${cardVars[0].sku}` : '') : (p.sku ? `SKU: ${p.sku}` : '')}</div>
+          <div id="cardSku_${p._id}" style="font-size:11px;color:var(--mid);font-weight:400;letter-spacing:.03em;">${cardVars.length > 0 ? (cardVars[0].sku ? `SKU: ${cardVars[0].sku}` : '') : (p.sku ? `SKU: ${p.sku}` : '')}</div>
           <div class="product-price" id="cardPrice_${p._id}">${priceHtml}</div>
           ${inStock?`
           ${variantDropdownHtml}
@@ -688,7 +688,7 @@ function onCardVariantChange(pid, sel) {
     fmt = `<span style="color:#1565c0;font-weight:700;">🏪 $${price.toFixed(2)}</span>`;
   } else if (regular && price < regular) {
     const pct = Math.round((1 - price / regular) * 100);
-    fmt = `$${price.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${regular.toFixed(2)}</span> <span style="background:#e74c3c;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:3px;">${pct}% OFF</span>`;
+    fmt = `$${price.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${regular.toFixed(2)}</span> <span style="background:#27ae60;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:3px;">${pct}% OFF</span>`;
   } else {
     fmt = `$${price.toFixed(2)}`;
   }
