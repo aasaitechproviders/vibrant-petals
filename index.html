@@ -1421,7 +1421,7 @@ function resolveVariantsForState(allVariants, state) {
         if (vp < min) min = vp;
       }
       if (min < Infinity) {
-        const prefix = role==='Dealer' ? '⭐ From $' : role==='Retail' ? '🏪 From $' : 'From $';
+        const prefix = role==='Dealer' ? '⭐ $' : role==='Retail' ? '🏪 $' : '$';
         const clr    = role==='Dealer' ? 'color:#F5A623;font-weight:700;' : role==='Retail' ? 'color:#1565c0;font-weight:700;' : '';
         return clr ? `<span style="${clr}">${prefix}${min.toFixed(2)}</span>` : `${prefix}${min.toFixed(2)}`;
       }
