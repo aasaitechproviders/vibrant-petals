@@ -1110,15 +1110,6 @@ async function updatePickupOrderStatus(id, newStatus, orderNum) {
 }
 window.updatePickupOrderStatus = updatePickupOrderStatus;
 
-// ── CANCEL ORDER ──────────────────────────────────────────────────────────────
-async function cancelOrder(id,num){
-  if(!await vpConfirm({ title: 'Cancel Order', message: `Cancel order <strong>#${num}</strong>? This cannot be undone.`, icon: '❌', confirmText: 'Cancel Order', danger: true }))return;
-  const data=await apiFetch(`/orders/${id}/cancel`,{method:'PUT',headers:apiHeaders()});
-  if(data.success){showToast('Order cancelled','success');loadOrders(orderPage);}
-  else showToast(data.message||'Could not cancel order','error');
-}
-window.cancelOrder=cancelOrder;
-
 // ── VIEW ORDER DETAIL ─────────────────────────────────────────────────────────
 async function viewOrder(id){
   const data=await apiFetch('/orders/'+id,{headers:apiHeaders()});
