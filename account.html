@@ -2148,34 +2148,13 @@ async function mergeCart(){
   catch(e){console.warn('Cart merge failed',e);}
 }
 
-function doLogout(){token='';localStorage.removeItem('vp_token');sessionStorage.removeItem('vp_state_synced');location.href='index.html';}
+function doLogout(){token='';localStorage.removeItem('vp_token');localStorage.removeItem('vp_state');sessionStorage.removeItem('vp_state_synced');location.href='index.html';}
 function getVpState(){ return localStorage.getItem('vp_state') || ''; }
 function setVpState(s){
   if(s) localStorage.setItem('vp_state',s); else localStorage.removeItem('vp_state');
   var dd=document.getElementById('stateDropdown'); if(dd) dd.value=s||'';
 }
-(function(){var dd=document.getElementById('stateDropdown');if(dd)dd.value=getVpState();})();
-(async function(){
-  var _tok=localStorage.getItem('vp_token');
-  if(_tok && !sessionStorage.getItem('vp_state_synced')){
-    try{
-      var r=await fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+_tok,'Content-Type':'application/json'}});
-      var d=await r.json();
-      if(d&&d.user){
-        var stateToSet = d.user.preferredState || null;
-        // For Retail/Dealer: fall back to dealerInfo.state if no preferredState
-        if(!stateToSet && (d.user.role==='Retail'||d.user.role==='Dealer') && d.user.dealerInfo?.state){
-          stateToSet = d.user.dealerInfo.state;
-        }
-        if(stateToSet){
-          localStorage.setItem('vp_state', stateToSet);
-          sessionStorage.setItem('vp_state_synced','1');
-          var dd=document.getElementById('stateDropdown'); if(dd) dd.value=stateToSet;
-        }
-      }
-    }catch(e){}
-  } else if(!_tok){ sessionStorage.removeItem('vp_state_synced'); }
-})();
+// State is set by loadStateDropdowns() which runs auth/me in parallel — no standalone IIFE needed
 
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'){
@@ -2502,48 +2481,41 @@ loadOthersNav();
 
 // Load state dropdowns dynamically from DB
 async function loadStateDropdowns(){
-  // Also populate account-specific state selects
   try {
-    const _sd = await apiFetch('/states');
-    const _ss = (_sd.states || []);
-    if (_ss.length) {
-      const _so = _ss.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-      ['profState','outletState','dealerTerrState','modalOutletState'].forEach(function(id){
-        const el = document.getElementById(id);
-        if (!el) return;
-        const cur = el.value;
-        const first = el.innerHTML.match(/<option value="">[^<]*<\/option>/)?.[0] || '';
-        el.innerHTML = first + _so;
-        if (cur) el.value = cur;
-      });
-    }
-  } catch(e) {}
-  try {
-    const data = await apiFetch('/states');
-    const states = data.states || [];
+    const _tok = localStorage.getItem('vp_token');
+    const [statesData, meData] = await Promise.all([
+      apiFetch('/states'),
+      _tok ? fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+_tok,'Content-Type':'application/json'}}).then(r=>r.json()).catch(()=>null) : Promise.resolve(null)
+    ]);
+    const states = statesData.states || [];
     if (!states.length) return;
-    const opts = states.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+    const opts = states.map(s=>`<option value="${s.name}">${s.name}</option>`).join('');
+    // Also populate account-specific form state selects
+    ['profState','outletState','dealerTerrState','modalOutletState'].forEach(function(id){
+      const el = document.getElementById(id);
+      if (!el) return;
+      const cur = el.value;
+      const first = el.innerHTML.match(/<option value="">[^<]*<\/option>/)?.[0] || '';
+      el.innerHTML = first + opts;
+      if (cur) el.value = cur;
+    });
+    // Determine correct ann-bar state — Retail/Dealer always use profile, Customer uses profile only if unset
     let saved = getVpState();
-    if (!saved) {
-      const _tok = localStorage.getItem('vp_token');
-      if (_tok) {
-        try {
-          const me = await fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+_tok,'Content-Type':'application/json'}});
-          const md = await me.json();
-          if (md && md.user) {
-            const s = md.user.preferredState || md.user.dealerInfo?.state || '';
-            if (s) { localStorage.setItem('vp_state', s); sessionStorage.setItem('vp_state_synced','1'); saved = s; }
-          }
-        } catch(e) {}
+    if (meData?.user) {
+      const role = meData.user.role;
+      const profileState = meData.user.preferredState || meData.user.dealerInfo?.state || '';
+      if (profileState && (role==='Retail' || role==='Dealer' || !saved)) {
+        localStorage.setItem('vp_state', profileState);
+        sessionStorage.setItem('vp_state_synced','1');
+        saved = profileState;
       }
     }
     ['stateDropdown','mobileStateDropdown'].forEach(function(id){
       const dd = document.getElementById(id);
       if (!dd) return;
       dd.innerHTML = opts;
-      // Restore saved value, fall back to first state
       dd.value = saved || '';
-      if (!dd.value && states.length) { dd.value = states[0].name; setVpState(states[0].name); }
+      if (!dd.value && states.length) { dd.value = states[0].name; localStorage.setItem('vp_state', states[0].name); }
     });
   } catch(e) {}
 }
