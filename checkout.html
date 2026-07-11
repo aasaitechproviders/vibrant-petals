@@ -1143,7 +1143,7 @@ function showMyOutletsPicker(filtered, allMine, title, subtitle){
   window.allMineOutlets = allMine;
 }
 
-init();
+let _stateDropdownsReady = null;
 
 const KNOWN_SLUGS = new Set(["pooja-garlands","special-occasional-garlands","loose-flowers","strings","leaves"]);
 async function loadOthersNav(){
@@ -1248,7 +1248,6 @@ document.getElementById('nlSubmit')?.addEventListener('click', async () => {
 });
 
 // Load state dropdowns dynamically from DB
-let _stateDropdownsReady = null;
 async function loadStateDropdowns(){
   try {
     const _tok = localStorage.getItem('vp_token');
@@ -1288,6 +1287,7 @@ async function loadStateDropdowns(){
   } catch(e) {}
 }
 _stateDropdownsReady = loadStateDropdowns();
+init();
 
 // ── Search overlay ──
 (function(){
