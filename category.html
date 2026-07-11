@@ -420,7 +420,8 @@ async function loadStateDropdowns(){
     const states = data.states || [];
     if (!states.length) return;
     const opts = states.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-    const saved = getVpState();
+    let saved=getVpState();
+    if(!saved){const _tok=localStorage.getItem('vp_token');if(_tok){try{const me=await fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+_tok,'Content-Type':'application/json'}});const md=await me.json();if(md&&md.user){const s=md.user.preferredState||md.user.dealerInfo?.state||'';if(s){localStorage.setItem('vp_state',s);sessionStorage.setItem('vp_state_synced','1');saved=s;}}}catch(e){}}}
     ['stateDropdown','mobileStateDropdown'].forEach(function(id){
       const dd = document.getElementById(id);
       if (!dd) return;
