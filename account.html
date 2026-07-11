@@ -870,17 +870,12 @@ async function loadMe(){
 
   // ── SHOW/HIDE NAV ICONS ───────────────────────────────────────────────────
   // Admin: no wishlist, no cart
-  // Dealer: no wishlist, keep cart
-  // Customer: both
+  // Dealer/Retail/Customer: keep wishlist and cart
   const wishlistBtn = document.getElementById('navWishlistBtn');
   const cartBtn     = document.getElementById('navCartBtn');
   if(role==='Administrator'){
     if(wishlistBtn) wishlistBtn.style.display='none';
     if(cartBtn)     cartBtn.style.display='none';
-  } else if(role==='Dealer'){
-    if(wishlistBtn) wishlistBtn.style.display='none';
-  } else if(role==='Retail'){
-    if(wishlistBtn) wishlistBtn.style.display='none';
   }
 
   // ── SIDEBAR NAV PER ROLE ──────────────────────────────────────────────────
