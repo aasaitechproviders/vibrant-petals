@@ -962,6 +962,9 @@ function getCheckoutRole(){
 }
 
 async function init(){
+  // Wait for state dropdowns to be populated first (avoids race where outletStateFilter has no options)
+  if (_stateDropdownsReady) await _stateDropdownsReady.catch(()=>{});
+
   // ── Check for Stripe redirect return (3DS / card payment completion) ──────
   const urlParams = new URLSearchParams(window.location.search);
   const redirectStatus = urlParams.get('redirect_status');
@@ -1245,6 +1248,7 @@ document.getElementById('nlSubmit')?.addEventListener('click', async () => {
 });
 
 // Load state dropdowns dynamically from DB
+let _stateDropdownsReady = null;
 async function loadStateDropdowns(){
   try {
     const _tok = localStorage.getItem('vp_token');
@@ -1276,10 +1280,14 @@ async function loadStateDropdowns(){
     const osf = document.getElementById('outletStateFilter');
     if (osf) {
       osf.innerHTML = '<option value="">All States</option>' + opts;
+      // Pre-select user's preferred state so outlet filter is ready before init() runs
+      if (saved) {
+        osf.value = saved;
+      }
     }
   } catch(e) {}
 }
-loadStateDropdowns();
+_stateDropdownsReady = loadStateDropdowns();
 
 // ── Search overlay ──
 (function(){
