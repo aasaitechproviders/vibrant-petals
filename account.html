@@ -753,6 +753,14 @@ function fmtPickupDate(d) {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
 }
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-AU', {day:'numeric', month:'short', year:'numeric'});
+}
+function fmtDateTime(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleString('en-AU', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+}
 const API='https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
 // Clear expired token immediately to prevent auth flicker
 (function(){
@@ -948,7 +956,7 @@ function renderRecentOrders(orders){
       <thead><tr><th>Order #</th><th>Ordered</th><th>Pickup Date</th><th>Status</th><th>Total</th><th></th></tr></thead>
       <tbody>${orders.map(o=>`<tr>
         <td><b>${o.orderNumber}</b></td>
-        <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+        <td>${fmtDate(o.createdAt)}</td>
         <td style="font-size:12px;color:var(--gold);font-weight:700;">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
         <td><b>$${(o.total||0).toFixed(2)}</b></td>
@@ -1011,7 +1019,7 @@ async function loadOrders(page=1){
       const canCancel=['pending','processing'].includes(o.status);
       return`<tr>
         <td><b>${o.orderNumber}</b></td>
-        <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+        <td>${fmtDate(o.createdAt)}</td>
         <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td>${(o.items||[]).length} item${(o.items||[]).length!==1?'s':''}</td>
         <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
@@ -1060,7 +1068,7 @@ async function loadPickupOrders(page=1) {
       return `<tr>
         <td><b>${o.orderNumber}</b></td>
         <td style="font-size:12px;">${o.customerEmail||'—'}</td>
-        <td style="font-size:12px;">${new Date(o.createdAt).toLocaleDateString()}</td>
+        <td style="font-size:12px;">${fmtDate(o.createdAt)}</td>
         <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
         <td><b>$${(o.total||0).toFixed(2)}</b></td>
@@ -1109,7 +1117,7 @@ async function viewOrder(id){
     : '—';
   document.getElementById('modalOrderBody').innerHTML=`
     <div class="order-info-grid">
-      <div class="order-info-item"><div class="order-info-label">Order Date</div>${new Date(o.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'})}</div>
+      <div class="order-info-item"><div class="order-info-label">Order Date</div>${fmtDateTime(o.createdAt)}</div>
       <div class="order-info-item"><div class="order-info-label">📅 Pickup Date</div><span style="font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</span></div>
       <div class="order-info-item"><div class="order-info-label">Status</div><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></div>
       <div class="order-info-item"><div class="order-info-label">Payment</div>${o.paymentMethod||'—'} · <em>${o.paymentStatus||'pending'}</em></div>
@@ -2315,7 +2323,7 @@ async function loadMyStoreOrders() {
       return `<tr>
         <td><b>${o.orderNumber}</b></td>
         <td style="font-size:12px;">${o.customerEmail||'—'}</td>
-        <td style="font-size:12px;">${new Date(o.createdAt).toLocaleDateString()}</td>
+        <td style="font-size:12px;">${fmtDate(o.createdAt)}</td>
     <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
         <td><b>$${(o.total||0).toFixed(2)}</b></td>
