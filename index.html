@@ -1470,9 +1470,9 @@ function resolveVariantsForState(allVariants, state) {
         const vp = role==='Dealer'&&v.dealerPrice ? v.dealerPrice
                  : role==='Retail'&&v.retailPrice ? v.retailPrice
                  : (v.salePrice??v.price??0);
-        return `<option value="${v._origIndex}" data-price="${vp}">${v.label} — $${vp.toFixed(2)}</option>`;
+        return `<option value="${v._origIndex}" data-price="${vp}" data-sku="${v.sku||''}">${v.label} — $${vp.toFixed(2)}</option>`;
       }).join('');
-      variantDropdownHtml = `<select id="varSel_${p._id}" onclick="event.stopPropagation()" onchange="event.stopPropagation();onCardVariantChange('${p._id}',this)" style="width:100%;padding:5px 8px;border:1px solid #e0d8c8;border-radius:4px;font-family:inherit;font-size:12px;background:#fff;cursor:pointer;margin-bottom:6px;outline:none;">${opts}</select>`;
+      variantDropdownHtml = `<select id="varSel_${p._id}" onclick="event.stopPropagation()" onchange="event.stopPropagation();onCardVariantChange('${p._id}',this)" style="width:auto;max-width:100%;padding:5px 8px;border:1px solid #e0d8c8;border-radius:4px;font-family:inherit;font-size:12px;background:#fff;cursor:pointer;margin-bottom:6px;outline:none;">${opts}</select>`;
     } else {
       priceHtml = resolveCardPrice(p);
       variantDropdownHtml = '';
@@ -1490,7 +1490,7 @@ function resolveVariantsForState(allVariants, state) {
         </div>
         <div class="product-info">
           <div class="product-name">${p.name}</div>
-          ${p.sku?`<div style="font-size:11px;color:var(--mid);font-weight:400;letter-spacing:.03em;">SKU: ${p.sku}</div>`:""}
+          <div id="cardSku_${p._id}" style="font-size:11px;color:var(--mid);font-weight:400;letter-spacing:.03em;">${hasVars ? (cardVars[0].sku ? `SKU: ${cardVars[0].sku}` : '') : (p.sku ? `SKU: ${p.sku}` : '')}</div>
           <div class="product-price" id="cardPrice_${p._id}">${priceHtml}</div>
           ${inStock ? `
           ${variantDropdownHtml}
@@ -1729,12 +1729,15 @@ window.addToCartQty  = addToCartQty;
 function onCardVariantChange(pid, sel) {
   const opt   = sel.options[sel.selectedIndex];
   const price = parseFloat(opt.dataset.price);
+  const sku   = opt.dataset.sku || '';
   const role  = (()=>{try{const raw=localStorage.getItem('vp_token');if(!raw)return null;const pt=raw.split('.')[1];return JSON.parse(atob(pt.replace(/-/g,'+').replace(/_/g,'/')))?.role||null;}catch{return null;}})();
   const fmt   = role==='Dealer' ? `<span style="color:#F5A623;font-weight:700;">⭐ $${price.toFixed(2)}</span>`
               : role==='Retail' ? `<span style="color:#1565c0;font-weight:700;">🏪 $${price.toFixed(2)}</span>`
               : `$${price.toFixed(2)}`;
   const el = document.getElementById('cardPrice_' + pid);
   if (el) el.innerHTML = fmt;
+  const skuEl = document.getElementById('cardSku_' + pid);
+  if (skuEl) skuEl.textContent = sku ? `SKU: ${sku}` : '';
 }
 window.onCardVariantChange = onCardVariantChange;
 
