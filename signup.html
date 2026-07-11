@@ -87,7 +87,6 @@
       font-weight: 700;
       padding: 6px 14px;
       border-radius: 20px;
-      margin-bottom: 28px;
       width: fit-content;
     }
     .panel-heading {
@@ -373,8 +372,11 @@
   <!-- ── LEFT PANEL ── -->
   <div class="signup-panel-left">
     <div class="panel-florals" id="panelFloral">✿</div>
-    <div class="panel-badge" id="panelBadge">
-      VibrantPetals Community
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+      <img src="logo.png" alt="VibrantPetals" style="height:48px;width:auto;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'"/>
+      <div class="panel-badge" id="panelBadge" style="margin-bottom:0;">
+        VibrantPetals Community
+      </div>
     </div>
     <h1 class="panel-heading" id="panelHeading">Join the <em>Floral</em><br/>Dealer Network</h1>
     <p class="panel-sub" id="panelSub">Whether you're a home-based entrepreneur or a florist, become part of our growing network of dealers across Melbourne &amp; Sydney.</p>
