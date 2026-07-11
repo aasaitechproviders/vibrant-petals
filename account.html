@@ -95,6 +95,17 @@
     .status-ready-for-pickup{background:#cce5ff;color:#004085;}
     .status-cancelled{background:#f8d7da;color:#721c24;}.status-refunded{background:#e2d9f3;color:#4a235a;}
     .order-detail-btn{font-size:12px;color:var(--gold);font-weight:700;text-decoration:underline;cursor:pointer;margin-right:8px;}
+    .cust-detail-btn{font-size:11px;padding:3px 8px;background:var(--cream2);border:1px solid var(--gold-lt);color:var(--dark);border-radius:3px;cursor:pointer;white-space:nowrap;font-family:inherit;}
+    .cust-detail-btn:hover{background:var(--gold);color:#fff;}
+    #custDetailModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;}
+    #custDetailModal.open{display:flex;}
+    .cust-modal-box{background:#fff;border-radius:8px;width:min(420px,92vw);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.18);}
+    .cust-modal-head{background:var(--gold);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;}
+    .cust-modal-head h3{font-size:16px;font-weight:700;margin:0;}
+    .cust-modal-body{padding:20px;font-size:14px;line-height:1.8;}
+    .cust-modal-row{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #f0ebe0;}
+    .cust-modal-row:last-child{border-bottom:none;}
+    .cust-modal-label{color:var(--mid);font-size:12px;min-width:110px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
     .order-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:800;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
     .order-modal.open{opacity:1;pointer-events:all;}
     .order-modal-box{background:#fff;width:min(640px,94vw);max-height:85vh;overflow-y:auto;border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.2);}
@@ -117,7 +128,7 @@
     .order-total-row.grand{font-weight:700;color:var(--dark);font-size:16px;}
     .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:30px;}
     .stat-card{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:20px;text-align:center;}
-    .stat-val{font-family:'Playfair Display',serif;font-size:32px;color:var(--gold);margin-bottom:6px;}
+    .stat-val{font-family:'Lato',sans-serif;font-size:32px;font-weight:700;color:var(--gold);margin-bottom:6px;}
     .stat-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mid);font-weight:700;}
     /* ADDRESSES */
     .addr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:16px;}
@@ -954,7 +965,7 @@ function renderRecentOrders(orders){
     <table class="orders-table" style="margin-top:8px;">
       <thead><tr><th>Order #</th><th>Order Date</th><th>Pickup Date</th><th>Status</th><th>Total</th><th></th></tr></thead>
       <tbody>${orders.map(o=>`<tr>
-        <td><b><span class="order-detail-btn" onclick="viewOrder('${o._id}')" style="text-decoration:none;color:var(--gold);">${o.orderNumber}</span></b></td>
+        <td><b><span class="order-detail-btn" onclick="viewOrder('${o._id}')" style="color:#1565c0;text-decoration:underline;">${o.orderNumber}</span></b></td>
         <td>${fmtDate(o.createdAt)}</td>
         <td style="font-size:12px;color:var(--gold);font-weight:700;">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
@@ -1016,7 +1027,7 @@ async function loadOrders(page=1){
     <thead><tr><th>Order #</th><th>Order Date</th><th>Pickup Date</th><th>Items</th><th>Status</th><th>Total</th><th></th></tr></thead>
     <tbody>${orders.map(o=>{
       return`<tr>
-        <td><b><span class="order-detail-btn" onclick="viewOrder('${o._id}')" style="text-decoration:none;color:var(--gold);">${o.orderNumber}</span></b></td>
+        <td><b><span class="order-detail-btn" onclick="viewOrder('${o._id}')" style="color:#1565c0;text-decoration:underline;">${o.orderNumber}</span></b></td>
         <td>${fmtDate(o.createdAt)}</td>
         <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td>${(o.items||[]).length} item${(o.items||[]).length!==1?'s':''}</td>
@@ -1061,13 +1072,14 @@ async function loadPickupOrders(page=1) {
         ? `<button onclick="updatePickupOrderStatus('${o._id}','${t.next}','${o.orderNumber}')" style="padding:7px 14px;font-size:12px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;white-space:nowrap;">${t.label}</button>`
         : `<span style="font-size:12px;color:var(--mid);">—</span>`;
       return `<tr>
-        <td><b><span class="order-detail-btn" onclick="viewOrder('${o._id}')" style="text-decoration:none;color:var(--gold);">${o.orderNumber}</span></b></td>
+        <td><b><span class="order-detail-btn" onclick="viewOrder('${o._id}')" style="color:#1565c0;text-decoration:underline;">${o.orderNumber}</span></b></td>
         <td style="font-size:12px;">${o.customerEmail||'—'}</td>
         <td style="font-size:12px;">${fmtDate(o.createdAt)}</td>
         <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
         <td style="font-weight:700;font-family:'Lato',sans-serif;">$${(o.total||0).toFixed(2)}</td>
         <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button class="cust-detail-btn" onclick="event.stopPropagation();showCustDetail('${o._id}')">👤 Customer</button>
           ${btn}
         </td>
       </tr>`;
@@ -2322,13 +2334,13 @@ async function loadMyStoreOrders() {
         ? `<button onclick="updateMyOutletOrderStatus('${o._id}','${t.next}','${o.orderNumber}')" style="padding:7px 14px;font-size:12px;background:var(--gold);color:#fff;border:none;border-radius:3px;cursor:pointer;white-space:nowrap;">${t.label}</button>`
         : `<span style="font-size:12px;color:var(--mid);">—</span>`;
       return `<tr>
-        <td><b><span class="order-detail-btn" onclick="viewOrder('${o._id}')" style="text-decoration:none;color:var(--gold);">${o.orderNumber}</span></b></td>
+        <td><b><span class="order-detail-btn" onclick="viewOrder('${o._id}')" style="color:#1565c0;text-decoration:underline;">${o.orderNumber}</span></b></td>
         <td style="font-size:12px;">${o.customerEmail||'—'}</td>
         <td style="font-size:12px;">${fmtDate(o.createdAt)}</td>
         <td style="font-size:12px;font-weight:700;color:var(--gold);">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td><span class="order-status status-${(o.status||'pending').replace('_','-')}">${(o.status||'pending').replace(/_/g,' ')}</span></td>
         <td style="font-weight:700;font-family:'Lato',sans-serif;">$${(o.total||0).toFixed(2)}</td>
-        <td>${btn}</td>
+        <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;"><button class="cust-detail-btn" onclick="event.stopPropagation();showCustDetail('${o._id}')">👤 Customer</button>${btn}</td>
       </tr>`;
     }).join('')}</tbody>
   </table>`;
@@ -2342,6 +2354,30 @@ async function updateMyOutletOrderStatus(id, newStatus, orderNum) {
   if (data.success) { showToast(`Order updated`, 'success'); loadMyStoreOrders(); }
   else showToast(data.message || 'Failed', 'error');
 }
+
+async function showCustDetail(orderId) {
+  const modal = document.getElementById('custDetailModal');
+  const body  = document.getElementById('custDetailBody');
+  body.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mid);">Loading…</div>';
+  modal.classList.add('open');
+  try {
+    const data = await apiFetch(`/dealer/orders/${orderId}/customer`, { headers: apiHeaders() });
+    if (!data.success || !data.customer) { body.innerHTML = '<p style="color:#c0392b;padding:16px;">Could not load customer details.</p>'; return; }
+    const cu = data.customer;
+    const name = [cu.firstName, cu.lastName].filter(Boolean).join(' ') || cu.username || '—';
+    const addr = (cu.addresses || []).find(a => a.isDefault) || (cu.addresses || [])[0];
+    body.innerHTML = `
+      <div class="cust-modal-row"><span class="cust-modal-label">Name</span><span>${name}</span></div>
+      <div class="cust-modal-row"><span class="cust-modal-label">Email</span><span>${cu.email || '—'}</span></div>
+      <div class="cust-modal-row"><span class="cust-modal-label">Phone</span><span>${cu.phone || '—'}</span></div>
+      <div class="cust-modal-row"><span class="cust-modal-label">State</span><span>${cu.preferredState || '—'}</span></div>
+      ${addr ? `<div class="cust-modal-row"><span class="cust-modal-label">Address</span><span>${[addr.line1,addr.line2,addr.city,addr.state,addr.postcode].filter(Boolean).join(', ')}</span></div>` : ''}
+      <div class="cust-modal-row"><span class="cust-modal-label">Member since</span><span>${fmtDate(cu.createdAt)}</span></div>`;
+  } catch(e) { body.innerHTML = '<p style="color:#c0392b;padding:16px;">Error loading details.</p>'; }
+}
+function closeCustModal() { document.getElementById('custDetailModal').classList.remove('open'); }
+window.showCustDetail = showCustDetail;
+window.closeCustModal = closeCustModal;
 
 // ── COUNTS ────────────────────────────────────────────────────────────────────
 async function loadCounts(){
@@ -2487,7 +2523,20 @@ async function loadStateDropdowns(){
     const states = data.states || [];
     if (!states.length) return;
     const opts = states.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-    const saved = getVpState();
+    let saved = getVpState();
+    if (!saved) {
+      const _tok = localStorage.getItem('vp_token');
+      if (_tok) {
+        try {
+          const me = await fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+_tok,'Content-Type':'application/json'}});
+          const md = await me.json();
+          if (md && md.user) {
+            const s = md.user.preferredState || md.user.dealerInfo?.state || '';
+            if (s) { localStorage.setItem('vp_state', s); sessionStorage.setItem('vp_state_synced','1'); saved = s; }
+          }
+        } catch(e) {}
+      }
+    }
     ['stateDropdown','mobileStateDropdown'].forEach(function(id){
       const dd = document.getElementById(id);
       if (!dd) return;
@@ -2500,6 +2549,17 @@ async function loadStateDropdowns(){
 }
 loadStateDropdowns();
 </script>
+
+<!-- ── CUSTOMER DETAIL MODAL ── -->
+<div id="custDetailModal">
+  <div class="cust-modal-box">
+    <div class="cust-modal-head">
+      <h3>Customer Details</h3>
+      <span onclick="closeCustModal()" style="cursor:pointer;font-size:18px;opacity:.8;">✕</span>
+    </div>
+    <div class="cust-modal-body" id="custDetailBody">Loading…</div>
+  </div>
+</div>
 
 <!-- ── BRANDED CONFIRM MODAL ── -->
 <div class="vp-modal-overlay" id="vpModalOverlay">
