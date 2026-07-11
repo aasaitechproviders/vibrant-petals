@@ -2044,23 +2044,22 @@ loadWishCount();
 // Load state dropdowns dynamically from DB
 async function loadStateDropdowns(){
   try {
-    const data = await apiFetch('/states');
-    const states = data.states || [];
+    const _tok = localStorage.getItem('vp_token');
+    const [statesData, meData] = await Promise.all([
+      apiFetch('/states'),
+      _tok ? fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+_tok,'Content-Type':'application/json'}}).then(r=>r.json()).catch(()=>null) : Promise.resolve(null)
+    ]);
+    const states = statesData.states || [];
     if (!states.length) return;
-    const opts = states.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-    // Sync user preferred state first if not already in localStorage
+    const opts = states.map(s=>`<option value="${s.name}">${s.name}</option>`).join('');
     let saved = getVpState();
-    if (!saved) {
-      const _tok = localStorage.getItem('vp_token');
-      if (_tok) {
-        try {
-          const me = await fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+_tok,'Content-Type':'application/json'}});
-          const md = await me.json();
-          if (md && md.user) {
-            const s = md.user.preferredState || md.user.dealerInfo?.state || '';
-            if (s) { localStorage.setItem('vp_state', s); sessionStorage.setItem('vp_state_synced','1'); saved = s; }
-          }
-        } catch(e) {}
+    if (meData?.user) {
+      const role = meData.user.role;
+      const profileState = meData.user.preferredState || meData.user.dealerInfo?.state || '';
+      if (profileState && (role==='Retail' || role==='Dealer' || !saved)) {
+        localStorage.setItem('vp_state', profileState);
+        sessionStorage.setItem('vp_state_synced','1');
+        saved = profileState;
       }
     }
     ['stateDropdown','mobileStateDropdown'].forEach(function(id){
@@ -2068,7 +2067,7 @@ async function loadStateDropdowns(){
       if (!dd) return;
       dd.innerHTML = opts;
       dd.value = saved || '';
-      if (!dd.value && states.length) { dd.value = states[0].name; setVpState(states[0].name); }
+      if (!dd.value && states.length) { dd.value = states[0].name; localStorage.setItem('vp_state', states[0].name); }
     });
   } catch(e) {}
 }
