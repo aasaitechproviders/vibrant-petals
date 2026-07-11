@@ -1033,14 +1033,16 @@ async function init(){
     if(_role === 'Retail'){
       const myData    = await apiFetch('/retail/outlets',{headers:apiHeaders()}).catch(()=>({outlets:[]}));
       const ownActive = (myData.outlets||[]).filter(o=>o.isActive);
-      const preState = u.preferredState || (ownActive[0]?.state) || '';
+      const preState  = u.userState || u.preferredState || (ownActive[0]?.state) || '';
+      const terrSel   = document.getElementById('outletTerritoryFilter');
       if(preState){
         document.getElementById('outletStateFilter').value = preState;
         const td = await apiFetch('/territories?state=' + encodeURIComponent(preState)).catch(()=>({territories:[]}));
-        const terrSel = document.getElementById('outletTerritoryFilter');
         terrSel.innerHTML = '<option value="">All Territories</option>';
         (td.territories||[]).forEach(t=>{ const o=document.createElement('option'); o.value=t.slug; o.textContent=t.name; terrSel.appendChild(o); });
-        if(u.preferredTerritory) terrSel.value = u.preferredTerritory;
+        // Auto-select territory from their own outlet
+        const ownTerrSlug = ownActive[0]?.territorySlug || u.preferredTerritory || '';
+        if(ownTerrSlug) terrSel.value = ownTerrSlug;
       }
       const stateFilter = document.getElementById('outletStateFilter').value;
       const terrFilter  = document.getElementById('outletTerritoryFilter').value;
@@ -1058,14 +1060,16 @@ async function init(){
     if(_role === 'Dealer'){
       const myData    = await apiFetch('/dealer/outlets',{headers:apiHeaders()}).catch(()=>({outlets:[]}));
       const ownActive = (myData.outlets||[]).filter(o=>o.isActive);
-      const preState = u.preferredState || (ownActive[0]?.state) || '';
+      const preState  = u.userState || u.preferredState || (ownActive[0]?.state) || '';
+      const terrSel   = document.getElementById('outletTerritoryFilter');
       if(preState){
         document.getElementById('outletStateFilter').value = preState;
         const td = await apiFetch('/territories?state=' + encodeURIComponent(preState)).catch(()=>({territories:[]}));
-        const terrSel = document.getElementById('outletTerritoryFilter');
         terrSel.innerHTML = '<option value="">All Territories</option>';
         (td.territories||[]).forEach(t=>{ const o=document.createElement('option'); o.value=t.slug; o.textContent=t.name; terrSel.appendChild(o); });
-        if(u.preferredTerritory) terrSel.value = u.preferredTerritory;
+        // Auto-select territory from their own outlet
+        const ownTerrSlug = ownActive[0]?.territorySlug || u.preferredTerritory || '';
+        if(ownTerrSlug) terrSel.value = ownTerrSlug;
       }
       const stateFilter = document.getElementById('outletStateFilter').value;
       const terrFilter  = document.getElementById('outletTerritoryFilter').value;
@@ -1080,9 +1084,10 @@ async function init(){
       return;
     }
 
-    if(u.preferredState){
-      document.getElementById('outletStateFilter').value = u.preferredState;
-      const td = await apiFetch('/territories?state=' + encodeURIComponent(u.preferredState)).catch(()=>({territories:[]}));
+    if(u.userState || u.preferredState){
+      const ps = u.userState || u.preferredState;
+      document.getElementById('outletStateFilter').value = ps;
+      const td = await apiFetch('/territories?state=' + encodeURIComponent(ps)).catch(()=>({territories:[]}));
       const terrSel = document.getElementById('outletTerritoryFilter');
       terrSel.innerHTML = '<option value="">All Territories</option>';
       (td.territories||[]).forEach(t=>{
@@ -1268,6 +1273,11 @@ async function loadStateDropdowns(){
       dd.value = saved || '';
       if (!dd.value && states.length) { dd.value = states[0].name; localStorage.setItem('vp_state', states[0].name); }
     });
+    // Also populate the outlet state filter so it has options ready for auto-selection
+    const osf = document.getElementById('outletStateFilter');
+    if (osf) {
+      osf.innerHTML = '<option value="">All States</option>' + opts;
+    }
   } catch(e) {}
 }
 loadStateDropdowns();
