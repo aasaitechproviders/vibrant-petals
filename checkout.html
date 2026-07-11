@@ -960,6 +960,11 @@ function getCheckoutRole(){
     return JSON.parse(atob(raw.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role||null;
   }catch(e){return null;}
 }
+function getVpState(){ return localStorage.getItem('vp_state') || ''; }
+function setVpState(s){
+  if(s) localStorage.setItem('vp_state',s); else localStorage.removeItem('vp_state');
+  ['stateDropdown','mobileStateDropdown'].forEach(function(id){var dd=document.getElementById(id);if(dd)dd.value=s||'';});
+}
 
 async function init(){
   // Wait for state dropdowns to be populated first (avoids race where outletStateFilter has no options)
@@ -1000,11 +1005,6 @@ async function init(){
     return; // Skip normal init for Stripe returns
   }
 
-  function getVpState(){ return localStorage.getItem('vp_state') || ''; }
-  function setVpState(s){
-    if(s) localStorage.setItem('vp_state',s); else localStorage.removeItem('vp_state');
-    ['stateDropdown','mobileStateDropdown'].forEach(function(id){var dd=document.getElementById(id);if(dd)dd.value=s||'';});
-  }
   (function(){var s=getVpState();['stateDropdown','mobileStateDropdown'].forEach(function(id){var dd=document.getElementById(id);if(dd)dd.value=s;});})();
   (async function(){
     var _tok=localStorage.getItem('vp_token');
@@ -1262,7 +1262,7 @@ async function loadStateDropdowns(){
     if (meData?.user) {
       const role = meData.user.role;
       const profileState = meData.user.userState || meData.user.preferredState || '';
-      if (profileState && (role==='Retail' || role==='Dealer' || !saved)) {
+      if (profileState) {
         localStorage.setItem('vp_state', profileState);
         sessionStorage.setItem('vp_state_synced','1');
         saved = profileState;
@@ -1273,7 +1273,7 @@ async function loadStateDropdowns(){
       if (!dd) return;
       dd.innerHTML = opts;
       dd.value = saved || '';
-      if (!dd.value && states.length) { dd.value = states[0].name; localStorage.setItem('vp_state', states[0].name); }
+      if (!dd.value && states.length) { dd.value = states[0].name; localStorage.setItem('vp_state', states[0].name); saved = states[0].name; }
     });
     // Also populate the outlet state filter so it has options ready for auto-selection
     const osf = document.getElementById('outletStateFilter');
@@ -1282,6 +1282,22 @@ async function loadStateDropdowns(){
       // Pre-select user's preferred state so outlet filter is ready before init() runs
       if (saved) {
         osf.value = saved;
+        // Also pre-populate territory dropdown for the saved state
+        try {
+          const terrSel = document.getElementById('outletTerritoryFilter');
+          if (terrSel) {
+            const td = await apiFetch('/territories?state=' + encodeURIComponent(saved)).catch(() => ({ territories: [] }));
+            terrSel.innerHTML = '<option value="">All Territories</option>';
+            (td.territories || []).forEach(t => {
+              const opt = document.createElement('option');
+              opt.value = t.slug; opt.textContent = t.name;
+              terrSel.appendChild(opt);
+            });
+            // Pre-select preferred territory if available
+            const prefTerr = meData?.user?.preferredTerritory || '';
+            if (prefTerr) terrSel.value = prefTerr;
+          }
+        } catch(te) {}
       }
     }
   } catch(e) {}
