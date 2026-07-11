@@ -1452,7 +1452,7 @@ function resolveVariantsForState(allVariants, state) {
   grid.innerHTML = products.map(p => {
     const role      = getTokenRole();
     const cardVars  = resolveVariantsForState(p.variants||[], getVpState());
-    const hasVars   = cardVars.length > 0;
+    const hasVars   = cardVars.length > 1; // only show variant selector when >1 option
     const img       = p.images?.[0] || '';
     const inStock   = p.stockStatus !== 'outofstock';
     const cardId    = 'qty_' + p._id;
