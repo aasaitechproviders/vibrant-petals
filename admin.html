@@ -2106,6 +2106,7 @@ async function loadOutlets() {
   const pickupEnabled  = list.filter(o => o.isActive && o.pickupEnabled).length;
   const adminCreated   = list.filter(o => !o.dealerId && !o.ownerUserId).length;
   const dealerOutlets  = list.filter(o => o.dealerId && !o.ownerUserId).length;
+  const retailOutlets  = list.filter(o => o.ownerUserId && !o.dealerId).length;
   renderSummaryStats('outletsSummary', [
     { label: 'Total Outlets',    value: totalOutlets,   color: '#1A1A1A' },
     { label: 'Active',           value: activeOutlets,  color: '#27ae60' },
@@ -2113,6 +2114,7 @@ async function loadOutlets() {
     { label: 'Pickup Enabled',   value: pickupEnabled,  color: '#9B8B5A' },
     { label: 'Admin-created',    value: adminCreated,   color: '#555'    },
     { label: 'Dealer Outlets',   value: dealerOutlets,  color: '#856404' },
+    { label: 'Retail Outlets',   value: retailOutlets,  color: '#2e7d32' },
   ]);
 
   if (!list.length) {
@@ -2130,8 +2132,11 @@ async function loadOutlets() {
       <tbody>
         ${list.map(o => {
           const isDealerOutlet = o.dealerId && !o.ownerUserId;
+          const isRetailOutlet = o.ownerUserId && !o.dealerId;
           const originLabel = isDealerOutlet
             ? '<span style="font-size:10px;background:#fff3cd;color:#856404;border:1px solid #ffc10740;padding:2px 7px;border-radius:10px;font-weight:700;margin-left:6px;">Dealer outlet</span>'
+            : isRetailOutlet
+            ? '<span style="font-size:10px;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a740;padding:2px 7px;border-radius:10px;font-weight:700;margin-left:6px;">Retail outlet</span>'
             : '<span style="font-size:10px;background:#f8f9fa;color:#555;border:1px solid #ddd;padding:2px 7px;border-radius:10px;margin-left:6px;">Admin-created</span>';
           const activateBtn = (!o.isActive && isDealerOutlet)
             ? `<button class="btn-action btn-action-activate" onclick="activateOutlet('${o._id}','${o.name.replace(/'/g,"\\'")}'">
