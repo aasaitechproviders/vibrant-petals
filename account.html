@@ -2120,8 +2120,11 @@ async function doLogin(){
     token=data.token;localStorage.setItem('vp_token',token);
     if(data.user?.role==='Administrator'){location.href='admin.html';return;}
     // Set state immediately from login response — no extra API call needed
+    console.log('[VP STATE] Login response user:', JSON.stringify(data.user));
     const _us = data.user?.userState || data.user?.preferredState || '';
+    console.log('[VP STATE] userState from login:', _us);
     if(_us){ localStorage.setItem('vp_state',_us); var _dd=document.getElementById('stateDropdown');if(_dd)_dd.value=_us; }
+    else { console.warn('[VP STATE] No userState or preferredState in login response'); }
     await mergeCart();
     init();
     loadStateDropdowns();
@@ -2487,12 +2490,15 @@ loadOthersNav();
 async function loadStateDropdowns(){
   try {
     const _tok = localStorage.getItem('vp_token');
+    console.log('[VP STATE] loadStateDropdowns called, token present:', !!_tok);
     const [statesData, meData] = await Promise.all([
       apiFetch('/states'),
       _tok ? fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+_tok,'Content-Type':'application/json'}}).then(r=>r.json()).catch(()=>null) : Promise.resolve(null)
     ]);
     const states = statesData.states || [];
-    if (!states.length) return;
+    console.log('[VP STATE] states loaded:', states.map(s=>s.name));
+    console.log('[VP STATE] auth/me response:', meData ? JSON.stringify(meData.user) : 'null (not logged in)');
+    if (!states.length) { console.warn('[VP STATE] No states returned'); return; }
     const opts = states.map(s=>`<option value="${s.name}">${s.name}</option>`).join('');
     // Also populate account-specific form state selects
     ['profState','outletState','dealerTerrState','modalOutletState'].forEach(function(id){
@@ -2505,13 +2511,18 @@ async function loadStateDropdowns(){
     });
     // Determine correct ann-bar state — Retail/Dealer always use profile, Customer uses profile only if unset
     let saved = getVpState();
+    console.log('[VP STATE] current localStorage vp_state:', saved);
     if (meData?.user) {
       const role = meData.user.role;
       const profileState = meData.user.userState || meData.user.preferredState || '';
+      console.log('[VP STATE] role:', role, '| profileState:', profileState);
       if (profileState && (role==='Retail' || role==='Dealer' || !saved)) {
         localStorage.setItem('vp_state', profileState);
         sessionStorage.setItem('vp_state_synced','1');
         saved = profileState;
+        console.log('[VP STATE] ✅ state set to:', saved);
+      } else {
+        console.warn('[VP STATE] ⚠️ profileState empty or condition not met — profileState:', profileState, '| role:', role, '| saved:', saved);
       }
     }
     ['stateDropdown','mobileStateDropdown'].forEach(function(id){
@@ -2519,7 +2530,8 @@ async function loadStateDropdowns(){
       if (!dd) return;
       dd.innerHTML = opts;
       dd.value = saved || '';
-      if (!dd.value && states.length) { dd.value = states[0].name; localStorage.setItem('vp_state', states[0].name); }
+      console.log('[VP STATE] dropdown', id, '— set to:', dd.value, '| options:', Array.from(dd.options).map(o=>o.value));
+      if (!dd.value && states.length) { dd.value = states[0].name; localStorage.setItem('vp_state', states[0].name); console.warn('[VP STATE] fell back to first state:', states[0].name); }
     });
   } catch(e) {}
 }
