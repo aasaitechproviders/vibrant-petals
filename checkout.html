@@ -1009,11 +1009,6 @@ async function init(){
   buildAcctDrop();
   initDatePicker();
 
-  if(_role === 'Dealer' || _role === 'Retail'){
-    const cs = document.getElementById('couponSection');
-    if(cs) cs.style.display = 'none';
-  }
-
   await loadCart();
 
   if(token){
