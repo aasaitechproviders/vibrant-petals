@@ -1264,8 +1264,11 @@ async function loadDealerTerrTerritoryOptions() {
     dealerOutletTerritoriesData[state] = td.territories || [];
   }
   // Get dealer's already-held territory slugs to also disable those
+  // Exclude rejected outlets so those territories can be re-requested
   const heldSlugs = new Set(
-    (window._dealerOutletsMap ? Object.values(window._dealerOutletsMap) : []).map(o => o.territorySlug)
+    (window._dealerOutletsMap ? Object.values(window._dealerOutletsMap) : [])
+      .filter(o => o.approvalStatus !== 'rejected')
+      .map(o => o.territorySlug)
   );
   sel.innerHTML = '<option value="">Select territory...</option>' +
     dealerOutletTerritoriesData[state].map(t => {
