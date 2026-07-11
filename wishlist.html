@@ -19,6 +19,19 @@
     nav ul li a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--dark);transition:color .2s;}
     nav ul li a:hover{color:var(--gold);}
     .nav-icons{display:flex;align-items:center;gap:20px;}
+    .search-overlay{position:fixed;inset:0;background:rgba(250,247,242,.97);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:15vh;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .search-overlay.open{opacity:1;pointer-events:all;}
+    .search-close{position:absolute;top:20px;right:24px;font-size:28px;color:var(--dark);cursor:pointer;transition:color .2s;}
+    .search-close:hover{color:var(--gold);}
+    .search-label{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:24px;color:var(--dark);}
+    .search-bar{display:flex;align-items:center;width:min(600px,90vw);border-bottom:2px solid var(--dark);padding-bottom:10px;gap:12px;}
+    .search-bar input{flex:1;border:none;background:transparent;font-size:20px;outline:none;font-family:'Cormorant Garamond',serif;}
+    .search-results{width:min(600px,90vw);margin-top:24px;display:flex;flex-direction:column;gap:12px;max-height:55vh;overflow-y:auto;padding-right:4px;}
+    .search-result-item{display:flex;align-items:center;gap:16px;padding:12px;background:#fff;border:1px solid #e8e0d2;cursor:pointer;transition:border-color .2s;}
+    .search-result-item:hover{border-color:var(--gold);}
+    .search-result-item img{width:50px;height:50px;object-fit:cover;background:var(--card-bg);}
+    .search-result-name{font-size:14px;font-weight:600;}
+    .search-result-price{font-size:13px;color:var(--mid);}
     .nav-icon-btn{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--dark);transition:color .2s;}
     .nav-icon-btn:hover{color:var(--gold);}
     .nav-icon-btn svg{width:22px;height:22px;stroke-width:1.6;}
@@ -132,6 +145,7 @@
     </ul></nav>
     <div class="nav-icons">
       <div class="acct-icon-wrap">
+        <button class="nav-icon-btn" id="searchBtn" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></button>
         <button class="nav-icon-btn" id="loginBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
         <div class="acct-drop" id="acctDrop"></div>
       </div>
@@ -407,5 +421,14 @@ async function loadStateDropdowns(){
 }
 loadStateDropdowns();
 </script>
+<div class="search-overlay" id="searchOverlay">
+  <span class="search-close" id="searchClose">✕</span>
+  <div class="search-label">What are you looking for?</div>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search products..." autocomplete="off"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--dark)" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
 </body>
 </html>
