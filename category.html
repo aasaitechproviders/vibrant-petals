@@ -63,7 +63,7 @@
     .mobile-nav-sub a{padding:11px 20px 11px 36px!important;font-size:13px!important;color:var(--mid)!important;border-bottom:1px solid #ede8de!important;}
     .mobile-nav-arrow{font-size:11px;transition:transform .2s;}
     .mobile-nav-arrow.open{transform:rotate(180deg);}
-    .ann-bar-sel{display:inline-flex;align-items:center;gap:6px;margin-left:14px;} .ann-bar-sel select{border:none;background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;outline:none;padding:3px 8px;border-radius:3px;letter-spacing:.05em;} .ann-bar-sel select:hover{background:rgba(255,255,255,.28);} .ann-bar-sel select option{color:#1A1A1A;background:#fff;}
+    .ann-bar-sel{position:absolute;right:16px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:7px;} .ann-bar-sel select{border:none;background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;outline:none;padding:3px 8px;border-radius:3px;letter-spacing:.05em;} .ann-bar-sel select:hover{background:rgba(255,255,255,.28);} .ann-bar-sel select option{color:#1A1A1A;background:#fff;}
 
     /* ── SHOP LAYOUT ── */
     .shop-layout{max-width:1280px;margin:0 auto;padding:40px 32px;display:grid;grid-template-columns:220px 1fr;gap:40px;}
@@ -202,7 +202,7 @@
 </head>
 <body>
 
-<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Melbourne &amp; Sydney<span class="ann-bar-sel"><span>📍</span><select id="stateDropdown" onchange="setVpState(this.value)"></select></span></div>
+<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Victoria &amp; New South Wales<span class="ann-bar-sel"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.85;white-space:nowrap;">Select your state</span><select id="stateDropdown" onchange="setVpState(this.value)"></select></span></div>
 
 <header>
   <div class="nav-inner">
@@ -522,16 +522,26 @@ function renderProducts(products){
       const fp = role==='Dealer'&&fv.dealerPrice ? fv.dealerPrice
                : role==='Retail'&&fv.retailPrice ? fv.retailPrice
                : (fv.salePrice??fv.price??0);
-      priceHtml = role==='Dealer' ? `<span style="color:#F5A623;font-weight:700;">⭐ $${fp.toFixed(2)}</span>`
-                : role==='Retail' ? `<span style="color:#1565c0;font-weight:700;">🏪 $${fp.toFixed(2)}</span>`
-                : `$${fp.toFixed(2)}`;
+      if (role==='Dealer') {
+        priceHtml = `<span style="color:#F5A623;font-weight:700;">⭐ $${fp.toFixed(2)}</span>`;
+      } else if (role==='Retail') {
+        priceHtml = `<span style="color:#1565c0;font-weight:700;">🏪 $${fp.toFixed(2)}</span>`;
+      } else {
+        const reg = fv.price ?? 0;
+        if (fv.salePrice && reg && fv.salePrice < reg) {
+          const pct = Math.round((1 - fv.salePrice / reg) * 100);
+          priceHtml = `$${fv.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${reg.toFixed(2)}</span> <span style="background:#e74c3c;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:3px;">${pct}% OFF</span>`;
+        } else {
+          priceHtml = `$${fp.toFixed(2)}`;
+        }
+      }
       const opts = cardVars.map(v => {
         const vp = role==='Dealer'&&v.dealerPrice ? v.dealerPrice
                  : role==='Retail'&&v.retailPrice ? v.retailPrice
                  : (v.salePrice??v.price??0);
-        return `<option value="${v._origIndex}" data-price="${vp}">${v.label} — $${vp.toFixed(2)}</option>`;
+        return `<option value="${v._origIndex}" data-price="${vp}" data-sku="${v.sku||''}" data-regular="${v.price||0}" data-saleprice="${v.salePrice||''}">${v.label} — $${vp.toFixed(2)}</option>`;
       }).join('');
-      variantDropdownHtml = `<select id="varSel_${p._id}" onclick="event.stopPropagation()" onchange="event.stopPropagation();onCardVariantChange('${p._id}',this)" style="width:100%;padding:5px 8px;border:1px solid #e0d8c8;border-radius:4px;font-family:inherit;font-size:12px;background:#fff;cursor:pointer;margin-bottom:6px;outline:none;">${opts}</select>`;
+      variantDropdownHtml = `<select id="varSel_${p._id}" onclick="event.stopPropagation()" onchange="event.stopPropagation();onCardVariantChange('${p._id}',this)" style="width:auto;max-width:100%;padding:5px 8px;border:1px solid #e0d8c8;border-radius:4px;font-family:inherit;font-size:12px;background:#fff;cursor:pointer;margin-bottom:6px;outline:none;">${opts}</select>`;
     } else {
       priceHtml = formatPrice(p);
       variantDropdownHtml = '';
@@ -549,7 +559,7 @@ function renderProducts(products){
         </div>
         <div class="product-info">
           <div class="product-name">${p.name}</div>
-          ${p.sku?`<div style="font-size:11px;color:var(--mid);font-weight:400;letter-spacing:.03em;">SKU: ${p.sku}</div>`:""}
+          <div id="cardSku_${p._id}" style="font-size:11px;color:var(--mid);font-weight:400;letter-spacing:.03em;">${hasVars ? (cardVars[0].sku ? `SKU: ${cardVars[0].sku}` : '') : (p.sku ? `SKU: ${p.sku}` : '')}</div>
           <div class="product-price" id="cardPrice_${p._id}">${priceHtml}</div>
           ${inStock?`
           ${variantDropdownHtml}
@@ -654,14 +664,26 @@ async function addToCartQty(productId,cardId){
   else showToast(data.message||'Error','error');
 }
 function onCardVariantChange(pid, sel) {
-  const opt   = sel.options[sel.selectedIndex];
-  const price = parseFloat(opt.dataset.price);
-  const role  = getTokenRole();
-  const fmt   = role==='Dealer' ? `<span style="color:#F5A623;font-weight:700;">⭐ $${price.toFixed(2)}</span>`
-              : role==='Retail' ? `<span style="color:#1565c0;font-weight:700;">🏪 $${price.toFixed(2)}</span>`
-              : `$${price.toFixed(2)}`;
+  const opt     = sel.options[sel.selectedIndex];
+  const price   = parseFloat(opt.dataset.price);
+  const sku     = opt.dataset.sku || '';
+  const regular = parseFloat(opt.dataset.regular) || 0;
+  const role    = getTokenRole();
+  let fmt;
+  if (role==='Dealer') {
+    fmt = `<span style="color:#F5A623;font-weight:700;">⭐ $${price.toFixed(2)}</span>`;
+  } else if (role==='Retail') {
+    fmt = `<span style="color:#1565c0;font-weight:700;">🏪 $${price.toFixed(2)}</span>`;
+  } else if (regular && price < regular) {
+    const pct = Math.round((1 - price / regular) * 100);
+    fmt = `$${price.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${regular.toFixed(2)}</span> <span style="background:#e74c3c;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:3px;">${pct}% OFF</span>`;
+  } else {
+    fmt = `$${price.toFixed(2)}`;
+  }
   const el = document.getElementById('cardPrice_'+pid);
   if(el) el.innerHTML = fmt;
+  const skuEl = document.getElementById('cardSku_'+pid);
+  if(skuEl) skuEl.textContent = sku ? `SKU: ${sku}` : '';
 }
 async function addToWishlist(productId){
   if(!token){location.href='account.html';return;}
