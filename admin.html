@@ -1305,6 +1305,7 @@ async function loadAdminUser() {
   document.getElementById('adminAvatar').textContent = (userData.username || 'A')[0].toUpperCase();
   loadDashboard();
   loadApprovals(); // pre-load badge count on startup
+  loadStates();   // pre-load states so variant state dropdown is always populated
 }
 
 async function adminLogin() {
