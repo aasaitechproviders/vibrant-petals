@@ -1310,7 +1310,7 @@ async function saveDealerTerritoryModal() {
   if (!state) {
     msg.className = 'form-msg err'; msg.textContent = 'Please select a state.'; msg.style.display = 'block'; return;
   }
-  if (phone && !/^(?:\+61|61|0)4\d{8}$/.test(phone.replace(/[\s\-]/g,''))) { msg.className='form-msg err'; msg.textContent='Please enter a valid Australian mobile number (e.g. 0412 345 678 or +61 412 345 678).'; msg.style.display='block'; return; }
+  if (phone && !/^(?:\+61|61|0)[2-9]\d{8}$/.test(phone.replace(/[\s\-]/g,''))) { msg.className='form-msg err'; msg.textContent='Please enter a valid Australian phone number (e.g. 0412 345 678 or 03 9000 0001).'; msg.style.display='block'; return; }
   if (!editId && !territorySlug) {
     msg.className = 'form-msg err'; msg.textContent = 'Please select a territory.'; msg.style.display = 'block'; return;
   }
@@ -1505,7 +1505,7 @@ async function saveOutletFromAccount() {
   const msg = document.getElementById('outletFormMsg');
   msg.style.display = 'none';
 
-  if (phone && !/^(?:\+61|61|0)4\d{8}$/.test(phone.replace(/[\s\-]/g,''))) { msg.className='form-msg err'; msg.textContent='Please enter a valid Australian mobile number (e.g. 0412 345 678 or +61 412 345 678).'; msg.style.display='block'; return; }
+  if (phone && !/^(?:\+61|61|0)[2-9]\d{8}$/.test(phone.replace(/[\s\-]/g,''))) { msg.className='form-msg err'; msg.textContent='Please enter a valid Australian phone number (e.g. 0412 345 678 or 03 9000 0001).'; msg.style.display='block'; return; }
   if (!name || !address || !state) {
     msg.className = 'form-msg err'; msg.textContent = 'Please fill in all required fields.'; msg.style.display = 'block'; return;
   }
@@ -1657,7 +1657,7 @@ async function saveRetailOutlet() {
   const msg          = document.getElementById('retailOutletFormMsg');
   msg.style.display  = 'none';
 
-  if (phone && !/^(?:\+61|61|0)4\d{8}$/.test(phone.replace(/[\s\-]/g,''))) { msg.className='form-msg err'; msg.textContent='Please enter a valid Australian mobile number (e.g. 0412 345 678 or +61 412 345 678).'; msg.style.display='block'; return; }
+  if (phone && !/^(?:\+61|61|0)[2-9]\d{8}$/.test(phone.replace(/[\s\-]/g,''))) { msg.className='form-msg err'; msg.textContent='Please enter a valid Australian phone number (e.g. 0412 345 678 or 03 9000 0001).'; msg.style.display='block'; return; }
   if (!name || !address || !suburb || !state || !territorySlug) {
     msg.className = 'form-msg err'; msg.textContent = 'Please fill in all required fields.'; msg.style.display = 'block'; return;
   }
@@ -1755,7 +1755,7 @@ async function saveRetailOutletModal() {
   const msg          = document.getElementById('modalOutletMsg');
   msg.style.display  = 'none';
   const isNew = !id;
-  if (phone && !/^(?:\+61|61|0)4\d{8}$/.test(phone.replace(/[\s\-]/g,''))) { msg.className='form-msg err'; msg.textContent='Please enter a valid Australian mobile number (e.g. 0412 345 678 or +61 412 345 678).'; msg.style.display='block'; return; }
+  if (phone && !/^(?:\+61|61|0)[2-9]\d{8}$/.test(phone.replace(/[\s\-]/g,''))) { msg.className='form-msg err'; msg.textContent='Please enter a valid Australian phone number (e.g. 0412 345 678 or 03 9000 0001).'; msg.style.display='block'; return; }
   if (!name || !address) {
     msg.className = 'form-msg err'; msg.textContent = 'Name and address are required.'; msg.style.display = 'block'; return;
   }
@@ -1853,6 +1853,7 @@ async function saveAddress(){
     isDefault:document.getElementById('aDefault').checked,
   };
   if(!body.firstName||!body.address||!body.city||!body.postcode){msg.style.display='block';msg.className='form-msg err';msg.textContent='Please fill all required fields.';return;}
+  if(body.phone && !/^(?:\+61|61|0)[2-9]\d{8}$/.test(body.phone.replace(/[\s\-]/g,''))){msg.style.display='block';msg.className='form-msg err';msg.textContent='Please enter a valid Australian phone number (e.g. 0412 345 678 or 03 9000 0001).';return;}
   const url=editingAddrId?`/auth/addresses/${editingAddrId}`:'/auth/addresses';
   const method=editingAddrId?'PUT':'POST';
   const data=await apiFetch(url,{method,headers:apiHeaders(),body:JSON.stringify(body)});
@@ -2265,7 +2266,7 @@ async function saveMyStore() {
   const origTerritory = terrEl?.dataset.original || '';
   const msg         = document.getElementById('myStoreMsg');
   msg.style.display = 'none';
-  if (phone && !/^(?:\+61|61|0)4\d{8}$/.test(phone.replace(/[\s\-]/g,''))) { msg.className='form-msg err'; msg.textContent='Please enter a valid Australian mobile number (e.g. 0412 345 678 or +61 412 345 678).'; msg.style.display='block'; return; }
+  if (phone && !/^(?:\+61|61|0)[2-9]\d{8}$/.test(phone.replace(/[\s\-]/g,''))) { msg.className='form-msg err'; msg.textContent='Please enter a valid Australian phone number (e.g. 0412 345 678 or 03 9000 0001).'; msg.style.display='block'; return; }
 
   const territoryChanged = (newState !== origState || newTerritory !== origTerritory) && newState && newTerritory;
 
