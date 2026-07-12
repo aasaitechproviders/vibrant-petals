@@ -1520,6 +1520,7 @@ async function submitOutlet() {
   if (!address)                      { showMsg('outletMsg', 'Please enter your store address.', 'err'); return; }
   if (!state)                        { showMsg('outletMsg', 'Please select a state.', 'err'); return; }
   if (!territory)                    { showMsg('outletMsg', 'Please select your territory.', 'err'); return; }
+  if (storePhone && !/^(?:\+61|61|0)[2-9]\d{8}$/.test(storePhone.replace(/[\s\-]/g,''))) { showMsg('outletMsg', 'Please enter a valid Australian phone number (e.g. 0412 345 678 or 03 9000 0001).', 'err'); return; }
   if (!decl)                         { showMsg('outletMsg', 'Please confirm the declaration to proceed.', 'err'); return; }
 
   const btn = document.getElementById('outletSubmitBtn');
