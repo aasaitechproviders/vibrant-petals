@@ -5,7 +5,6 @@
   <link rel="icon" type="image/png" href="logo.png"/>
   <title>Admin – VibrantPetals</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
   <style>
     :root{--gold:#9B8B5A;--gold-dark:#7A6B3F;--gold-lt:#C5B483;--cream:#FAF7F2;--cream2:#F2EDE3;--dark:#1A1A1A;--mid:#555;--sidebar-w:240px;--topbar-h:60px;--radius:4px;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -13,7 +12,7 @@
     a{text-decoration:none;color:inherit;}ul{list-style:none;}button{cursor:pointer;border:none;background:none;font-family:inherit;}
     .sidebar{width:var(--sidebar-w);height:100vh;background:#1C3020;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
     .sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.12);display:flex;align-items:center;gap:10px;}
-    .sidebar-brand-name{font-family:'Playfair Display',serif;font-size:18px;color:#fff;}
+    .sidebar-brand-name{font-size:18px;color:#fff;}
     .sidebar-brand-badge{font-size:10px;background:var(--gold);color:#fff;padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:.06em;}
     .sidebar-nav{padding:16px 0;flex:1;}
     .nav-section-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4);padding:10px 20px 6px;font-weight:700;}
@@ -27,7 +26,7 @@
     .sidebar-footer a:hover{color:var(--gold-lt);}
     .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
     .topbar{height:var(--topbar-h);background:#fff;border-bottom:1px solid #e8e0d2;display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;}
-    .topbar-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;}
+    .topbar-title{font-size:20px;font-weight:400;}
     .topbar-right{display:flex;align-items:center;gap:16px;}
     .topbar-user{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--mid);}
     .topbar-avatar{width:34px;height:34px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;}
@@ -42,7 +41,7 @@
     .stat-icon.gold{background:rgba(155,139,90,.12);}.stat-icon.blue{background:rgba(59,130,246,.12);}
     .stat-icon.green{background:rgba(34,197,94,.12);}.stat-icon.purple{background:rgba(168,85,247,.12);}
     .stat-icon.orange{background:rgba(249,115,22,.12);}
-    .stat-val{font-family:'Playfair Display',serif;font-size:26px;font-weight:600;line-height:1;}
+    .stat-val{font-size:26px;font-weight:600;line-height:1;}
     .stat-label{font-size:12px;color:var(--mid);letter-spacing:.04em;margin-top:4px;}
     .stat-sub{font-size:12px;color:#aaa;margin-top:2px;}
     .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
@@ -90,7 +89,7 @@
     .modal-box.modal-wide{width:min(720px,95vw);}
     .modal.open .modal-box{transform:translateY(0);}
     .modal-head{padding:20px 24px;border-bottom:1px solid #e8e0d2;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1;}
-    .modal-head h3{font-family:'Playfair Display',serif;font-size:18px;}
+    .modal-head h3{font-size:18px;}
     .modal-close{font-size:22px;color:var(--mid);cursor:pointer;}.modal-close:hover{color:var(--dark);}
     .modal-body{padding:24px;}.modal-footer,.modal-foot{padding:16px 24px;border-top:1px solid #e8e0d2;display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:#fff;z-index:1;}
     .btn-cancel{padding:10px 20px;border:1px solid #ddd;font-size:13px;color:var(--mid);border-radius:var(--radius);}
@@ -154,7 +153,7 @@
     .low-stock-item:last-child{border-bottom:none;}
     .low-stock-item img{width:36px;height:36px;object-fit:cover;border-radius:2px;background:var(--cream2);}
     .ls-name{flex:1;font-size:14px;}.ls-qty{font-size:13px;font-weight:700;color:#c0392b;}
-    .revenue-big{font-family:'Playfair Display',serif;font-size:42px;color:var(--gold);text-align:center;padding:30px 0 10px;}
+    .revenue-big{font-size:42px;color:var(--gold);text-align:center;padding:30px 0 10px;}
     .revenue-sub{text-align:center;font-size:13px;color:var(--mid);padding-bottom:20px;}
     .coupon-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border:1px dashed var(--gold);color:var(--gold);border-radius:4px;font-family:monospace;}
     .order-items-table{width:100%;border-collapse:collapse;font-size:13px;}
@@ -183,7 +182,7 @@
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
     .admin-login{min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;background:var(--dark);}
     .admin-login-box{background:#fff;border-radius:var(--radius);padding:48px;width:min(400px,92vw);text-align:center;}
-    .admin-login-logo{font-family:'Playfair Display',serif;font-size:26px;color:var(--dark);margin-bottom:8px;}
+    .admin-login-logo{font-size:26px;color:var(--dark);margin-bottom:8px;}
     .admin-login-sub{font-size:13px;color:var(--mid);margin-bottom:32px;letter-spacing:.06em;text-transform:uppercase;}
     .admin-input{width:100%;padding:13px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:14px;border-radius:var(--radius);}
     .admin-input:focus{border-color:var(--gold);}
@@ -216,7 +215,7 @@
     .vp-modal-overlay.open .vp-modal{transform:translateY(0) scale(1);}
     .vp-modal-body{padding:36px 28px 20px;}
     .vp-modal-icon{font-size:32px;text-align:center;margin-bottom:12px;}
-    .vp-modal-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--dark);margin-bottom:12px;text-align:center;font-weight:400;}
+    .vp-modal-title{font-size:20px;color:var(--dark);margin-bottom:12px;text-align:center;font-weight:400;}
     .vp-modal-message{font-size:14px;color:var(--mid);line-height:1.65;text-align:center;}
     .vp-modal-footer{display:flex;gap:10px;padding:0 28px 28px;justify-content:center;}
     .vp-modal-btn{flex:1;max-width:160px;padding:12px 20px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:var(--radius);border:none;cursor:pointer;font-family:inherit;transition:background .15s,opacity .15s;}
@@ -226,6 +225,7 @@
     .vp-modal-confirm.danger{background:#c0392b;}
     .vp-modal-confirm.success{background:#27ae60;}
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
 
@@ -1239,15 +1239,15 @@ function vpConfirm({ title, message, icon = '❓', confirmText = 'Confirm', canc
 
 function fmtPickupDate(d) {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+  return new Date(d).toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'short', year:'numeric', timeZone:'Australia/Sydney'});
 }
 function fmtDate(d) {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-AU', {day:'numeric', month:'short', year:'numeric'});
+  return new Date(d).toLocaleDateString('en-AU', {day:'numeric', month:'short', year:'numeric', timeZone:'Australia/Sydney'});
 }
 function fmtDateTime(d) {
   if (!d) return '—';
-  return new Date(d).toLocaleString('en-AU', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+  return new Date(d).toLocaleString('en-AU', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', timeZone:'Australia/Sydney'});
 }
 const API = 'https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
 
@@ -4383,7 +4383,8 @@ function previewTemplate() {
   const body    = document.getElementById('tplBody').value;
   const year    = new Date().getFullYear();
   const fullHtml = `
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+</head>
 <body style="margin:0;padding:20px 0;background:#f0ebe0;">
   <div style="font-family:Arial,sans-serif;max-width:580px;margin:0 auto;background:#fffdf7;border:1px solid #e8dfc8;border-radius:6px;overflow:hidden;">
     <div style="background:#c9a227;padding:20px 28px;text-align:center;">
