@@ -5,7 +5,6 @@
   <link rel="icon" type="image/png" href="logo.png"/>
   <title>Checkout – VibrantPetals</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
   <script src="https://js.stripe.com/v3/"></script>
   <style>
     :root{--gold:#9B8B5A;--gold-dark:#7A6B3F;--cream:#FAF7F2;--cream2:#F2EDE3;--dark:#1A1A1A;--mid:#555;--card-bg:#E8F0F5;--radius:4px;--nav-h:70px;--bar-h:40px;}
@@ -15,7 +14,7 @@
     .ann-bar{background:var(--gold);color:#fff;text-align:center;font-size:13px;letter-spacing:.06em;height:var(--bar-h);display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:200;}
     header{position:sticky;top:var(--bar-h);z-index:190;background:#fff;border-bottom:1px solid #e8e0d2;height:var(--nav-h);}
     .nav-inner{max-width:1280px;margin:0 auto;padding:0 32px;height:100%;display:flex;align-items:center;justify-content:space-between;}
-    .nav-logo{display:flex;align-items:center;gap:10px;font-family:"Playfair Display",serif;font-size:22px;height:100%;}.nav-logo img{height:100%;width:auto;object-fit:contain;display:block;}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-size:22px;height:100%;}.nav-logo img{height:100%;width:auto;object-fit:contain;display:block;}
     nav ul{display:flex;align-items:center;gap:36px;}
     nav ul li a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--dark);transition:color .2s;}
     nav ul li a:hover{color:var(--gold);}
@@ -47,7 +46,7 @@
     .search-overlay.open{opacity:1;pointer-events:all;}
     .search-close{position:absolute;top:20px;right:24px;font-size:28px;color:var(--dark);cursor:pointer;transition:color .2s;}
     .search-close:hover{color:var(--gold);}
-    .search-label{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:24px;color:var(--dark);}
+    .search-label{font-size:28px;margin-bottom:24px;color:var(--dark);}
     .search-bar{display:flex;align-items:center;width:min(600px,90vw);border-bottom:2px solid var(--dark);padding-bottom:10px;gap:12px;}
     .search-bar input{flex:1;border:none;background:transparent;font-size:20px;outline:none;font-family:'Cormorant Garamond',serif;}
     .search-results{width:min(600px,90vw);margin-top:24px;display:flex;flex-direction:column;gap:12px;max-height:55vh;overflow-y:auto;padding-right:4px;}
@@ -73,7 +72,7 @@
     .nav-icon-btn svg{width:22px;height:22px;stroke-width:1.6;}
     .badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
     .page-head{text-align:center;padding:50px 32px 30px;}
-    .page-head h1{font-family:'Playfair Display',serif;font-size:36px;font-weight:400;}
+    .page-head h1{font-size:36px;font-weight:400;}
     .breadcrumb{text-align:center;font-size:13px;color:var(--mid);margin-bottom:40px;}
     .breadcrumb a{color:var(--mid);transition:color .2s;}.breadcrumb a:hover{color:var(--gold);}
     .breadcrumb span{margin:0 8px;}
@@ -85,7 +84,7 @@
     .saved-addr-select:focus{border-color:var(--gold);}
     /* CHECKOUT LAYOUT */
     .checkout-layout{max-width:1200px;margin:0 auto;padding:0 32px 80px;display:grid;grid-template-columns:1fr 380px;gap:40px;align-items:start;}
-    .form-section-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #e8e0d2;}
+    .form-section-title{font-size:22px;font-weight:400;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #e8e0d2;}
     .form-section{margin-bottom:36px;}
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
     .form-row.full{grid-template-columns:1fr;}
@@ -111,7 +110,7 @@
     .coupon-msg{font-size:13px;margin-top:-12px;margin-bottom:12px;}
     .coupon-msg.ok{color:#2d7a2d;}.coupon-msg.err{color:#c0392b;}
     .order-summary{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:28px;position:sticky;top:calc(var(--nav-h) + var(--bar-h) + 20px);}
-    .summary-title{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #e8e0d2;}
+    .summary-title{font-size:20px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #e8e0d2;}
     .summary-items{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
     .summary-item{display:flex;align-items:center;gap:12px;}
     .summary-item img{width:56px;height:56px;object-fit:cover;background:var(--card-bg);border-radius:2px;}
@@ -129,12 +128,12 @@
     .order-success{max-width:600px;margin:60px auto;text-align:center;padding:40px;background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);display:none;}
     .order-success.show{display:block;}
     .success-icon{font-size:60px;margin-bottom:20px;}
-    .order-success h2{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:12px;}
+    .order-success h2{font-size:28px;margin-bottom:12px;}
     .order-success p{color:var(--mid);font-size:14px;line-height:1.6;margin-bottom:20px;}
     .btn-continue{display:inline-block;padding:14px 32px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);}
     .empty-cart{max-width:500px;margin:80px auto;text-align:center;padding:40px;}
     .empty-cart svg{width:60px;height:60px;margin:0 auto 20px;opacity:.3;}
-    .empty-cart h2{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:12px;}
+    .empty-cart h2{font-size:24px;margin-bottom:12px;}
     .empty-cart p{color:var(--mid);font-size:14px;margin-bottom:24px;}
     .btn-shop{display:inline-block;padding:14px 32px;background:var(--gold);color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);}
     .skeleton{background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
@@ -144,7 +143,7 @@
     /* FOOTER */
     footer{background:var(--cream);border-top:1px solid #e8e0d2;padding:60px 32px 0;}
     .footer-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:60px;padding-bottom:50px;}
-    .footer-col-title{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px;}
+    .footer-col-title{font-size:20px;margin-bottom:20px;}
     .footer-links{display:flex;flex-direction:column;gap:10px;}
     .footer-links a{font-size:14px;color:var(--mid);text-decoration:none;transition:color .2s;}
     .footer-links a:hover{color:var(--gold);}
@@ -167,7 +166,7 @@
     .mobile-nav-overlay{position:absolute;inset:0;background:rgba(0,0,0,.45);}
     .mobile-nav-drawer{position:absolute;top:0;left:0;bottom:0;width:min(300px,85vw);background:#fff;overflow-y:auto;box-shadow:4px 0 30px rgba(0,0,0,.12);display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);}
     .mobile-nav.open .mobile-nav-drawer{transform:translateX(0);}
-    .mobile-nav-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #e8e0d2;font-family:'Playfair Display',serif;font-size:18px;color:var(--dark);}
+    .mobile-nav-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #e8e0d2;font-size:18px;color:var(--dark);}
     .mobile-nav-close{font-size:22px;color:var(--mid);background:none;border:none;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px;transition:background .15s;}
     .mobile-nav-close:hover{background:var(--cream2);}
     .mobile-nav ul{list-style:none;padding:10px 0;margin:0;flex:1;}
@@ -232,7 +231,7 @@
     .cart-drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,95vw);background:#fff;z-index:710;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-4px 0 40px rgba(0,0,0,.15);}
     .cart-drawer.open{transform:translateX(0);}
     .cart-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #e8e0d2;}
-    .cart-head h3{font-family:'Playfair Display',serif;font-size:18px;}
+    .cart-head h3{font-size:18px;}
     .cart-body{flex:1;overflow-y:auto;padding:20px 24px;}
     .cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;color:var(--mid);}
     .cart-empty svg{width:48px;height:48px;opacity:.3;}
@@ -256,6 +255,7 @@
     .btn-checkout{width:100%;padding:16px;background:var(--gold);color:#fff;font-size:14px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:var(--radius);transition:background .2s;}
     .btn-checkout:hover{background:var(--gold-dark);}
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
 <div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Victoria &amp; New South Wales<span class="ann-bar-sel"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.85;white-space:nowrap;">Select your state</span><select id="stateDropdown" onchange="setVpState(this.value)"></select></span></div>
