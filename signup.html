@@ -555,13 +555,6 @@
               <option value="">Select your state…</option>
             </select>
           </div>
-          <div class="form-group">
-            <label class="form-label">Your Territory <span class="req">*</span></label>
-            <select class="form-select" id="dPrefTerritory" disabled>
-              <option value="">Select state first…</option>
-            </select>
-            <div class="input-note" style="margin-top:6px;font-size:12px;color:var(--light);">Used to show your nearest pickup outlets when shopping.</div>
-          </div>
           <div class="form-nav">
             <button class="btn-next" onclick="goStep(2)">Continue <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
           </div>
@@ -584,12 +577,6 @@
           <div class="form-group">
             <label class="form-label">Postcode <span class="req">*</span></label>
             <input class="form-input" id="dPostcode" placeholder="e.g. 3029" type="text" maxlength="4"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">State <span class="req">*</span></label>
-            <select class="form-select" id="dState" onchange="onDealerStateChange()">
-              <option value="">Select your state…</option>
-            </select>
           </div>
           <div class="form-group">
             <label class="form-label">Territory / Suburb <span class="req">*</span></label>
@@ -799,14 +786,6 @@
             <option value="">Select your state…</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Your Territory <span class="req">*</span></label>
-          <select class="form-select" id="oPrefTerritory" disabled>
-            <option value="">Select state first…</option>
-          </select>
-          <div class="input-note" style="margin-top:6px;font-size:12px;color:var(--light);">Used to show your nearest pickup outlets when shopping.</div>
-        </div>
-
         <div class="divider">outlet details</div>
 
         <div class="form-group">
@@ -938,23 +917,17 @@ function onCustomerStateChange() {
 
 function onDealerPrefStateChange() {
   const state = document.getElementById('dPrefState').value;
-  const terr  = document.getElementById('dPrefTerritory');
-  if (!state) { terr.innerHTML = '<option value="">Select state first…</option>'; terr.disabled = true; return; }
-  populateTerritorySelect(terr, state, false);
-}
-
-function onOutletPrefStateChange() {
-  const state = document.getElementById('oPrefState').value;
-  const terr  = document.getElementById('oPrefTerritory');
-  if (!state) { terr.innerHTML = '<option value="">Select state first…</option>'; terr.disabled = true; return; }
-  populateTerritorySelect(terr, state, false);
-}
-
-function onDealerStateChange() {
-  const state = document.getElementById('dState').value;
   const terr  = document.getElementById('dTerritory');
   if (!state) { terr.innerHTML = '<option value="">Select state first…</option>'; terr.disabled = true; return; }
   populateTerritorySelect(terr, state, true);
+}
+
+function onOutletPrefStateChange() {
+  // oPrefTerritory removed — no action needed
+}
+
+function onDealerStateChange() {
+  // dState removed — territory now driven by onDealerPrefStateChange
 }
 
 // ── TYPE TOGGLE ────────────────────────────────────────────────────────────────
@@ -987,7 +960,7 @@ const PANEL_CONTENT = {
   outlet: {
     floral: '🏪',
     badge:  'Welcome to Nivas Vibrant Petals',
-    heading: 'Register Your<br/><em>Pickup Store</em>',
+    heading: 'Register your retail and<br/><em>pickup store</em>',
     sub: 'List your store as a VibrantPetals pickup point. Customers in your territory will find and choose your outlet at checkout.',
     perks: [
       { icon: '📍', title: 'Territory Visibility', desc: 'Your store appears to all customers in your suburb and territory.' },
@@ -1262,19 +1235,16 @@ function validateStep(step) {
     if (!em || !emailRegex.test(em)) { showMsg('step1Msg', 'Please enter a valid email address.', 'err'); return false; }
     if (pw.length < 8) { showMsg('step1Msg', 'Password must be at least 8 characters.', 'err'); return false; }
     if (!document.getElementById('dPrefState').value) { showMsg('step1Msg', 'Please select your state.', 'err'); return false; }
-    if (!document.getElementById('dPrefTerritory').value) { showMsg('step1Msg', 'Please select your territory.', 'err'); return false; }
     return true;
   }
   if (step === 2) {
     const mob      = document.getElementById('dMobile').value.trim();
     const address  = document.getElementById('dAddress').value.trim();
     const postcode = document.getElementById('dPostcode').value.trim();
-    const state    = document.getElementById('dState').value;
     const terr     = document.getElementById('dTerritory').value;
     if (!mob || !/^(?:\+61|61|0)4\d{8}$/.test(mob.replace(/[\s\-]/g,''))) { showMsg('step2Msg', 'Please enter a valid Australian mobile number (e.g. 0412 345 678 or +61 412 345 678).', 'err'); return false; }
     if (!address)  { showMsg('step2Msg', 'Please enter your street address.', 'err'); return false; }
     if (!postcode) { showMsg('step2Msg', 'Please enter your postcode.', 'err'); return false; }
-    if (!state)    { showMsg('step2Msg', 'Please select your state.', 'err'); return false; }
     if (!terr)     { showMsg('step2Msg', 'Please select your territory / suburb.', 'err'); return false; }
     return true;
   }
@@ -1376,7 +1346,7 @@ async function submitDealer() {
   const btn = document.getElementById('dealerSubmitBtn');
   btn.disabled = true; btn.textContent = 'Submitting application…';
 
-  const desiredState     = document.getElementById('dState').value;
+  const desiredState     = document.getElementById('dPrefState').value;
   const desiredTerritory = document.getElementById('dTerritory').value;
 
   const terrSelectEl = document.getElementById('dTerritory');
@@ -1411,7 +1381,7 @@ async function submitDealer() {
     lastName:  document.getElementById('dLastName').value.trim(),
     role: 'Dealer',
     preferredState:     document.getElementById('dPrefState').value,
-    preferredTerritory: document.getElementById('dPrefTerritory').value,
+    preferredTerritory: document.getElementById('dTerritory').value,
     dealerInfo,
     desiredTerritory,
   };
@@ -1514,7 +1484,6 @@ async function submitOutlet() {
   if (password.length < 6)           { showMsg('outletMsg', 'Password must be at least 6 characters.', 'err'); return; }
   if (!mobile || !/^(?:\+61|61|0)4\d{8}$/.test(mobile.replace(/[\s\-]/g,''))) { showMsg('outletMsg', 'Please enter a valid Australian mobile number (e.g. 0412 345 678 or +61 412 345 678).', 'err'); return; }
   if (!document.getElementById('oPrefState').value)     { showMsg('outletMsg', 'Please select your state.', 'err'); return; }
-  if (!document.getElementById('oPrefTerritory').value) { showMsg('outletMsg', 'Please select your territory.', 'err'); return; }
   if (!storeName)                    { showMsg('outletMsg', 'Please enter your store name.', 'err'); return; }
   if (!address)                      { showMsg('outletMsg', 'Please enter your store address.', 'err'); return; }
   if (!state)                        { showMsg('outletMsg', 'Please select a state.', 'err'); return; }
@@ -1530,7 +1499,6 @@ async function submitOutlet() {
     role: 'Retail',
     userType: 'retail',
     preferredState:     document.getElementById('oPrefState').value,
-    preferredTerritory: document.getElementById('oPrefTerritory').value,
     dealerInfo: {
       type:          'retail_outlet',
       mobile,
@@ -1610,7 +1578,7 @@ async function loadStateOptions() {
     const states = data.states || [];
     if (!states.length) return;
     const opts = states.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-    ['cState', 'dState', 'oState', 'dPrefState', 'oPrefState'].forEach(function(id) {
+    ['cState', 'oState', 'dPrefState', 'oPrefState'].forEach(function(id) {
       const el = document.getElementById(id);
       if (!el) return;
       el.innerHTML = `<option value="">Select your state…</option>` + opts;
