@@ -952,12 +952,50 @@ function getConflictingItems(outletState) {
 }
 
 function showConflictModal(conflicts) {
-  const list = document.getElementById('conflictItemsList');
-  list.innerHTML = conflicts.map(i =>
-    `<li>• <strong>${i.name}</strong>${i.variantLabel ? ` (${i.variantLabel})` : ''} — State: <strong>${i.variantState}</strong></li>`
-  ).join('');
+  _conflictItems = conflicts.slice(); // keep a live copy
+  renderConflictList();
   document.getElementById('stateConflictOverlay').style.display = 'flex';
 }
+
+function renderConflictList() {
+  const list = document.getElementById('conflictItemsList');
+  if (!_conflictItems.length) {
+    // All items removed — auto-complete outlet selection if pending
+    hideConflictModal();
+    if (_conflictOutletId) {
+      document.getElementById('selectedOutletId').value = _conflictOutletId;
+      document.getElementById('outletMsg').style.display = 'none';
+      renderOutlets(allOutlets);
+      _conflictOutletId = null;
+    }
+    return;
+  }
+  list.innerHTML = _conflictItems.map((item, idx) => `
+    <li style="display:flex;align-items:center;gap:12px;background:#fce4e4;border:1px solid #ffcdd2;border-radius:4px;padding:10px 14px;">
+      <img src="${item.image||''}" onerror="this.style.display='none'" style="width:44px;height:44px;object-fit:cover;background:#f0ebe0;border-radius:3px;flex-shrink:0;"/>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
+        ${item.variantLabel ? `<div style="font-size:11px;color:var(--mid);">${item.variantLabel}</div>` : ''}
+        <div style="font-size:11px;color:#c0392b;font-weight:700;margin-top:2px;">State: ${item.variantState}</div>
+      </div>
+      <button onclick="removeSingleConflictItem(${idx})" style="flex-shrink:0;padding:6px 12px;background:#c0392b;color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">Remove</button>
+    </li>`).join('');
+}
+
+async function removeSingleConflictItem(idx) {
+  const item = _conflictItems[idx];
+  if (!item) return;
+  const url = `/cart/items/${item.productId}` + (item.variantIndex != null ? `?variantIndex=${item.variantIndex}` : '');
+  await apiFetch(url, { method: 'DELETE', headers: apiHeaders() }).catch(() => {});
+  // Remove from conflict list and re-render cart
+  _conflictItems.splice(idx, 1);
+  const data = await apiFetch('/cart', { headers: apiHeaders() }).catch(() => ({ cart: { items: [] } }));
+  cartData = data.cart || { items: [] };
+  renderCartDrawer(cartData);
+  renderSummary(cartData);
+  renderConflictList(); // re-render modal list (may auto-close if empty)
+}
+window.removeSingleConflictItem = removeSingleConflictItem;
 
 function hideConflictModal() {
   document.getElementById('stateConflictOverlay').style.display = 'none';
@@ -966,22 +1004,23 @@ function hideConflictModal() {
 }
 
 async function resolveConflictRemove() {
-  hideConflictModal();
-  // Remove each conflicting item from cart
+  // Remove all remaining conflicting items
   for (const item of _conflictItems.slice()) {
     const url = `/cart/items/${item.productId}` + (item.variantIndex != null ? `?variantIndex=${item.variantIndex}` : '');
     await apiFetch(url, { method: 'DELETE', headers: apiHeaders() }).catch(() => {});
   }
-  // Reload cart then proceed with the outlet selection
+  _conflictItems = [];
   const data = await apiFetch('/cart', { headers: apiHeaders() }).catch(() => ({ cart: { items: [] } }));
   cartData = data.cart || { items: [] };
   renderCartDrawer(cartData);
   renderSummary(cartData);
-  // Now select the outlet — conflicts are gone
+  hideConflictModal();
+  // Auto-complete outlet selection
   if (_conflictOutletId) {
     document.getElementById('selectedOutletId').value = _conflictOutletId;
     document.getElementById('outletMsg').style.display = 'none';
     renderOutlets(allOutlets);
+    _conflictOutletId = null;
   }
 }
 
@@ -1421,15 +1460,14 @@ init();
 </div>
 <!-- ── STATE CONFLICT MODAL ── -->
 <div id="stateConflictOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1200;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:6px;padding:32px 28px;max-width:480px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.18);">
-    <div style="font-size:28px;text-align:center;margin-bottom:12px;">⚠️</div>
-    <h3 style="font-size:18px;font-weight:700;text-align:center;margin-bottom:10px;color:var(--dark);">State Mismatch</h3>
-    <p style="font-size:13px;color:var(--mid);text-align:center;line-height:1.7;margin-bottom:16px;">The following items in your cart are for a different state than the selected pickup outlet:</p>
-    <ul id="conflictItemsList" style="font-size:13px;color:var(--dark);background:#fce4e4;border:1px solid #ffcdd2;border-radius:4px;padding:12px 16px;margin-bottom:20px;list-style:none;display:flex;flex-direction:column;gap:6px;"></ul>
-    <p style="font-size:13px;color:var(--mid);text-align:center;margin-bottom:20px;">Please either remove these items or choose a different pickup outlet.</p>
-    <div style="display:flex;gap:12px;">
-      <button onclick="resolveConflictRemove()" style="flex:1;padding:12px;background:#c0392b;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;">Remove Items</button>
-      <button onclick="resolveConflictChangeOutlet()" style="flex:1;padding:12px;background:var(--dark);color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;">Change Outlet</button>
+  <div style="background:#fff;border-radius:6px;padding:28px 24px;max-width:500px;width:92%;box-shadow:0 8px 40px rgba(0,0,0,.18);max-height:90vh;overflow-y:auto;">
+    <div style="font-size:28px;text-align:center;margin-bottom:10px;">⚠️</div>
+    <h3 style="font-size:17px;font-weight:700;text-align:center;margin-bottom:8px;color:var(--dark);">State Mismatch</h3>
+    <p style="font-size:13px;color:var(--mid);text-align:center;line-height:1.6;margin-bottom:16px;">These items in your cart don't match the selected pickup outlet's state. Remove them individually or all at once to proceed.</p>
+    <ul id="conflictItemsList" style="list-style:none;margin-bottom:16px;display:flex;flex-direction:column;gap:8px;"></ul>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button onclick="resolveConflictRemove()" style="flex:1;padding:11px;background:#c0392b;color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;">Remove All</button>
+      <button onclick="resolveConflictChangeOutlet()" style="flex:1;padding:11px;background:var(--dark);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;">Change Outlet</button>
     </div>
   </div>
 </div>
