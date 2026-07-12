@@ -585,6 +585,7 @@ function renderSummary(cart){
         <div class="summary-item-name">${i.name}</div>
         ${i.variantLabel ? `<div style="font-size:11px;color:var(--mid);margin-top:1px;">${i.variantLabel}</div>` : ''}
         ${i.sku ? `<div style="font-size:11px;color:var(--mid);letter-spacing:.03em;">SKU: ${i.sku}</div>` : ''}
+        ${i.variantState ? `<div style="font-size:11px;color:var(--mid);letter-spacing:.03em;">State: ${i.variantState}</div>` : ''}
         <div class="summary-item-qty">× ${i.quantity}</div>
       </div>
       <div class="summary-item-price">$${(i.price*i.quantity).toFixed(2)}</div>
@@ -1205,6 +1206,7 @@ function renderCartDrawer(cart){
         <div class="cart-item-name">${i.name}</div>
         ${i.variantLabel ? `<div style="font-size:11px;color:var(--mid);margin-top:1px;">${i.variantLabel}</div>` : ''}
         ${i.sku ? `<div style="font-size:11px;color:var(--mid);letter-spacing:.03em;">SKU: ${i.sku}</div>` : ''}
+        ${i.variantState ? `<div style="font-size:11px;color:var(--mid);letter-spacing:.03em;">State: ${i.variantState}</div>` : ''}
         <div class="cart-item-price">$${i.price.toFixed(2)}</div>
         <div class="cart-item-qty">
           <button class="qty-btn" onclick="drawerChangeQty('${i.productId}',${i.quantity-1},${vIdxStr})">−</button>
