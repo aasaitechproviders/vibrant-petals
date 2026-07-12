@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Unsubscribe — Vibrant Petals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--gold:#9B8B5A;--gold-dark:#7A6B3F;--gold-lt:#C5B483;--cream:#FAF7F2;--cream2:#F2EDE3;--dark:#1A1A1A;--mid:#555;--radius:4px;--nav-h:70px;--bar-h:40px;}
+    body{font-family:'Lato',sans-serif;background:var(--cream);color:var(--dark);min-height:100vh;display:flex;flex-direction:column;}
+    a{text-decoration:none;color:inherit;}img{max-width:100%;display:block;}ul{list-style:none;}button{cursor:pointer;border:none;background:none;font-family:inherit;}
+    .ann-bar{background:var(--gold);color:#fff;text-align:center;font-size:13px;letter-spacing:.06em;height:var(--bar-h);display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:200;}
+    header{position:sticky;top:var(--bar-h);z-index:190;background:#fff;border-bottom:1px solid #e8e0d2;height:var(--nav-h);}
+    .nav-inner{max-width:1280px;margin:0 auto;padding:0 32px;height:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-family:"Playfair Display",serif;font-size:22px;height:100%;}.nav-logo img{height:100%;width:auto;object-fit:contain;display:block;}
+    .page-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:60px 24px;}
+    .card{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:48px 40px;max-width:480px;width:100%;text-align:center;}
+    .card-icon{font-size:40px;margin-bottom:18px;}
+    .card h1{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:10px;}
+    .card p{font-size:14px;color:var(--mid);margin-bottom:24px;line-height:1.6;}
+    .input-field{width:100%;padding:13px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;border-radius:var(--radius);transition:border-color .2s;margin-bottom:16px;}
+    .input-field:focus{border-color:var(--gold);}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 32px;background:var(--gold);color:#fff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:var(--radius);cursor:pointer;border:none;font-family:inherit;transition:background .2s;width:100%;}
+    .btn:hover{background:var(--gold-dark);}
+    .btn:disabled{opacity:.5;cursor:not-allowed;}
+    .msg{font-size:13px;margin-top:14px;min-height:20px;}
+    .msg.success{color:#27ae60;}
+    .msg.error{color:#c0392b;}
+    .back-link{display:inline-block;margin-top:20px;font-size:13px;color:var(--gold);font-weight:700;cursor:pointer;}
+    .back-link:hover{text-decoration:underline;}
+    footer{background:#1A1A1A;color:rgba(255,255,255,.55);text-align:center;padding:20px 24px;font-size:12px;letter-spacing:.04em;}
+    footer a{color:var(--gold-lt);opacity:.8;}
+    @media(max-width:480px){.card{padding:32px 20px;}}
+  </style>
+</head>
+<body>
+<div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Victoria &amp; New South Wales</div>
+<header>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="logo.png" alt="Vibrant Petals Logo"/>
+      <span> Vibrant Petals</span>
+    </a>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <div class="card" id="formCard">
+    <div class="card-icon">✉️</div>
+    <h1>Unsubscribe</h1>
+    <p>Enter your email address below and we'll remove you from our newsletter list. You won't receive any further marketing emails from us.</p>
+    <input type="email" class="input-field" id="emailInput" placeholder="Your email address *" autocomplete="email"/>
+    <button class="btn" id="submitBtn" onclick="doUnsubscribe()">Unsubscribe Me</button>
+    <div class="msg" id="msg"></div>
+    <a class="back-link" href="index.html">← Back to Vibrant Petals</a>
+  </div>
+</div>
+
+<footer>Copyright © Nivas Vibrant Petals. All Rights Reserved.</footer>
+
+<script>
+const API = 'https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
+
+// Pre-fill email from URL param ?email=...
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const email  = params.get('email');
+  if(email) document.getElementById('emailInput').value = decodeURIComponent(email);
+})();
+
+async function doUnsubscribe() {
+  const emailEl = document.getElementById('emailInput');
+  const btn     = document.getElementById('submitBtn');
+  const msgEl   = document.getElementById('msg');
+  const email   = emailEl.value.trim();
+
+  msgEl.className = 'msg';
+  msgEl.textContent = '';
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msgEl.className = 'msg error';
+    msgEl.textContent = 'Please enter a valid email address.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Processing…';
+
+  try {
+    const res = await fetch(API + '/newsletter/unsubscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+
+    if (res.ok || data.success) {
+      msgEl.className = 'msg success';
+      msgEl.textContent = 'You have been successfully unsubscribed. You will no longer receive marketing emails from us.';
+      emailEl.disabled = true;
+      btn.textContent = 'Unsubscribed ✓';
+    } else {
+      throw new Error(data.message || 'Something went wrong. Please try again.');
+    }
+  } catch(e) {
+    msgEl.className = 'msg error';
+    msgEl.textContent = e.message || 'Failed to process your request. Please try again.';
+    btn.disabled = false;
+    btn.textContent = 'Unsubscribe Me';
+  }
+}
+
+// Allow Enter key to submit
+document.getElementById('emailInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doUnsubscribe();
+});
+</script>
+</body>
+</html>
