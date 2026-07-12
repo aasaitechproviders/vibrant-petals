@@ -1455,7 +1455,7 @@ function resolveVariantsForState(allVariants, state) {
   grid.innerHTML = products.map(p => {
     const role      = getTokenRole();
     const cardVars  = resolveVariantsForState(p.variants||[], getVpState());
-    const hasVars   = cardVars.length > 1; // only show variant selector when >1 option
+    const hasVars   = cardVars.length > 1; // show dropdown only when >1 option
     const img       = p.images?.[0] || '';
     const inStock   = p.stockStatus !== 'outofstock';
     const cardId    = 'qty_' + p._id;
@@ -1489,6 +1489,10 @@ function resolveVariantsForState(allVariants, state) {
     } else {
       priceHtml = resolveCardPrice(p);
       variantDropdownHtml = '';
+      // Single state-specific variant: inject hidden input so addToCartQty sends the correct variantIndex
+      if (cardVars.length === 1) {
+        variantDropdownHtml = `<input type="hidden" id="varSel_${p._id}" value="${cardVars[0]._origIndex}"/>`;
+      }
     }
 
     return `
@@ -1683,6 +1687,9 @@ function renderCart(cart){
       <img src="${i.image||''}" alt="${i.name}" onerror="this.style.display='none'" style="width:70px;height:70px;object-fit:cover;background:var(--cream2);flex-shrink:0;"/>
       <div class="cart-item-info">
         <div class="cart-item-name">${i.name}</div>
+        ${i.variantLabel ? `<div style="font-size:11px;color:var(--mid);margin-top:1px;">${i.variantLabel}</div>` : ''}
+        ${i.sku ? `<div style="font-size:11px;color:var(--mid);letter-spacing:.03em;">SKU: ${i.sku}</div>` : ''}
+        ${i.variantState ? `<div style="font-size:11px;color:var(--mid);letter-spacing:.03em;">State: ${i.variantState}</div>` : ''}
         <div class="cart-item-price">$${i.price.toFixed(2)}</div>
         <div class="cart-item-qty">
           <button class="qty-btn" onclick="changeQty('${i.productId}',${i.quantity-1},${i.variantIndex??''})">−</button>
