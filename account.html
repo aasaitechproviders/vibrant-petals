@@ -5,7 +5,6 @@
   <link rel="icon" type="image/png" href="logo.png"/>
   <title>My Account – VibrantPetals</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
   <style>
     :root{--gold:#9B8B5A;--gold-dark:#7A6B3F;--gold-lt:#C5B483;--cream:#FAF7F2;--cream2:#F2EDE3;--dark:#1A1A1A;--mid:#555;--card-bg:#E8F0F5;--radius:4px;--nav-h:70px;--bar-h:40px;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -14,7 +13,7 @@
     .ann-bar{background:var(--gold);color:#fff;text-align:center;font-size:13px;letter-spacing:.06em;height:var(--bar-h);display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:200;}
     header{position:sticky;top:var(--bar-h);z-index:190;background:#fff;border-bottom:1px solid #e8e0d2;height:var(--nav-h);}
     .nav-inner{max-width:1280px;margin:0 auto;padding:0 32px;height:100%;display:flex;align-items:center;justify-content:space-between;}
-    .nav-logo{display:flex;align-items:center;gap:10px;font-family:"Playfair Display",serif;font-size:22px;height:100%;}.nav-logo img{height:100%;width:auto;object-fit:contain;display:block;}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-size:22px;height:100%;}.nav-logo img{height:100%;width:auto;object-fit:contain;display:block;}
     nav ul{display:flex;align-items:center;gap:36px;}
     nav ul li a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--dark);padding-bottom:4px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
     nav ul li a:hover{color:var(--gold);border-bottom-color:var(--gold);}
@@ -29,7 +28,7 @@
     .search-overlay.open{opacity:1;pointer-events:all;}
     .search-close{position:absolute;top:20px;right:24px;font-size:28px;color:var(--dark);cursor:pointer;transition:color .2s;}
     .search-close:hover{color:var(--gold);}
-    .search-label{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:24px;color:var(--dark);}
+    .search-label{font-size:28px;margin-bottom:24px;color:var(--dark);}
     .search-bar{display:flex;align-items:center;width:min(600px,90vw);border-bottom:2px solid var(--dark);padding-bottom:10px;gap:12px;}
     .search-bar input{flex:1;border:none;background:transparent;font-size:20px;outline:none;font-family:'Cormorant Garamond',serif;}
     .search-results{width:min(600px,90vw);margin-top:24px;display:flex;flex-direction:column;gap:12px;max-height:55vh;overflow-y:auto;padding-right:4px;}
@@ -44,12 +43,12 @@
     .badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
     .page-hero{position:relative;height:240px;background:#d6e4ed;overflow:hidden;}
     .page-hero img{width:100%;height:100%;object-fit:cover;filter:brightness(.6);}
-    .page-hero-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:38px;font-style:italic;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,.4);}
+    .page-hero-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:38px;font-style:italic;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,.4);}
     .account-layout{max-width:1200px;margin:0 auto;padding:50px 32px 80px;display:grid;grid-template-columns:240px 1fr;gap:40px;align-items:start;}
     .acct-sidebar{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);overflow:hidden;position:sticky;top:calc(var(--nav-h)+var(--bar-h)+20px);}
     .acct-user{padding:24px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;text-align:center;}
-    .acct-avatar{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.3);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-family:'Playfair Display',serif;}
-    .acct-username{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:4px;}
+    .acct-avatar{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.3);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px;}
+    .acct-username{font-size:18px;margin-bottom:4px;}
     .acct-email{font-size:12px;opacity:.85;}
     .role-badge{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
     .role-customer{background:rgba(255,255,255,.2);color:#fff;}
@@ -65,7 +64,7 @@
     .acct-nav-item.logout:hover{background:#fce4e4;}
     .acct-panel{display:none;}
     .acct-panel.active{display:block;}
-    .panel-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:400;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #e8e0d2;}
+    .panel-title{font-size:26px;font-weight:400;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #e8e0d2;}
     .form-card{background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:28px;margin-bottom:24px;}
     .form-card-title{font-size:15px;font-weight:700;letter-spacing:.06em;margin-bottom:20px;color:var(--dark);display:flex;justify-content:space-between;align-items:center;}
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
@@ -123,7 +122,7 @@
     .order-modal.open{opacity:1;pointer-events:all;}
     .order-modal-box{background:#fff;width:min(640px,94vw);max-height:85vh;overflow-y:auto;border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.2);}
     .order-modal-head{padding:24px 28px;border-bottom:1px solid #e8e0d2;display:flex;justify-content:space-between;align-items:center;}
-    .order-modal-head h3{font-family:'Playfair Display',serif;font-size:20px;}
+    .order-modal-head h3{font-size:20px;}
     .order-modal-close{font-size:22px;color:var(--mid);cursor:pointer;}
     .order-modal-body{padding:24px 28px;}
     .order-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
@@ -156,12 +155,12 @@
     .addr-modal.open{opacity:1;pointer-events:all;}
     .addr-modal-box{background:#fff;width:min(500px,94vw);max-height:90vh;overflow-y:auto;border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.2);}
     .addr-modal-head{padding:20px 24px;border-bottom:1px solid #e8e0d2;display:flex;justify-content:space-between;align-items:center;}
-    .addr-modal-head h3{font-family:'Playfair Display',serif;font-size:18px;}
+    .addr-modal-head h3{font-size:18px;}
     .addr-modal-body{padding:20px 24px;}
     /* DEALER SECTION */
     .dealer-info-card{background:linear-gradient(135deg,#FFD700,#FFA500);border-radius:var(--radius);padding:24px;color:#1A1A1A;margin-bottom:24px;}
     .dealer-badge-lg{font-size:32px;margin-bottom:8px;}
-    .dealer-info-card h3{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:6px;}
+    .dealer-info-card h3{font-size:22px;margin-bottom:6px;}
     .dealer-info-card p{font-size:14px;opacity:.8;margin-bottom:0;}
     /* ORDERS PAGINATION */
     .orders-pagination{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:20px;}
@@ -172,7 +171,7 @@
     .pag-info{font-size:13px;color:var(--mid);}
     /* LOGIN GATE */
     .login-gate{max-width:460px;margin:0 auto;background:#fff;border:1px solid #e8e0d2;border-radius:var(--radius);padding:40px;text-align:center;}
-    .login-gate h2{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:12px;}
+    .login-gate h2{font-size:26px;margin-bottom:12px;}
     .login-gate p{font-size:14px;color:var(--mid);margin-bottom:28px;}
     .tabs{display:flex;border-bottom:2px solid #e8e0d2;margin-bottom:24px;}
     .tab-btn{flex:1;padding:12px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--mid);border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .2s,border-color .2s;}
@@ -268,7 +267,7 @@
     .vp-modal-overlay.open .vp-modal{transform:translateY(0) scale(1);}
     .vp-modal-body{padding:28px 24px 20px;}
     .vp-modal-icon{font-size:32px;text-align:center;margin-bottom:12px;}
-    .vp-modal-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--dark);margin-bottom:10px;text-align:center;}
+    .vp-modal-title{font-size:19px;color:var(--dark);margin-bottom:10px;text-align:center;}
     .vp-modal-message{font-size:14px;color:var(--mid);line-height:1.65;text-align:center;}
     .vp-modal-footer{display:flex;gap:10px;padding:0 24px 24px;justify-content:center;}
     .vp-modal-btn{flex:1;max-width:160px;padding:12px 20px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:var(--radius);border:none;cursor:pointer;font-family:inherit;transition:background .15s,opacity .15s;}
@@ -278,6 +277,7 @@
     .vp-modal-confirm.danger{background:#c0392b;}
     .vp-modal-confirm.success{background:#27ae60;}
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
 <div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Victoria &amp; New South Wales<span class="ann-bar-sel"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.85;white-space:nowrap;">Select your state</span><select id="stateDropdown" onchange="setVpState(this.value)"></select></span></div>
@@ -2588,7 +2588,7 @@ loadStateDropdowns();
 <div id="dealerTerritoryModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
   <div style="background:#fff;border-radius:6px;padding:32px;width:100%;max-width:540px;margin:16px;max-height:90vh;overflow-y:auto;position:relative;">
     <button onclick="closeDealerTerritoryModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--mid);">&#10005;</button>
-    <div id="dealerTerrModalTitle" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--dark);margin-bottom:8px;">REQUEST ADDITIONAL TERRITORY</div>
+    <div id="dealerTerrModalTitle" style="font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--dark);margin-bottom:8px;">REQUEST ADDITIONAL TERRITORY</div>
     <p style="font-size:13px;color:var(--mid);margin-bottom:20px;line-height:1.6;">Select the state and territory you wish to cover. Admin will review and activate your request.</p>
     <input type="hidden" id="dealerTerrModalId"/>
     <!-- Hidden fields kept for API compatibility -->
@@ -2620,7 +2620,7 @@ loadStateDropdowns();
 <div id="outletEditModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
   <div style="background:#fff;border-radius:6px;padding:32px;width:100%;max-width:540px;margin:16px;max-height:90vh;overflow-y:auto;position:relative;">
     <button onclick="closeRetailOutletModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--mid);">&#10005;</button>
-    <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--dark);margin-bottom:20px;" id="outletModalTitle">EDIT OUTLET</div>
+    <div style="font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--dark);margin-bottom:20px;" id="outletModalTitle">EDIT OUTLET</div>
     <input type="hidden" id="modalOutletId"/>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Outlet Name *</label><input type="text" class="form-input" id="modalOutletName"/></div>
