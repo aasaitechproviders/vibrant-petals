@@ -51,20 +51,13 @@
 
     /* Left panel — decorative */
     .signup-panel-left {
-      background: #C8541A;
+      background: #F5F0E8;
+      border-right: 1px solid #e8dfc8;
       display: flex;
       flex-direction: column;
       padding: 60px 48px;
       position: relative;
       overflow: hidden;
-    }
-    .signup-panel-left::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 30% 40%, rgba(255,200,80,.18) 0%, transparent 70%),
-                  radial-gradient(ellipse at 80% 80%, rgba(180,80,10,.25) 0%, transparent 60%);
-      pointer-events: none;
     }
     .panel-florals {
       position: absolute;
@@ -93,14 +86,14 @@
       font-family: 'Playfair Display', serif;
       font-size: 42px;
       font-weight: 400;
-      color: #fff;
+      color: var(--dark);
       line-height: 1.15;
       margin-bottom: 20px;
     }
-    .panel-heading em { color: var(--gold-lt); font-style: italic; }
+    .panel-heading em { color: var(--gold-dark); font-style: italic; }
     .panel-sub {
       font-size: 15px;
-      color: rgba(255,255,255,.55);
+      color: var(--mid);
       line-height: 1.75;
       max-width: 360px;
       margin-bottom: 40px;
@@ -108,8 +101,8 @@
     .panel-perks { display: flex; flex-direction: column; gap: 14px; }
     .perk-item { display: flex; align-items: flex-start; gap: 12px; }
     .perk-icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(155,139,90,.15); border: 1px solid rgba(155,139,90,.25); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
-    .perk-text { font-size: 13px; color: rgba(255,255,255,.65); line-height: 1.5; }
-    .perk-text strong { color: rgba(255,255,255,.9); display: block; font-size: 14px; margin-bottom: 2px; }
+    .perk-text { font-size: 13px; color: var(--mid); line-height: 1.5; }
+    .perk-text strong { color: var(--dark); display: block; font-size: 14px; margin-bottom: 2px; }
 
     /* Right panel — form */
     .signup-panel-right {
@@ -341,8 +334,8 @@
     .footer-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:60px;padding-bottom:50px;}
     .footer-col-title{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px;}
     .footer-links{display:flex;flex-direction:column;gap:10px;}
-    .footer-links a{font-size:14px;color:var(--mid);text-decoration:none;transition:color .2s;}
-    .footer-links a:hover{color:var(--gold);}
+    .footer-links a{font-size:14px;color:var(--mid);text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(85,85,85,.35);transition:color .2s,text-decoration-color .2s;}
+    .footer-links a:hover{color:var(--gold);text-decoration-color:var(--gold);}
     .footer-contact{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--mid);}
     .newsletter-desc{font-size:14px;color:var(--mid);margin-bottom:12px;line-height:1.6;}
     .newsletter-input{width:100%;padding:12px 16px;border:1px solid #ddd;font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;background:#fff;box-sizing:border-box;}
@@ -372,11 +365,9 @@
   <!-- ── LEFT PANEL ── -->
   <div class="signup-panel-left">
     <div class="panel-florals" id="panelFloral">✿</div>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
-      <img src="logo.png" alt="VibrantPetals" style="height:48px;width:auto;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'"/>
-      <div class="panel-badge" id="panelBadge" style="margin-bottom:0;">
-        VibrantPetals Community
-      </div>
+    <div style="margin-bottom:28px;">
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--gold-dark);letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px;">Nivas Vibrant Petals</div>
+      <div class="panel-badge" id="panelBadge">Welcome to Nivas Vibrant Petals</div>
     </div>
     <h1 class="panel-heading" id="panelHeading">Join the <em>Floral</em><br/>Dealer Network</h1>
     <p class="panel-sub" id="panelSub">Whether you're a home-based entrepreneur or a florist, become part of our growing network of dealers across Melbourne &amp; Sydney.</p>
@@ -973,7 +964,7 @@ function onDealerStateChange() {
 const PANEL_CONTENT = {
   customer: {
     floral: '✿',
-    badge:  'Welcome to VibrantPetals',
+    badge:  'Welcome to Nivas Vibrant Petals',
     heading: 'Fresh Flowers,<br/><em>Delivered to You</em>',
     sub: 'Create your free account and explore our handpicked collection of fresh strings, garlands, loose flowers and leaves — available for pickup at your nearest outlet.',
     perks: [
@@ -1634,14 +1625,17 @@ loadTerritories();
 loadStateOptions();
 
 // ── NEWSLETTER ────────────────────────────────────────────────────────────────
-document.getElementById('nlSubmit')?.addEventListener('click', async () => {
-  const email = document.getElementById('nlEmail').value.trim();
-  const msg   = document.getElementById('nlMsg');
-  if (!email || !email.includes('@')) { msg.textContent = 'Please enter a valid email.'; msg.style.color = '#c0392b'; return; }
-  const data = await apiFetch('/newsletter/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) }).catch(() => ({ success: false }));
-  msg.textContent = data.message || (data.success ? 'Subscribed! 🌸' : 'Error. Please try again.');
-  msg.style.color = data.success ? '#27ae60' : '#c0392b';
-  if (data.success) document.getElementById('nlEmail').value = '';
+// Listener attached after DOM is ready (footer renders after this script block)
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('nlSubmit')?.addEventListener('click', async () => {
+    const email = document.getElementById('nlEmail').value.trim();
+    const msg   = document.getElementById('nlMsg');
+    if (!email || !email.includes('@')) { msg.textContent = 'Please enter a valid email.'; msg.style.color = '#c0392b'; return; }
+    const data = await apiFetch('/newsletter/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) }).catch(() => ({ success: false }));
+    msg.textContent = data.message || (data.success ? 'Subscribed! 🌸' : 'Error. Please try again.');
+    msg.style.color = data.success ? '#27ae60' : '#c0392b';
+    if (data.success) document.getElementById('nlEmail').value = '';
+  });
 });
 </script>
 
