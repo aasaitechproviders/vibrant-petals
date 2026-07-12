@@ -778,7 +778,7 @@ function showOrderSuccess(order){
     const el=document.getElementById('pickupDateInfo');
     if(el){
       const d=new Date(order.scheduledPickupDate);
-      el.textContent='📅 Scheduled Pickup: '+d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      el.textContent='📅 Scheduled Pickup: '+d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Australia/Sydney'});
       el.style.display='block';
     }
   }
@@ -793,9 +793,11 @@ function showOrderSuccess(order){
 function initDatePicker() {
   const dateInput = document.getElementById('scheduledPickupDate');
   if (!dateInput) return;
-  const today = new Date();
-  const min = new Date(today); min.setDate(today.getDate() + 10);
-  const max = new Date(today); max.setFullYear(today.getFullYear() + 1);
+  // Compute today in Sydney timezone (YYYY-MM-DD) so min date is correct regardless of user's local timezone
+  const todaySydneyStr = new Date().toLocaleDateString('en-CA', {timeZone: 'Australia/Sydney'}); // en-CA gives YYYY-MM-DD
+  const todaySydney = new Date(todaySydneyStr + 'T00:00:00');
+  const min = new Date(todaySydney); min.setDate(todaySydney.getDate() + 10);
+  const max = new Date(todaySydney); max.setFullYear(todaySydney.getFullYear() + 1);
   const pad = n => String(n).padStart(2, '0');
   const toDateStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   dateInput.min = toDateStr(min);
@@ -806,7 +808,7 @@ function initDatePicker() {
     onDateChange();
   });
   const label = document.getElementById('earliestDateLabel');
-  if (label) label.textContent = min.toLocaleDateString('en-AU', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  if (label) label.textContent = min.toLocaleDateString('en-AU', {weekday:'long', day:'numeric', month:'long', year:'numeric', timeZone:'Australia/Sydney'});
   onDateChange();
 }
 function onDateChange() {
@@ -815,7 +817,7 @@ function onDateChange() {
   const displayText = document.getElementById('dateSelectedText');
   if (!dateInput || !dateInput.value) { if(display) display.style.display='none'; return; }
   const d = new Date(dateInput.value + 'T00:00:00');
-  const formatted = d.toLocaleDateString('en-AU', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  const formatted = d.toLocaleDateString('en-AU', {weekday:'long', day:'numeric', month:'long', year:'numeric', timeZone:'Australia/Sydney'});
   if (displayText) displayText.textContent = formatted;
   if (display) display.style.display = 'block';
 }
