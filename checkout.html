@@ -642,6 +642,18 @@ function validateCheckoutFields(){
 // ── MAIN PLACE ORDER HANDLER ──────────────────────────────────────────────────
 function handlePlaceOrder(){
   if(!token){ location.href='account.html'; return; }
+  // Re-check state conflicts at place-order time (safety net)
+  const outletId = document.getElementById('selectedOutletId').value;
+  const outlet   = allOutlets.find(o => o._id === outletId || o._id?.toString() === outletId);
+  if (outlet && outlet.state) {
+    const conflicts = getConflictingItems(outlet.state);
+    if (conflicts.length) {
+      _conflictItems    = conflicts;
+      _conflictOutletId = outletId;
+      showConflictModal(conflicts);
+      return;
+    }
+  }
   const paymentMethod=document.querySelector('input[name="payment"]:checked').value;
   if(paymentMethod==='card'){
     if(stripePhase===0) startCardPayment();
@@ -930,12 +942,77 @@ function renderOutlets(outlets) {
   }).join('');
 }
 
+// ── STATE CONFLICT VALIDATION ─────────────────────────────────────────────────
+let _conflictItems   = [];  // cart items that conflict with selected outlet
+let _conflictOutletId = null; // outlet id being attempted
+
+function getConflictingItems(outletState) {
+  if (!cartData || !cartData.items) return [];
+  return cartData.items.filter(i => i.variantState && i.variantState !== outletState);
+}
+
+function showConflictModal(conflicts) {
+  const list = document.getElementById('conflictItemsList');
+  list.innerHTML = conflicts.map(i =>
+    `<li>• <strong>${i.name}</strong>${i.variantLabel ? ` (${i.variantLabel})` : ''} — State: <strong>${i.variantState}</strong></li>`
+  ).join('');
+  document.getElementById('stateConflictOverlay').style.display = 'flex';
+}
+
+function hideConflictModal() {
+  document.getElementById('stateConflictOverlay').style.display = 'none';
+  _conflictItems = [];
+  _conflictOutletId = null;
+}
+
+async function resolveConflictRemove() {
+  hideConflictModal();
+  // Remove each conflicting item from cart
+  for (const item of _conflictItems.slice()) {
+    const url = `/cart/items/${item.productId}` + (item.variantIndex != null ? `?variantIndex=${item.variantIndex}` : '');
+    await apiFetch(url, { method: 'DELETE', headers: apiHeaders() }).catch(() => {});
+  }
+  // Reload cart then proceed with the outlet selection
+  const data = await apiFetch('/cart', { headers: apiHeaders() }).catch(() => ({ cart: { items: [] } }));
+  cartData = data.cart || { items: [] };
+  renderCartDrawer(cartData);
+  renderSummary(cartData);
+  // Now select the outlet — conflicts are gone
+  if (_conflictOutletId) {
+    document.getElementById('selectedOutletId').value = _conflictOutletId;
+    document.getElementById('outletMsg').style.display = 'none';
+    renderOutlets(allOutlets);
+  }
+}
+
+function resolveConflictChangeOutlet() {
+  hideConflictModal();
+  // Clear selected outlet so user picks again
+  document.getElementById('selectedOutletId').value = '';
+  renderOutlets(allOutlets);
+  // Scroll to outlet picker
+  const picker = document.getElementById('outletPickerSection') || document.querySelector('.outlet-section');
+  if (picker) picker.scrollIntoView({ behavior: 'smooth' });
+}
+
 function selectOutlet(id) {
+  const outlet = allOutlets.find(o => o._id === id || o._id?.toString() === id);
+  if (outlet && outlet.state) {
+    const conflicts = getConflictingItems(outlet.state);
+    if (conflicts.length) {
+      _conflictItems    = conflicts;
+      _conflictOutletId = id;
+      showConflictModal(conflicts);
+      return; // block selection until resolved
+    }
+  }
   document.getElementById('selectedOutletId').value = id;
   document.getElementById('outletMsg').style.display = 'none';
   renderOutlets(allOutlets);
 }
 window.selectOutlet = selectOutlet;
+window.resolveConflictRemove = resolveConflictRemove;
+window.resolveConflictChangeOutlet = resolveConflictChangeOutlet;
 
 function buildAcctDrop(){
   const drop=document.getElementById('acctDrop');if(!drop)return;
@@ -1341,6 +1418,20 @@ init();
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--dark)" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
   </div>
   <div class="search-results" id="searchResults"></div>
+</div>
+<!-- ── STATE CONFLICT MODAL ── -->
+<div id="stateConflictOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1200;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:6px;padding:32px 28px;max-width:480px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.18);">
+    <div style="font-size:28px;text-align:center;margin-bottom:12px;">⚠️</div>
+    <h3 style="font-size:18px;font-weight:700;text-align:center;margin-bottom:10px;color:var(--dark);">State Mismatch</h3>
+    <p style="font-size:13px;color:var(--mid);text-align:center;line-height:1.7;margin-bottom:16px;">The following items in your cart are for a different state than the selected pickup outlet:</p>
+    <ul id="conflictItemsList" style="font-size:13px;color:var(--dark);background:#fce4e4;border:1px solid #ffcdd2;border-radius:4px;padding:12px 16px;margin-bottom:20px;list-style:none;display:flex;flex-direction:column;gap:6px;"></ul>
+    <p style="font-size:13px;color:var(--mid);text-align:center;margin-bottom:20px;">Please either remove these items or choose a different pickup outlet.</p>
+    <div style="display:flex;gap:12px;">
+      <button onclick="resolveConflictRemove()" style="flex:1;padding:12px;background:#c0392b;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;">Remove Items</button>
+      <button onclick="resolveConflictChangeOutlet()" style="flex:1;padding:12px;background:var(--dark);color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;">Change Outlet</button>
+    </div>
+  </div>
 </div>
 </body>
 </html>
