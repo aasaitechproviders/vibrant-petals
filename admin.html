@@ -1369,12 +1369,20 @@ async function loadApprovals() {
   const pendingTerritories = (territoriesData.territories || []);
   const allOutletRequests  = (outletRequestsData.requests || []);
 
-  // Dealer new territory requests → show under Territory Requests section
-  const dealerTerritoryRequests = allOutletRequests.filter(o => o.dealerId && !o.isPrimaryOutlet && o.requestType === 'create');
-  // Everything else → Outlet Change Requests section
-  const outletRequests = allOutletRequests.filter(o => !(o.dealerId && !o.isPrimaryOutlet && o.requestType === 'create'));
+  // Build set of pending dealer user IDs — territories linked to these are signup territories, not additional requests
+  const pendingDealerIds = new Set(pendingDealers.map(u => u._id.toString()));
 
-  const totalBadge = pendingDealers.length + pendingRetail.length + pendingTerritories.length + dealerTerritoryRequests.length + outletRequests.length;
+  // Dealer new territory requests (post-signup) → show under Territory Requests section
+  const dealerTerritoryRequests = allOutletRequests.filter(o => o.dealerId && !o.isPrimaryOutlet && o.requestType === 'create');
+  // Territory requests: exclude territories whose pendingDealerId belongs to a still-pending dealer (those come in via the Dealer Signup section)
+  const filteredTerritories = pendingTerritories.filter(t => !t.pendingDealerId || !pendingDealerIds.has(t.pendingDealerId.toString()));
+  // Outlet requests: exclude signup outlets (isPrimaryOutlet:true + requestType:"create" — handled via Retail Signup approval) and dealer territory outlets
+  const outletRequests = allOutletRequests.filter(o =>
+    !(o.isPrimaryOutlet && o.requestType === 'create') &&
+    !(o.dealerId && !o.isPrimaryOutlet && o.requestType === 'create')
+  );
+
+  const totalBadge = pendingDealers.length + pendingRetail.length + filteredTerritories.length + dealerTerritoryRequests.length + outletRequests.length;
   const badge = document.getElementById('approvalsBadge');
   if (badge) { badge.textContent = totalBadge; badge.style.display = totalBadge ? 'inline' : 'none'; }
 
@@ -1434,13 +1442,13 @@ async function loadApprovals() {
     <div class="card" style="margin-bottom:24px;">
       <div class="card-head">
         <div class="card-title">&#128205;  Territory Activation</div>
-        <span style="font-size:13px;color:var(--mid);">${pendingTerritories.length + dealerTerritoryRequests.length} pending</span>
+        <span style="font-size:13px;color:var(--mid);">${filteredTerritories.length + dealerTerritoryRequests.length} pending</span>
       </div>
-      ${!pendingTerritories.length && !dealerTerritoryRequests.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">&#10003; No pending territory requests.</p>' : `
+      ${!filteredTerritories.length && !dealerTerritoryRequests.length ? '<p style="padding:20px;color:var(--mid);font-size:14px;">&#10003; No pending territory requests.</p>' : `
       <table class="data-table">
         <thead><tr><th>Territory / Store</th><th>State</th><th>Dealer</th><th>Address</th><th>Pickup</th><th>Actions</th></tr></thead>
         <tbody>
-        ${pendingTerritories.map(t => {
+        ${filteredTerritories.map(t => {
           const urgent = t.daysLeft <= 3;
           const d = dealerMap[t.pendingDealerId?.toString()];
           return `<tr>
@@ -2237,7 +2245,7 @@ async function saveOutlet() {
   const suburb        = terrSel.options[terrSel.selectedIndex]?.text || territorySlug;
   const address       = document.getElementById('oAddress').value.trim();
   const phone         = document.getElementById('oPhone').value.trim();
-  if (phone && !/^(?:\+61|61|0)4\d{8}$/.test(phone.replace(/[\s\-]/g,''))) { showToast('Please enter a valid Australian mobile number (e.g. 0412 345 678 or +61 412 345 678).', 'error'); return; }
+  if (phone && !/^(?:\+61|61|0)[2-9]\d{8}$/.test(phone.replace(/[\s\-]/g,''))) { showToast('Please enter a valid Australian phone number (e.g. 0412 345 678 or 03 9000 0001).', 'error'); return; }
   const hours         = document.getElementById('oHours').value.trim();
   const isActive      = document.getElementById('oActive').value !== 'false';
   if (!name || !state || !territorySlug || !address) { showToast('Name, state, territory and address are required', 'error'); return; }
