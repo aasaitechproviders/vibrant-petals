@@ -737,10 +737,6 @@ async function confirmStripePayment(){
 
 // ── Cancel Stripe phase and go back to payment method selection ───────────────
 async function cancelStripePhase(){
-  // Cancel the pending order so it doesn't sit dangling in the DB
-  if(pendingOrder?.orderId){
-    apiFetch('/orders/'+pendingOrder.orderId+'/cancel',{method:'PUT',headers:apiHeaders()}).catch(()=>{});
-  }
   stripePhase=0;
   stripeElements=null;
   stripeInstance=null;
@@ -751,9 +747,7 @@ async function cancelStripePhase(){
   delete btn.dataset.stripePhase;
   btn.textContent='Place Order';
   btn.onclick=handlePlaceOrder;
-  // Cart was NOT cleared when PI was created, so loadCart() correctly shows items
   loadCart();
-  checkOrderReady();
 }
 
 // ── BANK TRANSFER / COD — existing flow ──────────────────────────────────────
