@@ -7,7 +7,6 @@
   <title>VibrantPetals – Handcrafted Strings of Floral Beauty</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
   <style>
     /* ── TOKENS ─────────────────────────────────────────────── */
     :root{--gold:#9B8B5A;--gold-dark:#7A6B3F;--gold-lt:#C5B483;--cream:#FAF7F2;--cream2:#F2EDE3;--dark:#1A1A1A;--mid:#555;--light-blue:#D6E8F0;--card-bg:#E8F0F5;--radius:4px;--nav-h:70px;--bar-h:40px;}
@@ -52,7 +51,7 @@
     }
     .nav-logo {
       display: flex; align-items: center; gap: 10px;
-      font-family: 'Playfair Display', serif;
+      font-family: serif;
       font-size: 22px; font-weight: 400; color: var(--dark);
       height: 100%;
     }
@@ -207,7 +206,7 @@
       margin: 0 auto;
     }
     .cat-heading {
-      font-family: 'Playfair Display', serif;
+      font-family: serif;
       font-size: clamp(2rem, 4vw, 3rem);
       font-weight: 400;
       color: var(--dark);
@@ -296,7 +295,7 @@
       padding: 60px 0 70px;
     }
     .section-title {
-      font-family: 'Playfair Display', serif;
+      font-family: serif;
       font-size: 28px; font-weight: 400;
       padding: 0 0 18px;
       margin-bottom: 32px;
@@ -457,7 +456,7 @@
       text-align: center;
     }
     .testi-heading {
-      font-family: 'Playfair Display', serif;
+      font-family: serif;
       font-size: 2.2rem; font-weight: 400;
       margin-bottom: 36px; color: var(--dark);
       letter-spacing: 0.01em;
@@ -532,7 +531,7 @@
       padding: 60px 52px;
     }
     .delivery-content h2 {
-      font-family: 'Playfair Display', serif;
+      font-family: serif;
       font-size: clamp(2rem, 3vw, 3.2rem);
       line-height: 1.25;
       color: var(--dark);
@@ -552,7 +551,7 @@
       padding-bottom: 50px;
     }
     .footer-col-title {
-      font-family: 'Playfair Display', serif;
+      font-family: serif;
       font-size: 20px; margin-bottom: 20px;
     }
     .footer-contact { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--mid); }
@@ -615,7 +614,7 @@
     }
     .search-close:hover { color: var(--gold); }
     .search-label {
-      font-family: 'Playfair Display', serif;
+      font-family: serif;
       font-size: 28px; margin-bottom: 24px; color: var(--dark);
     }
     .search-bar {
@@ -676,7 +675,7 @@
       position: relative;
     }
     .modal-brand {
-      font-family: 'Playfair Display', serif;
+      font-family: serif;
       font-size: 24px; color: #fff;
       display: flex; align-items: center; gap: 8px;
     }
@@ -716,7 +715,7 @@
       padding: 20px 24px;
       border-bottom: 1px solid #e8e0d2;
     }
-    .cart-head h3 { font-family: 'Playfair Display', serif; font-size: 18px; }
+    .cart-head h3 { font-family: serif; font-size: 18px; }
     .cart-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
     .cart-empty {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -841,7 +840,7 @@
     .mobile-nav-head {
       display: flex; align-items: center; justify-content: space-between;
       padding: 18px 20px; border-bottom: 1px solid #e8e0d2;
-      font-family: 'Playfair Display', serif; font-size: 18px; color: var(--dark);
+      font-family: serif; font-size: 18px; color: var(--dark);
     }
     .mobile-nav-close {
       font-size: 22px; color: var(--mid); background: none; border: none; cursor: pointer;
@@ -939,6 +938,7 @@
       .qty-val-card { height: 34px; line-height: 34px; }
     }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
 
@@ -1909,8 +1909,8 @@ function renderCatCarousel(){
     const imgContent = cat.image
       ? `<img src="${cat.image}" alt="${cat.name}" loading="lazy"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-         <div style="display:none;position:absolute;inset:0;background:var(--card-bg);align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--mid);">${cat.name}</div>`
-      : `<div style="position:absolute;inset:0;background:var(--card-bg);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--mid);">${cat.name}</div>`;
+         <div style="display:none;position:absolute;inset:0;background:var(--card-bg);align-items:center;justify-content:center;font-size:1.1rem;color:var(--mid);">${cat.name}</div>`
+      : `<div style="position:absolute;inset:0;background:var(--card-bg);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--mid);">${cat.name}</div>`;
     return `<a href="category.html?cat=${slug}" class="cat-card">${imgContent}<div class="cat-card-label">${cat.name}</div></a>`;
   }).join('');
 
