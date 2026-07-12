@@ -550,13 +550,13 @@
           </div>
           <div class="msg" id="step1Msg"></div>
           <div class="form-group">
-            <label class="form-label">Your Preferred State <span class="req">*</span></label>
+            <label class="form-label">Your State <span class="req">*</span></label>
             <select class="form-select" id="dPrefState" onchange="onDealerPrefStateChange()">
               <option value="">Select your state…</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Your Preferred Territory / Suburb <span class="req">*</span></label>
+            <label class="form-label">Your Territory <span class="req">*</span></label>
             <select class="form-select" id="dPrefTerritory" disabled>
               <option value="">Select state first…</option>
             </select>
@@ -757,8 +757,8 @@
       <div id="outletForm" style="display:none;">
 
         <div class="section-badge">🏪 Retail Outlet Registration</div>
-        <h3 class="section-title">Register your pickup store</h3>
-        <p class="section-desc">Register your store as a VibrantPetals pickup point. Customers in your territory will see your outlet at checkout. Your account will be activated after admin review.</p>
+        <h3 class="section-title">Register your retail and pickup store</h3>
+        <p class="section-desc">Register your store as a Nivas Vibrant Petals pickup location. Customers in your service area will be able to select your store as their preferred pickup point during checkout. Your account will be activated once your application has been reviewed and approved by our administration team.</p>
 
         <!-- Contact person -->
         <div class="form-group half-row">
@@ -792,16 +792,15 @@
           </div>
         </div>
 
-        <div class="divider">your preferences</div>
 
         <div class="form-group">
-          <label class="form-label">Your Preferred State <span class="req">*</span></label>
+          <label class="form-label">Your State <span class="req">*</span></label>
           <select class="form-select" id="oPrefState" onchange="onOutletPrefStateChange()">
             <option value="">Select your state…</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Your Preferred Territory / Suburb <span class="req">*</span></label>
+          <label class="form-label">Your Territory <span class="req">*</span></label>
           <select class="form-select" id="oPrefTerritory" disabled>
             <option value="">Select state first…</option>
           </select>
@@ -1262,8 +1261,8 @@ function validateStep(step) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!em || !emailRegex.test(em)) { showMsg('step1Msg', 'Please enter a valid email address.', 'err'); return false; }
     if (pw.length < 8) { showMsg('step1Msg', 'Password must be at least 8 characters.', 'err'); return false; }
-    if (!document.getElementById('dPrefState').value) { showMsg('step1Msg', 'Please select your preferred state.', 'err'); return false; }
-    if (!document.getElementById('dPrefTerritory').value) { showMsg('step1Msg', 'Please select your preferred territory.', 'err'); return false; }
+    if (!document.getElementById('dPrefState').value) { showMsg('step1Msg', 'Please select your state.', 'err'); return false; }
+    if (!document.getElementById('dPrefTerritory').value) { showMsg('step1Msg', 'Please select your territory.', 'err'); return false; }
     return true;
   }
   if (step === 2) {
@@ -1514,8 +1513,8 @@ async function submitOutlet() {
   if (!email || !outletEmailRegex.test(email)){ showMsg('outletMsg', 'Please enter a valid email address.', 'err'); return; }
   if (password.length < 6)           { showMsg('outletMsg', 'Password must be at least 6 characters.', 'err'); return; }
   if (!mobile || !/^(?:\+61|61|0)4\d{8}$/.test(mobile.replace(/[\s\-]/g,''))) { showMsg('outletMsg', 'Please enter a valid Australian mobile number (e.g. 0412 345 678 or +61 412 345 678).', 'err'); return; }
-  if (!document.getElementById('oPrefState').value)     { showMsg('outletMsg', 'Please select your preferred state.', 'err'); return; }
-  if (!document.getElementById('oPrefTerritory').value) { showMsg('outletMsg', 'Please select your preferred territory.', 'err'); return; }
+  if (!document.getElementById('oPrefState').value)     { showMsg('outletMsg', 'Please select your state.', 'err'); return; }
+  if (!document.getElementById('oPrefTerritory').value) { showMsg('outletMsg', 'Please select your territory.', 'err'); return; }
   if (!storeName)                    { showMsg('outletMsg', 'Please enter your store name.', 'err'); return; }
   if (!address)                      { showMsg('outletMsg', 'Please enter your store address.', 'err'); return; }
   if (!state)                        { showMsg('outletMsg', 'Please select a state.', 'err'); return; }
