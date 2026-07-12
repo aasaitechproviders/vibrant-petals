@@ -774,15 +774,15 @@ function vpConfirm({ title, message, icon = '❓', confirmText = 'Confirm', canc
 
 function fmtPickupDate(d) {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+  return new Date(d).toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'short', year:'numeric', timeZone:'Australia/Sydney'});
 }
 function fmtDate(d) {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-AU', {day:'numeric', month:'short', year:'numeric'});
+  return new Date(d).toLocaleDateString('en-AU', {day:'numeric', month:'short', year:'numeric', timeZone:'Australia/Sydney'});
 }
 function fmtDateTime(d) {
   if (!d) return '—';
-  return new Date(d).toLocaleString('en-AU', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+  return new Date(d).toLocaleString('en-AU', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', timeZone:'Australia/Sydney'});
 }
 const API='https://u774ofu5hubad3njs5duo7xuji0olphd.lambda-url.ap-southeast-2.on.aws';
 // Clear expired token immediately to prevent auth flicker
