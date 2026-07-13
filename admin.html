@@ -435,36 +435,40 @@
       <!-- SHIPPING SCHEDULE -->
       <div class="panel" id="panel-shipping">
         <div class="card" style="max-width:640px;">
-          <div class="card-title" style="font-size:14px;font-weight:700;margin-bottom:4px;">Shipping Schedule</div>
-          <p style="font-size:13px;color:var(--mid);margin-bottom:20px;">Configure which dates shipping is available. Customers can select any date within the window from each shipping date, subject to the lead time.</p>
+          <div class="card-head">
+            <div class="card-title">Shipping Schedule</div>
+          </div>
+          <div style="padding:24px;">
+            <p style="font-size:13px;color:var(--mid);margin:0 0 24px;">Configure which dates shipping is available. Customers can select any date within the window from each shipping date, subject to the lead time.</p>
 
-          <!-- Settings row -->
-          <div style="display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;">
-            <div style="flex:1;min-width:160px;">
-              <label class="form-label">Window Days <span style="font-size:11px;font-weight:400;color:var(--mid);">(days enabled per shipping date)</span></label>
-              <input class="form-input" type="number" id="shipWindowDays" min="1" max="365" value="15" style="max-width:120px;"/>
+            <!-- Window + Lead Days -->
+            <div style="display:flex;gap:24px;margin-bottom:24px;flex-wrap:wrap;">
+              <div class="form-group" style="margin:0;flex:1;min-width:140px;">
+                <label class="form-label">Window Days <span style="font-size:11px;font-weight:400;">(days per shipping date)</span></label>
+                <input class="form-input" type="number" id="shipWindowDays" min="1" max="365" value="15"/>
+              </div>
+              <div class="form-group" style="margin:0;flex:1;min-width:140px;">
+                <label class="form-label">Lead Days <span style="font-size:11px;font-weight:400;">(min days from today)</span></label>
+                <input class="form-input" type="number" id="shipLeadDays" min="0" max="365" value="5"/>
+              </div>
             </div>
-            <div style="flex:1;min-width:160px;">
-              <label class="form-label">Lead Days <span style="font-size:11px;font-weight:400;color:var(--mid);">(min days from today)</span></label>
-              <input class="form-input" type="number" id="shipLeadDays" min="0" max="365" value="5" style="max-width:120px;"/>
+
+            <!-- Add date -->
+            <div class="form-group">
+              <label class="form-label">Shipping Dates</label>
+              <div style="display:flex;gap:8px;">
+                <input class="form-input" type="date" id="shipDateInput" style="max-width:200px;"/>
+                <button class="btn-primary" onclick="addShippingDate()" style="white-space:nowrap;">+ Add Date</button>
+              </div>
             </div>
-          </div>
 
-          <!-- Add date -->
-          <label class="form-label">Shipping Dates</label>
-          <div style="display:flex;gap:8px;margin-bottom:12px;">
-            <input class="form-input" type="date" id="shipDateInput" style="max-width:200px;"/>
-            <button class="btn-primary" onclick="addShippingDate()" style="white-space:nowrap;">+ Add Date</button>
-          </div>
+            <!-- Date pills -->
+            <div id="shipDateList" style="display:flex;flex-wrap:wrap;gap:8px;min-height:36px;margin-bottom:20px;">
+              <span style="font-size:13px;color:var(--mid);">No dates added yet.</span>
+            </div>
 
-          <!-- Date list -->
-          <div id="shipDateList" style="display:flex;flex-wrap:wrap;gap:8px;min-height:40px;margin-bottom:20px;">
-            <span id="shipDateEmpty" style="font-size:13px;color:var(--mid);">No dates added yet.</span>
-          </div>
-
-          <div class="form-msg" id="shipMsg"></div>
-          <div style="margin-top:8px;">
-            <button class="btn-primary" onclick="saveShippingSchedule()">Save Schedule</button>
+            <div class="form-msg" id="shipMsg"></div>
+            <button class="btn-primary" onclick="saveShippingSchedule()" style="margin-top:4px;">Save Schedule</button>
           </div>
         </div>
       </div>
@@ -3969,15 +3973,11 @@ async function loadShippingSchedule() {
 }
 
 function renderShipDates() {
-  const list  = document.getElementById('shipDateList');
-  const empty = document.getElementById('shipDateEmpty');
+  const list = document.getElementById('shipDateList');
   if (!_shipDates.length) {
-    list.innerHTML = '';
-    list.appendChild(empty);
-    empty.style.display = '';
+    list.innerHTML = '<span style="font-size:13px;color:var(--mid);">No dates added yet.</span>';
     return;
   }
-  empty.style.display = 'none';
   list.innerHTML = _shipDates.map(d => {
     const label = new Date(d + 'T00:00:00').toLocaleDateString('en-AU', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
     return `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:#fdf3d8;border:1.5px solid var(--gold);border-radius:20px;font-size:13px;">
