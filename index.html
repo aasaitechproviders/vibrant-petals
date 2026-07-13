@@ -2300,7 +2300,7 @@ function raSearchProducts(q) {
   const res = document.getElementById('raSearchResults');
   if (!q || q.length < 2) { if(res) res.classList.remove('open'); return; }
   _raSearchTimer = setTimeout(async () => {
-    const data = await apiFetch(`/products/search?q=${encodeURIComponent(q)}&limit=8`).catch(()=>({products:[]}));
+    const data = await apiFetch(`/products/search?q=${encodeURIComponent(q)}`).catch(()=>({products:[]}));
     const results = document.getElementById('raSearchResults');
     if (!results) return;
     const prods = data.products || [];
