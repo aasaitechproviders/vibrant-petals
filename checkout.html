@@ -823,14 +823,14 @@ const _dStr = d => `${d.getFullYear()}-${_pad(d.getMonth()+1)}-${_pad(d.getDate(
 function _computeEnabled(shippingDates, windowDays, leadDays) {
   const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
   const today    = new Date(todayStr + 'T00:00:00');
-  const minDate  = new Date(today);
-  minDate.setDate(today.getDate() + leadDays);  // today is always blocked; leadDays gap
-  const enabled = new Set();
+  const enabled  = new Set();
   for (const ds of shippingDates) {
-    const ship = new Date(ds + 'T00:00:00');
+    const ship     = new Date(ds + 'T00:00:00');
+    const daysGap  = Math.round((ship - today) / 86400000);
+    if (daysGap < leadDays) continue;  // vendor doesn't have enough prep time, skip this shipping date
     for (let i = 0; i <= windowDays; i++) {
       const d = new Date(ship); d.setDate(ship.getDate() + i);
-      if (d >= minDate) enabled.add(_dStr(d));
+      enabled.add(_dStr(d));
     }
   }
   return enabled;
