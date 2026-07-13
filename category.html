@@ -869,6 +869,46 @@ function raPopulateTerritories(state) {
   sel.disabled = false;
 }
 
+let _raAllOutlets = [];
+
+async function raLoadOutlets(state) {
+  const listEl = document.getElementById('raOutletList');
+  if (!listEl) return;
+  if (!state) { listEl.innerHTML = '<p style="font-size:13px;color:var(--mid);">Select a state above to see available outlets.</p>'; return; }
+  listEl.innerHTML = '<p style="font-size:13px;color:var(--mid);">Loading outlets…</p>';
+  document.getElementById('raSelectedOutletId').value = '';
+  const data = await apiFetch('/retail-outlets?pickupEnabled=true&state=' + encodeURIComponent(state)).catch(() => ({ outlets: [] }));
+  _raAllOutlets = data.outlets || [];
+  raRenderOutlets();
+}
+
+function raRenderOutlets() {
+  const listEl     = document.getElementById('raOutletList');
+  const selectedId = document.getElementById('raSelectedOutletId')?.value || '';
+  if (!listEl) return;
+  if (!_raAllOutlets.length) { listEl.innerHTML = '<p style="font-size:13px;color:var(--mid);">No pickup outlets available for this state.</p>'; return; }
+  listEl.innerHTML = _raAllOutlets.map(o => {
+    const sel = o._id?.toString() === selectedId;
+    return `<div onclick="raSelectOutlet('${o._id}')" style="border:2px solid ${sel ? 'var(--gold)' : '#e8e0d2'};border-radius:8px;padding:14px 16px;cursor:pointer;background:${sel ? '#FFFBF3' : '#fff'};transition:all .15s;display:flex;align-items:flex-start;gap:12px;">
+      <div style="font-size:20px;margin-top:2px;">🏪</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;color:var(--dark);">${o.name}</div>
+        <div style="font-size:12px;color:var(--mid);">${o.address}, ${o.suburb} · ${o.state}</div>
+        ${o.phone ? `<div style="font-size:12px;color:var(--mid);">📞 ${o.phone}</div>` : ''}
+        ${o.hours ? `<div style="font-size:12px;color:var(--gold);">⏰ ${o.hours}</div>` : ''}
+      </div>
+      <div style="width:20px;height:20px;border-radius:50%;border:2px solid ${sel ? 'var(--gold)' : '#ddd'};background:${sel ? 'var(--gold)' : '#fff'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        ${sel ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function raSelectOutlet(id) {
+  document.getElementById('raSelectedOutletId').value = id;
+  raRenderOutlets();
+}
+
 function openRAForm(productId) {
   const prod = (window._raProductCache || {})[productId];
   _raItems = prod ? [{ ...prod, qty: 1 }] : [];
@@ -936,6 +976,16 @@ function renderRAModal() {
       </div>
     </div>
     <div id="raFormMsg" style="font-size:13px;padding:10px 14px;border-radius:6px;display:none;margin-bottom:12px;"></div>
+
+    <!-- Pickup Outlet -->
+    <div style="margin-bottom:20px;">
+      <div class="ra-section-label">Select Pickup Outlet</div>
+      <div id="raOutletList" style="display:flex;flex-direction:column;gap:8px;">
+        <p style="font-size:13px;color:var(--mid);">Select a state above to see available outlets.</p>
+      </div>
+      <input type="hidden" id="raSelectedOutletId"/>
+    </div>
+
     <button class="ra-submit-btn" onclick="submitRAForm()">Submit Request</button>`;
 
   apiFetch('/states').then(data => {
@@ -944,7 +994,7 @@ function renderRAModal() {
     (data.states || []).forEach(s => {
       const opt = document.createElement('option'); opt.value = s.name; opt.textContent = s.name; sel.appendChild(opt);
     });
-    sel.onchange = () => raPopulateTerritories(sel.value);
+    sel.onchange = () => { raPopulateTerritories(sel.value); raLoadOutlets(sel.value); };
   }).catch(()=>{});
 }
 
@@ -994,6 +1044,7 @@ async function submitRAForm() {
   const deliveryState  = document.getElementById('raDeliveryState')?.value;
   const deliverySuburb = document.getElementById('raDeliverySuburb')?.value || '';
   const deliveryDate   = document.getElementById('raDeliveryDate')?.value;
+  const outletId       = document.getElementById('raSelectedOutletId')?.value || '';
   const msg            = document.getElementById('raFormMsg');
   const showErr = m => { msg.style.display=''; msg.style.background='#fce4e4'; msg.style.color='#c62828'; msg.textContent=m; };
   if (!_raItems.length)  return showErr('Please add at least one product.');
@@ -1002,12 +1053,13 @@ async function submitRAForm() {
   if (!deliveryState)    return showErr('Please select a delivery state.');
   if (!deliverySuburb)   return showErr('Please select a territory.');
   if (!deliveryDate)     return showErr('Please select a delivery date.');
+  if (!outletId)         return showErr('Please select a pickup outlet.');
   const btn = document.querySelector('.ra-submit-btn');
   if (btn) { btn.disabled=true; btn.textContent='Submitting…'; }
   const data = await apiFetch('/availability-requests', {
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-    body:JSON.stringify({ products:_raItems.map(i=>({productId:i.productId,productName:i.productName,price:i.price,qty:i.qty})), eventName, eventDate, deliveryState, deliverySuburb, deliveryDate })
+    body:JSON.stringify({ products:_raItems.map(i=>({productId:i.productId,productName:i.productName,price:i.price,qty:i.qty})), eventName, eventDate, deliveryState, deliverySuburb, deliveryDate, outletId })
   });
   if (data.success) {
     document.getElementById('raBody').innerHTML = `<div style="text-align:center;padding:40px 20px;">
@@ -1029,7 +1081,7 @@ document.addEventListener('click', e => {
 window.openRAForm=openRAForm; window.closeRAForm=closeRAForm;
 window.raChangeQty=raChangeQty; window.raRemoveItem=raRemoveItem;
 window.raSearchProducts=raSearchProducts; window.raAddProduct=raAddProduct;
-window.submitRAForm=submitRAForm;
+window.submitRAForm=submitRAForm; window.raSelectOutlet=raSelectOutlet;
 </script>
 </body>
 </html>
