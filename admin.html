@@ -1059,7 +1059,17 @@
           </span>
         </div>
       </div>
-      <div class="form-group"><label class="form-label">Categories <span style="font-size:11px;font-weight:400;">(comma-separated)</span></label><input class="form-input" id="pCategories" placeholder="Strings, Garlands"/></div>
+      <div class="form-group">
+        <label class="form-label">Categories</label>
+        <div id="pCategoriesWrap" style="border:1px solid var(--border);border-radius:6px;padding:10px 12px;max-height:150px;overflow-y:auto;background:#fafaf8;display:flex;flex-wrap:wrap;gap:8px;min-height:46px;align-content:flex-start;">
+          <span style="font-size:12px;color:var(--mid);">Loading categories…</span>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:8px;">
+          <input class="form-input" id="pCatNewInput" placeholder="Type a new category name…" style="flex:1;font-size:13px;"/>
+          <button type="button" onclick="addCategoryTag()" style="padding:8px 16px;background:var(--gold);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">+ Add</button>
+        </div>
+        <span style="font-size:11px;color:var(--mid);margin-top:4px;display:block;">Tick existing categories or type a new one and click + Add</span>
+      </div>
 
       <!-- ── IMAGE UPLOAD SECTION ── -->
       <div class="form-group">
@@ -2725,7 +2735,7 @@ function openProductModal() {
   document.getElementById('prodModalTitle').textContent = 'Add Product';
   document.getElementById('prodSaveBtn').textContent = 'Save Product';
   document.getElementById('prodSaveBtn').disabled = false;
-  ['pName','pSlug','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku','pCategories'].forEach(id => {
+  ['pName','pSlug','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('pShortDescBullets').innerHTML = '';
@@ -2736,6 +2746,7 @@ function openProductModal() {
   document.getElementById('pFeatured').checked = false;
   document.getElementById('prodFormMsg').className = 'form-msg';
   resetImageUI();
+  populateCategorySelect([]);
   document.getElementById('productModal').classList.add('open');
 }
 function closeProductModal() { document.getElementById('productModal').classList.remove('open'); }
@@ -2749,7 +2760,7 @@ async function editProduct(id) {
   document.getElementById('prodModalTitle').textContent = 'Edit Product';
   document.getElementById('prodSaveBtn').textContent = 'Loading…';
   document.getElementById('prodSaveBtn').disabled = true;
-  ['pName','pSlug','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku','pCategories'].forEach(i => {
+  ['pName','pSlug','pPrice','pRegPrice','pSalePrice','pDealerPrice','pSku'].forEach(i => {
     document.getElementById(i).value = '';
   });
   document.getElementById('pShortDescBullets').innerHTML = '';
@@ -2783,8 +2794,8 @@ async function editProduct(id) {
   document.getElementById('pStockStatus').value = p.stockStatus || p.stock_status || 'instock';
   document.getElementById('pStockQty').value = p.stockQty != null ? p.stockQty : (p.stock_qty != null ? p.stock_qty : 0);
 
-  const cats = p.categories || [];
-  document.getElementById('pCategories').value = cats.map(c => typeof c === 'string' ? c : (c.name || c)).join(', ');
+  const cats = (p.categories || []).map(c => typeof c === 'string' ? c : (c.name || c));
+  populateCategorySelect(cats);
   document.getElementById('pStatus').value = p.status || 'publish';
   document.getElementById('pFeatured').checked = !!(p.isFeatured || p.is_featured);
 
@@ -2808,6 +2819,101 @@ function onStockStatusChange() {
 }
 window.onStockStatusChange = onStockStatusChange;
 
+// ── Category multi-select helpers ─────────────────────────────────────────────
+let _catOptions = [];
+
+async function populateCategorySelect(selectedCats) {
+  const wrap = document.getElementById('pCategoriesWrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<span style="font-size:12px;color:var(--mid);">Loading categories…</span>';
+  try {
+    const data = await apiFetch('/products/categories', { headers: apiHeaders() });
+    const all = (data.categories || []).filter(c => c.slug !== 'all');
+    // Merge any selected cats that aren't in the fetched list (e.g. just-added ones)
+    const knownNames = new Set(all.map(c => c.name.toLowerCase()));
+    (selectedCats || []).forEach(name => {
+      if (name && !knownNames.has(name.toLowerCase())) {
+        all.push({ name, slug: name });
+        knownNames.add(name.toLowerCase());
+      }
+    });
+    _catOptions = all;
+  } catch(e) {
+    _catOptions = (selectedCats || []).filter(Boolean).map(n => ({ name: n, slug: n }));
+  }
+  const selSet = new Set((selectedCats || []).map(n => n.toLowerCase()));
+  renderCategoryTags(selSet);
+}
+
+function renderCategoryTags(selSet) {
+  const wrap = document.getElementById('pCategoriesWrap');
+  if (!_catOptions.length) {
+    wrap.innerHTML = '<span style="font-size:12px;color:var(--mid);">No categories yet — type one below and click + Add.</span>';
+    return;
+  }
+  wrap.innerHTML = _catOptions.map(c => {
+    const isSel = selSet.has(c.name.toLowerCase());
+    return `<label style="display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;border:1.5px solid ${isSel ? 'var(--gold)' : 'var(--border)'};background:${isSel ? '#fdf3d8' : '#fff'};cursor:pointer;font-size:13px;white-space:nowrap;user-select:none;transition:border-color .15s,background .15s;">
+      <input type="checkbox" data-catname="${c.name}" ${isSel ? 'checked' : ''} onchange="toggleCatTag(this)" style="accent-color:var(--gold);width:13px;height:13px;margin:0;cursor:pointer;"/>
+      ${c.name}
+    </label>`;
+  }).join('');
+}
+
+function toggleCatTag(cb) {
+  const lbl = cb.closest('label');
+  if (cb.checked) {
+    lbl.style.borderColor = 'var(--gold)';
+    lbl.style.background  = '#fdf3d8';
+  } else {
+    lbl.style.borderColor = 'var(--border)';
+    lbl.style.background  = '#fff';
+  }
+}
+
+function addCategoryTag() {
+  const inp  = document.getElementById('pCatNewInput');
+  const name = (inp.value || '').trim();
+  if (!name) return;
+  const wrap  = document.getElementById('pCategoriesWrap');
+  const exist = _catOptions.find(c => c.name.toLowerCase() === name.toLowerCase());
+  if (exist) {
+    // Just tick it if already in the list
+    wrap.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      if ((cb.dataset.catname || '').toLowerCase() === name.toLowerCase()) { cb.checked = true; toggleCatTag(cb); }
+    });
+  } else {
+    // Add to options and re-render keeping current selections
+    const curSel = getSelectedCatSet();
+    _catOptions.push({ name, slug: name });
+    curSel.add(name.toLowerCase());
+    renderCategoryTags(curSel);
+  }
+  inp.value = '';
+  inp.focus();
+}
+
+function getSelectedCatSet() {
+  const wrap = document.getElementById('pCategoriesWrap');
+  const s = new Set();
+  (wrap || document).querySelectorAll('#pCategoriesWrap input[type=checkbox]:checked').forEach(cb => {
+    if (cb.dataset.catname) s.add(cb.dataset.catname.toLowerCase());
+  });
+  return s;
+}
+
+function getSelectedCategories() {
+  const wrap = document.getElementById('pCategoriesWrap');
+  const result = [];
+  (wrap || document).querySelectorAll('#pCategoriesWrap input[type=checkbox]:checked').forEach(cb => {
+    if (cb.dataset.catname) result.push(cb.dataset.catname);
+  });
+  return result;
+}
+window.addCategoryTag    = addCategoryTag;
+window.toggleCatTag      = toggleCatTag;
+// ── end category helpers ───────────────────────────────────────────────────────
+
 async function saveProduct() {
   const name = document.getElementById('pName').value.trim();
   const slug = document.getElementById('pSlug').value.trim();
@@ -2825,7 +2931,7 @@ async function saveProduct() {
     sku: document.getElementById('pSku').value,
     stockStatus: document.getElementById('pStockStatus').value,
     stockQty: parseInt(document.getElementById('pStockQty').value) || 0,
-    categories: document.getElementById('pCategories').value.split(',').map(s => s.trim()).filter(Boolean),
+    categories: getSelectedCategories(),
     status: document.getElementById('pStatus').value,
     images: uploadedImageUrls.filter(Boolean),   // ← S3 URLs from upload state
     isFeatured: document.getElementById('pFeatured').checked,
@@ -2862,6 +2968,9 @@ async function deleteProduct(id, name) {
 }
 window.deleteProduct = deleteProduct;
 
+document.getElementById('pCatNewInput')?.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { e.preventDefault(); addCategoryTag(); }
+});
 document.getElementById('pName')?.addEventListener('input', function () {
   if (!editingProductId) document.getElementById('pSlug').value = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 });
