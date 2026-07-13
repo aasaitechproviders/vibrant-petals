@@ -434,14 +434,12 @@
 
       <!-- SHIPPING SCHEDULE -->
       <div class="panel" id="panel-shipping">
-        <div class="card" style="max-width:640px;">
+        <div class="card" style="max-width:640px;margin-bottom:24px;">
           <div class="card-head">
             <div class="card-title">Shipping Schedule</div>
           </div>
           <div style="padding:24px;">
             <p style="font-size:13px;color:var(--mid);margin:0 0 24px;">Configure which dates shipping is available. Customers can select any date within the window from each shipping date, subject to the lead time.</p>
-
-            <!-- Window + Lead Days -->
             <div style="display:flex;gap:24px;margin-bottom:24px;flex-wrap:wrap;">
               <div class="form-group" style="margin:0;flex:1;min-width:140px;">
                 <label class="form-label">Window Days <span style="font-size:11px;font-weight:400;">(days per shipping date)</span></label>
@@ -452,8 +450,6 @@
                 <input class="form-input" type="number" id="shipLeadDays" min="0" max="365" value="5"/>
               </div>
             </div>
-
-            <!-- Add date -->
             <div class="form-group">
               <label class="form-label">Shipping Dates</label>
               <div style="display:flex;gap:8px;">
@@ -461,14 +457,41 @@
                 <button class="btn-primary" onclick="addShippingDate()" style="white-space:nowrap;">+ Add Date</button>
               </div>
             </div>
-
-            <!-- Date pills -->
             <div id="shipDateList" style="display:flex;flex-wrap:wrap;gap:8px;min-height:36px;margin-bottom:20px;">
               <span style="font-size:13px;color:var(--mid);">No dates added yet.</span>
             </div>
-
             <div class="form-msg" id="shipMsg"></div>
             <button class="btn-primary" onclick="saveShippingSchedule()" style="margin-top:4px;">Save Schedule</button>
+          </div>
+        </div>
+
+        <!-- Availability Requests -->
+        <div class="card">
+          <div class="card-head" style="justify-content:space-between;">
+            <div class="card-title">Availability Requests</div>
+            <button class="btn-sm btn-edit" onclick="loadAvailabilityRequests()">↻ Refresh</button>
+          </div>
+          <div id="availReqBody" style="padding:20px;">
+            <p style="font-size:13px;color:var(--mid);">Loading…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirm Availability Request Modal -->
+      <div class="modal" id="confirmRAModal">
+        <div class="modal-box" style="max-width:420px;">
+          <div class="modal-head"><h3>Confirm & Create Order</h3><span class="modal-close" onclick="closeModal('confirmRAModal')">✕</span></div>
+          <div class="modal-body">
+            <p style="font-size:13px;color:var(--mid);margin-bottom:16px;">Select the scheduled pickup date for this order. It will be created as a COD order.</p>
+            <div class="form-group">
+              <label class="form-label">Scheduled Pickup Date</label>
+              <input class="form-input" type="date" id="raConfirmDate"/>
+            </div>
+            <div class="form-msg" id="raConfirmMsg"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal('confirmRAModal')">Cancel</button>
+            <button class="btn-primary" onclick="confirmAvailRequest()">Confirm & Create Order</button>
           </div>
         </div>
       </div>
@@ -1134,6 +1157,7 @@
       </div>
 
       <div class="form-group" style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="pFeatured" style="width:16px;height:16px;accent-color:var(--gold);"/><label class="form-label" style="margin-bottom:0;cursor:pointer;" for="pFeatured">Featured Product</label></div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="pRequestAvail" checked style="width:16px;height:16px;accent-color:#e67e22;"/><label class="form-label" style="margin-bottom:0;cursor:pointer;" for="pRequestAvail">Request Availability <span style="font-size:11px;font-weight:400;color:var(--mid);">(shows "Request Availability" button instead of Add to Cart)</span></label></div>
       <div class="form-msg" id="prodFormMsg"></div>
     </div>
     <div class="modal-footer"><button class="btn-cancel" onclick="closeProductModal()">Cancel</button><button class="btn-primary" id="prodSaveBtn" onclick="saveProduct()">Save Product</button></div>
@@ -1836,7 +1860,7 @@ checkAuth();
 document.getElementById('adminPwd')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
 
 // ── PANEL NAVIGATION ──────────────────────────────────────────────────────────
-const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, pickuporders: () => { pickupOrdPage=1; loadPickupOrders(); }, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, templates: loadTemplates, coupons: loadCoupons, shipping: loadShippingSchedule, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: () => { loadStates(); loadTerritories(); }, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
+const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, pickuporders: () => { pickupOrdPage=1; loadPickupOrders(); }, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, templates: loadTemplates, coupons: loadCoupons, shipping: () => { loadShippingSchedule(); loadAvailabilityRequests(); }, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: () => { loadStates(); loadTerritories(); }, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  TERRITORIES
@@ -2786,6 +2810,7 @@ function openProductModal() {
   document.getElementById('pStockQty').value = '0';
   document.getElementById('pStatus').value = 'publish';
   document.getElementById('pFeatured').checked = false;
+  document.getElementById('pRequestAvail').checked = true;
   document.getElementById('prodFormMsg').className = 'form-msg';
   resetImageUI();
   populateCategorySelect([]);
@@ -2840,6 +2865,7 @@ async function editProduct(id) {
   populateCategorySelect(cats);
   document.getElementById('pStatus').value = p.status || 'publish';
   document.getElementById('pFeatured').checked = !!(p.isFeatured || p.is_featured);
+  document.getElementById('pRequestAvail').checked = !!(p.requestAvailability ?? true);
 
   // Load existing images into the upload state
   uploadedImageUrls = [...(p.images || p.imageUrls || [])];
@@ -2977,6 +3003,7 @@ async function saveProduct() {
     status: document.getElementById('pStatus').value,
     images: uploadedImageUrls.filter(Boolean),   // ← S3 URLs from upload state
     isFeatured: document.getElementById('pFeatured').checked,
+    requestAvailability: document.getElementById('pRequestAvail').checked,
     variants: getVariants()
   };
 
@@ -4029,6 +4056,81 @@ window.addShippingDate      = addShippingDate;
 window.removeShippingDate   = removeShippingDate;
 window.saveShippingSchedule = saveShippingSchedule;
 // ── end shipping schedule ─────────────────────────────────────────────────────
+
+// ── AVAILABILITY REQUESTS ─────────────────────────────────────────────────────
+let _confirmingRAId = null;
+
+async function loadAvailabilityRequests() {
+  const body = document.getElementById('availReqBody');
+  if (!body) return;
+  body.innerHTML = '<p style="font-size:13px;color:var(--mid);">Loading…</p>';
+  try {
+    const data = await apiFetch('/admin/availability-requests', { headers: apiHeaders() });
+    const reqs = data.requests || [];
+    if (!reqs.length) {
+      body.innerHTML = '<p style="font-size:13px;color:var(--mid);padding:4px 0;">No availability requests yet.</p>';
+      return;
+    }
+    body.innerHTML = reqs.map(r => {
+      const date    = new Date(r.createdAt).toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
+      const evtDate = r.eventDate ? new Date(r.eventDate + 'T00:00:00').toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }) : '—';
+      const delDate = r.deliveryDate ? new Date(r.deliveryDate + 'T00:00:00').toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }) : '—';
+      const products = (r.products || []).map(p => `${p.productName} ×${p.qty}`).join(', ');
+      const statusBadge = r.status === 'confirmed'
+        ? `<span style="background:#d4edda;color:#155724;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px;">✓ CONFIRMED — ${r.orderNumber}</span>`
+        : `<span style="background:#fff3cd;color:#856404;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px;">PENDING</span>`;
+      return `<div style="border:1px solid #e8e0d2;border-radius:8px;padding:16px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--dark);">${r.userName || r.userEmail}</div>
+            <div style="font-size:12px;color:var(--mid);">${r.userEmail} · Submitted ${date}</div>
+          </div>
+          ${statusBadge}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;margin-bottom:12px;">
+          <div><span style="color:var(--mid);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Products</span><br/>${products}</div>
+          <div><span style="color:var(--mid);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Event</span><br/>${r.eventName || '—'}</div>
+          <div><span style="color:var(--mid);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Event Date</span><br/>${evtDate}</div>
+          <div><span style="color:var(--mid);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Delivery Date</span><br/>${delDate}</div>
+          <div><span style="color:var(--mid);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Delivery Location</span><br/>${r.deliverySuburb ? r.deliverySuburb+', ' : ''}${r.deliveryState || '—'}</div>
+        </div>
+        ${r.status !== 'confirmed' ? `<button class="btn-primary btn-sm" onclick="openConfirmRA('${r._id}')">✓ Confirm &amp; Create Order</button>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    body.innerHTML = '<p style="font-size:13px;color:#c0392b;">Failed to load requests.</p>';
+  }
+}
+
+function openConfirmRA(id) {
+  _confirmingRAId = id;
+  document.getElementById('raConfirmDate').value = '';
+  document.getElementById('raConfirmMsg').className = 'form-msg';
+  document.getElementById('raConfirmMsg').textContent = '';
+  document.getElementById('confirmRAModal').classList.add('open');
+}
+
+async function confirmAvailRequest() {
+  const date = document.getElementById('raConfirmDate').value;
+  const msg  = document.getElementById('raConfirmMsg');
+  if (!date) { msg.className='form-msg err'; msg.textContent='Please select a scheduled pickup date.'; return; }
+  const data = await apiFetch(`/admin/availability-requests/${_confirmingRAId}/confirm`, {
+    method: 'POST', headers: apiHeaders(), body: JSON.stringify({ scheduledPickupDate: date })
+  });
+  if (data.success) {
+    msg.className = 'form-msg ok';
+    msg.textContent = `✓ Order ${data.orderNumber} created successfully.`;
+    setTimeout(() => { closeModal('confirmRAModal'); loadAvailabilityRequests(); }, 1800);
+  } else {
+    msg.className = 'form-msg err';
+    msg.textContent = data.message || 'Failed to confirm.';
+  }
+}
+
+window.loadAvailabilityRequests = loadAvailabilityRequests;
+window.openConfirmRA            = openConfirmRA;
+window.confirmAvailRequest      = confirmAvailRequest;
+// ── end availability requests ─────────────────────────────────────────────────
 
 // ── CSV EXPORT ────────────────────────────────────────────────────────────────
 function downloadCSV(filename, rows) {
