@@ -104,7 +104,7 @@
     .btn-add-cart{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:140px;height:34px;background:var(--gold);color:#fff;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border-radius:50px;cursor:pointer;border:none;font-family:inherit;transition:background .2s;white-space:nowrap;}
     .btn-add-cart:hover{background:var(--gold-dark);}
     .btn-add-cart svg{width:13px;height:13px;stroke-width:2;}
-    .btn-req-avail{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:140px;height:34px;background:var(--gold);color:#fff;border:none;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border-radius:50px;cursor:pointer;font-family:inherit;transition:background .2s;white-space:nowrap;}
+    .btn-req-avail{display:inline-flex;align-items:center;justify-content:center;width:140px;height:34px;padding:0 14px;background:var(--gold);color:#fff;border:none;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border-radius:50px;cursor:pointer;font-family:inherit;transition:background .2s;white-space:nowrap;}
     .btn-req-avail:hover{background:var(--gold-dark);}
     .ra-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:800;opacity:0;pointer-events:none;transition:opacity .3s;}
     .ra-overlay.open{opacity:1;pointer-events:all;}
@@ -615,7 +615,7 @@ function renderProducts(products){
           ${inStock?`
           ${variantDropdownHtml}
           ${showRA ? `
-          <button class="btn-req-avail" onclick="event.stopPropagation();openRAForm('${p._id}')">🌸 Request Availability</button>` : `
+          <button class="btn-req-avail" onclick="event.stopPropagation();openRAForm('${p._id}')">Request Availability</button>` : `
           <div class="product-qty-row" onclick="event.stopPropagation()">
             <button class="qty-btn-card" onclick="event.stopPropagation();changeCardQty('${cardId}',-1)">−</button>
             <span class="qty-val-card" id="${cardId}">1</span>
