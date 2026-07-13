@@ -417,10 +417,10 @@
 
     /* ── REQUEST AVAILABILITY BUTTON ─────────────────────────── */
     .btn-req-avail {
-      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-      width: 160px; height: 38px;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 160px; height: 38px; padding: 0 16px;
       background: var(--gold); color: #fff;
-      font-size: 12px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
       border-radius: 50px; cursor: pointer; border: none; font-family: inherit;
       transition: background .2s;
       white-space: nowrap;
@@ -1561,7 +1561,7 @@ function resolveVariantsForState(allVariants, state) {
           ${inStock ? `
           ${variantDropdownHtml}
           ${showRA ? `
-          <button class="btn-req-avail" onclick="event.stopPropagation();openRAForm('${p._id}')">🌸 Request Availability</button>` : `
+          <button class="btn-req-avail" onclick="event.stopPropagation();openRAForm('${p._id}')">Request Availability</button>` : `
           <div class="product-qty-row" onclick="event.stopPropagation()">
             <button class="qty-btn-card" onclick="event.stopPropagation();changeCardQty('${cardId}',-1)">−</button>
             <span class="qty-val-card" id="${cardId}">1</span>
