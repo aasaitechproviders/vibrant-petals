@@ -257,6 +257,7 @@
       <div class="nav-item" id="nav-orders" onclick="showPanel('orders',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Orders</div>
       <div class="nav-item" id="nav-pickuporders" onclick="showPanel('pickuporders',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/><circle cx="12" cy="6" r="1" fill="currentColor"/></svg>Pickup Orders</div>
       <div class="nav-item" id="nav-coupons" onclick="showPanel('coupons',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 5H3a1 1 0 00-1 1v4a1 1 0 001 1h.5a1.5 1.5 0 010 3H3a1 1 0 00-1 1v4a1 1 0 001 1h18a1 1 0 001-1v-4a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H21a1 1 0 001-1V6a1 1 0 00-1-1z"/></svg>Coupons</div>
+      <div class="nav-item" id="nav-shipping" onclick="showPanel('shipping',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="16" r="1" fill="currentColor"/><circle cx="12" cy="16" r="1" fill="currentColor"/><circle cx="16" cy="16" r="1" fill="currentColor"/></svg>Shipping Schedule</div>
       <div class="nav-section-label">Customers</div>
       <div class="nav-item" id="nav-users" onclick="showPanel('users',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Users</div>
       <div class="nav-item" id="nav-newsletter" onclick="showPanel('newsletter',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Newsletter</div>
@@ -428,6 +429,43 @@
             <tbody id="couponsBody"></tbody>
           </table>
           <div class="table-pagination" id="couponPag"></div>
+        </div>
+      </div>
+
+      <!-- SHIPPING SCHEDULE -->
+      <div class="panel" id="panel-shipping">
+        <div class="card" style="max-width:640px;">
+          <div class="card-title" style="font-size:14px;font-weight:700;margin-bottom:4px;">Shipping Schedule</div>
+          <p style="font-size:13px;color:var(--mid);margin-bottom:20px;">Configure which dates shipping is available. Customers can select any date within the window from each shipping date, subject to the lead time.</p>
+
+          <!-- Settings row -->
+          <div style="display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:160px;">
+              <label class="form-label">Window Days <span style="font-size:11px;font-weight:400;color:var(--mid);">(days enabled per shipping date)</span></label>
+              <input class="form-input" type="number" id="shipWindowDays" min="1" max="365" value="15" style="max-width:120px;"/>
+            </div>
+            <div style="flex:1;min-width:160px;">
+              <label class="form-label">Lead Days <span style="font-size:11px;font-weight:400;color:var(--mid);">(min days from today)</span></label>
+              <input class="form-input" type="number" id="shipLeadDays" min="0" max="365" value="5" style="max-width:120px;"/>
+            </div>
+          </div>
+
+          <!-- Add date -->
+          <label class="form-label">Shipping Dates</label>
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <input class="form-input" type="date" id="shipDateInput" style="max-width:200px;"/>
+            <button class="btn-primary" onclick="addShippingDate()" style="white-space:nowrap;">+ Add Date</button>
+          </div>
+
+          <!-- Date list -->
+          <div id="shipDateList" style="display:flex;flex-wrap:wrap;gap:8px;min-height:40px;margin-bottom:20px;">
+            <span id="shipDateEmpty" style="font-size:13px;color:var(--mid);">No dates added yet.</span>
+          </div>
+
+          <div class="form-msg" id="shipMsg"></div>
+          <div style="margin-top:8px;">
+            <button class="btn-primary" onclick="saveShippingSchedule()">Save Schedule</button>
+          </div>
         </div>
       </div>
 
@@ -1794,7 +1832,7 @@ checkAuth();
 document.getElementById('adminPwd')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
 
 // ── PANEL NAVIGATION ──────────────────────────────────────────────────────────
-const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, pickuporders: () => { pickupOrdPage=1; loadPickupOrders(); }, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, templates: loadTemplates, coupons: loadCoupons, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: () => { loadStates(); loadTerritories(); }, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
+const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, pickuporders: () => { pickupOrdPage=1; loadPickupOrders(); }, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, templates: loadTemplates, coupons: loadCoupons, shipping: loadShippingSchedule, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: () => { loadStates(); loadTerritories(); }, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  TERRITORIES
@@ -3915,6 +3953,82 @@ window.loadNewsletter = loadNewsletter;
 window.loadCoupons = loadCoupons;
 window.loadCategories = loadCategories;
 
+// ── SHIPPING SCHEDULE ─────────────────────────────────────────────────────────
+let _shipDates = [];  // array of YYYY-MM-DD strings
+
+async function loadShippingSchedule() {
+  try {
+    const data = await apiFetch('/shipping-schedule', { headers: apiHeaders() });
+    _shipDates = (data.dates || []).slice().sort();
+    document.getElementById('shipWindowDays').value = data.windowDays ?? 15;
+    document.getElementById('shipLeadDays').value   = data.leadDays   ?? 5;
+    renderShipDates();
+  } catch(e) {
+    showToast('Failed to load shipping schedule', 'error');
+  }
+}
+
+function renderShipDates() {
+  const list  = document.getElementById('shipDateList');
+  const empty = document.getElementById('shipDateEmpty');
+  if (!_shipDates.length) {
+    list.innerHTML = '';
+    list.appendChild(empty);
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = _shipDates.map(d => {
+    const label = new Date(d + 'T00:00:00').toLocaleDateString('en-AU', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+    return `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:#fdf3d8;border:1.5px solid var(--gold);border-radius:20px;font-size:13px;">
+      📅 ${label}
+      <button onclick="removeShippingDate('${d}')" style="background:none;border:none;cursor:pointer;color:#999;font-size:14px;line-height:1;padding:0;" title="Remove">✕</button>
+    </span>`;
+  }).join('');
+}
+
+function addShippingDate() {
+  const inp = document.getElementById('shipDateInput');
+  const val = inp.value;
+  if (!val) { showToast('Please pick a date first', 'error'); return; }
+  if (_shipDates.includes(val)) { showToast('Date already added', 'error'); return; }
+  _shipDates.push(val);
+  _shipDates.sort();
+  inp.value = '';
+  renderShipDates();
+}
+
+function removeShippingDate(d) {
+  _shipDates = _shipDates.filter(x => x !== d);
+  renderShipDates();
+}
+
+async function saveShippingSchedule() {
+  const windowDays = parseInt(document.getElementById('shipWindowDays').value) || 15;
+  const leadDays   = parseInt(document.getElementById('shipLeadDays').value)   || 5;
+  const msg = document.getElementById('shipMsg');
+  msg.className = 'form-msg';
+  msg.textContent = '';
+  const data = await apiFetch('/shipping-schedule', {
+    method: 'PUT',
+    headers: apiHeaders(),
+    body: JSON.stringify({ dates: _shipDates, windowDays, leadDays })
+  });
+  if (data.success) {
+    msg.className = 'form-msg ok';
+    msg.textContent = '✓ Shipping schedule saved successfully.';
+    setTimeout(() => { msg.textContent = ''; msg.className = 'form-msg'; }, 3000);
+  } else {
+    msg.className = 'form-msg err';
+    msg.textContent = data.message || 'Save failed. Try again.';
+  }
+}
+
+window.loadShippingSchedule = loadShippingSchedule;
+window.addShippingDate      = addShippingDate;
+window.removeShippingDate   = removeShippingDate;
+window.saveShippingSchedule = saveShippingSchedule;
+// ── end shipping schedule ─────────────────────────────────────────────────────
 
 // ── CSV EXPORT ────────────────────────────────────────────────────────────────
 function downloadCSV(filename, rows) {
