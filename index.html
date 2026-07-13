@@ -2149,6 +2149,26 @@ loadStateDropdowns();
 // ── REQUEST AVAILABILITY ─────────────────────────────────────────────────────
 let _raItems = []; // [{productId, productName, price, image, qty}]
 let _raSearchTimer = null;
+let _raTerritoriesData = {};
+
+// Pre-load territories once
+apiFetch('/territories').then(data => {
+  (data.territories || []).forEach(t => {
+    if (!_raTerritoriesData[t.state]) _raTerritoriesData[t.state] = [];
+    _raTerritoriesData[t.state].push(t);
+  });
+}).catch(()=>{});
+
+function raPopulateTerritories(state) {
+  const sel = document.getElementById('raDeliverySuburb');
+  if (!sel) return;
+  const list = _raTerritoriesData[state] || [];
+  if (!state) { sel.innerHTML = '<option value="">Select state first…</option>'; sel.disabled = true; return; }
+  if (!list.length) { sel.innerHTML = '<option value="">No territories available</option>'; sel.disabled = true; return; }
+  sel.innerHTML = '<option value="">Select territory…</option>';
+  list.forEach(t => { const o = document.createElement('option'); o.value = t.name; o.textContent = t.name; sel.appendChild(o); });
+  sel.disabled = false;
+}
 
 function openRAForm(productId) {
   const prod = (window._raProductCache || {})[productId];
@@ -2232,8 +2252,8 @@ function renderRAModal() {
           </select>
         </div>
         <div>
-          <label style="font-size:12px;font-weight:700;color:var(--mid);display:block;margin-bottom:4px;">Suburb / Territory</label>
-          <input class="ra-input" id="raDeliverySuburb" placeholder="e.g. Dandenong, Parramatta"/>
+          <label style="font-size:12px;font-weight:700;color:var(--mid);display:block;margin-bottom:4px;">Territory</label>
+          <select class="ra-input" id="raDeliverySuburb" disabled><option value="">Select state first…</option></select>
         </div>
         <div>
           <label style="font-size:12px;font-weight:700;color:var(--mid);display:block;margin-bottom:4px;">Delivery Date *</label>
@@ -2253,6 +2273,7 @@ function renderRAModal() {
     (data.states || []).forEach(s => {
       const opt = document.createElement('option'); opt.value = s.name; opt.textContent = s.name; sel.appendChild(opt);
     });
+    sel.onchange = () => raPopulateTerritories(sel.value);
   }).catch(()=>{});
 }
 
@@ -2314,16 +2335,17 @@ function raAddProduct(id, name, price, image) {
 async function submitRAForm() {
   const eventName     = document.getElementById('raEventName')?.value.trim();
   const eventDate     = document.getElementById('raEventDate')?.value;
-  const deliveryState = document.getElementById('raDeliveryState')?.value;
-  const deliverySuburb= document.getElementById('raDeliverySuburb')?.value.trim();
-  const deliveryDate  = document.getElementById('raDeliveryDate')?.value;
-  const msg           = document.getElementById('raFormMsg');
+  const deliveryState  = document.getElementById('raDeliveryState')?.value;
+  const deliverySuburb = document.getElementById('raDeliverySuburb')?.value || '';
+  const deliveryDate   = document.getElementById('raDeliveryDate')?.value;
+  const msg            = document.getElementById('raFormMsg');
 
   const showErr = (m) => { msg.style.display=''; msg.style.background='#fce4e4'; msg.style.color='#c62828'; msg.textContent=m; };
   if (!_raItems.length)  return showErr('Please add at least one product.');
   if (!eventName)        return showErr('Please enter an event name.');
   if (!eventDate)        return showErr('Please select an event date.');
   if (!deliveryState)    return showErr('Please select a delivery state.');
+  if (!deliverySuburb)   return showErr('Please select a territory.');
   if (!deliveryDate)     return showErr('Please select a delivery date.');
 
   const btn = document.querySelector('.ra-submit-btn');
