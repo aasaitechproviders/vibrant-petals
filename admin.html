@@ -376,7 +376,7 @@
         <div class="card">
           <div class="table-toolbar">
             <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-              <select class="filter-select" id="ordRoleFilter" onchange="ordPage=1;loadOrders()"><option value="">All Accounts</option><option value="Customer">Customers Only</option><option value="Dealer">Dealers Only</option></select>
+              <select class="filter-select" id="ordRoleFilter" onchange="ordPage=1;loadOrders()"><option value="">All Accounts</option><option value="Customer">Customers Only</option><option value="Dealer">Dealers Only</option><option value="Retail">Retailers Only</option></select>
               <select class="filter-select" id="ordStatusFilter" onchange="ordPage=1;loadOrders()"><option value="">All Statuses</option><option value="pending">Pending</option><option value="processing">Processing</option><option value="ready_for_pickup">Ready for Pickup</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option><option value="refunded">Refunded</option></select>
               <select class="filter-select" id="ordPayFilter" onchange="ordPage=1;loadOrders()"><option value="">All Payments</option><option value="pending">Unpaid</option><option value="paid">Paid</option></select>
               <button class="btn-export btn-sm" onclick="exportOrders()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
@@ -3113,10 +3113,9 @@ async function loadOrders() {
   let url = `/admin/orders?page=${ordPage}&limit=${LIMIT}`;
   if (status) url += `&status=${status}`;
   if (pay)    url += `&paymentStatus=${pay}`;
+  if (role)   url += `&customerRole=${encodeURIComponent(role)}`;
   const data = await apiFetch(url, { headers: apiHeaders() });
   let orders = data.orders || [];
-  // Client-side role filter (backend doesn't have customerRole filter param)
-  if (role) orders = orders.filter(o => (o.customerRole || 'Customer') === role);
   const pag = data.pagination || { total: 0, totalPages: 1 };
   // Store orders safely — avoids JSON.stringify in onclick attributes
   window._ordersMap = {};
@@ -3138,7 +3137,7 @@ async function loadOrders() {
         <b>${o.orderNumber || '—'}</b>
         ${o.notes ? `<div style="margin-top:3px;font-size:11px;color:var(--mid);max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.notes.replace(/"/g,'&quot;')}">📝 ${o.notes}</div>` : ''}
       </td>
-      <td style="font-size:13px;">${o.customerEmail || '—'}${o.customerRole === 'Dealer' ? '<br/><span class="status-pill s-dealer" style="font-size:10px;">Dealer</span>' : ''}</td>
+      <td style="font-size:13px;">${o.customerEmail || '—'}${o.customerRole === 'Dealer' ? '<br/><span class="status-pill s-dealer" style="font-size:10px;">DEALER</span>' : o.customerRole === 'Retail' ? '<br/><span class="status-pill" style="font-size:10px;background:#e8f4fd;color:#1565c0;">RETAILER</span>' : ''}</td>
       <td style="font-size:13px;">${(o.items || []).length} item${(o.items || []).length !== 1 ? 's' : ''}</td>
       <td><b>$${(o.total || 0).toFixed(2)}</b></td>
       <td><span class="status-pill s-${status2}">${status2}</span></td>
