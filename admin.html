@@ -466,23 +466,41 @@
         </div>
 
         <!-- Availability Requests -->
-        <div class="card">
-          <div class="card-head" style="justify-content:space-between;">
-            <div class="card-title">Availability Requests</div>
-            <button class="btn-sm btn-edit" onclick="loadAvailabilityRequests()">↻ Refresh</button>
+        <div class="card" style="margin-top:24px;">
+          <div class="table-toolbar">
+            <div style="font-size:13px;font-weight:700;color:var(--dark);">Availability Requests</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <select class="filter-select" id="raStatusFilter" onchange="loadAvailabilityRequests()">
+                <option value="">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+              </select>
+              <button class="btn-sm btn-edit" onclick="loadAvailabilityRequests()">↻ Refresh</button>
+            </div>
           </div>
-          <div id="availReqBody" style="padding:20px;">
-            <p style="font-size:13px;color:var(--mid);">Loading…</p>
-          </div>
+          <table class="data-table">
+            <thead><tr><th>Submitted</th><th>Customer</th><th>Event</th><th>Event Date</th><th>Delivery Date</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="availReqBody"><tr><td colspan="8" style="text-align:center;padding:24px;color:var(--mid);font-size:13px;">Loading…</td></tr></tbody>
+          </table>
+          <div class="table-pagination" id="availReqPag"></div>
+        </div>
+      </div>
+
+      <!-- Availability Request Detail Modal -->
+      <div class="modal" id="raDetailModal">
+        <div class="modal-box" style="max-width:560px;">
+          <div class="modal-head"><h3>Availability Request</h3><span class="modal-close" onclick="closeModal('raDetailModal')">✕</span></div>
+          <div class="modal-body" id="raDetailBody" style="padding:20px 24px;"></div>
+          <div class="modal-footer" id="raDetailFooter"></div>
         </div>
       </div>
 
       <!-- Confirm Availability Request Modal -->
       <div class="modal" id="confirmRAModal">
-        <div class="modal-box" style="max-width:420px;">
-          <div class="modal-head"><h3>Confirm & Create Order</h3><span class="modal-close" onclick="closeModal('confirmRAModal')">✕</span></div>
+        <div class="modal-box" style="max-width:400px;">
+          <div class="modal-head"><h3>Confirm &amp; Create Order</h3><span class="modal-close" onclick="closeModal('confirmRAModal')">✕</span></div>
           <div class="modal-body">
-            <p style="font-size:13px;color:var(--mid);margin-bottom:16px;">Select the scheduled pickup date for this order. It will be created as a COD order.</p>
+            <p style="font-size:13px;color:var(--mid);margin-bottom:16px;">Select the scheduled pickup date. A COD order will be created and visible in the customer's orders tab.</p>
             <div class="form-group">
               <label class="form-label">Scheduled Pickup Date</label>
               <input class="form-input" type="date" id="raConfirmDate"/>
@@ -491,7 +509,7 @@
           </div>
           <div class="modal-footer">
             <button class="btn-cancel" onclick="closeModal('confirmRAModal')">Cancel</button>
-            <button class="btn-primary" onclick="confirmAvailRequest()">Confirm & Create Order</button>
+            <button class="btn-primary" onclick="confirmAvailRequest()">Confirm &amp; Create Order</button>
           </div>
         </div>
       </div>
@@ -4059,47 +4077,77 @@ window.saveShippingSchedule = saveShippingSchedule;
 
 // ── AVAILABILITY REQUESTS ─────────────────────────────────────────────────────
 let _confirmingRAId = null;
+let _allAvailReqs   = [];
 
 async function loadAvailabilityRequests() {
-  const body = document.getElementById('availReqBody');
-  if (!body) return;
-  body.innerHTML = '<p style="font-size:13px;color:var(--mid);">Loading…</p>';
+  const tbody = document.getElementById('availReqBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--mid);font-size:13px;">Loading…</td></tr>';
   try {
     const data = await apiFetch('/admin/availability-requests', { headers: apiHeaders() });
-    const reqs = data.requests || [];
-    if (!reqs.length) {
-      body.innerHTML = '<p style="font-size:13px;color:var(--mid);padding:4px 0;">No availability requests yet.</p>';
+    _allAvailReqs = data.requests || [];
+    const statusF = (document.getElementById('raStatusFilter')?.value || '');
+    const filtered = statusF ? _allAvailReqs.filter(r => r.status === statusF) : _allAvailReqs;
+
+    if (!filtered.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--mid);font-size:13px;">No availability requests found.</td></tr>';
       return;
     }
-    body.innerHTML = reqs.map(r => {
-      const date    = new Date(r.createdAt).toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
-      const evtDate = r.eventDate ? new Date(r.eventDate + 'T00:00:00').toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }) : '—';
-      const delDate = r.deliveryDate ? new Date(r.deliveryDate + 'T00:00:00').toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }) : '—';
-      const products = (r.products || []).map(p => `${p.productName} ×${p.qty}`).join(', ');
+    tbody.innerHTML = filtered.map(r => {
+      const submitted = new Date(r.createdAt).toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
+      const evtDate   = r.eventDate   ? new Date(r.eventDate   + 'T00:00:00').toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }) : '—';
+      const delDate   = r.deliveryDate ? new Date(r.deliveryDate + 'T00:00:00').toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }) : '—';
+      const location  = [r.deliverySuburb, r.deliveryState].filter(Boolean).join(', ') || '—';
       const statusBadge = r.status === 'confirmed'
-        ? `<span style="background:#d4edda;color:#155724;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px;">✓ CONFIRMED — ${r.orderNumber}</span>`
-        : `<span style="background:#fff3cd;color:#856404;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px;">PENDING</span>`;
-      return `<div style="border:1px solid #e8e0d2;border-radius:8px;padding:16px;margin-bottom:12px;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
-          <div>
-            <div style="font-size:13px;font-weight:700;color:var(--dark);">${r.userName || r.userEmail}</div>
-            <div style="font-size:12px;color:var(--mid);">${r.userEmail} · Submitted ${date}</div>
-          </div>
-          ${statusBadge}
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;margin-bottom:12px;">
-          <div><span style="color:var(--mid);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Products</span><br/>${products}</div>
-          <div><span style="color:var(--mid);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Event</span><br/>${r.eventName || '—'}</div>
-          <div><span style="color:var(--mid);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Event Date</span><br/>${evtDate}</div>
-          <div><span style="color:var(--mid);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Delivery Date</span><br/>${delDate}</div>
-          <div><span style="color:var(--mid);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Delivery Location</span><br/>${r.deliverySuburb ? r.deliverySuburb+', ' : ''}${r.deliveryState || '—'}</div>
-        </div>
-        ${r.status !== 'confirmed' ? `<button class="btn-primary btn-sm" onclick="openConfirmRA('${r._id}')">✓ Confirm &amp; Create Order</button>` : ''}
-      </div>`;
+        ? `<span class="status-pill s-delivered" style="font-size:10px;">CONFIRMED</span>`
+        : `<span class="status-pill s-pending" style="font-size:10px;">PENDING</span>`;
+      return `<tr>
+        <td style="font-size:12px;">${submitted}</td>
+        <td style="font-size:13px;">${r.userEmail}<br/><span style="font-size:11px;color:var(--mid);">${r.userName||''}</span></td>
+        <td style="font-size:13px;">${r.eventName||'—'}</td>
+        <td style="font-size:12px;">${evtDate}</td>
+        <td style="font-size:12px;">${delDate}</td>
+        <td style="font-size:12px;">${location}</td>
+        <td>${statusBadge}${r.orderNumber ? `<br/><span style="font-size:10px;color:var(--mid);">${r.orderNumber}</span>` : ''}</td>
+        <td><button class="btn-sm btn-edit" onclick="openRADetail('${r._id}')">Detail</button></td>
+      </tr>`;
     }).join('');
   } catch(e) {
-    body.innerHTML = '<p style="font-size:13px;color:#c0392b;">Failed to load requests.</p>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:#c0392b;font-size:13px;">Failed to load requests.</td></tr>';
   }
+}
+
+function openRADetail(id) {
+  const r = _allAvailReqs.find(x => x._id === id || String(x._id) === String(id));
+  if (!r) return;
+  const evtDate = r.eventDate   ? new Date(r.eventDate   + 'T00:00:00').toLocaleDateString('en-AU', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) : '—';
+  const delDate = r.deliveryDate ? new Date(r.deliveryDate + 'T00:00:00').toLocaleDateString('en-AU', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) : '—';
+  const submitted = new Date(r.createdAt).toLocaleString('en-AU', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  const products = (r.products || []).map(p =>
+    `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0ebe0;font-size:13px;">
+      <span>${p.productName}</span>
+      <span style="color:var(--mid);">×${p.qty} — $${((p.price||0)*p.qty).toFixed(2)}</span>
+    </div>`).join('');
+  const total = (r.products||[]).reduce((s,p)=>s+(p.price||0)*p.qty,0).toFixed(2);
+
+  document.getElementById('raDetailBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div><div style="font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Customer</div><div style="font-size:13px;font-weight:600;">${r.userName||'—'}</div><div style="font-size:12px;color:var(--mid);">${r.userEmail}</div></div>
+      <div><div style="font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Submitted</div><div style="font-size:13px;">${submitted}</div></div>
+      <div><div style="font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Event Name</div><div style="font-size:13px;">${r.eventName||'—'}</div></div>
+      <div><div style="font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Event Date</div><div style="font-size:13px;">${evtDate}</div></div>
+      <div><div style="font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Delivery Location</div><div style="font-size:13px;">${[r.deliverySuburb,r.deliveryState].filter(Boolean).join(', ')||'—'}</div></div>
+      <div><div style="font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Delivery Date</div><div style="font-size:13px;">${delDate}</div></div>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Products</div>
+    <div style="border:1px solid #e8e0d2;border-radius:6px;padding:0 12px;margin-bottom:8px;">${products}</div>
+    <div style="text-align:right;font-size:13px;font-weight:700;color:var(--dark);">Total: $${total}</div>
+    ${r.status === 'confirmed' ? `<div style="margin-top:12px;padding:10px 14px;background:#d4edda;border-radius:6px;font-size:13px;color:#155724;font-weight:600;">✓ Confirmed — Order ${r.orderNumber}</div>` : ''}
+  `;
+  document.getElementById('raDetailFooter').innerHTML = r.status !== 'confirmed'
+    ? `<button class="btn-cancel" onclick="closeModal('raDetailModal')">Close</button><button class="btn-primary" onclick="closeModal('raDetailModal');openConfirmRA('${r._id}')">✓ Confirm &amp; Create Order</button>`
+    : `<button class="btn-cancel" onclick="closeModal('raDetailModal')">Close</button>`;
+  document.getElementById('raDetailModal').classList.add('open');
 }
 
 function openConfirmRA(id) {
@@ -4128,6 +4176,7 @@ async function confirmAvailRequest() {
 }
 
 window.loadAvailabilityRequests = loadAvailabilityRequests;
+window.openRADetail             = openRADetail;
 window.openConfirmRA            = openConfirmRA;
 window.confirmAvailRequest      = confirmAvailRequest;
 // ── end availability requests ─────────────────────────────────────────────────
