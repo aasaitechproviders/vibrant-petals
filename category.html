@@ -964,7 +964,6 @@ function renderRAModal() {
       <div class="ra-section-label">Event Details</div>
       <div style="display:grid;gap:10px;">
         <div><label style="font-size:12px;font-weight:700;color:var(--mid);display:block;margin-bottom:4px;">Event Name *</label><input class="ra-input" id="raEventName" placeholder="e.g. Diwali Celebration, Wedding"/></div>
-        <div><label style="font-size:12px;font-weight:700;color:var(--mid);display:block;margin-bottom:4px;">Event Date *</label><input class="ra-input" id="raEventDate" type="date"/></div>
       </div>
     </div>
     <div style="margin-bottom:20px;">
@@ -1040,7 +1039,6 @@ function raAddProduct(id, name, price, image) {
 
 async function submitRAForm() {
   const eventName      = document.getElementById('raEventName')?.value.trim();
-  const eventDate      = document.getElementById('raEventDate')?.value;
   const deliveryState  = document.getElementById('raDeliveryState')?.value;
   const deliverySuburb = document.getElementById('raDeliverySuburb')?.value || '';
   const deliveryDate   = document.getElementById('raDeliveryDate')?.value;
@@ -1049,7 +1047,6 @@ async function submitRAForm() {
   const showErr = m => { msg.style.display=''; msg.style.background='#fce4e4'; msg.style.color='#c62828'; msg.textContent=m; };
   if (!_raItems.length)  return showErr('Please add at least one product.');
   if (!eventName)        return showErr('Please enter an event name.');
-  if (!eventDate)        return showErr('Please select an event date.');
   if (!deliveryState)    return showErr('Please select a delivery state.');
   if (!deliverySuburb)   return showErr('Please select a territory.');
   if (!deliveryDate)     return showErr('Please select a delivery date.');
@@ -1059,7 +1056,7 @@ async function submitRAForm() {
   const data = await apiFetch('/availability-requests', {
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-    body:JSON.stringify({ products:_raItems.map(i=>({productId:i.productId,productName:i.productName,price:i.price,qty:i.qty})), eventName, eventDate, deliveryState, deliverySuburb, deliveryDate, outletId })
+    body:JSON.stringify({ products:_raItems.map(i=>({productId:i.productId,productName:i.productName,price:i.price,qty:i.qty})), eventName, deliveryState, deliverySuburb, deliveryDate, outletId })
   });
   if (data.success) {
     document.getElementById('raBody').innerHTML = `<div style="text-align:center;padding:40px 20px;">
