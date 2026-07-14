@@ -140,6 +140,20 @@
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
     .toast{position:fixed;bottom:28px;right:28px;background:var(--dark);color:#fff;padding:14px 22px;border-radius:4px;font-size:13px;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:999;}
     .toast.show{transform:translateY(0);opacity:1;}.toast.success{background:#2d7a2d;}.toast.error{background:#c0392b;}
+    .vp-banner{position:fixed;top:0;left:0;right:0;z-index:9999;transform:translateY(-100%);transition:transform .35s cubic-bezier(.4,0,.2,1);pointer-events:none;}
+    .vp-banner.show{transform:translateY(0);pointer-events:all;}
+    .vp-banner-inner{display:flex;align-items:flex-start;gap:14px;padding:16px 20px;font-size:14px;line-height:1.5;box-shadow:0 4px 18px rgba(0,0,0,.18);border-left:5px solid #c9a227;}
+    .vp-banner.error .vp-banner-inner{background:#fff0f0;border-left-color:#c0392b;color:#7a1a1a;}
+    .vp-banner.success .vp-banner-inner{background:#f0fff4;border-left-color:#2d7a2d;color:#1a4d1a;}
+    .vp-banner.info .vp-banner-inner{background:#fffdf0;border-left-color:#c9a227;color:#5a4200;}
+    .vp-banner-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+    .vp-banner-msg{flex:1;font-weight:500;}
+    .vp-banner-close{background:none;border:none;font-size:18px;cursor:pointer;opacity:.55;padding:0 0 0 10px;flex-shrink:0;line-height:1;color:inherit;}
+    .vp-banner-close:hover{opacity:1;}
+    .vp-banner-bar{height:3px;background:rgba(0,0,0,.08);}
+    .vp-banner-progress{height:100%;width:100%;background:#c9a227;transition:width linear;}
+    .vp-banner.error .vp-banner-progress{background:#c0392b;}
+    .vp-banner.success .vp-banner-progress{background:#2d7a2d;}
     /* FOOTER */
     footer{background:var(--cream);border-top:1px solid #e8e0d2;padding:60px 32px 0;}
     .footer-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:60px;padding-bottom:50px;}
@@ -551,6 +565,14 @@
   </div>
 </div>
 
+<div class="vp-banner" id="vpBanner" role="alert" aria-live="assertive">
+  <div class="vp-banner-inner">
+    <span class="vp-banner-icon" id="vpBannerIcon">⚠️</span>
+    <span class="vp-banner-msg" id="vpBannerMsg"></span>
+    <button class="vp-banner-close" onclick="closeBanner()" aria-label="Close">✕</button>
+  </div>
+  <div class="vp-banner-bar"><div class="vp-banner-progress" id="vpBannerProgress"></div></div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -568,6 +590,25 @@ localStorage.setItem('vp_session',sessionId);
 function apiHeaders(auth=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(auth&&token)h['Authorization']='Bearer '+token;return h;}
 async function apiFetch(path,opts={}){try{const r=await fetch(API+path,opts);return r.json();}catch(e){return{success:false,message:e.message};}}
 function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+let _bannerTimer=null;
+function showBanner(msg,type='error'){
+  const icons={error:'⚠️',success:'✅',info:'ℹ️'};
+  const b=document.getElementById('vpBanner');
+  document.getElementById('vpBannerMsg').textContent=msg;
+  document.getElementById('vpBannerIcon').textContent=icons[type]||'⚠️';
+  b.className='vp-banner '+type;
+  const bar=document.getElementById('vpBannerProgress');
+  bar.style.transition='none';bar.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{bar.style.transition='width 15s linear';bar.style.width='0%';}));
+  void b.offsetWidth;b.classList.add('show');
+  if(_bannerTimer)clearTimeout(_bannerTimer);
+  _bannerTimer=setTimeout(closeBanner,15000);
+}
+function closeBanner(){
+  const b=document.getElementById('vpBanner');
+  b.classList.remove('show');
+  if(_bannerTimer){clearTimeout(_bannerTimer);_bannerTimer=null;}
+}
 
 let cartData=null;
 let savedAddresses=[];
@@ -701,7 +742,7 @@ async function startCardPayment(){
 
   if(!data.success){
     btn.disabled=false; btn.textContent='Place Order';
-    showToast(data.message||'Failed to initiate payment','error');
+    showBanner(data.message||'Failed to initiate payment','error');
     return;
   }
 
@@ -785,7 +826,7 @@ async function placeOrder(){
   if(data.success){
     showOrderSuccess(data.order);
   }else{
-    showToast(data.message||'Failed to place order','error');
+    showBanner(data.message||'Failed to place order','error');
   }
 }
 
