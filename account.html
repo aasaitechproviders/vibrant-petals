@@ -278,6 +278,21 @@
     .vp-modal-confirm.success{background:#27ae60;}
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    .pay-now-btn{display:inline-flex;align-items:center;justify-content:center;padding:6px 14px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:background .2s;white-space:nowrap;}
+    .pay-now-btn:hover{background:var(--gold-dark);}
+    .pay-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:800;opacity:0;pointer-events:none;transition:opacity .3s;}
+    .pay-modal-overlay.open{opacity:1;pointer-events:all;}
+    .pay-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-60%);z-index:810;width:min(500px,95vw);background:#fff;border-radius:12px;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:all .3s;}
+    .pay-modal.open{opacity:1;pointer-events:all;transform:translate(-50%,-50%);}
+    .pay-modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #e8e0d2;}
+    .pay-modal-head h3{font-size:16px;font-weight:700;color:var(--dark);}
+    .pay-modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--mid);padding:4px;}
+    .pay-modal-body{padding:20px 24px;}
+    .pay-modal-footer{padding:16px 24px;border-top:1px solid #e8e0d2;display:flex;gap:10px;justify-content:flex-end;}
+    #payStripeError{display:none;font-size:13px;color:#c62828;padding:10px 14px;background:#fce4e4;border-radius:6px;margin-top:12px;}
+  </style>
 </head>
 <body>
 <div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Victoria &amp; New South Wales<span class="ann-bar-sel"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.85;white-space:nowrap;">Select your state</span><select id="stateDropdown" onchange="setVpState(this.value)"></select></span></div>
@@ -988,7 +1003,7 @@ function renderRecentOrders(orders){
         <td style="font-size:12px;color:var(--gold);font-weight:700;">${fmtPickupDate(o.scheduledPickupDate)}</td>
         <td><span class="order-status status-${o.status||'pending'}">${o.status||'pending'}</span></td>
         <td style="font-weight:700;font-family:'Lato',sans-serif;">$${(o.total||0).toFixed(2)}</td>
-        <td></td>
+        <td>${o.paymentStatus==='pending'?`<button class="pay-now-btn" onclick="openPayNow('${o._id}','${o.orderNumber}',${o.total||0})">Pay Now</button>`:''}</td>
       </tr>`).join('')}</tbody>
     </table>`;
 }
@@ -2693,6 +2708,118 @@ loadStateDropdowns();
     },300);
   });
 })();
+</script>
+
+<!-- ── PAY NOW MODAL ──────────────────────────────────────────────────────── -->
+<div class="pay-modal-overlay" id="payModalOverlay" onclick="closePayModal()"></div>
+<div class="pay-modal" id="payModal">
+  <div class="pay-modal-head">
+    <h3 id="payModalTitle">Complete Payment</h3>
+    <button class="pay-modal-close" onclick="closePayModal()">✕</button>
+  </div>
+  <div class="pay-modal-body">
+    <p id="payModalDesc" style="font-size:13px;color:var(--mid);margin-bottom:16px;"></p>
+    <div id="payStripeElement"></div>
+    <div id="payStripeError"></div>
+  </div>
+  <div class="pay-modal-footer">
+    <button class="btn-cancel" onclick="closePayModal()">Cancel</button>
+    <button class="btn-primary" id="payConfirmBtn" onclick="confirmPayNow()">Pay Now</button>
+  </div>
+</div>
+
+<script>
+const STRIPE_PK = 'pk_live_51Td8vPPAWWOlHSsMuHxQvJm0n4suzc4ie2jTrs8Rrx0EwdU2DVpobwaVCESi9bnRL8pKnuiYPeGECoymr54usGkL00L5U4B5ln';
+let _payStripeInstance = null;
+let _payStripeElements = null;
+let _payOrderId        = null;
+let _payOrderNumber    = null;
+
+async function openPayNow(orderId, orderNumber, total) {
+  _payOrderId     = orderId;
+  _payOrderNumber = orderNumber;
+  document.getElementById('payModalTitle').textContent = `Pay for Order ${orderNumber}`;
+  document.getElementById('payModalDesc').textContent  = `Complete your payment of $${(total||0).toFixed(2)} AUD to confirm this order.`;
+  document.getElementById('payStripeElement').innerHTML = '<div style="text-align:center;padding:20px;font-size:13px;color:var(--mid);">Setting up payment…</div>';
+  document.getElementById('payStripeError').style.display = 'none';
+  document.getElementById('payConfirmBtn').disabled = true;
+  document.getElementById('payConfirmBtn').textContent = 'Pay Now';
+
+  // Open modal
+  document.getElementById('payModalOverlay').classList.add('open');
+  document.getElementById('payModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Get clientSecret from backend
+  const data = await apiFetch(`/orders/${orderId}/pay`, { method: 'POST', headers: apiHeaders() });
+  if (!data.success) {
+    document.getElementById('payStripeElement').innerHTML = `<p style="color:#c62828;font-size:13px;">${data.message || 'Failed to initiate payment.'}</p>`;
+    return;
+  }
+
+  // Mount Stripe Payment Element
+  _payStripeInstance = Stripe(STRIPE_PK);
+  const appearance = { theme: 'stripe', variables: { colorPrimary: '#9B8B5A', colorBackground: '#ffffff', colorText: '#1A1A1A', colorDanger: '#c0392b', fontFamily: '"Lato", sans-serif', borderRadius: '4px' } };
+  _payStripeElements = _payStripeInstance.elements({ clientSecret: data.clientSecret, appearance });
+  const el = _payStripeElements.create('payment');
+  document.getElementById('payStripeElement').innerHTML = '';
+  el.mount('#payStripeElement');
+  document.getElementById('payConfirmBtn').disabled = false;
+  document.getElementById('payConfirmBtn').textContent = `Pay $${(data.total||0).toFixed(2)}`;
+}
+
+async function confirmPayNow() {
+  if (!_payStripeElements || !_payStripeInstance) return;
+  const btn = document.getElementById('payConfirmBtn');
+  const errEl = document.getElementById('payStripeError');
+  btn.disabled = true; btn.textContent = 'Processing…';
+  errEl.style.display = 'none';
+
+  const returnUrl = window.location.origin + window.location.pathname + '?paySuccess=' + encodeURIComponent(_payOrderNumber);
+
+  const { error } = await _payStripeInstance.confirmPayment({
+    elements: _payStripeElements,
+    confirmParams: { return_url: returnUrl }
+  });
+
+  if (error) {
+    errEl.textContent = error.message || 'Payment failed. Please try again.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Try Again';
+  }
+}
+
+function closePayModal() {
+  document.getElementById('payModalOverlay').classList.remove('open');
+  document.getElementById('payModal').classList.remove('open');
+  document.body.style.overflow = '';
+  document.getElementById('payStripeElement').innerHTML = '';
+  _payStripeInstance = null;
+  _payStripeElements = null;
+  _payOrderId = null;
+  _payOrderNumber = null;
+}
+
+// Handle return from Stripe redirect
+(function handlePayReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const redirectStatus = params.get('redirect_status');
+  const paySuccess     = params.get('paySuccess');
+  if (redirectStatus === 'succeeded' && paySuccess) {
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname);
+    // Show success toast once orders tab loads
+    setTimeout(() => {
+      showToast(`✅ Payment successful for order ${paySuccess}! Your order is now being processed.`, 'success');
+      loadOrders(1);
+    }, 800);
+  }
+})();
+
+window.openPayNow    = openPayNow;
+window.confirmPayNow = confirmPayNow;
+window.closePayModal = closePayModal;
 </script>
 </body>
 </html>
