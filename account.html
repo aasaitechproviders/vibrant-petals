@@ -205,6 +205,20 @@
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
     .toast{position:fixed;bottom:28px;right:28px;background:var(--dark);color:#fff;padding:14px 22px;border-radius:4px;font-size:13px;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:999;}
     .toast.show{transform:translateY(0);opacity:1;}.toast.success{background:#2d7a2d;}.toast.error{background:#c0392b;}
+    .vp-banner{position:fixed;top:0;left:0;right:0;z-index:9999;transform:translateY(-100%);transition:transform .35s cubic-bezier(.4,0,.2,1);pointer-events:none;}
+    .vp-banner.show{transform:translateY(0);pointer-events:all;}
+    .vp-banner-inner{display:flex;align-items:flex-start;gap:14px;padding:16px 20px;font-size:14px;line-height:1.5;box-shadow:0 4px 18px rgba(0,0,0,.18);border-left:5px solid #c9a227;}
+    .vp-banner.error .vp-banner-inner{background:#fff0f0;border-left-color:#c0392b;color:#7a1a1a;}
+    .vp-banner.success .vp-banner-inner{background:#f0fff4;border-left-color:#2d7a2d;color:#1a4d1a;}
+    .vp-banner.info .vp-banner-inner{background:#fffdf0;border-left-color:#c9a227;color:#5a4200;}
+    .vp-banner-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+    .vp-banner-msg{flex:1;font-weight:500;}
+    .vp-banner-close{background:none;border:none;font-size:18px;cursor:pointer;opacity:.55;padding:0 0 0 10px;flex-shrink:0;line-height:1;color:inherit;}
+    .vp-banner-close:hover{opacity:1;}
+    .vp-banner-bar{height:3px;background:rgba(0,0,0,.08);}
+    .vp-banner-progress{height:100%;width:100%;background:#c9a227;transition:width linear;}
+    .vp-banner.error .vp-banner-progress{background:#c0392b;}
+    .vp-banner.success .vp-banner-progress{background:#2d7a2d;}
     /* WISHLIST PANEL */
     .wish-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;margin-top:16px;}
     .wish-card{cursor:pointer;display:flex;flex-direction:column;}
@@ -747,6 +761,14 @@
 </div>
 
 <footer>Copyright © Nivas Vibrant Petals. All Rights Reserved. · <a href="unsubscribe.html" style="color:var(--gold);opacity:.8;">Unsubscribe</a></footer>
+<div class="vp-banner" id="vpBanner" role="alert" aria-live="assertive">
+  <div class="vp-banner-inner">
+    <span class="vp-banner-icon" id="vpBannerIcon">⚠️</span>
+    <span class="vp-banner-msg" id="vpBannerMsg"></span>
+    <button class="vp-banner-close" onclick="closeBanner()" aria-label="Close">✕</button>
+  </div>
+  <div class="vp-banner-bar"><div class="vp-banner-progress" id="vpBannerProgress"></div></div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -814,6 +836,25 @@ async function apiFetch(p,o={}){
   catch(e){console.error('apiFetch',p,e);return{success:false,message:e.message};}
 }
 function showToast(m,t=''){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+(t||'');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
+let _bannerTimer=null;
+function showBanner(msg,type='error'){
+  const icons={error:'⚠️',success:'✅',info:'ℹ️'};
+  const b=document.getElementById('vpBanner');
+  document.getElementById('vpBannerMsg').textContent=msg;
+  document.getElementById('vpBannerIcon').textContent=icons[type]||'⚠️';
+  b.className='vp-banner '+type;
+  const bar=document.getElementById('vpBannerProgress');
+  bar.style.transition='none';bar.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{bar.style.transition='width 15s linear';bar.style.width='0%';}));
+  void b.offsetWidth;b.classList.add('show');
+  if(_bannerTimer)clearTimeout(_bannerTimer);
+  _bannerTimer=setTimeout(closeBanner,15000);
+}
+function closeBanner(){
+  const b=document.getElementById('vpBanner');
+  b.classList.remove('show');
+  if(_bannerTimer){clearTimeout(_bannerTimer);_bannerTimer=null;}
+}
 
 // ── TAB SWITCH (login gate) ───────────────────────────────────────────────────
 function switchTab(name,btn){
@@ -1132,14 +1173,14 @@ async function updatePickupOrderStatus(id, newStatus, orderNum) {
   if (!await vpConfirm({ title: 'Update Order Status', message: `Update order <strong>#${orderNum}</strong> to <strong>${newStatus.replace(/_/g,' ')}</strong>?`, icon: '📦', confirmText: 'Update', success: true })) return;
   const data = await apiFetch(`/dealer/orders/${id}/status`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus }) });
   if (data.success) { showToast('Order updated', 'success'); loadPickupOrders(pickupOrderPage); }
-  else showToast(data.message || 'Failed', 'error');
+  else showBanner(data.message || 'Failed', 'error');
 }
 window.updatePickupOrderStatus = updatePickupOrderStatus;
 
 // ── VIEW ORDER DETAIL ─────────────────────────────────────────────────────────
 async function viewOrder(id){
   const data=await apiFetch('/orders/'+id,{headers:apiHeaders()});
-  if(!data||!data.order){showToast('Could not load order','error');return;}
+  if(!data||!data.order){showBanner('Could not load order','error');return;}
   const o=data.order;
   document.getElementById('modalOrderNum').textContent='Order #'+o.orderNumber;
   const snap=o.pickupOutletSnapshot||{};
@@ -1356,7 +1397,7 @@ async function updateDealerOrderStatus(id, newStatus, orderNum) {
   if (!await vpConfirm({ title: 'Update Order Status', message: `Update order <strong>#${orderNum}</strong> to <strong>${newStatus.replace(/_/g,' ')}</strong>?`, icon: '📦', confirmText: 'Update', success: true })) return;
   const data = await apiFetch(`/dealer/orders/${id}/status`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus }) });
   if (data.success) { showToast(`Order updated`, 'success'); loadPickupOrders(pickupOrderPage); }
-  else showToast(data.message || 'Status update failed', 'error');
+  else showBanner(data.message || 'Status update failed', 'error');
 }
 window.updateDealerOrderStatus = updateDealerOrderStatus;
 
@@ -1559,7 +1600,7 @@ async function deleteDealerOutlet(id, name) {
   if (!await vpConfirm({ title: 'Request Outlet Deletion', message: `Request deletion of <strong>${name}</strong>? The outlet stays active until admin approves the removal.`, icon: '🗑', confirmText: 'Request Deletion', success: false })) return;
   const data = await apiFetch(`/dealer/outlets/${id}`, { method: 'DELETE', headers: apiHeaders() });
   if (data.success) { showToast('Deletion request submitted', 'success'); loadDealerOutlets(); }
-  else showToast(data.message || 'Failed to request deletion', 'error');
+  else showBanner(data.message || 'Failed to request deletion', 'error');
 }
 window.deleteDealerOutlet = deleteDealerOutlet;
 let retailOutletTerritoriesData = { Melbourne: [], Sydney: [] };
@@ -1708,7 +1749,7 @@ async function deleteRetailOutlet(id, name) {
   if (!await vpConfirm({ title: 'Request Outlet Deletion', message: `Request deletion of <strong>${name}</strong>? The outlet stays active until admin approves the removal.`, icon: '🗑️', confirmText: 'Request Deletion', success: false })) return;
   const data = await apiFetch(`/retail/outlets/${id}`, { method: 'DELETE', headers: apiHeaders() });
   if (data.success) { showToast('Deletion request submitted', 'success'); loadRetailAdditionalOutlets(); }
-  else showToast(data.message || 'Failed to request deletion', 'error');
+  else showBanner(data.message || 'Failed to request deletion', 'error');
 }
 window.deleteRetailOutlet = deleteRetailOutlet;
 
@@ -1885,7 +1926,7 @@ async function deleteAddress(addrId){
   if(!await vpConfirm({ title: 'Remove Address', message: 'Are you sure you want to remove this address?', icon: '📍', confirmText: 'Remove', danger: true }))return;
   const data=await apiFetch(`/auth/addresses/${addrId}`,{method:'DELETE',headers:apiHeaders()});
   if(data.success){showToast('Address removed','success');loadAddresses();}
-  else showToast('Failed to remove address','error');
+  else showBanner('Failed to remove address','error');
 }
 window.deleteAddress=deleteAddress;
 
@@ -2373,7 +2414,7 @@ async function updateMyOutletOrderStatus(id, newStatus, orderNum) {
     method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus }),
   });
   if (data.success) { showToast(`Order updated`, 'success'); loadMyStoreOrders(); }
-  else showToast(data.message || 'Failed', 'error');
+  else showBanner(data.message || 'Failed', 'error');
 }
 
 async function showCustDetail(orderId) {
@@ -2481,7 +2522,7 @@ async function addToCartFromWishlist(productId, cardId){
   const qty = el ? (parseInt(el.textContent)||1) : 1;
   const data=await apiFetch('/cart/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId,quantity:qty})});
   if(data.success){showToast('Added to cart!','success');loadCounts();if(el)el.textContent='1';}
-  else showToast(data.message||'Could not add to cart','error');
+  else showBanner(data.message||'Could not add to cart','error');
 }
 function changeWishQty(cardId,delta){const el=document.getElementById(cardId);if(!el)return;el.textContent=Math.max(1,(parseInt(el.textContent)||1)+delta);}
 window.changeWishQty=changeWishQty;
@@ -2489,14 +2530,14 @@ window.changeWishQty=changeWishQty;
 async function removeFromWishlistPanel(productId){
   const data=await apiFetch(`/wishlist/items/${productId}`,{method:'DELETE',headers:apiHeaders()});
   if(data.success){showToast('Removed from wishlist');loadWishlistPanel();}
-  else showToast(data.message||'Error','error');
+  else showBanner(data.message||'Error','error');
 }
 
 async function clearWishlistPanel(){
   if(!await vpConfirm({ title: 'Clear Wishlist', message: 'Remove all items from your wishlist? This cannot be undone.', icon: '🗑️', confirmText: 'Clear All', danger: true }))return;
   const data=await apiFetch('/wishlist',{method:'DELETE',headers:apiHeaders()});
   if(data.success){showToast('Wishlist cleared');loadWishlistPanel();}
-  else showToast(data.message||'Error','error');
+  else showBanner(data.message||'Error','error');
 }
 window.addToCartFromWishlist=addToCartFromWishlist;
 window.removeFromWishlistPanel=removeFromWishlistPanel;
