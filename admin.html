@@ -465,6 +465,28 @@
           </div>
         </div>
 
+        <!-- MOQ Settings -->
+        <div class="card" style="max-width:640px;margin-top:24px;">
+          <div class="card-head">
+            <div class="card-title">Minimum Order Value (MOQ)</div>
+          </div>
+          <div style="padding:24px;">
+            <p style="font-size:13px;color:var(--mid);margin:0 0 24px;">Set the minimum cart total (after discounts) required for Dealer and Retail orders. Set to 0 to disable the minimum.</p>
+            <div style="display:flex;gap:24px;margin-bottom:20px;flex-wrap:wrap;">
+              <div class="form-group" style="margin:0;flex:1;min-width:160px;">
+                <label class="form-label">Dealer MOQ ($)</label>
+                <input class="form-input" type="number" id="moqDealer" min="0" step="0.01" placeholder="0" value="0"/>
+              </div>
+              <div class="form-group" style="margin:0;flex:1;min-width:160px;">
+                <label class="form-label">Retail MOQ ($)</label>
+                <input class="form-input" type="number" id="moqRetail" min="0" step="0.01" placeholder="0" value="0"/>
+              </div>
+            </div>
+            <div class="form-msg" id="moqMsg"></div>
+            <button class="btn-primary" onclick="saveMOQSettings()">Save MOQ Settings</button>
+          </div>
+        </div>
+
         <!-- Availability Requests -->
         <div class="card" style="margin-top:24px;">
           <div class="table-toolbar">
@@ -1878,7 +1900,7 @@ checkAuth();
 document.getElementById('adminPwd')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
 
 // ── PANEL NAVIGATION ──────────────────────────────────────────────────────────
-const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, pickuporders: () => { pickupOrdPage=1; loadPickupOrders(); }, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, templates: loadTemplates, coupons: loadCoupons, shipping: () => { loadShippingSchedule(); loadAvailabilityRequests(); }, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: () => { loadStates(); loadTerritories(); }, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
+const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, pickuporders: () => { pickupOrdPage=1; loadPickupOrders(); }, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, templates: loadTemplates, coupons: loadCoupons, shipping: () => { loadShippingSchedule(); loadMOQSettings(); loadAvailabilityRequests(); }, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: () => { loadStates(); loadTerritories(); }, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  TERRITORIES
@@ -4074,6 +4096,42 @@ window.addShippingDate      = addShippingDate;
 window.removeShippingDate   = removeShippingDate;
 window.saveShippingSchedule = saveShippingSchedule;
 // ── end shipping schedule ─────────────────────────────────────────────────────
+
+// ── MOQ SETTINGS ──────────────────────────────────────────────────────────────
+async function loadMOQSettings() {
+  try {
+    const data = await apiFetch('/settings/site', { headers: apiHeaders() });
+    const s = data.settings || {};
+    document.getElementById('moqDealer').value = s.moq_dealer ?? 0;
+    document.getElementById('moqRetail').value = s.moq_retail ?? 0;
+  } catch(e) {
+    console.error('loadMOQSettings error:', e);
+  }
+}
+
+async function saveMOQSettings() {
+  const msg = document.getElementById('moqMsg');
+  msg.textContent = '';
+  msg.className   = 'form-msg';
+  const moqDealer = parseFloat(document.getElementById('moqDealer').value) || 0;
+  const moqRetail = parseFloat(document.getElementById('moqRetail').value) || 0;
+  try {
+    const data = await apiFetch('/settings/site', {
+      method:  'PUT',
+      headers: { ...apiHeaders(), 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ moq_dealer: moqDealer, moq_retail: moqRetail }),
+    });
+    msg.className   = 'form-msg success';
+    msg.textContent = 'MOQ settings saved.';
+  } catch(e) {
+    msg.className   = 'form-msg error';
+    msg.textContent = e.message || 'Save failed. Try again.';
+  }
+}
+
+window.loadMOQSettings  = loadMOQSettings;
+window.saveMOQSettings  = saveMOQSettings;
+// ── end MOQ settings ──────────────────────────────────────────────────────────
 
 // ── AVAILABILITY REQUESTS ─────────────────────────────────────────────────────
 let _confirmingRAId = null;
