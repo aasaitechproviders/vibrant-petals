@@ -590,6 +590,14 @@ localStorage.setItem('vp_session',sessionId);
 function apiHeaders(auth=true){const h={'Content-Type':'application/json','x-session-id':sessionId};if(auth&&token)h['Authorization']='Bearer '+token;return h;}
 async function apiFetch(path,opts={}){try{const r=await fetch(API+path,opts);return r.json();}catch(e){return{success:false,message:e.message};}}
 function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function showMoqPopup(msg){
+  document.getElementById('moqErrorMsg').textContent=msg;
+  document.getElementById('moqErrorOverlay').style.display='flex';
+}
+function closeMoqPopup(){
+  document.getElementById('moqErrorOverlay').style.display='none';
+}
+
 let _bannerTimer=null;
 function showBanner(msg,type='error'){
   const icons={error:'⚠️',success:'✅',info:'ℹ️'};
@@ -742,7 +750,11 @@ async function startCardPayment(){
 
   if(!data.success){
     btn.disabled=false; btn.textContent='Place Order';
-    showBanner(data.message||'Failed to initiate payment','error');
+    if((data.message||'').includes('Minimum order value')){
+      showMoqPopup(data.message);
+    }else{
+      showBanner(data.message||'Failed to initiate payment','error');
+    }
     return;
   }
 
@@ -826,7 +838,11 @@ async function placeOrder(){
   if(data.success){
     showOrderSuccess(data.order);
   }else{
-    showBanner(data.message||'Failed to place order','error');
+    if((data.message||'').includes('Minimum order value')){
+      showMoqPopup(data.message);
+    }else{
+      showBanner(data.message||'Failed to place order','error');
+    }
   }
 }
 
@@ -1617,6 +1633,15 @@ init();
   <div class="search-results" id="searchResults"></div>
 </div>
 <!-- ── STATE CONFLICT MODAL ── -->
+<div id="moqErrorOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1200;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:6px;padding:28px 24px;max-width:440px;width:92%;box-shadow:0 8px 40px rgba(0,0,0,.18);">
+    <div style="font-size:28px;text-align:center;margin-bottom:10px;">🛒</div>
+    <h3 style="font-size:17px;font-weight:700;text-align:center;margin-bottom:8px;color:var(--dark);">Minimum Order Not Met</h3>
+    <p id="moqErrorMsg" style="font-size:13px;color:var(--mid);text-align:center;line-height:1.6;margin-bottom:20px;"></p>
+    <button onclick="closeMoqPopup()" style="width:100%;padding:11px;background:var(--gold);color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;">Got It</button>
+  </div>
+</div>
+
 <div id="stateConflictOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1200;align-items:center;justify-content:center;">
   <div style="background:#fff;border-radius:6px;padding:28px 24px;max-width:500px;width:92%;box-shadow:0 8px 40px rgba(0,0,0,.18);max-height:90vh;overflow-y:auto;">
     <div style="font-size:28px;text-align:center;margin-bottom:10px;">⚠️</div>
