@@ -4166,7 +4166,7 @@ async function openAdminCreateOrder() {
   // Init calendar
   await acoInitDatePicker();
 
-  openModal('adminCreateOrderModal');
+  document.getElementById('adminCreateOrderModal').classList.add('open');
 }
 
 async function onAcoUserChange() {
