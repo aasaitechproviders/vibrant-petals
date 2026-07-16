@@ -563,13 +563,13 @@
           </div>
           <div class="modal-body" style="display:flex;flex-direction:column;gap:20px;">
 
-            <!-- Section 1: Retail User -->
+            <!-- Section 1: Outlet -->
             <div>
-              <div class="form-label">RETAIL USER</div>
-              <select class="form-select" id="acoUserId" onchange="onAcoUserChange()">
-                <option value="">Select retail user…</option>
+              <div class="form-label">PICKUP OUTLET</div>
+              <select class="form-select" id="acoOutletId" onchange="onAcoOutletChange()">
+                <option value="">Select outlet…</option>
               </select>
-              <div id="acoOutletInfo" style="display:none;margin-top:10px;padding:12px 14px;background:var(--cream2);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;font-size:13px;"></div>
+              <div id="acoUserInfo" style="display:none;margin-top:10px;padding:12px 14px;background:var(--cream2);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;font-size:13px;"></div>
               <div class="form-msg" id="acoUserMsg" style="margin-top:6px;"></div>
             </div>
 
@@ -1137,6 +1137,7 @@
         </div>
       </div>
       <div class="form-group"><label class="form-label">Street Address *</label><input class="form-input" id="oAddress" placeholder="Shop 4, Tarneit Central, 533 Derrimut Rd"/></div>
+      <div class="form-group"><label class="form-label">Contact Email <span style="font-weight:400;color:var(--mid);text-transform:none;letter-spacing:0;font-size:12px;">— used to link orders to a user account</span></label><input class="form-input" id="oEmail" placeholder="outlet@example.com" type="email"/></div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="oPhone" placeholder="03 9000 0001"/></div>
         <div class="form-group"><label class="form-label">Opening Hours</label><input class="form-input" id="oHours" placeholder="Mon–Sat 9am–6pm"/></div>
@@ -2420,6 +2421,7 @@ function openOutletModal(outlet) {
   document.getElementById('outletModalTitle').textContent = outlet ? 'Edit Outlet' : 'Add Retail Outlet';
   document.getElementById('oName').value    = outlet?.name    || '';
   document.getElementById('oAddress').value = outlet?.address || '';
+  document.getElementById('oEmail').value   = outlet?.email   || '';
   document.getElementById('oPhone').value   = outlet?.phone   || '';
   document.getElementById('oHours').value   = outlet?.hours   || '';
   document.getElementById('oActive').value  = outlet?.isActive === false ? 'false' : 'true';
@@ -2464,7 +2466,8 @@ async function saveOutlet() {
   const hours         = document.getElementById('oHours').value.trim();
   const isActive      = document.getElementById('oActive').value !== 'false';
   if (!name || !state || !territorySlug || !address) { showToast('Name, state, territory and address are required', 'error'); return; }
-  const body = { name, state, territorySlug, suburb, address, phone, hours, isActive };
+  const email = document.getElementById('oEmail').value.trim().toLowerCase();
+  const body = { name, state, territorySlug, suburb, address, email, phone, hours, isActive };
   const url  = editingOutletId ? `/admin/retail-outlets/${editingOutletId}` : '/admin/retail-outlets';
   const meth = editingOutletId ? 'PUT' : 'POST';
   const data = await apiFetch(url, { method: meth, headers: apiHeaders(), body: JSON.stringify(body) });
@@ -4125,13 +4128,16 @@ let _acoCalYear, _acoCalMonth;
 const _acoPad  = n => String(n).padStart(2, '0');
 const _acoDStr = d => `${d.getFullYear()}-${_acoPad(d.getMonth()+1)}-${_acoPad(d.getDate())}`;
 
+let _acoOutletsCache = [];
+
 async function openAdminCreateOrder() {
   // Reset state
   _acoItems = [];
   _acoEnabledDates = new Set();
-  document.getElementById('acoUserId').value = '';
-  document.getElementById('acoOutletInfo').style.display = 'none';
-  document.getElementById('acoOutletInfo').innerHTML = '';
+  _acoOutletsCache = [];
+  document.getElementById('acoOutletId').value = '';
+  document.getElementById('acoUserInfo').style.display = 'none';
+  document.getElementById('acoUserInfo').innerHTML = '';
   document.getElementById('acoProductSearch').value = '';
   document.getElementById('acoProductResults').style.display = 'none';
   document.getElementById('acoProductResults').innerHTML = '';
@@ -4146,21 +4152,19 @@ async function openAdminCreateOrder() {
   document.getElementById('acoDateMsg').textContent = '';
   document.getElementById('acoFormMsg').textContent = '';
 
-  // Populate retail users dropdown
-  const sel = document.getElementById('acoUserId');
-  sel.innerHTML = '<option value="">Loading users…</option>';
+  // Populate outlets dropdown — all active outlets
+  const sel = document.getElementById('acoOutletId');
+  sel.innerHTML = '<option value="">Loading outlets…</option>';
   sel.disabled = true;
   try {
-    const data = await apiFetch('/admin/retail-users?limit=100', { headers: apiHeaders() });
-    const users = (data.users || []).filter(u => u.isActive && u.linkedOutletId);
-    sel.innerHTML = '<option value="">Select retail user…</option>' +
-      users.map(u => `<option value="${u._id}">${u.firstName || ''} ${u.lastName || ''} — ${u.email}</option>`).join('');
+    const data = await apiFetch('/admin/retail-outlets', { headers: apiHeaders() });
+    _acoOutletsCache = (data.outlets || []).filter(o => o.isActive);
+    sel.innerHTML = '<option value="">Select outlet…</option>' +
+      _acoOutletsCache.map(o => `<option value="${o._id}">${o.name} — ${o.suburb}, ${o.state}</option>`).join('');
     sel.disabled = false;
-    if (!users.length) {
-      sel.innerHTML = '<option value="">No active retail users with linked outlets</option>';
-    }
+    if (!_acoOutletsCache.length) sel.innerHTML = '<option value="">No active outlets found</option>';
   } catch(e) {
-    sel.innerHTML = '<option value="">Failed to load users</option>';
+    sel.innerHTML = '<option value="">Failed to load outlets</option>';
   }
 
   // Init calendar
@@ -4169,26 +4173,22 @@ async function openAdminCreateOrder() {
   document.getElementById('adminCreateOrderModal').classList.add('open');
 }
 
-async function onAcoUserChange() {
-  const userId = document.getElementById('acoUserId').value;
-  const info   = document.getElementById('acoOutletInfo');
-  const msg    = document.getElementById('acoUserMsg');
+function onAcoOutletChange() {
+  const outletId = document.getElementById('acoOutletId').value;
+  const info     = document.getElementById('acoUserInfo');
+  const msg      = document.getElementById('acoUserMsg');
   info.style.display = 'none'; info.innerHTML = '';
   msg.textContent = '';
-  if (!userId) return;
-  try {
-    const data = await apiFetch(`/admin/retail-users?limit=100`, { headers: apiHeaders() });
-    const user = (data.users || []).find(u => u._id === userId || u._id?.toString() === userId);
-    if (user?.outlet) {
-      const o = user.outlet;
-      info.innerHTML = `<strong>📍 Pickup Outlet:</strong> ${o.name}<br><span style="color:var(--mid);font-size:12px;">${o.address}, ${o.suburb}, ${o.state}${o.phone ? ' · ' + o.phone : ''}</span>`;
-      info.style.display = 'block';
-    } else {
-      msg.innerHTML = '<span style="color:#c0392b;">This user has no linked outlet.</span>';
-    }
-  } catch(e) {
-    msg.innerHTML = '<span style="color:#c0392b;">Failed to fetch user details.</span>';
-  }
+  if (!outletId) return;
+  const outlet = _acoOutletsCache.find(o => o._id === outletId || o._id?.toString() === outletId);
+  if (!outlet) return;
+  const emailDisplay = outlet.email
+    ? `<span style="color:var(--mid);">✉️ ${outlet.email}</span>`
+    : `<span style="color:#c0392b;">⚠️ No email set — add one to this outlet to enable order creation</span>`;
+  info.innerHTML = `<strong>📍 ${outlet.name}</strong> &nbsp;·&nbsp; ${outlet.address}, ${outlet.suburb}, ${outlet.state}
+    ${outlet.phone ? '<br><span style="color:var(--mid);font-size:12px;">📞 ' + outlet.phone + '</span>' : ''}
+    <br><span style="font-size:12px;">${emailDisplay}</span>`;
+  info.style.display = 'block';
 }
 
 let _acoSearchTimer = null;
@@ -4387,13 +4387,13 @@ async function acoInitDatePicker() {
 }
 
 async function submitAdminCreateOrder() {
-  const userId             = document.getElementById('acoUserId').value;
+  const outletId            = document.getElementById('acoOutletId').value;
   const scheduledPickupDate = document.getElementById('acoScheduledPickupDate').value;
-  const notes              = document.getElementById('acoNotes').value.trim();
-  const formMsg            = document.getElementById('acoFormMsg');
+  const notes               = document.getElementById('acoNotes').value.trim();
+  const formMsg             = document.getElementById('acoFormMsg');
   formMsg.textContent = '';
 
-  if (!userId)              { document.getElementById('acoUserMsg').innerHTML  = '<span style="color:#c0392b;">Please select a retail user.</span>'; return; }
+  if (!outletId)            { document.getElementById('acoUserMsg').innerHTML  = '<span style="color:#c0392b;">Please select an outlet.</span>'; return; }
   if (!_acoItems.length)    { document.getElementById('acoItemsMsg').innerHTML = '<span style="color:#c0392b;">Please add at least one product.</span>'; return; }
   if (!scheduledPickupDate) { document.getElementById('acoDateMsg').innerHTML  = '<span style="color:#c0392b;">Please select a pickup date.</span>'; return; }
 
@@ -4407,7 +4407,7 @@ async function submitAdminCreateOrder() {
     const data = await apiFetch('/admin/orders', {
       method: 'POST',
       headers: apiHeaders(),
-      body: JSON.stringify({ userId, items, scheduledPickupDate, notes, paymentMethod: 'cod' }),
+      body: JSON.stringify({ outletId, items, scheduledPickupDate, notes, paymentMethod: 'cod' }),
     });
     if (data.success || data.order) {
       closeModal('adminCreateOrderModal');
@@ -4423,7 +4423,7 @@ async function submitAdminCreateOrder() {
 }
 
 window.openAdminCreateOrder  = openAdminCreateOrder;
-window.onAcoUserChange       = onAcoUserChange;
+window.onAcoOutletChange     = onAcoOutletChange;
 window.acoSearchProducts     = acoSearchProducts;
 window.acoAddItem            = acoAddItem;
 window.acoUpdateQty          = acoUpdateQty;
