@@ -224,6 +224,23 @@
     .vp-modal-confirm{background:var(--gold);color:#fff;}
     .vp-modal-confirm.danger{background:#c0392b;}
     .vp-modal-confirm.success{background:#27ae60;}
+    /* ── Admin Create Order: calendar (shared cal-* classes) ── */
+    .cal-nav-btn{background:none;border:1.5px solid #e8e0d2;border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;color:var(--dark);display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+    .cal-nav-btn:hover:not(:disabled){background:var(--cream2);border-color:var(--gold);}
+    .cal-nav-btn:disabled{opacity:.3;cursor:default;}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+    .cal-dow{font-size:11px;font-weight:700;color:var(--mid);text-align:center;padding:6px 0 8px;letter-spacing:.06em;text-transform:uppercase;}
+    .cal-day{width:100%;height:38px;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:13px;font-weight:500;cursor:default;transition:all .15s;color:#ccc;position:relative;}
+    .cal-day.enabled{cursor:pointer;color:#5a4a1a;background:#fef9ed;border:1.5px solid #e8d48a;font-weight:600;}
+    .cal-day.enabled:hover{background:var(--gold);color:#fff;border-color:var(--gold);}
+    .cal-day.selected{background:var(--gold)!important;color:#fff!important;font-weight:700!important;border:1.5px solid var(--gold-dark)!important;}
+    .cal-day.disabled{color:#d0c8bb;background:transparent;border:none;}
+    .cal-day.today-marker{border:1.5px solid #c0b090;color:#888;}
+    .cal-day.empty{background:none;border:none;}
+    /* ── Product search rows ── */
+    .aco-prod-row{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f5f0e8;transition:background .15s;}
+    .aco-prod-row:hover{background:#fef9ed;}
+    .aco-prod-row:last-child{border-bottom:none;}
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 </head>
@@ -405,6 +422,7 @@
                 <option value="cancelled">Cancelled</option>
               </select>
             </div>
+            <button class="btn-primary" onclick="openAdminCreateOrder()"><span style="font-size:16px">+</span> Create Order</button>
           </div>
           <table class="data-table">
             <thead><tr><th>Order #</th><th>Customer</th><th>Pickup Outlet</th><th>Items</th><th>Total</th><th>Status</th><th>Pickup Date</th><th>Actions</th></tr></thead>
@@ -532,6 +550,87 @@
           <div class="modal-footer">
             <button class="btn-cancel" onclick="closeModal('confirmRAModal')">Cancel</button>
             <button class="btn-primary" onclick="confirmAvailRequest()">Confirm &amp; Create Order</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Create Order Modal -->
+      <div class="modal" id="adminCreateOrderModal">
+        <div class="modal-box modal-wide">
+          <div class="modal-head">
+            <h3>🛒 Create Order (On Behalf of Retail User)</h3>
+            <span class="modal-close" onclick="closeModal('adminCreateOrderModal')">✕</span>
+          </div>
+          <div class="modal-body" style="display:flex;flex-direction:column;gap:20px;">
+
+            <!-- Section 1: Retail User -->
+            <div>
+              <div class="form-label">RETAIL USER</div>
+              <select class="form-select" id="acoUserId" onchange="onAcoUserChange()">
+                <option value="">Select retail user…</option>
+              </select>
+              <div id="acoOutletInfo" style="display:none;margin-top:10px;padding:12px 14px;background:var(--cream2);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;font-size:13px;"></div>
+              <div class="form-msg" id="acoUserMsg" style="margin-top:6px;"></div>
+            </div>
+
+            <!-- Section 2: Products -->
+            <div>
+              <div class="form-label">ADD PRODUCTS</div>
+              <div style="display:flex;gap:8px;">
+                <input type="text" class="form-input" id="acoProductSearch" placeholder="Search by name or SKU…" oninput="acoSearchProducts()" style="flex:1;"/>
+              </div>
+              <div id="acoProductResults" style="margin-top:8px;border:1px solid #e8e0d2;border-radius:6px;max-height:180px;overflow-y:auto;display:none;"></div>
+              <!-- Added items list -->
+              <div id="acoItemsList" style="margin-top:12px;display:none;">
+                <table style="width:100%;font-size:13px;border-collapse:collapse;">
+                  <thead><tr style="background:var(--cream2);">
+                    <th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--mid);">Product</th>
+                    <th style="padding:8px 10px;text-align:center;font-weight:700;color:var(--mid);">Qty</th>
+                    <th style="padding:8px 10px;text-align:right;font-weight:700;color:var(--mid);">Unit Price</th>
+                    <th style="padding:8px 10px;text-align:right;font-weight:700;color:var(--mid);">Line Total</th>
+                    <th style="padding:8px 10px;"></th>
+                  </tr></thead>
+                  <tbody id="acoItemsBody"></tbody>
+                </table>
+                <div style="margin-top:10px;padding:10px 14px;background:#fdf9f4;border:1px solid #e8e0d2;border-radius:6px;text-align:right;font-size:14px;">
+                  Total: <strong id="acoTotal" style="color:var(--gold);font-size:16px;">$0.00</strong>
+                </div>
+              </div>
+              <div class="form-msg" id="acoItemsMsg" style="margin-top:6px;"></div>
+            </div>
+
+            <!-- Section 3: Pickup Date (same calendar as checkout) -->
+            <div>
+              <div class="form-label">PICKUP DATE</div>
+              <div style="background:#fff;border:1px solid #e8e0d2;border-radius:6px;padding:20px;">
+                <div style="font-size:13px;color:var(--mid);margin-bottom:14px;line-height:1.6;" id="acoDatePickerSub">Loading available dates…</div>
+                <div style="user-select:none;max-width:360px;margin:0 auto;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                    <button class="cal-nav-btn" id="acoCalPrev" onclick="acoCalShift(-1)">&#8249;</button>
+                    <span style="font-size:15px;font-weight:700;color:var(--dark);" id="acoCalMonthLabel"></span>
+                    <button class="cal-nav-btn" id="acoCalNext" onclick="acoCalShift(1)">&#8250;</button>
+                  </div>
+                  <div class="cal-grid" id="acoCalGrid"></div>
+                </div>
+                <div style="margin-top:12px;padding:10px 14px;background:var(--cream2);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;font-size:13px;display:none;" id="acoDateSelectedDisplay">
+                  ✅ Pickup date: <strong id="acoDateSelectedText" style="color:var(--gold);"></strong>
+                </div>
+              </div>
+              <input type="hidden" id="acoScheduledPickupDate"/>
+              <div class="form-msg" id="acoDateMsg" style="margin-top:6px;"></div>
+            </div>
+
+            <!-- Section 4: Notes -->
+            <div>
+              <div class="form-label">NOTES <span style="font-weight:400;color:var(--mid);">(optional)</span></div>
+              <textarea class="form-textarea" id="acoNotes" rows="3" placeholder="Any special instructions…" style="resize:vertical;"></textarea>
+            </div>
+
+            <div class="form-msg" id="acoFormMsg"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal('adminCreateOrderModal')">Cancel</button>
+            <button class="btn-primary" onclick="submitAdminCreateOrder()">Create Order</button>
           </div>
         </div>
       </div>
@@ -4018,6 +4117,321 @@ async function updatePickupOrderStatus(orderId, newStatus, selectEl) {
 }
 window.loadPickupOrders = loadPickupOrders;
 window.updatePickupOrderStatus = updatePickupOrderStatus;
+
+// ── ADMIN CREATE ORDER ────────────────────────────────────────────────────────
+let _acoItems  = [];          // { productId, name, sku, price, quantity, variantIndex, variantLabel }
+let _acoEnabledDates = new Set();
+let _acoCalYear, _acoCalMonth;
+const _acoPad  = n => String(n).padStart(2, '0');
+const _acoDStr = d => `${d.getFullYear()}-${_acoPad(d.getMonth()+1)}-${_acoPad(d.getDate())}`;
+
+async function openAdminCreateOrder() {
+  // Reset state
+  _acoItems = [];
+  _acoEnabledDates = new Set();
+  document.getElementById('acoUserId').value = '';
+  document.getElementById('acoOutletInfo').style.display = 'none';
+  document.getElementById('acoOutletInfo').innerHTML = '';
+  document.getElementById('acoProductSearch').value = '';
+  document.getElementById('acoProductResults').style.display = 'none';
+  document.getElementById('acoProductResults').innerHTML = '';
+  document.getElementById('acoItemsList').style.display = 'none';
+  document.getElementById('acoItemsBody').innerHTML = '';
+  document.getElementById('acoTotal').textContent = '$0.00';
+  document.getElementById('acoScheduledPickupDate').value = '';
+  document.getElementById('acoDateSelectedDisplay').style.display = 'none';
+  document.getElementById('acoNotes').value = '';
+  document.getElementById('acoUserMsg').textContent = '';
+  document.getElementById('acoItemsMsg').textContent = '';
+  document.getElementById('acoDateMsg').textContent = '';
+  document.getElementById('acoFormMsg').textContent = '';
+
+  // Populate retail users dropdown
+  const sel = document.getElementById('acoUserId');
+  sel.innerHTML = '<option value="">Loading users…</option>';
+  sel.disabled = true;
+  try {
+    const data = await apiFetch('/admin/retail-users?limit=100', { headers: apiHeaders() });
+    const users = (data.users || []).filter(u => u.isActive && u.linkedOutletId);
+    sel.innerHTML = '<option value="">Select retail user…</option>' +
+      users.map(u => `<option value="${u._id}">${u.firstName || ''} ${u.lastName || ''} — ${u.email}</option>`).join('');
+    sel.disabled = false;
+    if (!users.length) {
+      sel.innerHTML = '<option value="">No active retail users with linked outlets</option>';
+    }
+  } catch(e) {
+    sel.innerHTML = '<option value="">Failed to load users</option>';
+  }
+
+  // Init calendar
+  await acoInitDatePicker();
+
+  openModal('adminCreateOrderModal');
+}
+
+async function onAcoUserChange() {
+  const userId = document.getElementById('acoUserId').value;
+  const info   = document.getElementById('acoOutletInfo');
+  const msg    = document.getElementById('acoUserMsg');
+  info.style.display = 'none'; info.innerHTML = '';
+  msg.textContent = '';
+  if (!userId) return;
+  try {
+    const data = await apiFetch(`/admin/retail-users?limit=100`, { headers: apiHeaders() });
+    const user = (data.users || []).find(u => u._id === userId || u._id?.toString() === userId);
+    if (user?.outlet) {
+      const o = user.outlet;
+      info.innerHTML = `<strong>📍 Pickup Outlet:</strong> ${o.name}<br><span style="color:var(--mid);font-size:12px;">${o.address}, ${o.suburb}, ${o.state}${o.phone ? ' · ' + o.phone : ''}</span>`;
+      info.style.display = 'block';
+    } else {
+      msg.innerHTML = '<span style="color:#c0392b;">This user has no linked outlet.</span>';
+    }
+  } catch(e) {
+    msg.innerHTML = '<span style="color:#c0392b;">Failed to fetch user details.</span>';
+  }
+}
+
+let _acoSearchTimer = null;
+function acoSearchProducts() {
+  clearTimeout(_acoSearchTimer);
+  _acoSearchTimer = setTimeout(_acoDoSearch, 300);
+}
+
+async function _acoDoSearch() {
+  const q = document.getElementById('acoProductSearch').value.trim();
+  const box = document.getElementById('acoProductResults');
+  if (!q) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  box.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:var(--mid);">Searching…</div>';
+  try {
+    const data = await apiFetch(`/products?search=${encodeURIComponent(q)}&status=publish&limit=20`, { headers: apiHeaders() });
+    const prods = data.products || [];
+    if (!prods.length) {
+      box.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:var(--mid);">No products found.</div>';
+      return;
+    }
+    box.innerHTML = prods.map(p => {
+      const price = p.retailPrice || p.salePrice || p.price || 0;
+      // If product has variants, render each variant as a separate row
+      if (p.variants && p.variants.length) {
+        return p.variants.map((v, vi) => {
+          const vPrice = v.retailPrice || v.salePrice || v.price || price;
+          const label  = [p.name, v.label, v.state].filter(Boolean).join(' · ');
+          return `<div class="aco-prod-row" onclick="acoAddItem('${p._id}','${p.name.replace(/'/g,"\\'")}','${(v.sku||p.sku||'').replace(/'/g,"\\'")}',${vPrice},${vi},'${(v.label||'').replace(/'/g,"\\'")}')">
+            <span style="flex:1;">${label}</span>
+            <span style="color:var(--gold);font-weight:700;font-size:13px;">$${vPrice.toFixed(2)}</span>
+          </div>`;
+        }).join('');
+      }
+      return `<div class="aco-prod-row" onclick="acoAddItem('${p._id}','${p.name.replace(/'/g,"\\'")}','${(p.sku||'').replace(/'/g,"\\'")}',${price},null,'')">
+        <span style="flex:1;">${p.name}${p.sku ? ' <span style="color:var(--mid);font-size:11px;">'+p.sku+'</span>' : ''}</span>
+        <span style="color:var(--gold);font-weight:700;font-size:13px;">$${price.toFixed(2)}</span>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    box.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#c0392b;">Search failed.</div>';
+  }
+}
+
+function acoAddItem(productId, name, sku, price, variantIndex, variantLabel) {
+  // Check if already in list (same productId + variantIndex)
+  const existing = _acoItems.findIndex(i => i.productId === productId && (i.variantIndex ?? null) === (variantIndex ?? null));
+  if (existing > -1) {
+    _acoItems[existing].quantity += 1;
+  } else {
+    _acoItems.push({ productId, name, sku, price, quantity: 1, variantIndex: variantIndex ?? null, variantLabel });
+  }
+  // Hide search results, clear search
+  document.getElementById('acoProductResults').style.display = 'none';
+  document.getElementById('acoProductSearch').value = '';
+  document.getElementById('acoItemsMsg').textContent = '';
+  acoRenderItems();
+}
+
+function acoUpdateQty(idx, val) {
+  const q = parseInt(val);
+  if (isNaN(q) || q < 1) return;
+  _acoItems[idx].quantity = q;
+  acoRenderItems();
+}
+
+function acoRemoveItem(idx) {
+  _acoItems.splice(idx, 1);
+  acoRenderItems();
+}
+
+function acoRenderItems() {
+  const tbody = document.getElementById('acoItemsBody');
+  const list  = document.getElementById('acoItemsList');
+  if (!_acoItems.length) { list.style.display = 'none'; return; }
+  list.style.display = 'block';
+  tbody.innerHTML = _acoItems.map((item, i) => {
+    const lineTotal = (item.price * item.quantity).toFixed(2);
+    const label = item.variantLabel ? ` <span style="font-size:11px;color:var(--mid);">(${item.variantLabel})</span>` : '';
+    return `<tr style="border-bottom:1px solid #f0eadc;">
+      <td style="padding:8px 10px;">${item.name}${label}${item.sku ? '<br><span style="font-size:11px;color:#aaa;">'+item.sku+'</span>' : ''}</td>
+      <td style="padding:8px 10px;text-align:center;">
+        <input type="number" min="1" value="${item.quantity}" style="width:55px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;text-align:center;font-size:13px;" onchange="acoUpdateQty(${i},this.value)"/>
+      </td>
+      <td style="padding:8px 10px;text-align:right;">$${item.price.toFixed(2)}</td>
+      <td style="padding:8px 10px;text-align:right;font-weight:700;">$${lineTotal}</td>
+      <td style="padding:8px 10px;text-align:center;">
+        <span style="cursor:pointer;color:#c0392b;font-size:16px;" onclick="acoRemoveItem(${i})">✕</span>
+      </td>
+    </tr>`;
+  }).join('');
+  const total = _acoItems.reduce((s, i) => s + i.price * i.quantity, 0);
+  document.getElementById('acoTotal').textContent = '$' + total.toFixed(2);
+}
+
+// ── Admin Order Calendar (namespaced to avoid clashing with checkout page globals)
+function acoComputeEnabled(shippingDates, windowDays, leadDays) {
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
+  const today    = new Date(todayStr + 'T00:00:00');
+  const enabled  = new Set();
+  for (const ds of shippingDates) {
+    const ship    = new Date(ds + 'T00:00:00');
+    const daysGap = Math.round((ship - today) / 86400000);
+    if (daysGap < leadDays) continue;
+    for (let i = 0; i <= windowDays; i++) {
+      const d = new Date(ship); d.setDate(ship.getDate() + i);
+      enabled.add(_acoDStr(d));
+    }
+  }
+  return enabled;
+}
+
+function acoRenderCalendar(year, month) {
+  _acoCalYear = year; _acoCalMonth = month;
+  const label = document.getElementById('acoCalMonthLabel');
+  if (label) label.textContent = new Date(year, month, 1).toLocaleDateString('en-AU', { month: 'long', year: 'numeric' });
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
+  const selected = document.getElementById('acoScheduledPickupDate').value;
+  const grid = document.getElementById('acoCalGrid');
+  if (!grid) return;
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let html = days.map(d => `<div class="cal-dow">${d}</div>`).join('');
+  const first       = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  for (let i = 0; i < first; i++) html += `<div class="cal-day empty"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds         = `${year}-${_acoPad(month+1)}-${_acoPad(d)}`;
+    const isEnabled  = _acoEnabledDates.has(ds);
+    const isSelected = ds === selected;
+    const isToday    = ds === todayStr;
+    let cls = 'cal-day';
+    if (isSelected)     cls += ' selected';
+    else if (isEnabled) cls += ' enabled';
+    else                cls += ' disabled';
+    if (isToday) cls += ' today-marker';
+    const onclick = isEnabled && !isSelected ? `acoOnCalDay('${ds}')` : '';
+    html += `<div class="${cls}"${onclick ? ` onclick="${onclick}"` : ''}>${d}</div>`;
+  }
+  grid.innerHTML = html;
+  const now     = new Date();
+  const prevBtn = document.getElementById('acoCalPrev');
+  const isPast  = year < now.getFullYear() || (year === now.getFullYear() && month <= now.getMonth());
+  prevBtn.disabled     = isPast;
+  prevBtn.style.opacity = isPast ? '0.3' : '1';
+}
+
+function acoCalShift(dir) {
+  let m = _acoCalMonth + dir, y = _acoCalYear;
+  if (m > 11) { m = 0; y++; }
+  if (m < 0)  { m = 11; y--; }
+  acoRenderCalendar(y, m);
+}
+
+function acoOnCalDay(ds) {
+  document.getElementById('acoScheduledPickupDate').value = ds;
+  const d = new Date(ds + 'T00:00:00');
+  const displayEl = document.getElementById('acoDateSelectedDisplay');
+  const textEl    = document.getElementById('acoDateSelectedText');
+  if (textEl) textEl.textContent = d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  if (displayEl) displayEl.style.display = 'block';
+  document.getElementById('acoDateMsg').textContent = '';
+  acoRenderCalendar(_acoCalYear, _acoCalMonth);
+}
+
+async function acoInitDatePicker() {
+  const sub = document.getElementById('acoDatePickerSub');
+  try {
+    const data       = await apiFetch('/shipping-schedule');
+    const windowDays = data.windowDays ?? 15;
+    const leadDays   = data.leadDays   ?? 5;
+    _acoEnabledDates = acoComputeEnabled(data.dates || [], windowDays, leadDays);
+    if (_acoEnabledDates.size === 0) {
+      if (sub) sub.textContent = 'No pickup dates are currently available. Please check back soon.';
+    } else {
+      const earliest = [..._acoEnabledDates].sort()[0];
+      const eld      = new Date(earliest + 'T00:00:00');
+      if (sub) sub.innerHTML = `Select an available date (highlighted). Earliest: <strong style="color:var(--gold);">${eld.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'long',year:'numeric'})}</strong>.`;
+      acoOnCalDay(earliest);
+    }
+    const startDate = _acoEnabledDates.size
+      ? new Date([..._acoEnabledDates].sort()[0] + 'T00:00:00')
+      : new Date();
+    acoRenderCalendar(startDate.getFullYear(), startDate.getMonth());
+  } catch(e) {
+    console.warn('Shipping schedule fetch failed for admin order, falling back +5 days', e);
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
+    const base = new Date(todayStr + 'T00:00:00'); base.setDate(base.getDate() + 5);
+    for (let i = 0; i <= 90; i++) {
+      const d = new Date(base); d.setDate(base.getDate() + i);
+      _acoEnabledDates.add(_acoDStr(d));
+    }
+    if (sub) sub.textContent = 'Select a pickup date.';
+    const now = new Date();
+    acoRenderCalendar(now.getFullYear(), now.getMonth());
+  }
+}
+
+async function submitAdminCreateOrder() {
+  const userId             = document.getElementById('acoUserId').value;
+  const scheduledPickupDate = document.getElementById('acoScheduledPickupDate').value;
+  const notes              = document.getElementById('acoNotes').value.trim();
+  const formMsg            = document.getElementById('acoFormMsg');
+  formMsg.textContent = '';
+
+  if (!userId)              { document.getElementById('acoUserMsg').innerHTML  = '<span style="color:#c0392b;">Please select a retail user.</span>'; return; }
+  if (!_acoItems.length)    { document.getElementById('acoItemsMsg').innerHTML = '<span style="color:#c0392b;">Please add at least one product.</span>'; return; }
+  if (!scheduledPickupDate) { document.getElementById('acoDateMsg').innerHTML  = '<span style="color:#c0392b;">Please select a pickup date.</span>'; return; }
+
+  const items = _acoItems.map(i => ({
+    productId:    i.productId,
+    quantity:     i.quantity,
+    variantIndex: i.variantIndex,
+  }));
+
+  try {
+    const data = await apiFetch('/admin/orders', {
+      method: 'POST',
+      headers: apiHeaders(),
+      body: JSON.stringify({ userId, items, scheduledPickupDate, notes, paymentMethod: 'cod' }),
+    });
+    if (data.success || data.order) {
+      closeModal('adminCreateOrderModal');
+      showToast(`Order ${data.order?.orderNumber || ''} created successfully`, 'success');
+      pickupOrdPage = 1;
+      loadPickupOrders();
+    } else {
+      formMsg.innerHTML = `<span style="color:#c0392b;">${data.message || 'Failed to create order.'}</span>`;
+    }
+  } catch(e) {
+    formMsg.innerHTML = `<span style="color:#c0392b;">Error: ${e.message}</span>`;
+  }
+}
+
+window.openAdminCreateOrder  = openAdminCreateOrder;
+window.onAcoUserChange       = onAcoUserChange;
+window.acoSearchProducts     = acoSearchProducts;
+window.acoAddItem            = acoAddItem;
+window.acoUpdateQty          = acoUpdateQty;
+window.acoRemoveItem         = acoRemoveItem;
+window.acoCalShift           = acoCalShift;
+window.acoOnCalDay           = acoOnCalDay;
+window.submitAdminCreateOrder = submitAdminCreateOrder;
+// ── end admin create order ────────────────────────────────────────────────────
 window.loadUsers = loadUsers;
 window.loadCustomers = loadCustomers;
 window.loadNewsletter = loadNewsletter;
