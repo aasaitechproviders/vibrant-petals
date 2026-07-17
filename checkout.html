@@ -444,7 +444,7 @@
             <input type="radio" name="payment" value="card" checked/>
             <div><div class="payment-opt-label">💳 Credit / Debit Card</div><div class="payment-opt-desc">Visa, MasterCard, AMEX — secure payment</div></div>
           </label>
-          <label class="payment-opt">
+          <label class="payment-opt" id="codOption">
             <input type="radio" name="payment" value="cod"/>
             <div><div class="payment-opt-label">💵 Cash on Delivery</div><div class="payment-opt-desc">Pay when your order arrives</div></div>
           </label>
@@ -1315,6 +1315,17 @@ async function init(){
   })();
 
   const _role = getCheckoutRole();
+
+  // COD is only available for Dealer, Retail, and Administrator
+  const codEl = document.getElementById('codOption');
+  if (codEl && !['Dealer','Retail','Administrator'].includes(_role)) {
+    codEl.style.display = 'none';
+    // Ensure card stays selected
+    const cardRadio = document.querySelector('input[name="payment"][value="card"]');
+    if (cardRadio) { cardRadio.checked = true; cardRadio.closest('.payment-opt').classList.add('selected'); }
+    codEl.classList.remove('selected');
+  }
+
   buildAcctDrop();
   initDatePicker();
 
