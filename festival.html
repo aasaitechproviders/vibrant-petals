@@ -44,11 +44,15 @@
 
     /* ── CARDS (for FAQ, Festival) ── */
     .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;margin:24px 0;}
-    .info-card{background:#fff;border:1px solid rgba(155,139,90,.2);border-radius:8px;padding:24px;transition:box-shadow .2s;}
+    .info-card{background:#fff;border:1px solid rgba(155,139,90,.2);border-radius:8px;overflow:hidden;transition:box-shadow .2s;}
     .info-card:hover{box-shadow:0 4px 20px rgba(155,139,90,.12);}
-    .info-card-icon{font-size:28px;margin-bottom:12px;}
+    .info-card-img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#f5f0e8;}
+    .info-card-img-placeholder{width:100%;aspect-ratio:4/3;background:#f5f0e8;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:13px;}
+    .info-card-body{padding:20px;}
     .info-card h3{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--dark);margin-bottom:8px;}
     .info-card p{font-size:14px;color:var(--mid);line-height:1.7;margin:0;}
+    .skeleton{background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
     /* ── FAQ ACCORDION ── */
     .faq-group{margin-bottom:40px;}
@@ -243,47 +247,11 @@
 
 <div class="section-block">
   <h2 class="section-title">Popular Festivals We Support</h2>
-  <div class="card-grid">
-    <div class="info-card">
-      <div class="info-card-icon">🪔</div>
-      <h3>Diwali</h3>
-      <p>Fresh flowers for poojas, home decoration, entrances, rangoli, Lakshmi pooja, and festive celebrations. Marigolds, roses, jasmine, and decorative garlands.</p>
-    </div>
-    <div class="info-card">
-      <div class="info-card-icon">🙏</div>
-      <h3>Navaratri &amp; Durga Pooja</h3>
-      <p>Traditional flowers for golu decoration, Devi poojas, temple decoration, and cultural events.</p>
-    </div>
-    <div class="info-card">
-      <div class="info-card-icon">💛</div>
-      <h3>Varalakshmi Vratham</h3>
-      <p>Fresh flowers and garlands for Lakshmi pooja and home celebrations.</p>
-    </div>
-    <div class="info-card">
-      <div class="info-card-icon">🐘</div>
-      <h3>Ganesh Chaturthi</h3>
-      <p>Flowers for Ganesh poojas, festival decoration, and spiritual rituals.</p>
-    </div>
-    <div class="info-card">
-      <div class="info-card-icon">🌾</div>
-      <h3>Pongal &amp; Sankranti</h3>
-      <p>Traditional flowers for harvest celebrations, family gatherings, and home decorations.</p>
-    </div>
-    <div class="info-card">
-      <div class="info-card-icon">🌺</div>
-      <h3>Onam</h3>
-      <p>Fresh flowers for creating beautiful pookalam floral decorations during Onam celebrations.</p>
-    </div>
-    <div class="info-card">
-      <div class="info-card-icon">🌅</div>
-      <h3>Tamil New Year, Ugadi &amp; Vishu</h3>
-      <p>Flowers for pooja arrangements, home decoration, temple visits, and festive celebrations.</p>
-    </div>
-    <div class="info-card">
-      <div class="info-card-icon">💍</div>
-      <h3>Weddings &amp; Engagements</h3>
-      <p>Wedding garlands, mandap decoration, bridal arrangements, and reception and event decoration.</p>
-    </div>
+  <div class="card-grid" id="festivalCardsGrid">
+    <!-- loaded dynamically -->
+    <div class="info-card skeleton" style="height:220px;border:none;"></div>
+    <div class="info-card skeleton" style="height:220px;border:none;"></div>
+    <div class="info-card skeleton" style="height:220px;border:none;"></div>
   </div>
 </div>
 
@@ -493,6 +461,33 @@ document.querySelectorAll('.faq-q').forEach(btn=>{
     if(!wasOpen) item.classList.add('open');
   });
 });
+
+// ── FESTIVAL CARDS ─────────────────────────────────────────────────────────
+(async function loadFestivalCards() {
+  const grid = document.getElementById('festivalCardsGrid');
+  if (!grid) return;
+  try {
+    const data = await apiFetch('/festival-cards');
+    const cards = data.cards || [];
+    if (!cards.length) {
+      grid.innerHTML = '<p style="color:var(--mid);font-size:15px;grid-column:1/-1;">Festival guide coming soon.</p>';
+      return;
+    }
+    grid.innerHTML = cards.map(c => `
+      <div class="info-card">
+        ${c.image
+          ? `<img class="info-card-img" src="${c.image}" alt="${c.title}" loading="lazy" onerror="this.outerHTML='<div class=\\'info-card-img-placeholder\\'>No image</div>'"/>`
+          : `<div class="info-card-img-placeholder">No image</div>`
+        }
+        <div class="info-card-body">
+          <h3>${c.title}</h3>
+          ${c.description ? `<p>${c.description}</p>` : ''}
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    grid.innerHTML = '<p style="color:var(--mid);font-size:15px;grid-column:1/-1;">Could not load festival cards.</p>';
+  }
+})();
 
 // ── NEWSLETTER ─────────────────────────────────────────────────────────────
 document.getElementById('nlSubmit')?.addEventListener('click', async () => {
