@@ -538,10 +538,16 @@ function renderProduct(p){
     const avail = resolvedVars.filter(v => !v.outOfStock);
     const pool  = avail.length ? avail : resolvedVars;
     const min   = Math.min(...pool.map(v => resolveVariantPrice(v, role)));
-    const prefix = isDealer ? '⭐ From $' : isRetail ? '🏪 From $' : 'From $';
-    price     = min;
+    price      = min;
     priceBadge = '';
-    regPrice   = null; discount = null;
+    // For Customer: check if the cheapest variant has a sale price to show strikethrough
+    if (role === 'Customer') {
+      const minV = pool.find(v => resolveVariantPrice(v, role) === min) || pool[0];
+      regPrice  = (minV.salePrice && minV.price && minV.salePrice < minV.price) ? minV.price : null;
+      discount  = regPrice ? Math.round((1 - min / regPrice) * 100) : null;
+    } else {
+      regPrice = null; discount = null;
+    }
     // Will update via selectVariant when user picks one
   }
 
@@ -675,6 +681,20 @@ window.selectVariant = function(btn, origIndex) {
   const priceEl = document.querySelector('.price-main');
   if (priceEl) priceEl.textContent = '$' + vPrice.toFixed(2);
 
+  // Show/hide strikethrough regular price for Customer role
+  const regEl = document.querySelector('.price-reg');
+  const saleEl = document.querySelector('.price-sale');
+  if (regEl) {
+    if (role === 'Customer' && v.salePrice && v.price && v.salePrice < v.price) {
+      regEl.textContent = '$' + v.price.toFixed(2);
+      regEl.style.display = '';
+      if (saleEl) { saleEl.textContent = Math.round((1 - v.salePrice / v.price) * 100) + '% OFF'; saleEl.style.display = ''; }
+    } else {
+      regEl.style.display = 'none';
+      if (saleEl) saleEl.style.display = 'none';
+    }
+  }
+
   // Update SKU — use variant SKU if present, fall back to product SKU
   const skuEl = document.getElementById('productSku');
   if (skuEl) {
@@ -710,8 +730,27 @@ async function loadRelated(category){
       return `<span style="color:#F5A623;font-weight:700;">⭐ $${p.dealerPrice.toFixed(2)}</span>`;
     if(_relRole==='Retail' && p.retailPrice)
       return `<span style="color:#1565c0;font-weight:700;">🏪 $${p.retailPrice.toFixed(2)}</span>`;
-    if(p.salePrice)
-      return `$${p.salePrice.toFixed(2)}${p.regularPrice?` <span style="text-decoration:line-through;color:#aaa;font-size:11px;">$${p.regularPrice.toFixed(2)}</span>`:''}`;
+    // Variant-aware: find cheapest variant for current state
+    const _relState = getVpState();
+    const _vars = (p.variants||[]).filter(v=>v&&v.label);
+    if (_vars.length) {
+      const relevant = _vars.filter(v => !v.state || v.state === _relState);
+      const pool = relevant.length ? relevant : _vars;
+      let min = Infinity, minV = null;
+      for (const v of pool) { const vp = v.salePrice ?? v.price ?? 0; if (vp < min) { min = vp; minV = v; } }
+      if (minV) {
+        const reg = minV.price ?? 0;
+        if (minV.salePrice && reg && minV.salePrice < reg) {
+          const pct = Math.round((1 - minV.salePrice / reg) * 100);
+          return `$${minV.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:11px;">$${reg.toFixed(2)}</span>${pct > 0 ? ` <span style="background:#27ae60;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:3px;">${pct}% OFF</span>` : ''}`;
+        }
+        return `$${min.toFixed(2)}`;
+      }
+    }
+    if(p.salePrice && p.regularPrice) {
+      const pct = Math.round((1 - p.salePrice / p.regularPrice) * 100);
+      return `$${p.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:11px;">$${p.regularPrice.toFixed(2)}</span>${pct > 0 ? ` <span style="background:#27ae60;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:3px;">${pct}% OFF</span>` : ''}`;
+    }
     return p.price?`$${p.price.toFixed(2)}`:'';
   }
   document.getElementById('relatedGrid').innerHTML=prods.map(p=>{
