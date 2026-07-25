@@ -282,7 +282,14 @@ function resolveWishPrice(p) {
     if (min < Infinity) {
       if (role==='Dealer') return `<span style="color:#F5A623;font-weight:700;">⭐ From $${min.toFixed(2)}</span>`;
       if (role==='Retail') return `<span style="color:#1565c0;font-weight:700;">🏪 From $${min.toFixed(2)}</span>`;
-      return `From $${min.toFixed(2)}`;
+      // Find the variant that gave the min price and check for sale vs regular
+      const minV = pool.find(v => (v.salePrice ?? v.price ?? 0) === min) || pool[0];
+      const reg  = minV.price ?? 0;
+      if (minV.salePrice && reg && minV.salePrice < reg) {
+        const pct = Math.round((1 - minV.salePrice / reg) * 100);
+        return `$${minV.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${reg.toFixed(2)}</span>${pct > 0 ? ` <span style="background:#27ae60;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:3px;">${pct}% OFF</span>` : ''}`;
+      }
+      return `$${min.toFixed(2)}`;
     }
   }
   if (role==='Dealer' && p.dealerPrice) return `<span style="color:#F5A623;font-weight:700;">⭐ $${p.dealerPrice.toFixed(2)}</span>`;
