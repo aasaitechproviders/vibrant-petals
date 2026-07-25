@@ -1505,9 +1505,16 @@ function resolveVariantsForState(allVariants, state) {
         if (vp < min) min = vp;
       }
       if (min < Infinity) {
-        const prefix = role==='Dealer' ? '⭐ $' : role==='Retail' ? '🏪 $' : '$';
-        const clr    = role==='Dealer' ? 'color:#F5A623;font-weight:700;' : role==='Retail' ? 'color:#1565c0;font-weight:700;' : '';
-        return clr ? `<span style="${clr}">${prefix}${min.toFixed(2)}</span>` : `${prefix}${min.toFixed(2)}`;
+        if (role==='Dealer') return `<span style="color:#F5A623;font-weight:700;">⭐ $${min.toFixed(2)}</span>`;
+        if (role==='Retail') return `<span style="color:#1565c0;font-weight:700;">🏪 $${min.toFixed(2)}</span>`;
+        // Find the variant that gave the min price and check for sale vs regular
+        const minV = pool.find(v => (v.salePrice ?? v.price ?? 0) === min) || pool[0];
+        const reg  = minV.price ?? 0;
+        if (minV.salePrice && reg && minV.salePrice < reg) {
+          const pct = Math.round((1 - minV.salePrice / reg) * 100);
+          return `$${minV.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${reg.toFixed(2)}</span>${pct > 0 ? ` <span style="background:#27ae60;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:3px;">${pct}% OFF</span>` : ''}`;
+        }
+        return `$${min.toFixed(2)}`;
       }
     }
 
@@ -1573,11 +1580,29 @@ function resolveVariantsForState(allVariants, state) {
       }).join('');
       variantDropdownHtml = `<select id="varSel_${p._id}" onclick="event.stopPropagation()" onchange="event.stopPropagation();onCardVariantChange('${p._id}',this)" style="width:auto;max-width:100%;padding:5px 8px;border:1px solid #e0d8c8;border-radius:4px;font-family:inherit;font-size:12px;background:#fff;cursor:pointer;margin-bottom:6px;outline:none;">${opts}</select>`;
     } else {
-      priceHtml = resolveCardPrice(p);
-      variantDropdownHtml = '';
-      // Single state-specific variant: inject hidden input so addToCartQty sends the correct variantIndex
+      // Single state-filtered variant — use its own price fields, not product-level
       if (cardVars.length === 1) {
-        variantDropdownHtml = `<input type="hidden" id="varSel_${p._id}" value="${cardVars[0]._origIndex}"/>`;
+        const fv = cardVars[0];
+        const fp = role==='Dealer'&&fv.dealerPrice ? fv.dealerPrice
+                 : role==='Retail'&&fv.retailPrice ? fv.retailPrice
+                 : (fv.salePrice??fv.price??0);
+        if (role==='Dealer') {
+          priceHtml = `<span style="color:#F5A623;font-weight:700;">⭐ $${fp.toFixed(2)}</span>`;
+        } else if (role==='Retail') {
+          priceHtml = `<span style="color:#1565c0;font-weight:700;">🏪 $${fp.toFixed(2)}</span>`;
+        } else {
+          const reg = fv.price ?? 0;
+          if (fv.salePrice && reg && fv.salePrice < reg) {
+            const pct = Math.round((1 - fv.salePrice / reg) * 100);
+            priceHtml = `$${fv.salePrice.toFixed(2)} <span style="text-decoration:line-through;color:#aaa;font-size:12px;">$${reg.toFixed(2)}</span> <span style="background:#27ae60;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:3px;">${pct}% OFF</span>`;
+          } else {
+            priceHtml = `$${fp.toFixed(2)}`;
+          }
+        }
+        variantDropdownHtml = `<input type="hidden" id="varSel_${p._id}" value="${fv._origIndex}"/>`;
+      } else {
+        priceHtml = resolveCardPrice(p);
+        variantDropdownHtml = '';
       }
     }
 
