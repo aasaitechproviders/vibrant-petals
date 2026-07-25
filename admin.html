@@ -879,6 +879,7 @@
           <button id="sfTab-banners"     onclick="switchStorefrontTab('banners')"     style="padding:10px 24px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:none;border:none;border-bottom:2px solid var(--gold);margin-bottom:-2px;color:var(--gold);cursor:pointer;">Banners</button>
           <button id="sfTab-catimages"   onclick="switchStorefrontTab('catimages')"   style="padding:10px 24px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--mid);cursor:pointer;">Category Images</button>
           <button id="sfTab-siteimages"  onclick="switchStorefrontTab('siteimages')"  style="padding:10px 24px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--mid);cursor:pointer;">Section Backgrounds</button>
+          <button id="sfTab-festival"    onclick="switchStorefrontTab('festival')"    style="padding:10px 24px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--mid);cursor:pointer;">Festival Cards</button>
         </div>
 
         <!-- Banners sub-pane -->
@@ -905,6 +906,18 @@
             <div class="card-head"><div class="card-title">Section Background &amp; Banner Images</div></div>
             <p style="font-size:13px;color:var(--mid);padding:0 20px 16px;">These images are used for specific sections across the homepage. Click <b>Change Image</b> to update any slot.</p>
             <div id="siteImagesGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:0 20px 24px;"></div>
+          </div>
+        </div>
+
+        <!-- Festival Cards sub-pane -->
+        <div id="sfPane-festival" style="display:none;">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Festival Cards</div>
+              <button class="btn-add" onclick="openFestivalCardModal()">+ Add Card</button>
+            </div>
+            <p style="font-size:13px;color:var(--mid);padding:0 20px 16px;">These cards appear on the Festival Guide page. Each card has an image, title, and description. Drag order using the Order field. Toggle visibility with Enabled.</p>
+            <div id="festivalCardsGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:0 20px 24px;"></div>
           </div>
         </div>
       </div>
@@ -2000,7 +2013,7 @@ checkAuth();
 document.getElementById('adminPwd')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
 
 // ── PANEL NAVIGATION ──────────────────────────────────────────────────────────
-const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, pickuporders: () => { pickupOrdPage=1; loadPickupOrders(); }, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, templates: loadTemplates, coupons: loadCoupons, shipping: () => { loadShippingSchedule(); loadMOQSettings(); loadAvailabilityRequests(); }, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); }, territories: () => { loadStates(); loadTerritories(); }, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
+const panelLoaders = { approvals: loadApprovals, catalogue: () => { loadProducts(); loadCategories(); }, orders: loadOrders, pickuporders: () => { pickupOrdPage=1; loadPickupOrders(); }, users: loadUsers, newsletter: loadNewsletter, campaigns: loadCampaigns, emaillogs: () => { loadEmailLogs(1); loadEmailLogStats(); }, templates: loadTemplates, coupons: loadCoupons, shipping: () => { loadShippingSchedule(); loadMOQSettings(); loadAvailabilityRequests(); }, storefront: () => { loadBanners(); loadCatImages(); loadSiteImages(); loadFestivalCards(); }, territories: () => { loadStates(); loadTerritories(); }, dealers: loadDealers, outlets: () => { loadRetailUsers(); loadOutlets(); } };
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  TERRITORIES
@@ -2507,11 +2520,12 @@ function switchCatalogueTab(tab) {
 window.switchCatalogueTab = switchCatalogueTab;
 
 function switchStorefrontTab(tab) {
-  ['banners','catimages','siteimages'].forEach(t => {
+  ['banners','catimages','siteimages','festival'].forEach(t => {
     document.getElementById('sfPane-' + t).style.display = t === tab ? '' : 'none';
     const gold = 'padding:10px 24px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:none;border:none;margin-bottom:-2px;cursor:pointer;';
     document.getElementById('sfTab-' + t).style.cssText = gold + (t === tab ? 'border-bottom:2px solid var(--gold);color:var(--gold);' : 'border-bottom:2px solid transparent;color:var(--mid);');
   });
+  if (tab === 'festival') loadFestivalCards();
 }
 window.switchStorefrontTab = switchStorefrontTab;
 
@@ -5807,6 +5821,191 @@ window.handleSiteImageFile = handleSiteImageFile;
     <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('siteImageModal')">Cancel</button><button class="btn-primary" onclick="saveSiteImage()">Save Image</button></div>
   </div>
 </div>
+
+<!-- FESTIVAL CARD MODAL -->
+<div class="modal" id="festivalCardModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="festivalCardModalTitle">Add Festival Card</h3>
+      <span class="modal-close" onclick="closeModal('festivalCardModal')">✕</span>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="fcId"/>
+
+      <div class="form-group">
+        <label class="form-label">Card Image *</label>
+        <div id="fcImgZone" onclick="document.getElementById('fcImgFile').click()" style="cursor:pointer;border:2px dashed #c8bfa8;border-radius:6px;overflow:hidden;text-align:center;background:#fdf9f4;min-height:130px;display:flex;align-items:center;justify-content:center;transition:border-color .2s;"
+          onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='#c8bfa8'">
+          <img id="fcImgPreview" src="" style="width:100%;max-height:200px;object-fit:cover;display:none;"/>
+          <div id="fcImgPlaceholder" style="color:var(--mid);font-size:13px;padding:28px;pointer-events:none;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 10px;display:block;opacity:.35"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Click to upload image
+          </div>
+        </div>
+        <input type="file" id="fcImgFile" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif" style="display:none" onchange="handleFestivalImageFile(this.files[0])"/>
+        <div id="fcUploadProgress" style="font-size:12px;margin-top:6px;padding:6px 8px;border-radius:4px;background:#f5f0e8;display:none;"></div>
+        <p style="font-size:12px;color:var(--mid);margin:6px 0 0;">Or paste an image URL:</p>
+        <input type="text" class="form-input" id="fcImage" placeholder="https://..." style="margin-top:4px;" oninput="previewFestivalImg(this.value)"/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Title *</label>
+        <input type="text" class="form-input" id="fcTitle" placeholder="e.g. Diwali"/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="fcDescription" rows="3" placeholder="Short description shown on the card..." style="resize:vertical;min-height:72px;font-family:inherit;"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Order <span style="font-size:11px;color:var(--mid);">(lower = first)</span></label>
+          <input type="number" class="form-input" id="fcOrder" value="0" min="0" step="1"/>
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;padding-top:28px;">
+          <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal;margin:0;">
+            <input type="checkbox" id="fcEnabled" checked style="width:16px;height:16px;accent-color:var(--gold);"/>
+            Show on Festival page
+          </label>
+        </div>
+      </div>
+
+      <div class="form-msg" id="festivalCardFormMsg"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('festivalCardModal')">Cancel</button>
+      <button class="btn-primary" onclick="saveFestivalCard()">Save Card</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── FESTIVAL CARDS ────────────────────────────────────────────────────────────
+let _festivalCards = [];
+let _editingFcId   = null;
+
+async function loadFestivalCards() {
+  const grid = document.getElementById('festivalCardsGrid');
+  if (!grid) return;
+  grid.innerHTML = '<div class="skeleton" style="height:120px;border-radius:4px;grid-column:1/-1;"></div>';
+  const data = await apiFetch('/admin/festival-cards', { headers: apiHeaders() });
+  _festivalCards = data.cards || [];
+  renderFestivalCards();
+}
+window.loadFestivalCards = loadFestivalCards;
+
+function renderFestivalCards() {
+  const grid = document.getElementById('festivalCardsGrid');
+  if (!grid) return;
+  if (!_festivalCards.length) {
+    grid.innerHTML = '<p style="color:var(--mid);font-size:14px;padding:20px;grid-column:1/-1;">No festival cards yet. Click <b>+ Add Card</b> to create one.</p>';
+    return;
+  }
+  grid.innerHTML = _festivalCards.map(c => `
+    <div class="img-slot-card">
+      <div class="img-slot-thumb" style="aspect-ratio:4/3;">
+        ${c.image
+          ? `<img src="${c.image}" alt="${c.title}" onerror="this.parentElement.innerHTML='<div class=\\'img-slot-empty\\'>No image</div>'"/>`
+          : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f5f0e8;color:var(--mid);font-size:13px;">No image set</div>`
+        }
+        <span style="position:absolute;top:10px;right:10px;background:${c.enabled ? '#28a745' : '#aaa'};color:#fff;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;">${c.enabled ? 'Visible' : 'Hidden'}</span>
+        <span style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,.5);color:#fff;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;">#${c.order}</span>
+      </div>
+      <div class="img-slot-body">
+        <div class="img-slot-label">${c.title}</div>
+        <div class="img-slot-meta" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${c.description || '<em style="color:#bbb;">No description</em>'}</div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="img-slot-btn" onclick="openFestivalCardModal('${c._id}')">Edit</button>
+          <button class="img-slot-btn" style="background:#fce4e4;color:#c0392b;border-color:#f5c6c6;" onclick="deleteFestivalCard('${c._id}','${c.title.replace(/'/g,"\\'")}')">Delete</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+window.renderFestivalCards = renderFestivalCards;
+
+function openFestivalCardModal(id) {
+  _editingFcId = id || null;
+  const card   = id ? _festivalCards.find(c => c._id === id) : null;
+  document.getElementById('festivalCardModalTitle').textContent = card ? 'Edit Festival Card' : 'Add Festival Card';
+  document.getElementById('fcId').value          = card ? card._id : '';
+  document.getElementById('fcTitle').value       = card ? card.title : '';
+  document.getElementById('fcDescription').value = card ? (card.description || '') : '';
+  document.getElementById('fcOrder').value       = card ? card.order : 0;
+  document.getElementById('fcEnabled').checked   = card ? !!card.enabled : true;
+  document.getElementById('fcImage').value       = card ? (card.image || '') : '';
+  document.getElementById('festivalCardFormMsg').className = 'form-msg';
+  document.getElementById('festivalCardFormMsg').textContent = '';
+  document.getElementById('fcUploadProgress').style.display = 'none';
+  previewFestivalImg(card ? (card.image || '') : '');
+  document.getElementById('festivalCardModal').classList.add('open');
+}
+window.openFestivalCardModal = openFestivalCardModal;
+
+function previewFestivalImg(url) {
+  const img = document.getElementById('fcImgPreview');
+  const ph  = document.getElementById('fcImgPlaceholder');
+  if (url) { img.src = url; img.style.display = 'block'; ph.style.display = 'none'; }
+  else      { img.style.display = 'none'; ph.style.display = ''; }
+}
+window.previewFestivalImg = previewFestivalImg;
+
+async function handleFestivalImageFile(file) {
+  if (!file) return;
+  const prog = document.getElementById('fcUploadProgress');
+  prog.style.display = ''; prog.textContent = 'Uploading...';
+  try {
+    const presignRes  = await fetch(API + '/admin/upload/presign', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ filename: file.name, contentType: file.type, prefix: 'festival' }) });
+    const presignData = await presignRes.json();
+    if (!presignData.success) throw new Error(presignData.message || 'Presign failed');
+    const s3Res = await fetch(presignData.presignedUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+    if (!s3Res.ok) throw new Error('S3 upload failed');
+    document.getElementById('fcImage').value = presignData.publicUrl;
+    previewFestivalImg(presignData.publicUrl);
+    prog.textContent = 'Upload complete ✓';
+    prog.style.background = '#e8f5e9';
+  } catch (e) {
+    prog.textContent = 'Upload failed: ' + e.message;
+    prog.style.background = '#fce4e4';
+  }
+}
+window.handleFestivalImageFile = handleFestivalImageFile;
+
+async function saveFestivalCard() {
+  const id          = document.getElementById('fcId').value;
+  const title       = document.getElementById('fcTitle').value.trim();
+  const description = document.getElementById('fcDescription').value.trim();
+  const image       = document.getElementById('fcImage').value.trim();
+  const order       = parseInt(document.getElementById('fcOrder').value) || 0;
+  const enabled     = document.getElementById('fcEnabled').checked;
+  const msgEl       = document.getElementById('festivalCardFormMsg');
+
+  if (!title) { msgEl.className = 'form-msg error'; msgEl.textContent = 'Title is required.'; return; }
+
+  const body   = { title, description, image, order, enabled };
+  const method = id ? 'PUT' : 'POST';
+  const url    = id ? `/admin/festival-cards/${id}` : '/admin/festival-cards';
+  const data   = await apiFetch(url, { method, headers: apiHeaders(), body: JSON.stringify(body) });
+
+  if (data.success) {
+    showToast(id ? 'Card updated' : 'Card created', 'success');
+    closeModal('festivalCardModal');
+    loadFestivalCards();
+  } else {
+    msgEl.className = 'form-msg error'; msgEl.textContent = data.message || 'Save failed';
+  }
+}
+window.saveFestivalCard = saveFestivalCard;
+
+async function deleteFestivalCard(id, title) {
+  vpConfirm(`Delete festival card "${title}"? This cannot be undone.`, async () => {
+    const data = await apiFetch(`/admin/festival-cards/${id}`, { method: 'DELETE', headers: apiHeaders() });
+    if (data.success) { showToast('Card deleted', 'success'); loadFestivalCards(); }
+    else showToast(data.message || 'Delete failed', 'error');
+  });
+}
+window.deleteFestivalCard = deleteFestivalCard;
+</script>
 
 <!-- ── CONFIRM MODAL ── -->
 <div class="vp-modal-overlay" id="vpModalOverlay">
