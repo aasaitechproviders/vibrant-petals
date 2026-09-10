@@ -879,14 +879,13 @@ let _calYear, _calMonth;              // currently displayed month
 const _pad  = n => String(n).padStart(2, '0');
 const _dStr = d => `${d.getFullYear()}-${_pad(d.getMonth()+1)}-${_pad(d.getDate())}`;
 
-function _computeEnabled(shippingDates, windowDays, leadDays) {
+function _computeEnabled(shippingDates, windowDays) {
   const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
   const today    = new Date(todayStr + 'T00:00:00');
   const enabled  = new Set();
   for (const ds of shippingDates) {
-    const ship     = new Date(ds + 'T00:00:00');
-    const daysGap  = Math.round((ship - today) / 86400000);
-    if (daysGap < leadDays) continue;  // vendor doesn't have enough prep time, skip this shipping date
+    const ship = new Date(ds + 'T00:00:00');
+    if (ship < today) continue; // skip past dispatch dates
     for (let i = 0; i <= windowDays; i++) {
       const d = new Date(ship); d.setDate(ship.getDate() + i);
       enabled.add(_dStr(d));
@@ -960,8 +959,7 @@ async function initDatePicker() {
   try {
     const data = await apiFetch('/shipping-schedule');
     const windowDays = data.windowDays ?? 15;
-    const leadDays   = data.leadDays   ?? 5;
-    _enabledPickupDates = _computeEnabled(data.dates || [], windowDays, leadDays);
+    _enabledPickupDates = _computeEnabled(data.dates || [], windowDays);
 
     const sub = document.getElementById('datePickerSub');
     if (_enabledPickupDates.size === 0) {
@@ -976,7 +974,7 @@ async function initDatePicker() {
       const ruleEl = document.getElementById('dateRuleRow');
       if (ruleEl) {
         ruleEl.style.display = '';
-        document.getElementById('dateRuleText').innerHTML = `<strong>How dates work:</strong> Orders require a minimum of <strong>${leadDays} days</strong> from today. Highlighted dates are within our scheduled shipping windows (${windowDays}-day window per shipping date).`;
+        document.getElementById('dateRuleText').innerHTML = `<strong>How dates work:</strong> Highlighted dates are available for pickup within our scheduled shipping windows (${windowDays}-day window per shipping date).`;
       }
       // Auto-select first available date and navigate to its month
       const firstDate = new Date(earliest + 'T00:00:00');
@@ -992,14 +990,7 @@ async function initDatePicker() {
       : now;
     renderCalendar(startDate.getFullYear(), startDate.getMonth());
   } catch(e) {
-    console.warn('Shipping schedule fetch failed, falling back to +5 days', e);
-    // Fallback: enable next 90 days from today + 5
-    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
-    const base = new Date(todayStr + 'T00:00:00'); base.setDate(base.getDate() + 5);
-    for (let i = 0; i <= 90; i++) {
-      const d = new Date(base); d.setDate(base.getDate() + i);
-      _enabledPickupDates.add(_dStr(d));
-    }
+    console.warn('Shipping schedule fetch failed, no dates enabled', e);
     const now = new Date();
     renderCalendar(now.getFullYear(), now.getMonth());
   }
