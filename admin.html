@@ -457,15 +457,11 @@
             <div class="card-title">Shipping Schedule</div>
           </div>
           <div style="padding:24px;">
-            <p style="font-size:13px;color:var(--mid);margin:0 0 24px;">Configure which dates shipping is available. Customers can select any date within the window from each shipping date, subject to the lead time.</p>
+            <p style="font-size:13px;color:var(--mid);margin:0 0 24px;">Configure which dates shipping/stock arrives. Customers can select any date within the pickup window starting from each shipping date.</p>
             <div style="display:flex;gap:24px;margin-bottom:24px;flex-wrap:wrap;">
               <div class="form-group" style="margin:0;flex:1;min-width:140px;">
-                <label class="form-label">Window Days <span style="font-size:11px;font-weight:400;">(days per shipping date)</span></label>
+                <label class="form-label">Window Days <span style="font-size:11px;font-weight:400;">(pickup days available per shipping date)</span></label>
                 <input class="form-input" type="number" id="shipWindowDays" min="1" max="365" value="15"/>
-              </div>
-              <div class="form-group" style="margin:0;flex:1;min-width:140px;">
-                <label class="form-label">Lead Days <span style="font-size:11px;font-weight:400;">(min days from today)</span></label>
-                <input class="form-input" type="number" id="shipLeadDays" min="0" max="365" value="5"/>
               </div>
             </div>
             <div class="form-group">
@@ -4299,14 +4295,13 @@ function acoRenderItems() {
 }
 
 // ── Admin Order Calendar (namespaced to avoid clashing with checkout page globals)
-function acoComputeEnabled(shippingDates, windowDays, leadDays) {
+function acoComputeEnabled(shippingDates, windowDays) {
   const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
   const today    = new Date(todayStr + 'T00:00:00');
   const enabled  = new Set();
   for (const ds of shippingDates) {
-    const ship    = new Date(ds + 'T00:00:00');
-    const daysGap = Math.round((ship - today) / 86400000);
-    if (daysGap < leadDays) continue;
+    const ship = new Date(ds + 'T00:00:00');
+    if (ship < today) continue; // skip past dispatch dates
     for (let i = 0; i <= windowDays; i++) {
       const d = new Date(ship); d.setDate(ship.getDate() + i);
       enabled.add(_acoDStr(d));
@@ -4372,8 +4367,7 @@ async function acoInitDatePicker() {
   try {
     const data       = await apiFetch('/shipping-schedule');
     const windowDays = data.windowDays ?? 15;
-    const leadDays   = data.leadDays   ?? 5;
-    _acoEnabledDates = acoComputeEnabled(data.dates || [], windowDays, leadDays);
+    _acoEnabledDates = acoComputeEnabled(data.dates || [], windowDays);
     if (_acoEnabledDates.size === 0) {
       if (sub) sub.textContent = 'No pickup dates are currently available. Please check back soon.';
     } else {
@@ -4460,7 +4454,6 @@ async function loadShippingSchedule() {
     const data = await apiFetch('/shipping-schedule', { headers: apiHeaders() });
     _shipDates = (data.dates || []).slice().sort();
     document.getElementById('shipWindowDays').value = data.windowDays ?? 15;
-    document.getElementById('shipLeadDays').value   = data.leadDays   ?? 5;
     renderShipDates();
   } catch(e) {
     showToast('Failed to load shipping schedule', 'error');
@@ -4500,14 +4493,13 @@ function removeShippingDate(d) {
 
 async function saveShippingSchedule() {
   const windowDays = document.getElementById('shipWindowDays').value !== '' ? parseInt(document.getElementById('shipWindowDays').value) : 15;
-  const leadDays   = document.getElementById('shipLeadDays').value   !== '' ? parseInt(document.getElementById('shipLeadDays').value)   : 5;
   const msg = document.getElementById('shipMsg');
   msg.className = 'form-msg';
   msg.textContent = '';
   const data = await apiFetch('/shipping-schedule', {
     method: 'PUT',
     headers: apiHeaders(),
-    body: JSON.stringify({ dates: _shipDates, windowDays, leadDays })
+    body: JSON.stringify({ dates: _shipDates, windowDays })
   });
   if (data.success) {
     msg.className = 'form-msg ok';
