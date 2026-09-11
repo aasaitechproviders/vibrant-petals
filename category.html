@@ -244,6 +244,24 @@
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '28162565653385438');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=28162565653385438&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
 </head>
 <body>
 
@@ -758,7 +776,11 @@ function renderCart(cart){
 }
 async function addToCart(productId){
   const data=await apiFetch('/cart/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify({productId,quantity:1})}).catch(()=>({success:false}));
-  if(data.success){renderCart(data.cart);showToast('Added to cart!','success');}
+  if(data.success){
+    renderCart(data.cart);showToast('Added to cart!','success');
+    // Meta Pixel — AddToCart
+    if(typeof fbq!=='undefined'){fbq('track','AddToCart',{content_ids:[productId],content_type:'product',currency:'AUD'});}
+  }
   else showBanner(data.message||'Error','error');
 }
 async function changeQty(productId,qty,variantIndex){
@@ -782,7 +804,11 @@ async function addToCartQty(productId,cardId){
   const varSel=document.getElementById('varSel_'+productId);
   if(varSel) body.variantIndex=parseInt(varSel.value);
   const data=await apiFetch('/cart/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify(body)}).catch(()=>({success:false}));
-  if(data.success){renderCart(data.cart);showToast('Added to cart!','success');if(el)el.textContent='1';}
+  if(data.success){
+    renderCart(data.cart);showToast('Added to cart!','success');if(el)el.textContent='1';
+    // Meta Pixel — AddToCart
+    if(typeof fbq!=='undefined'){fbq('track','AddToCart',{content_ids:[productId],content_type:'product',currency:'AUD'});}
+  }
   else showBanner(data.message||'Error','error');
 }
 function onCardVariantChange(pid, sel) {

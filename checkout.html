@@ -285,6 +285,24 @@
     .btn-checkout:hover{background:var(--gold-dark);}
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '28162565653385438');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=28162565653385438&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
 </head>
 <body>
 <div class="ann-bar">Free In-Store Pickup at Selected Retail Outlets Across Victoria &amp; New South Wales<span class="ann-bar-sel"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.85;white-space:nowrap;">Select your state</span><select id="stateDropdown" onchange="setVpState(this.value)"></select></span></div>
@@ -836,6 +854,19 @@ async function placeOrder(){
   const data=await apiFetch('/orders',{method:'POST',headers:apiHeaders(),body:JSON.stringify({pickupOutletId,paymentMethod,notes,scheduledPickupDate})});
   btn.disabled=false; btn.textContent='Place Order';
   if(data.success){
+    // Meta Pixel — Purchase (COD)
+    if(typeof fbq !== 'undefined') {
+      try {
+        const o = data.order;
+        fbq('track','Purchase',{
+          content_ids:  (o.items||[]).map(i=>i.productId||i._id),
+          content_type: 'product',
+          value:        o.total || 0,
+          currency:     'AUD',
+          order_id:     o.orderNumber || ''
+        });
+      } catch(e){}
+    }
     showOrderSuccess(data.order);
   }else{
     if((data.message||'').includes('Minimum order value')){
@@ -1266,6 +1297,17 @@ async function init(){
     if(redirectStatus === 'succeeded'){
       succ.classList.add('show');
       document.getElementById('orderNumDisplay').textContent = 'Order #' + (returnOrderNum || '');
+      // Meta Pixel — Purchase (Stripe)
+      if(typeof fbq !== 'undefined') {
+        try {
+          fbq('track','Purchase',{
+            content_type: 'product',
+            value:        0,
+            currency:     'AUD',
+            order_id:     returnOrderNum || ''
+          });
+        } catch(e){}
+      }
       // Clear cart now that Stripe payment is confirmed (cart was kept until this point)
       apiFetch('/cart',{method:'DELETE',headers:apiHeaders()}).catch(()=>{});
       // Fetch order details for the confirmation screen
@@ -1321,6 +1363,23 @@ async function init(){
   initDatePicker();
 
   await loadCart();
+
+  // Meta Pixel — InitiateCheckout
+  (function(){
+    try {
+      const cart = JSON.parse(sessionStorage.getItem('vp_cart') || '{}');
+      const items = cart.items || [];
+      if(typeof fbq !== 'undefined' && items.length > 0) {
+        const value = items.reduce((s,i)=>s+(i.price||0)*(i.quantity||1),0);
+        fbq('track','InitiateCheckout',{
+          content_ids: items.map(i=>i.productId||i._id),
+          num_items:   items.length,
+          value:       +value.toFixed(2),
+          currency:    'AUD'
+        });
+      }
+    } catch(e) {}
+  })();
 
   if(token){
     const me = await apiFetch('/auth/me',{headers:apiHeaders()}).catch(()=>null);

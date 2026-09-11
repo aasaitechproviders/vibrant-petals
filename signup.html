@@ -345,6 +345,24 @@
     @media(max-width:768px){.footer-grid{grid-template-columns:1fr;gap:36px;}}
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '28162565653385438');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=28162565653385438&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
 </head>
 <body>
 
@@ -1069,6 +1087,8 @@ async function submitOtp() {
   if (pendingReg.type === 'customer') {
     if (data.token) localStorage.setItem('vp_token', data.token);
     try { await apiFetch('/cart/merge', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ sessionId }) }); } catch (e) {}
+    // Meta Pixel — CompleteRegistration
+    if (typeof fbq !== 'undefined') { fbq('track', 'CompleteRegistration', { status: 'customer' }); }
     showSuccess('customer', pendingReg.name);
   } else if (pendingReg.type === 'dealer') {
     showSuccess('dealer', pendingReg.name);

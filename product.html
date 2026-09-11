@@ -255,6 +255,24 @@
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '28162565653385438');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=28162565653385438&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
 </head>
 <body>
 
@@ -649,6 +667,17 @@ function renderProduct(p){
       selectVariant(firstBtn, origIndex);
     }
   }
+
+  // Meta Pixel — ViewContent
+  if (typeof fbq !== 'undefined') {
+    fbq('track', 'ViewContent', {
+      content_ids:  [p._id],
+      content_name: p.name,
+      content_type: 'product',
+      value:        price || 0,
+      currency:     'AUD'
+    });
+  }
 }
 
 window.setImg=function(src,thumb){
@@ -796,7 +825,19 @@ async function addToCart(productId){
   const body = { productId, quantity: qty };
   if (selectedVariantIndex !== null) body.variantIndex = selectedVariantIndex;
   const data=await apiFetch('/cart/items',{method:'POST',headers:apiHeaders(),body:JSON.stringify(body)}).catch(()=>({success:false}));
-  if(data.success){renderCart(data.cart);openCart();showToast('Added to cart!','success');}
+  if(data.success){
+    renderCart(data.cart);openCart();showToast('Added to cart!','success');
+    // Meta Pixel — AddToCart
+    if (typeof fbq !== 'undefined') {
+      fbq('track', 'AddToCart', {
+        content_ids:  [productId],
+        content_name: document.querySelector('.product-title')?.textContent || '',
+        content_type: 'product',
+        value:        price || 0,
+        currency:     'AUD'
+      });
+    }
+  }
   else showToast(data.message||'Error','error');
 }
 async function cQty(pid,q,vIdx=''){if(q<1)return cRemove(pid,vIdx);const body={quantity:q};if(vIdx!=='')body.variantIndex=Number(vIdx);const data=await apiFetch(`/cart/items/${pid}`,{method:'PUT',headers:apiHeaders(),body:JSON.stringify(body)}).catch(()=>({success:false}));if(data.success)renderCart(data.cart);}
